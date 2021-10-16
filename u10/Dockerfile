@@ -6,9 +6,9 @@ FROM python:3.8-slim
 
 WORKDIR /nae/u10
 
-RUN pip3 install flask pymongo pyserial paho-mqtt requests --proxy=http://10.144.1.10:8080
+RUN pip3 install flask pymongo pyserial paho-mqtt requests --proxy=yyyy
 
-RUN pip3 install --index-url https://artifactory-espoo2.int.net.nokia.com/artifactory/api/pypi/nbl-nae-pypi-local/simple a10 -v --trusted-host https://artifactory-espoo2.int.net.nokia.com/artifactory/api/pypi/nbl-nae-pypi-local/simple  --proxy=http://10.144.1.10:8080
+RUN pip3 install --index-url xxx a10 -v --trusted-host xxx  --proxy=yyyy
 
 ADD blueprints/ ./blueprints
 ADD u10.conf .

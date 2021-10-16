@@ -73,7 +73,7 @@ services:
 # U10 - the basic UI to the attestation database and engine
 #    
    u10:
-     image: "nbl-nae-docker-local.artifactory-espoo2.int.net.nokia.com/u10"
+     image: "u10"
      container_name: u10     
      ports:
        - 8541:8540                           # !!!
@@ -89,7 +89,7 @@ services:
 # A10REST - the REST API to the attestation engine
 #       
    a10rest:
-    image: "nbl-nae-docker-local.artifactory-espoo2.int.net.nokia.com/a10rest"
+    image: "a10rest"
     container_name: a10rest    
     ports:
       - 8521:8520                                # !!!

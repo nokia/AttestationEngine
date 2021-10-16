@@ -6,9 +6,9 @@ FROM python:3.8-slim
 
 WORKDIR /nae/a10rest
 
-RUN pip3 install flask requests pymongo paho-mqtt pyserial --proxy=http://10.144.1.10:8080 
+RUN pip3 install flask requests pymongo paho-mqtt pyserial --proxy=yyyy
 
-RUN pip3 install --index-url https://artifactory-espoo2.int.net.nokia.com/artifactory/api/pypi/nbl-nae-pypi-local/simple a10 -v --trusted-host https://artifactory-espoo2.int.net.nokia.com/artifactory/api/pypi/nbl-nae-pypi-local/simple  --proxy=http://10.144.1.10:8080
+RUN pip3 install --index-url xxxx a10 -v --trusted-host xxxx --proxy=yyyy
 
 
 ADD a10rest.py .
