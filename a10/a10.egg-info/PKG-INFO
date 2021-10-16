@@ -28,7 +28,12 @@ Description: # A10 Libraries
         Edit `~/.pypirc' as follows:
         
         ```
-        
+        [distutils]
+        index-servers = local
+        [local]
+        repository: https://artifactory-espoo2.int.net.nokia.com/artifactory/api/pypi/nbl-nae-pypi-local
+        username: ioliver
+        password: (see artifactor SETUP page for the hashed password)
         ```
         
         Then
