@@ -1,0 +1,26 @@
+[Unit]
+Description=Nokia Trust Agent Service
+
+#edit as required for the given machine
+#tpm2tools + abrmd machines require the following
+#tpm2tools *without* abrmd machines require both lines to be commented out
+Wants=tpm2-abrmd.service
+After=tpm2-abrmd.service
+
+#Raspberry Pi FakeBoot
+#Wants=measure.service
+#After=measure.service
+
+
+[Service]
+Type=simple
+
+#Edit path to start and stop scripts as required
+ExecStart=/opt/t10/systemd/ta.start
+ExecStop=/opt/t10/systemd/ta.stop
+
+[Install]
+WantedBy=multi-user.target
+
+
+

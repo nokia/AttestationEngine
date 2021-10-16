@@ -1,0 +1,58 @@
+<!--
+ Copyright 2021 Nokia
+ Licensed under the BSD 3-Clause License.
+ SPDX-License-Identifier: BSD-3-Clause
+-->
+
+    <h3>Call Parameters</h3>
+        <table class="table .table-striped">
+            <tr>
+                <th>Policy Intent</th>
+                <th>Call Parameter</th>
+                <th>Compulsory?</th>
+                <th>Default</th>
+                <th>Description</th>
+            </tr>
+            <tr>
+                <td>tpm2/quote</td>
+                <td>ak</td>
+                <td>No</td>
+                <td>0x810100AA</td>
+                <td>The handle of the key to sign the quote.</td>
+            </tr>
+        </table>
+        <hr />
+        <h3>Rule Parameters</h3>
+            <table class="table .table-striped">
+                <tr>
+                    <th>Rules</th>
+                    <th>Rule Parameter</th>
+                    <th>Compilsory ?</th>
+                    <th>Default</th>
+                    <th>Description</th>
+                </tr>
+                <tr>
+                    <td>claimrules.*</td>
+                    <td>margin</td>
+                    <td>YES</td>
+                    <td></td>
+                    <td>Time margin in seconds, eg: "margin":0.2</td>
+                </tr>
+                <tr>
+                    <td>tpm2rules.PCRsAllUnassigned</td>
+                    <td>bank</td>
+                    <td>YES</td>
+                    <td></td>
+                    <td>The name of the bank to check: eg: "bank":"sha1" <br>Typical values: sha1, sha256, sha384, sha512 - will return error if bank does not exist</td>
+                </tr>
+                <tr>
+                    <td>container.ImageVerification</td>
+                    <td>rules</td>
+                    <td>YES</td>
+                    <td>[{"name": "tpm2rules.TPM2FirmwareVersion", <br> "params": {}}]</td>
+                    <td>The list of the rules that need to be applied to build environment claims <br>
+                        The provided rule list must have the same size and order as the list of the claims <br>
+                        in the container image signature. By default, there is the TPM2FirmwareVersion <br>
+                        verification of the build env. Please provide the required arguments for rules as well.</td>
+                </tr>
+            </table>

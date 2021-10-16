@@ -1,0 +1,82 @@
+<!--
+ Copyright 2021 Nokia
+ Licensed under the BSD 3-Clause License.
+ SPDX-License-Identifier: BSD-3-Clause
+-->
+
+{% extends "base.html" %}
+
+{% block content %}
+
+<hr/>
+   
+<input class="form-control" id="claimsearch" type="text" placeholder="Search...">
+
+  <br>
+
+<table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Claim ID</th>
+                <th>Element</th>               
+                <th>Policy</th>      
+
+                <th>Requested (sorted)</th>               
+                <th>Received</th>       
+                                        <th>Difference (s)</th>               
+
+            </tr>           
+        </thead>
+        
+        <tbody id="claimstable">
+        {% for c in claims %}
+        <tr>   
+          <td>             
+            <a href=/claim/{{ c.itemid }}>{{ c.itemid }}         </a>
+          </td>
+       
+          <td>   
+            <a href=/element/{{ c.header.element.itemid }}>{{ c.header.element.name }}</a></a>
+          </td>
+
+          <td>   
+            <a href=/policy/{{ c.header.policy.itemid }}>{{ c.header.policy.name }}</a>
+          </td>
+
+           <td>   
+            {{ c.requestedUTC }}
+          </td>
+
+          <td>   
+            {{ c.receivedUTC }}
+          </td>
+
+
+          <td>   
+            {{ c.timedifference }}
+          </td>
+
+        </tr>
+        
+        
+        
+        {% endfor %}
+
+        </tbody>   
+        
+    </table>
+
+
+
+<script>
+$(document).ready(function(){
+  $("#claimsearch").on("keyup", function() {
+    var value = $(this).val().toLowerCase();
+    $("#claimstable tr").filter(function() {
+      $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+    });
+  });
+});
+</script>
+
+{% endblock %}

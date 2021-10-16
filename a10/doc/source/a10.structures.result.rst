@@ -1,0 +1,7 @@
+a10.structures.result module
+============================
+
+.. automodule:: a10.structures.result
+    :members:
+    :undoc-members:
+    :show-inheritance:

@@ -1,0 +1,18 @@
+a10 package
+===========
+
+Subpackages
+-----------
+
+.. toctree::
+
+    a10.asvr
+    a10.structures
+
+Module contents
+---------------
+
+.. automodule:: a10
+    :members:
+    :undoc-members:
+    :show-inheritance:

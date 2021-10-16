@@ -1,0 +1,120 @@
+# Copyright 2021 Nokia
+# Licensed under the BSD 3-Clause License.
+# SPDX-License-Identifier: BSD-3-Clause
+
+version: "3.9"
+
+#
+# docker-compoes file to bring up the whole attestation engine
+#
+# Take note of lines that need to be edited, marked with #!!!
+#
+# Defacto ports for A10
+#  8540 - U10
+#  8560 - MQTT Channels
+#  8561 - MQTT Channels (SSH)
+#  8520 - A10REST
+#  8530 - trust agents (on elements to be attested)
+#  8555 - mongo-express
+#
+# Configuration files
+#  Edit the source of the a10.conf file
+#  Should be the same for both u10 and a10rest
+#
+
+#
+# The services needed to run the system
+#
+
+services:
+
+#
+# The core database
+#  
+   database:
+     image: "mongo"
+     links:
+       - databaseui
+     container_name: mongo
+     volumes:
+      - attestationdata:/data/db
+     networks:
+      - attestationnetwork
+
+#
+# Useful tool for examining the database instead of using the mongo shell
+#
+# Mongoexpress listens normally on port 8081, we expose this on 8555
+#
+   databaseui:
+     image: "mongo-express"
+     ports: 
+       - 8555:8081                          # !!!
+     networks:
+      - attestationnetwork
+
+#
+# Mosquitto for the MQTT channels
+#
+   messagebus:
+     image: "eclipse-mosquitto"
+     container_name: messagebus
+     ports:
+       - 8560:1883                          # !!!
+       - 8561:9000                          # !!!
+     networks:
+      - attestationnetwork
+     volumes:
+      - /home/ioliver/mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - /mosquitto/data
+      - /mosquitto/log
+
+#
+# U10 - the basic UI to the attestation database and engine
+#    
+   u10:
+     image: "nbl-nae-docker-local.artifactory-espoo2.int.net.nokia.com/u10"
+     container_name: u10     
+     ports:
+       - 8541:8540                           # !!!
+     depends_on:
+       - messagebus
+     restart: always
+     networks:
+      - attestationnetwork
+     volumes:
+      - /home/ioliver/a10.conf:/etc/a10.conf      # !!!
+
+#
+# A10REST - the REST API to the attestation engine
+#       
+   a10rest:
+    image: "nbl-nae-docker-local.artifactory-espoo2.int.net.nokia.com/a10rest"
+    container_name: a10rest    
+    ports:
+      - 8521:8520                                # !!!
+    depends_on:
+      - messagebus  
+    restart: always
+    networks:
+      - attestationnetwork
+    volumes:
+      - /home/ioliver/a10.conf:/etc/a10.conf      # !!!
+
+
+#
+# This defines the permanent volume for storing the database
+# so that it is permanent between starting and stopping the whole system
+#
+
+volumes:
+  attestationdata: 
+    external: true
+
+#
+# Internal network
+#
+
+networks:
+   attestationnetwork:
+     driver: bridge

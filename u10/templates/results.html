@@ -1,0 +1,89 @@
+<!--
+ Copyright 2021 Nokia
+ Licensed under the BSD 3-Clause License.
+ SPDX-License-Identifier: BSD-3-Clause
+-->
+
+{% extends "base.html" %}
+
+{% block content %}
+   
+<hr/>
+   
+<input class="form-control" id="resultsearch" type="text" placeholder="Search...">
+
+  <br>
+
+
+
+
+
+
+<table class="table table-striped table-sm">     
+            <thead>
+                <tr>
+                    <th>Result</th>
+                    <th>Rule</th>
+                    <th>VerifiedAt</th>
+                    <th>Message</th>
+                    <th>Element</th>      
+                    <th>Policy</th>                                   
+                    <th>Claim</th>         
+                          
+                </tr>           
+            </thead>
+            <tbody id="resulttable">     
+                {% for e in results %}      
+                    <tr>
+                        <td>  
+                            <!-- see a10.utils.constants -->
+
+                            {% if e.result == 9001 %}
+                                <i class="fa fa-close" style="font-size:20px;color:red"></i> 
+                            {% elif e.result == 9002 %}
+                                <i class="fa fa-close" style="font-size:20px;color:orange"></i>
+                            {% elif e.result == 0 %}
+                                <i class="fa fa-check-square" style="font-size:20px;color:green"></i>
+                            {% elif e.result == 9100 %}
+                                <i class="fa fa-question-circle" style="font-size:20px;color:grey"></i>                        
+                            {% else %}
+                                <i class="fa fa-exclamation-triangle" style="font-size:20px;color:yellow"></i>
+                            {% endif %}
+
+                        </td>
+                        <td>   <b><a href=/result/{{ e.itemid }}>{{ e.ruleName }}</a>  </b>
+
+                        </td>
+                        <td>{{ e.verifiedAtUTC }}</td>
+                       <td>{{ e.message }}</td>
+
+                        <td> <a href=/element/{{ e.elementID }}>{{ e.elementname }} </a></td>
+                        <td>    <a href=/policy/{{ e.policyID }}>{{ e.policyname }}</a></td>
+
+<td><a href=/claim/{{ e.claimID }}><i class="fa fa-address-card-o"></i></a></td>
+
+
+
+
+                      
+
+{% endfor %}
+
+            </tbody>
+        </table>
+
+
+
+
+<script>
+$(document).ready(function(){
+  $("#resultsearch").on("keyup", function() {
+    var value = $(this).val().toLowerCase();
+    $("#resulttable tr").filter(function() {
+      $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+    });
+  });
+});
+</script>
+
+{% endblock %}

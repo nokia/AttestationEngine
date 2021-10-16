@@ -1,0 +1,81 @@
+<!--
+ Copyright 2021 Nokia
+ Licensed under the BSD 3-Clause License.
+ SPDX-License-Identifier: BSD-3-Clause
+-->
+
+{% extends "base.html" %}
+{% block content %}
+<hr />
+<input class="form-control" id="logsearch" type="text" placeholder="Search...">
+<br/>
+Page loaded at <b>{{ ltutc }}</b> ( {{ lt }} ). Showing <b>{{ lrs }}</b> of <b>{{ lc }}</b> entries.
+<br />
+<table class="table table-condensed table-hover .table-striped">
+    <thead>
+        <tr>
+            <th>Time</th>
+            <th>Channel</th>
+            <th>Operation</th>
+            <th>Data</th>
+        </tr>
+    </thead>
+
+<tbody id="logtable">
+        {% for l in ls %}
+        <tr>
+
+            <td>{{ l.tUTC }} &nbsp; ({{ l.t }}) </td>
+            <td>{{ l.ch }} </td>
+            <td>{{ l.op }} </td>
+
+            <td>
+                {% if l.data.type == "element" %}
+                  <a href=/element/{{ l.data.itemid }}>{{ l.data.type }}</a>
+                {% elif l.data.type == "policy" %}
+                  <a href=/policy/{{ l.data.itemid }}>{{ l.data.type }}</a>
+                {% elif l.data.type == "claim" %}
+                  <a href=/claim/{{ l.data.itemid }}>{{ l.data.type }}</a>
+                {% elif l.data.type == "result" %}
+                  <a href=/result/{{ l.data.itemid }}>{{ l.data.type }}</a> &nbsp;
+
+                            {% if l.data.result == 9001 %}
+                                <i class="fa fa-close" style="font-size:20px;color:red"></i> 
+                            {% elif l.data.result == 9002 %}
+                                <i class="fa fa-close" style="font-size:20px;color:orange"></i>
+                            {% elif l.data.result == 0 %}
+                                <i class="fa fa-check-square" style="font-size:20px;color:green"></i>
+                            {% elif l.data.result == 9100 %}
+                                <i class="fa fa-question-circle" style="font-size:20px;color:grey"></i>                        
+                            {% else %}
+                                <i class="fa fa-exclamation-triangle" style="font-size:20px;color:yellow"></i>
+                            {% endif %}
+
+
+                {% elif l.data.type == "ev" %}
+                  <a href=/ev/{{ l.data.itemid }}>{{ l.data.type }}</a>
+                {% elif l.data.type == "hash" %}
+                  <a href=/hashes>{{ l.data.type }}</a> 
+                {% else %}
+                 Unknown type: {{ l.data }}
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+
+
+<script>
+$(document).ready(function() {
+    $("#logsearch").on("keyup", function() {
+        var value = $(this).val().toLowerCase();
+        $("#logtable tr").filter(function() {
+            $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+        });
+    });
+});
+</script>
+
+{% endblock %}

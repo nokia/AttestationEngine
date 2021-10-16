@@ -1,0 +1,38 @@
+<!--
+ Copyright 2021 Nokia
+ Licensed under the BSD 3-Clause License.
+ SPDX-License-Identifier: BSD-3-Clause
+-->
+
+{% extends "base.html" %}
+
+{% block content %}
+    <h3><b>{{ e.name }}</b> </h3>
+
+    <h4><a href="/edit/expectedvalue/{{e.itemid}}"><i class="fa fa-edit"></i></a>
+                                  <a href="/delete/expectedvalue/{{e.itemid}}"><i class="fa fa-remove"></i></a>
+    </h4>
+
+
+    <hr/>
+    <div>
+    
+    <table class="table table-striped .table-sm">     
+                                <tbody>  
+                                    {% for k,v in e.items() %}                
+                                    <tr><td>{{ k }}</td><td>{{ v }}</td></tr>          
+                                    {% endfor %}   
+                                </tbody>
+                            </table>
+    
+      
+    </div>
+
+<hr/>
+
+
+<div>
+  <h5>Raw JSON</h5>
+  <textarea readonly class="form-control" rows="12" name="j" id="rawdatabocy">{{ pp }}</textarea>
+</div>
+{% endblock %}

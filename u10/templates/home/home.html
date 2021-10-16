@@ -1,0 +1,59 @@
+<!--
+ Copyright 2021 Nokia
+ Licensed under the BSD 3-Clause License.
+ SPDX-License-Identifier: BSD-3-Clause
+-->
+
+{% extends "base.html" %}
+{% block content %}
+<hr />
+
+<div class="mt-4 p-5 bg-primary text-white rounded">
+  <h1 class="display-1">A10 - Core Attestation Engine UI</h1>
+  <p>Release: {{ release }}</p>
+</div>
+
+<br/>
+
+<div class="container-fluid">
+    <div class="row align-items-start">
+        <div class="col-sm mb-6">
+            <h3>Configuration</h3>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Field</th>
+                        <th>Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for k,v in d.configuration.items() %}
+                    <tr>
+                        <td>{{ k }}</td>
+                        <td>{{ v }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="col-sm mb-6">
+            <h3>Database Contents</h3>
+            <table class="table table-striped">
+                <thead>
+                    <tr> <th>Collection/Table</th>
+                        <th># of Entries</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for k,v in d.dbstatus.items() %}
+                    <tr>
+                        <td>{{ k }}</td>
+                        <td>{{ v }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

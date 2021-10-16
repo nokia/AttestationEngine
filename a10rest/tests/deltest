@@ -1,0 +1,7 @@
+
+curl --noproxy "*"   -X DELETE http://127.0.0.1:8520/expectedvalue?itemid=9b5a08f4-bf4d-4a02-9b23-6a7d3a61a0a5
+
+curl --noproxy "*"   -X DELETE http://127.0.0.1:8520/expectedvalue?itemid=28b8f4b1-7ea5-44c2-88cc-309d344a093d
+
+
+

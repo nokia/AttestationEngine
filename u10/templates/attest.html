@@ -1,0 +1,72 @@
+<!--
+ Copyright 2021 Nokia
+ Licensed under the BSD 3-Clause License.
+ SPDX-License-Identifier: BSD-3-Clause
+-->
+
+{% extends "base.html" %}
+{% block content %}
+<h3>Attest and Verify</h3>
+<hr>
+<div>
+    <form action="/attestverify" method="post">
+        <div class="form-group">
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-md-12">
+                        <label for="itemdata">Element: <b>{{ e.name }}</b> using <b>{{ e.protocol }}</b></label>
+                        <input class="form-control" rows="1" name="i" id="rawdataid" readonly value={{ e.itemid }}>
+                        <br />
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="av" id="av1" value="av" checked>
+                            <label class="form-check-label" for="av1">
+                                <b>Attest and Verify</b>
+                            </label>
+                        </div>
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="radio" name="av" id="av2" value="aonly">
+                            <label class="form-check-label" for="av2">
+                                <b>Attest Only</b>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <br />
+                <div class="row">
+                    <div class="col-md-6">
+                        <label for="pol1"><b>Policies:</b></label>
+                        <select class="form-control" id="pol1" size=18 name="p" required>
+                            {% for p in ps %}
+                            <option value={{ p.itemid }}>{{ p.name }} ({{ p.intent }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="rul1"><b>Rules:</b> - NB: select even if "attest only" is used, it will be ignored in this case</label>
+                        <select class="form-control" id="rul1" size=18 name="r" required>
+                            {% for r in rs %}
+                            <option value={{ r }}>{{ r }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-12">
+                    <label for="cp"><b>Call Parameters:</b></label>
+                    <textarea class="form-control" rows="2" name="cp" id="cp">{}</textarea>
+                    <label for="rp"><b>Rule Parameters:</b></label>
+                    <textarea class="form-control" rows="2" name="rp" id="rp">{}</textarea>
+                </div>
+            </div>
+        </div>
+        <br />
+        <input type="submit" value="Submit">
+    </form>
+</div>
+
+<div>
+ <hr/>
+    <div>
+        {% include 'help/attestparametershelp.html' %}
+    </div>
+</div>
+{% endblock %}

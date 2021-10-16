@@ -1,0 +1,52 @@
+<!--
+ Copyright 2021 Nokia
+ Licensed under the BSD 3-Clause License.
+ SPDX-License-Identifier: BSD-3-Clause
+-->
+
+{% extends "base.html" %}
+{% block content %}
+<h2><b>{{ pol.name }}</b> </h2>
+<h4>
+    <a href="/edit/policy/{{pol.itemid}}"><i class="fa fa-edit"></i></a> <a href="/delete/policy/{{pol.itemid}}"><i class="fa fa-remove"></i></a>
+</h4>
+<hr />
+<div>
+    <table class="table table-striped .table-sm">
+        <tbody>
+            {% for k,v in pol.items() %}
+            <tr>
+                <td>{{ k }}</td>
+                <td>{{ v }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<h4>Associated Expected Values</h4>
+<div id="expectedvalues" class="show">
+    <table class="table table-striped table-sm">
+        <thead>
+            <tr>
+                <th>Element</th>
+                <th>EV Name</th>
+                <th>EV Values</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for e in evs %}
+            <tr>
+                <td><a href=/element/{{e.elementID}}>{{ e.elementname }}</a> </td> 
+                <td><a href=/expectedvalue/{{e.itemid}}>{{ e.name }}</a> </td> 
+                <td>{{e.evs}}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<hr />
+<div>
+    <h5>Raw JSON</h5>
+    <textarea readonly class="form-control" rows="12" name="j" id="rawdatabocy">{{ pp }}</textarea>
+</div>
+{% endblock %}

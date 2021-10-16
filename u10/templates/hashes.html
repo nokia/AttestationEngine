@@ -1,0 +1,64 @@
+<!--
+ Copyright 2021 Nokia
+ Licensed under the BSD 3-Clause License.
+ SPDX-License-Identifier: BSD-3-Clause
+-->
+
+{% extends "base.html" %}
+{% block content %}
+<hr />
+<input class="form-control" id="hashsearch" type="text" placeholder="Search...">
+<br>
+<b>Key:&nbsp;</b>Hashes:&nbsp;<span class="badge bg-primary">Common</span>&nbsp;<span class="badge bg-secondary">Rare</span>&nbsp;<span class="badge bg-danger">Very Rare</span> &nbsp;Other Values: <span class="badge bg-success">Other</span> &nbsp; <br/><b>NB:</b>&nbsp;Click on the truncated hash value to see the full value
+<hr />
+<table class="table .table-striped">
+    <thead>
+        <tr>
+            <th>Hash/Value &nbsp;</span><i class="fa fa-info-circle"></i></th>
+            <th>Type</th>
+            <th>Short Description</th>
+            <th>Long Description</th>
+        </tr>
+    </thead>
+    <tbody id="hashtable">
+        {% for h in hs %}
+        <tr>
+            <td><span class="d-inline-block text-truncate" style="max-width: 200px;" data-bs-toggle="popover" title="Full value" data-bs-content={{ h.hash }}>{{ h.hash }}</span></td>
+            <td>
+                {% if h.type == "sha1" %}
+                <span class="badge bg-primary">{{ h.type }}</span>
+                {% elif h.type == "sha256" %}
+                <span class="badge bg-primary">{{ h.type }}</span>
+                {% elif h.type == "sha384" %}
+                <span class="badge bg-secondary">{{ h.type }}</span>
+                {% elif h.type == "sha512" %}
+                <span class="badge bg-secondary">{{ h.type }}</span>
+                {% elif h.type == "other" %}
+                <span class="badge bg-success">{{ h.type }}</span>
+                {% else %}
+                <span class="badge bg-danger">{{ h.type }}</span>
+                {% endif %}
+            </td>
+            <td>{{ h.short }}</td>
+            <td>{{ h.long }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<script>
+$(document).ready(function() {
+    $("#hashsearch").on("keyup", function() {
+        var value = $(this).val().toLowerCase();
+        $("#hashtable tr").filter(function() {
+            $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+        });
+    });
+});
+</script>
+<script>
+var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
+var popoverList = popoverTriggerList.map(function(popoverTriggerEl) {
+    return new bootstrap.Popover(popoverTriggerEl)
+})
+</script>
+{% endblock %}

@@ -1,0 +1,37 @@
+<!--
+ Copyright 2021 Nokia
+ Licensed under the BSD 3-Clause License.
+ SPDX-License-Identifier: BSD-3-Clause
+-->
+
+{% extends "base.html" %}
+
+{% block content %}
+
+
+
+<table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Registered Protocols</th>
+                       
+            </tr>           
+        </thead>
+        
+        <tbody>
+        {% for p in ps %}
+        <tr>   
+          <td>             
+            {{ p }}        
+          </td>
+        </tr>
+        
+        
+        
+        {% endfor %}
+
+        </tbody>   
+        
+    </table>
+
+{% endblock %}

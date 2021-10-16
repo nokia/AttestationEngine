@@ -1,0 +1,5 @@
+curl --noproxy "*"  --header "Content-Type: application/json" -X PUT --data '{ "itemid":"bfa85288-fa2d-41e2-a0db-a9f247ae71ba","evs":{"firmwareVersion": "000700550011cb00","pcrDigest": "aff512cce1437b5b6578070cffb34e1689a233165dda7eb546e7be36471102ea"} }' http://127.0.0.1:8520/expectedvalue
+
+curl --noproxy "*"  --header "Content-Type: application/json" -X PUT --data '{ "itemid":"0775201a-336f-4abf-9b00-154d8fd61792","evs":{"firmwareVersion": "000700550011cb00","pcrDigest": "aff512cce1437b5b6578070cffb34e1689a233165dda7eb546e7be36471102ea"} }' http://127.0.0.1:8520/expectedvalue
+
+

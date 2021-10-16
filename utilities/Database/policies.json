@@ -1,0 +1,132 @@
+[
+{
+    "description": "Returns the TCG x86 default CRTM PCRs",
+    "intent": "tpm2/quote",
+    "name": "CRTM x86",
+    "parameters": {
+        "hashalg": "sha256",
+        "pcrselection": "sha256:0"
+    },
+    "type": "tpm2/quote"
+},
+{
+    "description": "Returns the TCG x86 default SRTM PCRs",
+    "intent": "tpm2/quote",
+    "name": "SRTM x86",
+    "parameters": {
+        "hashalg": "sha256",
+        "pcrselection": "sha256:0,1,2,3,4,5,6,7"
+    },
+    "type": "tpm2/quote"
+},
+
+{
+    "description": "Returns the TCG x86 default full UEFI SRTM PCRs. Note if IMA is running then PCR 10 (by IMA default) may be further extended to!",
+    "intent": "tpm2/quote",
+    "name": "SRTM UEFI x86",
+    "parameters": {
+        "hashalg": "sha256",
+        "pcrselection": "sha256:0,1,2,3,4,5,6,7,8,9,10"
+    },
+    "type": "tpm2/quote"
+},
+
+{
+    "description": "Returns the TCG x86 default UEFI SRTM extended PCRs",
+    "intent": "tpm2/quote",
+    "name": "SRTM UEFI ext x86",
+    "parameters": {
+        "hashalg": "sha256",
+        "pcrselection": "sha256:8,9,10"
+    },
+    "type": "tpm2/quote"
+},
+
+{
+    "description": "Returns the TCG x86 default SRTM Bootloader PCRs",
+    "intent": "tpm2/quote",
+    "name": "SRTM Bootloader x86",
+    "parameters": {
+        "hashalg": "sha256",
+        "pcrselection": "sha256:4,5"
+    },
+    "type": "tpm2/quote"
+},
+
+{
+    "description": "Returns the Intel TXT default DRTM PCRs",
+    "intent": "tpm2/quote",
+    "name": "DRTM TXT x86",
+    "parameters": {
+        "hashalg": "sha256",
+        "pcrselection": "sha256:17,18"
+    },
+    "type": "tpm2/quote"
+},
+
+{
+    "description": "Returns the Linux Integrity Measurement Architecture default PCR",
+    "intent": "tpm2/quote",
+    "name": "IMA Default",
+    "parameters": {
+        "hashalg": "sha256",
+        "pcrselection": "sha256:10"
+    },
+    "type": "tpm2/quote"
+},
+
+
+
+{
+
+    "description": "Obtain the PCR Banks",
+    "intent": "tpm2/pcrs",
+    "name": "PCR READ",
+    "parameters": {}
+},
+
+{
+
+    "description": "Obtains the UEFI Eventlog from securityfs",
+    "intent": "uefi/eventlog",
+    "name": "UEFI Eventlog",
+    "parameters": {}
+},
+
+{
+
+    "description": "Obtain the Intel TXT Txt-stat log",
+    "intent": "txt/txtstat",
+    "name": "TXT-Stat",
+    "parameters": {}
+},
+
+{
+
+    "description": "Obtain the Intel TXT ACM info",
+    "intent": "txt/acminfo",
+    "name": "TXT ACM Info",
+    "parameters": {}
+},
+
+
+
+
+{
+
+    "description": "Obtain the Linux IMA ascii_runtime_measurements",
+    "intent": "ima/ascii",
+    "name": "IMA ASCII RUNTIME",
+    "parameters": {}
+},
+
+
+{
+
+    "description": "NOTPM Test null claim - this returns a test value for debugging purposes only",
+    "intent": "notpm/null",
+    "name": "NOTPM",
+    "parameters": {}
+} 
+]
+

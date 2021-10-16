@@ -1,0 +1,191 @@
+#!/usr/bin/sh
+#This script will one day provision the element
+#
+#  We assume python yaml libraries and curl are installed
+#
+#  apt install curl
+#
+#
+#This is what we need to generate
+#'element': {   'ak_name': 'XYZ',
+#                   'ak_pem': 'DEF',
+#                   'asurl': 'http://10.144.176.72:8510',
+#                   'description': 'Cupboard based environment sensor',
+#                   'ek_name': 'QPR',
+#                   'ek_pem': 'ABC',
+#                   'endpoint': 'http://10.144.176.169:8530',
+#                   --proxy 127.0.0.1:8080'hash': '882389482934',
+#                   'hostname': 'crimeacongo',
+#                   'itemid': '055bf8b6-8596-4d15-bfd6-560f71c98431',
+#                   'name': 'EMon1 Pi0',
+#                   'signature': 'jhdfjshgdkgj',
+#                   'type': 'tpm2.0'},
+#
+
+
+echo "Quick and dirty provisioning script"
+
+#
+#Calculated defaults (note the _C in the name)
+#
+
+HOSTNAME_C=`hostname`
+#hostname -I generates a trailing space, xargs without argumements removes it - dyna cwl eh?!"
+IPADDRESS_C=`hostname -I | xargs`
+PORT_C=8530
+ASURL_C=http://10.144.176.154:8510
+PROTOCOL_C=A10HTTPREST
+
+echo "Element (TPM2.0) Details"
+
+#Machine Stuff
+read -p "This machine's hostname [$HOSTNAME_C]: " HOSTNAME
+HOSTNAME=${HOSTNAME:-$HOSTNAME_C}
+
+read -p "This machine's IP address [$IPADDRESS_C]: " IPADDRESS
+IPADDRESS=${IPADDRESS:-$IPADDRESS_C}
+
+
+
+read -p "Protocol [$PROTOCOL_C]: " PROTOCOL
+PROTOCOL=${PROTOCOL:-$PROTOCOL_C}
+
+read -p "TA Port [$PORT_C]: " PORT
+PORT=${PORT:-$PORT_C}
+
+read -p "Attestation server URL [$ASURL_C]: " ASURL
+ASURL=${ASURL:-$ASURL_C}
+
+
+#
+#Description
+#
+
+NAME_C=`hostname`
+DESCRIPTION_C="to lazy to write this"
+
+read -p "Descriptive Name [$HOSTNAME_C]: " NAME
+NAME=${NAME:-$NAME_C}
+
+read -p "Longer Description [$DESCRIPTION_C]: " DESCRIPTION
+DESCRIPTION=${DESCRIPTION:-$DESCRIPTION_C}
+
+#
+# TPM Stuff
+#
+
+EKHANDLE_C=0x810100ee
+AKHANDLE_C=0x810100aa
+
+echo "Setting up keys - the EK will be removed after these operations"
+echo "Generation will fail if keys already exist at the given handles"
+
+read -p "Enter EK handle location [$EKHANDLE_C]: " EKHANDLE
+EKHANDLE=${EKHANDLE:-$EKHANDLE_C}
+
+
+read -p "Enter AK handle location [$AKHANDLE_C]: " AKHANDLE
+AKHANDLE=${AKHANDLE:-$AKHANDLE_C}
+
+
+echo "\n\nThis is what I have - if this is not correct press Ctrl-C"
+
+echo $NAME
+echo $DESCRIPTION
+echo $HOSTNAME
+echo $PROTOCOL $IPADDRESS $PORT
+echo $ASURL
+echo $EKHANDLE
+echo $AKHANDLE
+
+
+read -p "Ctrl-C exits, Enter continues" x
+
+echo "Cleaning up any temporary files"
+rm /tmp/ek.data
+rm /tmp/ek.pem
+rm /tmp/ak.data
+rm /tmp/ak.pem
+rm /tmp/ak.ctx
+
+
+echo "Removing any existing keys from $EKHANDLE and $AKHANDLE"
+tpm2_evictcontrol $EKHANDLE
+tpm2_evictcontrol $AKHANDLE
+
+echo "Generating EK"
+tpm2_createek -c $EKHANDLE -G rsa 
+
+echo "Generating AK"
+tpm2_createak -C $EKHANDLE -c /tmp/ak.ctx -G rsa -g sha256 -s rsassa -u /tmp/ak.pub -f pem -n /tmp/ak.name
+tpm2_evictcontrol -c /tmp/ak.ctx $AKHANDLE
+
+echo "Generating PEM and data files"
+tpm2_readpublic -c $EKHANDLE -o /tmp/ek.pem -f pem > /tmp/ek.data
+tpm2_readpublic -c $AKHANDLE -o /tmp/ak.pem -f pem > /tmp/ak.data
+
+echo "Handles installed"
+tpm2_getcap handles-persistent
+
+
+echo "Constructing JSON object"
+#JSONOBJ=`python3 constructTPM2JSONobject.py $NAME "$DESCRIPTION" $HOSTNAME $PROTOCOL $IPADDRESS $PORT $ASURL /tmp/ek.data /tmp/ak.data /tmp/ek.pem /tmp/ak.pem`
+
+python3 constructTPM2JSONobject.py $NAME "$DESCRIPTION" $HOSTNAME $PROTOCOL $IPADDRESS $PORT $ASURL /tmp/ek.data /tmp/ak.data /tmp/ek.pem /tmp/ak.pem
+
+
+#echo "This is the start of the object*********************"
+#echo $JSONOBJ
+#echo "This is the end of the object*********************"
+
+read -p "Does everything look good?  Ctrl-C exits, Enter continues" x
+exit 0
+
+curl --proxy 10.144.1.10:8080 -d '$JSONOBJ' -H 'Content-Type: application/json' $ASURL/elements
+exit 0
+
+# Basically
+#
+# Parameters
+# - AS IP address
+# - Device short name
+# - Device description text 
+#
+# Generate the EK -> 0x810100ee
+# Get the EK pub as pem
+# Get the EK name
+
+# Generate the AK -> 0x810100aa
+# Get the AK pub as pem
+# Get the AK name
+#
+# Get the hostname
+# Get the device's IP address
+# Get the port that the TA is running on, default: 8530
+#
+# Generate a hash of the above
+# Sign with the AK
+#
+# Generate this as JSON
+#elementType	tpm2.0
+#name	Lassa
+#description	Sensor Monitor and Motor Controller
+#hostname	Lassa
+#ip	10.144.176.152
+#port	8530
+#asip	127.0.0.1
+#ek_pem	ABC1
+#ak_pem	DEF1
+#ek_name	QPR1
+#ak_name	XYZ1
+#hash	882389482934
+#signature	jhdfjshgdkgj
+#
+# Once that is done, get the "aid" value and store it somewhere, eg: TPM NVRAM
+#
+# Now, everything should be done...probably should configure some policies and expected values now 
+# Eg: x86 CRTMSRTM policies (these might already exist in the AS database)
+# Expected values
+#
+# TPM Firmware expected value
+#

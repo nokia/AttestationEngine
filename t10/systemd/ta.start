@@ -1,0 +1,18 @@
+#!/bin/bash
+
+######################################################################
+#
+# Variables and Fixed Things
+#
+# We set the log file and the locations of the various commands required
+# to get this working
+#
+# 
+######################################################################
+
+#Configuration variables for this script
+TAPATH=/opt/t10/py/ta.py
+
+#Start TA
+python3 $TAPATH
+

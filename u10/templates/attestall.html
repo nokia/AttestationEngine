@@ -1,0 +1,71 @@
+<!--
+ Copyright 2021 Nokia
+ Licensed under the BSD 3-Clause License.
+ SPDX-License-Identifier: BSD-3-Clause
+-->
+
+{% extends "base.html" %}
+{% block content %}
+<h4>Attest All for {{ e.name }}</h4>
+{{ lenevs }} expected values available
+<br/>
+<form action="/attestverifyall" method="post">
+    <input type="hidden" name="elementid" value={{e.itemid}}>
+    <input type="hidden" name="lenevs" value={{lenevs}}>
+
+    <div class="form-group">
+        <div id="expectedvalues" class="show">
+            <table class="table table-striped table-sm">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Policy</th>
+                        <th>Exp.Value</th>
+                        <th>Operation</th>
+                        <th>Rule</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for e in evs %}
+                    <tr><td>{{ loop.index }}</td>
+                        <td><a href=/policy/{{e.policyID}}>{{ e.policyname }}</a> <input type="hidden" name="{{ loop.index }}__policyid" value={{e.policyID}}></td>
+                        <td><a href=/expectedvalue/{{e.itemid}}>{{ e.name }}</a> </td>
+                        <td>
+                                    <!-- use name to differentiate the different groups between things -->
+                                    <select class="form-select" aria-label="Default select example" name="{{ loop.index }}__op">
+                                        <option selected value="av">Attest & Verify</option>
+                                        <option value="a">Attest Only</option>
+                                        <option value="d">Don't attest</option>                                        
+                                    </select>
+                        </td>
+                        <td>
+                            <select class="form-select" aria-label="Default select example" name="{{ loop.index }}__rule">
+                                {% for r in rs %}
+                                <option>{{ r }}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+
+
+                        <td> 
+                            <textarea class="form-control" rows="1" name="{{ loop.index }}__cp">{}</textarea>
+                        </td>
+                        <td> 
+                            <textarea class="form-control" rows="1" name="{{ loop.index }}__rp">{}</textarea>
+                        </td>
+
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <br />
+    <input type="submit" value="Submit">
+
+<hr/>
+    <div>
+        {% include 'help/attestparametershelp.html' %}
+    </div>
+</form>
+{% endblock %}

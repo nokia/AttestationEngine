@@ -1,0 +1,48 @@
+<!--
+ Copyright 2021 Nokia
+ Licensed under the BSD 3-Clause License.
+ SPDX-License-Identifier: BSD-3-Clause
+-->
+
+{% extends "base.html" %}
+{% block content %}
+<hr />
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+ <h2><b>Graphs and Analytics for {{ ename }}</b></h2>
+
+<h4>Number of Results by Policy</h4>
+
+
+{% for d in ds %}
+<h6>{{d.policyname}} results
+<canvas id='{{ d.vname }}' width="100" height="100"></canvas>
+{% endfor %}
+
+
+{% for d in ds %}
+
+<script>
+
+
+var {{ d.vname }}ctx = document.getElementById('{{ d.vname }}');
+
+const {{ d.vname }}data = {
+    datasets: [{
+        labels: ['a', 'b', 'c', 'd', 'e'],
+        backgroundColor: ['rgb(255, 99, 132)', 'rgb(255, 159, 64)', 'rgb(255, 205, 86)', 'rgb(75, 192, 192)', 'rgb(54, 162, 235)'],
+        label: "Results",
+        data: {{ d.cvalues }}
+    }]
+};
+
+var {{ d.vname }}chart = new Chart({{ d.vname }}ctx, {
+    type: "doughnut",
+    data: {{ d.vname }}data,
+    options: {                 responsive: false }
+});
+
+</script>
+{% endfor %}
+
+{% endblock %}

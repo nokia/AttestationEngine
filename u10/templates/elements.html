@@ -1,0 +1,79 @@
+<!--
+ Copyright 2021 Nokia
+ Licensed under the BSD 3-Clause License.
+ SPDX-License-Identifier: BSD-3-Clause
+-->
+
+{% extends "base.html" %}
+{% block content %}
+<hr />
+<input class="form-control" id="elementsearch" type="text" placeholder="Search...">
+<br>
+
+<table class="table .table-striped">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Endpoint</th>
+            <th>Protocol</th>
+            <th>Latest Results &nbsp; </span><i class="fa fa-info-circle"></i></th>
+            <th>Description</th>
+
+        </tr>
+    </thead>
+    <tbody id="elementtable">
+        {% for e in elements %}
+        <tr>
+            <td><a href=/element/{{e.itemid}}> <b>{{ e.name }}</b></a></td>
+            <td>
+                <h6>{% for t in e.type %}
+                    <span class="badge bg-secondary">{{ t }}</span>
+                    {% endfor %}</h6>
+            </td>
+            
+            <td><a href={{e.endpoint}} />{{ e.endpoint }}</a> </td>
+            <td><span class="badge bg-secondary">{{ e.protocol }}</span></td>
+            <td>
+                {% for s in e.summary %}
+                <span class="d-inline-block" data-bs-toggle="popover" title="Result Information" data-bs-html="true" data-bs-content="<a target='_blank' href=/result/{{ s.rid }}>Result Link</a><hr/><p><b>Rule:</b> {{ s.rul }}<br><b>Policy:</b> {{ s.pname }}</p>">
+                {% if s.res == 9001 %}
+                <i class="fa fa-close" style="font-size:15px;color:red"></i>
+                {% elif s.res == 9002 %}
+                <i class="fa fa-close" style="font-size:15px;color:orange"></i>
+                {% elif s.res == 0 %}
+                <i class="fa fa-check-square" style="font-size:15px;color:green"></i>
+                {% elif s.res == 9100 %}
+                <i class="fa fa-question-circle" style="font-size:15px;color:grey"></i>
+                {% else %}
+                <i class="fa fa-exclamation-triangle" style="font-size:15px;color:yellow"></i>
+                {% endif %}
+                
+                    {{ s.verifiedAt }}</span>
+                <br>
+                {% endfor %}
+            </td>
+            <td>
+                {{ e.description }}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<script>
+$(document).ready(function() {
+    $("#elementsearch").on("keyup", function() {
+        var value = $(this).val().toLowerCase();
+        $("#elementtable tr").filter(function() {
+            $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+        });
+    });
+});
+</script>
+<script>
+var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
+var popoverList = popoverTriggerList.map(function(popoverTriggerEl) {
+    return new bootstrap.Popover(popoverTriggerEl)
+})
+</script>
+{% endblock %}
