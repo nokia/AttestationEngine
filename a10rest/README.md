@@ -17,6 +17,16 @@ This is the full form for a local, untrusted pypi repository with a proxy thrown
 pip3 install --index-url x.x.x.x/simple a10 -v --trusted-host x.x.x.x  --proxy=y.y.y.y
 ```
 
+### Swagger
+
+The python3 package flask-swagger is used to generate a JSON file that can be used by Swagger.
+
+```bash
+pip3 install flask-swagger
+```
+
+The document is exposed on the `/spec` endpoint when running.
+
 ## Prerequisites
 
 A mosquitto broker and mongo database must be running as referred to in the a10.conf file.

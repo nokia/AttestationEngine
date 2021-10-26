@@ -7,7 +7,9 @@ import sys
 
 from a10.asvr import elements, policies, attestation, claims, expectedvalues, results
 from a10.structures import constants
-from flask import Flask, request, send_from_directory
+from flask import Flask, request, send_from_directory, jsonify
+
+from flask_swagger import swagger
 
 print(sys.path)
 
@@ -25,12 +27,38 @@ def hello():
     return "Hello from A10REST"
 
 
+
+
+#
+# Swagger - documentation for OpenAPI
+#
+
+@a10rest.route("/spec")
+def spec():
+    swag = swagger(a10rest)
+    swag['info']['version'] = "1.0"
+    swag['info']['description'] = "The A10 REST API Server"
+    swag['info']['title'] = "A10REST"
+    swag['title']= "A10REST"
+    return jsonify(swag)
+
+
+
 #
 # ELEMENTS
 #
 @a10rest.route("/elements", methods=['GET'])
 def getelements():
-
+    """
+    Gets a list of all elements
+    ---
+    get:
+       responses:
+         - 200:
+            content:
+                application/json:
+                    schema: list itemid
+    """
     es = [ x['itemid'] for x in elements.getElements() ]
     print("ES is ",es)
     return str(es), 200
@@ -38,6 +66,7 @@ def getelements():
 
 @a10rest.route("/elementsByTag", methods=['GET'])
 def getelementsbytag():
+
     #Expects a comma separted list of tags
     tags = request.args.get('tags')
     taglist = tags.split(",")
@@ -49,19 +78,21 @@ def getelementsbytag():
 
 @a10rest.route("/element/<itemid>", methods=['GET'])
 def getelement(itemid):
-
+    """
+    Gets the details of a specific element
+    ---
+    get:
+       parameters:
+         - in: itemid
+           schema: Item ID
+       responses:
+         - 404
+         - 200:
+            content:
+                application/json:
+                    schema: Element
+    """
     elem = elements.getElement(itemid)
-
-    #this was a modification by victor - no idea :-)
-    #OK.It was for some more advanced searching of the database, but not sure
-    #if it works anymore...commented out for safety reasons
-    #
-    #if itemid is not None:
-    #
-    #    print("itemid", itemid)
-    #    elem = elements.getElement(itemid)
-    #else:
-    #    elem = elements.getElementByParams(request.args)
 
     if elem.rc() != constants.SUCCESS:
         return elem.msg(), 404
