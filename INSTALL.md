@@ -1,8 +1,6 @@
 # Installation with Docker
 
-The docker container version is the recommended way of deploying A10 and its components
-
-For testing u10, a10rest, etc individually or running without docker and building a10 refer to the specific README and INSTALL files in those directories.
+*IMPORTANT NOTE* The docker container version is the recommended way of deploying A10 and its components. This is the way to do things when you just want to run the system. If you want to develop then you should run everything locally without docker. In this case please refer to the specific README and INSTALL files in those directories.
 
 The container is built using docker-compose from the individual elements A10, A10REST and U10. Once configured the system can be started from the command line or systemd or whatever as required:
 
