@@ -39,4 +39,4 @@ systemd start ta.service
 
 Good to know, the TA basically starts in more or less the same way. However, the Let's Trust TPMs can perform a proper reset as if they were power cycled using the GPIO pins, where as the Infineon TPMs require someone to press the reset button on the device (unless you rewire the big round gold wire).
 
-Actually the above probably should be in the Fake measured boot for the Pis
+Actually the above probably should be in the Fake measured boot for the Pis.
