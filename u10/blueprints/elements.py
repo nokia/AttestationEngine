@@ -51,7 +51,6 @@ def elements():
 	es_sorted = sorted(es, key=lambda i: (i['name']))
 
 	ts = a10.asvr.types.getTypes()
-	print("tsXXX=",list(ts))
 
 	return render_template('elements.html', elements=es_sorted, ts=ts)
 
