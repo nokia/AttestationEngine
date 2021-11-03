@@ -67,7 +67,16 @@ def getelements():
 
 @a10rest.route("/elements/types", methods=['GET'])
 def getTypes():
-
+    """
+    Gets a list of all types currently in use
+    ---
+    get:
+       responses:
+         - 200:
+            content:
+                application/json:
+                    schema: list str
+    """
     ts = str(types.getTypes())
 
     return ts, 200
