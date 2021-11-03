@@ -12,6 +12,7 @@ import a10.structures.identity
 import a10.asvr.elements
 import a10.asvr.results
 import a10.asvr.policies
+import a10.asvr.types
 
 from . import formatting
 
@@ -31,7 +32,6 @@ def elements():
 	es = a10.asvr.elements.getElementsFull()
 
 	for e in es:
-		print("HERE",e)
 		res = a10.asvr.results.getLatestResults(e['itemid'], lrs)
 		resultsummary = []
 		for r in res:
@@ -50,7 +50,10 @@ def elements():
 
 	es_sorted = sorted(es, key=lambda i: (i['name']))
 
-	return render_template('elements.html', elements=es_sorted)
+	ts = a10.asvr.types.getTypes()
+	print("tsXXX=",list(ts))
+
+	return render_template('elements.html', elements=es_sorted, ts=ts)
 
 
 @elements_blueprint.route("/element/<item_id>", methods=['GET'])
