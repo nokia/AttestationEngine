@@ -1,6 +1,8 @@
 package com.example.mobileattester.pages
 
+import android.Manifest
 import android.app.Activity
+import android.content.Context
 import android.content.pm.PackageManager
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
@@ -19,18 +21,28 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
 import com.journeyapps.barcodescanner.CaptureManager
 import com.journeyapps.barcodescanner.CompoundBarcodeView
 
-// Check whether your app is running on a device that has a front-facing camera.
-
+private const val PERMISSIONS_REQUEST_CODE = 10
+private val PERMISSIONS_REQUIRED = arrayOf(Manifest.permission.CAMERA)
 
 @Composable
 @Preview
 fun Scanner(navController: NavController? = null) {
 
     val context = LocalContext.current
+
+    if (!hasPermissions(context)) {
+        ActivityCompat.requestPermissions(
+            context as Activity,
+            PERMISSIONS_REQUIRED,
+            PERMISSIONS_REQUEST_CODE
+        )
+    }
 
     if (context.packageManager.hasSystemFeature(
             PackageManager.FEATURE_CAMERA_FRONT
@@ -94,5 +106,11 @@ fun Scanner(navController: NavController? = null) {
                 }
             }
         )
+
     }
+
+}
+
+fun hasPermissions(context: Context) = PERMISSIONS_REQUIRED.all {
+    ContextCompat.checkSelfPermission(context, it) == PackageManager.PERMISSION_GRANTED
 }
