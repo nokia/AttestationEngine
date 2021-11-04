@@ -121,3 +121,4 @@ def deleteElement(i):
 		return a10.structures.returncode.ReturnCode( a10.structures.constants.SUCCESS,e)
 	else:
 		return a10.structures.returncode.ReturnCode( a10.structures.constants.DELETEITEMFAIL,"Deletion failed.")
+

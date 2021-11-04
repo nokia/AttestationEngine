@@ -5,7 +5,7 @@
 import os
 import sys
 
-from a10.asvr import elements, policies, attestation, claims, expectedvalues, results
+from a10.asvr import elements, policies, attestation, claims, expectedvalues, results, types
 from a10.structures import constants
 from flask import Flask, request, send_from_directory, jsonify
 
@@ -45,8 +45,9 @@ def spec():
 
 
 #
-# ELEMENTS
+# ELEMENTS (ALL OF THEM)
 #
+
 @a10rest.route("/elements", methods=['GET'])
 def getelements():
     """
@@ -64,16 +65,26 @@ def getelements():
     return str(es), 200
 
 
-@a10rest.route("/elementsByTag", methods=['GET'])
-def getelementsbytag():
+@a10rest.route("/elements/types", methods=['GET'])
+def getTypes():
+    """
+    Gets a list of all types currently in use
+    ---
+    get:
+       responses:
+         - 200:
+            content:
+                application/json:
+                    schema: list str
+    """
+    ts = str(types.getTypes())
 
-    #Expects a comma separted list of tags
-    tags = request.args.get('tags')
-    taglist = tags.split(",")
-    print("tags=",type(tags),taglist)
-    es = elements.getElementsByTags(taglist) 
-    print("ES is ",type(es),"\n\n")
-    return str(es[0]), 200
+    return ts, 200
+
+#
+# ELEMENT (SINGULAR)
+#
+
 
 
 @a10rest.route("/element/<itemid>", methods=['GET'])
@@ -136,6 +147,9 @@ def updateElement():
         return e[0], 400
     else:
         return e[0], 200
+
+
+
 
 
 #
