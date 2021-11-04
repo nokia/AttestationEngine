@@ -24,6 +24,7 @@ import com.example.mobileattester.pages.More
 import com.example.mobileattester.pages.Scanner
 import com.example.mobileattester.ui.theme.MobileAttesterTheme
 import compose.icons.TablerIcons
+import compose.icons.tablericons.DeviceDesktop
 import compose.icons.tablericons.Dots
 import compose.icons.tablericons.ListSearch
 import compose.icons.tablericons.Qrcode
@@ -39,7 +40,7 @@ class MainActivity : ComponentActivity() {
 
 val pages = listOf(
     Pair("Home",Icons.Filled.Home),
-    Pair("Elements", TablerIcons.ListSearch),
+    Pair("Elements", TablerIcons.DeviceDesktop),
     Pair("Scanner", TablerIcons.Qrcode),
     Pair("More", TablerIcons.Dots)
 )
@@ -54,7 +55,7 @@ fun MainScreenView() {
                 bottomBar = {
                     Row(modifier = Modifier
                             .fillMaxWidth()
-                            .composed { Modifier.background(Color(45, 48, 71)) },
+                            .background(Color(45, 48, 71)),
                         horizontalArrangement = Arrangement.SpaceEvenly,
                     ) {
                         pages.forEach { // Create bottom button for each page
