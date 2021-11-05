@@ -49,7 +49,7 @@ fun Home(navController: NavController? = null) {
             Text(text = AnnotatedString("Home", SpanStyle(Color.White, fontSize = 24.sp)))
             Text(text = AnnotatedString("Current Configuration", SpanStyle(Color.White, fontSize = 24.sp)), modifier = Modifier.padding(0.dp, 20.dp,0.dp,5.dp))
 
-            ConfigurationButton(text = list[selectedIndex], name= "Current",icon = TablerIcons.AdjustmentsHorizontal, onClick = {
+            ConfigurationButton(text = list[selectedIndex], name= "Engine",icon = TablerIcons.AdjustmentsHorizontal, onClick = {
                 showAllConfigurations = !showAllConfigurations
             })
 
