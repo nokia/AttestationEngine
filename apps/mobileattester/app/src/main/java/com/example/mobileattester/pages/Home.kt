@@ -49,7 +49,7 @@ fun Home(navController: NavController? = null) {
             Text(text = AnnotatedString("Home", SpanStyle(Color.White, fontSize = 24.sp)))
             Text(text = AnnotatedString("Current Configuration", SpanStyle(Color.White, fontSize = 24.sp)), modifier = Modifier.padding(0.dp, 20.dp,0.dp,5.dp))
 
-            ConfigurationButton(text = list[selectedIndex], name= "engine",icon = TablerIcons.AdjustmentsHorizontal, onClick = {
+            ConfigurationButton(text = list[selectedIndex], name= "Current",icon = TablerIcons.AdjustmentsHorizontal, onClick = {
                 showAllConfigurations = !showAllConfigurations
             })
 
@@ -65,7 +65,10 @@ fun Home(navController: NavController? = null) {
                         onIconClick = {
                             Preferences.engines.remove(it)
                             list.remove(it)
+
+                            // Refresh
                             showAllConfigurations = false
+                            showAllConfigurations = true
                         }
                     )
                 }
@@ -84,7 +87,7 @@ fun Home(navController: NavController? = null) {
 fun ConfigurationButton(
     text: String,
     icon: ImageVector = TablerIcons.X,
-    name: String = "undefined",
+    name: String = "History",
     onClick: (String) -> Unit = {},
     onIconClick: (String) -> Unit = {},
 ) {

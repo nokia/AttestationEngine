@@ -15,6 +15,7 @@ import androidx.compose.ui.composed
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavOptions
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -60,6 +61,7 @@ fun MainScreenView() {
                     ) {
                         pages.forEach { // Create bottom button for each page
                             BottomIcon(label = it.first, icon = it.second) { page ->  // OnClick
+                                while(navController.popBackStack()){} // Remove backstack
                                 navController.navigate(page)
                             }
                         }
