@@ -1,6 +1,7 @@
 package com.example.mobileattester
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.background
@@ -24,11 +25,16 @@ import com.example.mobileattester.pages.Home
 import com.example.mobileattester.pages.More
 import com.example.mobileattester.pages.Scanner
 import com.example.mobileattester.ui.theme.MobileAttesterTheme
+import com.example.mobileattester.util.Preferences
 import compose.icons.TablerIcons
 import compose.icons.tablericons.DeviceDesktop
 import compose.icons.tablericons.Dots
 import compose.icons.tablericons.ListSearch
 import compose.icons.tablericons.Qrcode
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
