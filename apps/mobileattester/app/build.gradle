@@ -72,4 +72,6 @@ dependencies {
     // QR
     implementation('com.journeyapps:zxing-android-embedded:4.1.0') { transitive = false }
     implementation 'com.google.zxing:core:3.4.0'
- }
+    implementation "com.google.accompanist:accompanist-permissions:0.21.1-beta"
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.1.1'
+}

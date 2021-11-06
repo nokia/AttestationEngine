@@ -3,7 +3,9 @@ package com.example.mobileattester.pages
 import android.Manifest
 import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -36,51 +38,15 @@ fun Scanner(navController: NavController? = null) {
 
     val context = LocalContext.current
 
-    if (!hasPermissions(context)) {
-        ActivityCompat.requestPermissions(
-            context as Activity,
-            PERMISSIONS_REQUIRED,
-            PERMISSIONS_REQUEST_CODE
-        )
+    // Check if device has camera
+    var hasCamera by remember {
+        mutableStateOf(false)
     }
-
     if (context.packageManager.hasSystemFeature(
             PackageManager.FEATURE_CAMERA_FRONT
         )
     ) {
-        // Continue with the part of your app's workflow that requires a
-        // front-facing camera.
-
-        var scanFlag by remember {
-            mutableStateOf(false)
-        }
-        val compoundBarcodeView = remember {
-            CompoundBarcodeView(context).apply {
-                val capture = CaptureManager(context as Activity, this)
-                capture.initializeFromIntent(context.intent, null)
-                this.setStatusText("")
-                this.resume()
-                capture.decode()
-                this.decodeContinuous { result ->
-                    if (scanFlag) {
-                        return@decodeContinuous
-                    }
-                    scanFlag = true
-                    result.text?.let { barCodeOrQr ->
-                        //Do something and when you finish this something
-                        //put scanFlag = false to scan another item
-                        scanFlag = false
-                    }
-                    //If you don't put this scanFlag = false, it will never work again.
-                    //you can put a delay over 2 seconds and then scanFlag = false to prevent multiple scanning
-                }
-            }
-        }
-
-        AndroidView(
-            modifier = Modifier,
-            factory = { compoundBarcodeView },
-        )
+        hasCamera = true
     } else {
         // Gracefully degrade your app experience in case there is not front-facing camera.
         val snackbarHostState = remember { SnackbarHostState() }
@@ -106,9 +72,60 @@ fun Scanner(navController: NavController? = null) {
                 }
             }
         )
-
+    }
+    var hasCameraPermission by remember {
+        mutableStateOf(false)
     }
 
+    // Check if app has permissions for camera
+    LaunchedEffect(key1 = Unit, block = {
+        if (!hasPermissions(context)) {
+            ActivityCompat.requestPermissions(
+                context as Activity,
+                PERMISSIONS_REQUIRED,
+                PERMISSIONS_REQUEST_CODE
+            )
+        } else {
+            hasCameraPermission = true
+        }
+    })
+
+    var scanFlag by remember {
+        mutableStateOf(false)
+    }
+
+
+    if (hasCamera && hasCameraPermission) {
+
+        val compoundBarcodeView = remember {
+            CompoundBarcodeView(context).apply {
+                val capture = CaptureManager(context as Activity, this)
+                capture.initializeFromIntent(context.intent, null)
+                this.setStatusText("")
+                this.resume()
+                capture.decode()
+                this.decodeContinuous { result ->
+                    if (scanFlag) {
+                        return@decodeContinuous
+                    }
+                    scanFlag = true
+                    result.text?.let { barCodeOrQr ->
+                        Log.d("RESULT", result.toString())
+                        val intent = Intent(context, Element::class.java)
+                        intent.putExtra("ID", result.toString())
+                        context.startActivity(intent)
+                        scanFlag = false
+                    }
+                    //If you don't put this scanFlag = false, it will never work again.
+                    //you can put a delay over 2 seconds and then scanFlag = false to prevent multiple scanning
+                }
+            }
+        }
+        AndroidView(
+            modifier = Modifier,
+            factory = { compoundBarcodeView },
+        )
+    }
 }
 
 fun hasPermissions(context: Context) = PERMISSIONS_REQUIRED.all {
