@@ -73,8 +73,8 @@ j = {
     }
 
 #print(j)
-print("Writing to enroll.json")
-enr = open("enroll.json","w")
+print("Writing to enrol.json")
+enr = open("enrol.json","w")
 enr.write(json.dumps(j, indent=3, sort_keys=True))
 enr.close()
 
