@@ -3,15 +3,19 @@
 # SPDX-License-Identifier: BSD-3-Clause
 
 import tempfile
-import uuid
+import secrets
+import string
 import base64
 import subprocess
-import base64
+import uuid
+import requests
 from flask import Flask, request, jsonify
+import sys
 
 eapp = Flask(__name__)
 
 enrollmentdb = {}
+aerestendpoint = sys.argv[1]
 
 #
 # Home
@@ -19,23 +23,19 @@ enrollmentdb = {}
 
 @eapp.route("/")
 def hello():
-	return "Hello from Enrollment Engine", 200
+	return "Hello from Enrollment Engine. Using: "+aerestendpoint, 200
 
 
 #
 # Enrollment Functions
 #
 
-@eapp.route("/enroll/credentialcheck", methods=['POST'])
+@eapp.route("/enrol/credentialcheck", methods=['POST'])
 def credentialcheck():
 	content = request.json
-	#print("content", content)
 
 	ekpub=content['ekpub']
 	akname=content['akname']
-
-	print("EKPUB ",ekpub)
-	print("AKNAME ",akname)
 
 	#bit of housekeeping
 	#store ek in temporary file
@@ -44,11 +44,11 @@ def credentialcheck():
 	ektf.write(bytes(ekpub,'utf-8'))
 	ektf.seek(0)
 
-	#print("ektf",ektf.read().decode('ascii'))
-	#ektf.seek(0)
-
 	#generate secret
-	secret = str(uuid.uuid4())
+	#This must be a maximum of 32 bytes for makecredential - it is possible that your TPM might vary, but 32 seems to be usual
+	alphabet = string.ascii_letters + string.digits
+	secret = ''.join(secrets.choice(alphabet) for i in range(30))
+	print("Secret is ",secret)
 
 	secf = tempfile.NamedTemporaryFile()
 	secf.write(bytes(secret,'ascii'))
@@ -59,26 +59,20 @@ def credentialcheck():
 
 
 	#makecredential
-	#cmd = "tpm2_makecredential -u "+ektf.name+" -s "+secf.name+" -n "+akname+" -G rsa -o "+credf.name
-	cmd = "tpm2_makecredential -s "+secf.name+" -u "+ektf.name+" -n "+akname+" -G rsa -o "+credf.name
-
-	print("CMD=",cmd)
-	out=subprocess.check_output(cmd.split())
-
-
-	#cmd="cp "+credf.name+" /tmp/credential"
-	#out=subprocess.check_output(cmd.split())
-	#print("cpout=",out)
+	try:
+		cmd = "tpm2_makecredential -s "+secf.name+" -u "+ektf.name+" -n "+akname+" -G rsa -o "+credf.name
+		out=subprocess.check_output(cmd.split())
+	except:
+		print("tpm2_makecredential failed ",out)
+		return out,500
 
 	#if that worked then create a session ID and add that with the secret to the enrollmentdb
-
 	sessionid = str(uuid.uuid4())
 	enrollmentdb[sessionid]=secret		
 
 	#read the credential
 	credf.seek(0)
 	cred = base64.b64encode(credf.read()).decode('utf-8')
-	print("cred=",cred)
 	
 	#cleanup
 	ektf.close()
@@ -86,11 +80,8 @@ def credentialcheck():
 	credf.close()
 
 	#send response
-
 	res = { "session":sessionid,"credential":cred }
-
-	print("Enrollment db ",len(enrollmentdb),"items")
-
+	print("RES=",res)
 	return res,200
 
 
@@ -99,27 +90,31 @@ def credentialcheck():
 #
 
 
-@eapp.route("/enroll/element/<sessionid>", methods=['POST'])
-def enrollelement(sessionid):
+@eapp.route("/enrol/element/<sessionid>", methods=['POST'])
+def enrolelement(sessionid):
 	#First check if there is a valid session id
+	sessionsecret=""
 	try:
 		sessionsecret = enrollmentdb[sessionid]
 	except:
 		return "Invalid Session",422
 
-
 	content = request.json
-
 	esecret = content['secret']
 	eelement = content['element']
-	print("esecret", esecret)
 
+	#test if the given secret is the same as the expected secret
 	if esecret != sessionsecret:
 		return "Incorrect secret",400
 
-	res={"test":"1"}
+	# Now call the attestation engine API to add an element
+	r = requests.post(aerestendpoint+"/element",json=eelement)
+	print("RETURN=",r.status_code,r.text,r.json)
 
-	return res,200
+	if r.status_code == 201:
+		return r.text, 201
+	else:
+		return "Communication with AE failed "+r.text+","+str(r.json)+".",503
 
 
 #

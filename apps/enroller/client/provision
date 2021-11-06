@@ -162,11 +162,17 @@ echo "Removing any existing keys from $EKHANDLE and $AKHANDLE"
 tpm2_evictcontrol -Q -c $EKHANDLE
 tpm2_evictcontrol -Q -c $AKHANDLE
 
+tpm2_getcap handles-persistent
+
+read -p "TPM Cleared?  Ctrl-C exits, Enter continues" x
+
+
+
 echo "Generating EK"
-tpm2_createek -c $EKHANDLE -G rsa -u /ek.pub
+tpm2_createek -Q -c $EKHANDLE -G rsa
 
 echo "Generating AK"
-tpm2_createak -C $EKHANDLE -c /tmp/ak.ctx -G rsa -g sha256 -s rsassa -u /tmp/ak.pub 
+tpm2_createak -Q -C $EKHANDLE -c /tmp/ak.ctx -G rsa -g sha256 -s rsassa -u /tmp/ak.pub -n /tmp/ak.name
 tpm2_evictcontrol -c /tmp/ak.ctx $AKHANDLE
 
 echo "Generating PEM and data files"
@@ -178,14 +184,24 @@ tpm2_readpublic -c $AKHANDLE -o /tmp/ak.pem -f pem
 echo "Handles installed"
 tpm2_getcap handles-persistent
 
+echo "YAML FILE"
+cat /tmp/ak.yaml
+read -p "TPM Check Things #1?  Ctrl-C exits, Enter continues" x
+
+echo "READPUBLIC"
+tpm2_readpublic -c $AKHANDLE
+read -p "TPM Check Things #2?  Ctrl-C exits, Enter continues" x
+
+
 
 echo "Constructing JSON object"
+echo $AKHANDLE
 
 python3 constructTPM2JSONobject.py $NAME "$DESCRIPTION" $LOCATION $TYPES $HOSTNAME $PROTOCOL $IPADDRESS $PORT $ASURL $EKHANDLE $AKHANDLE $UEFIEVENTLOG /tmp/ak.pem /tmp/ak.yaml /tmp/ek.pem /tmp/ek.yaml
 
 
 echo "This is the start of the object*********************"
-cat enroll.json
+cat enrol.json
 echo "This is the end of the object*********************"
 
 read -p "Does everything look good?  Ctrl-C exits, Enter continues" x
@@ -199,6 +215,6 @@ ENROLLMENT_C="http://192.168.1.82:8521"
 read -p "Address of enrollment server [$ENROLLMENT_C]: " ENROLLMENT
 ENROLLMENT=${ENROLLMENT:-$ENROLLMENT_C}
 
-python3 enroll.py $ENROLLMENT enroll.json
+python3 enrol.py $ENROLLMENT enrol.json
 
 echo "Done."
