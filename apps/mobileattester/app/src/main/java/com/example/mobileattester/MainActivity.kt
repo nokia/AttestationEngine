@@ -15,6 +15,7 @@ import androidx.compose.ui.composed
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavOptions
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -24,6 +25,7 @@ import com.example.mobileattester.pages.More
 import com.example.mobileattester.pages.Scanner
 import com.example.mobileattester.ui.theme.MobileAttesterTheme
 import compose.icons.TablerIcons
+import compose.icons.tablericons.DeviceDesktop
 import compose.icons.tablericons.Dots
 import compose.icons.tablericons.ListSearch
 import compose.icons.tablericons.Qrcode
@@ -39,7 +41,7 @@ class MainActivity : ComponentActivity() {
 
 val pages = listOf(
     Pair("Home",Icons.Filled.Home),
-    Pair("Elements", TablerIcons.ListSearch),
+    Pair("Elements", TablerIcons.DeviceDesktop),
     Pair("Scanner", TablerIcons.Qrcode),
     Pair("More", TablerIcons.Dots)
 )
@@ -54,11 +56,12 @@ fun MainScreenView() {
                 bottomBar = {
                     Row(modifier = Modifier
                             .fillMaxWidth()
-                            .composed { Modifier.background(Color(45, 48, 71)) },
+                            .background(Color(45, 48, 71)),
                         horizontalArrangement = Arrangement.SpaceEvenly,
                     ) {
                         pages.forEach { // Create bottom button for each page
                             BottomIcon(label = it.first, icon = it.second) { page ->  // OnClick
+                                while(navController.popBackStack()){} // Remove backstack
                                 navController.navigate(page)
                             }
                         }

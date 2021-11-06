@@ -69,6 +69,8 @@ fun Scanner(navController: NavController? = null) {
                         Icon(imageVector = Icons.Default.Notifications, contentDescription = "")
                         Text("Front-facing camera not found")
                     }
+
+
                 }
             }
         )
@@ -98,7 +100,11 @@ fun Scanner(navController: NavController? = null) {
     if (hasCamera && hasCameraPermission) {
 
         val compoundBarcodeView = remember {
-            CompoundBarcodeView(context).apply {
+            object : CompoundBarcodeView(context){
+                init {
+                    viewFinder.setLaserVisibility(false)
+                }
+            }.apply {
                 val capture = CaptureManager(context as Activity, this)
                 capture.initializeFromIntent(context.intent, null)
                 this.setStatusText("")
