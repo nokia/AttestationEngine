@@ -18,7 +18,11 @@ fun Scanner(navController: NavController? = null) {
         mutableStateOf(false)
     }
     val compoundBarcodeView = remember {
-        CompoundBarcodeView(context).apply {
+        object: CompoundBarcodeView(context) {
+            init {
+                viewFinder.setLaserVisibility(false)
+            }
+        }.apply {
             val capture = CaptureManager(context as Activity, this)
             capture.initializeFromIntent(context.intent, null)
             this.setStatusText("")
