@@ -1,0 +1,204 @@
+#!/bin/sh
+# Copyright 2021 Nokia
+# Licensed under the BSD 3-Clause License.
+# SPDX-License-Identifier: BSD-3-Clause
+#
+#
+#  We assume python yaml libraries and curl are installed
+#
+#  apt install curl
+#
+#
+#This is what we need to generate
+# {
+#     "description": "The Ubuntu VM",
+#     "endpoint": "http://192.168.1.82:8530",
+#     "itemid": "3963611a-6edc-43b8-bd9c-9dd81b296855",
+#     "location": "60\u00b010\u203215\u2033N 24\u00b056\u203215\u2033E",
+#     "name": "Ubuntu VM",
+#     "protocol": "A10HTTPREST",
+#     "tpm2": {
+#         "tpm0": {
+#             "akhandle": "0x810100AA",
+#             "akname": "x",
+#             "akpub": "x",
+#             "ekhandle": "0x810100EE",
+#             "ekname": "x",
+#             "ekpub": "x"
+#         },
+#         "tpm1": {
+#             "akhandle": "0x810100AA",
+#             "akname": "x",
+#             "akpub": "x",
+#             "ekhandle": "0x810100EE",
+#             "ekname": "x",
+#             "ekpub": "x"
+#         }
+#     },
+#     "type": [
+#         "tpm2.0",
+#         "ibmtpmsim"
+#     ],
+#     "uefi": {
+#         "eventlog": "/sys/kernel/security/tpm0/binary_bios_measurements"
+#     }
+# }
+#
+
+
+echo "Provisioning Script: JSON Element Description Generation"
+
+#
+#Calculated defaults (note the _C in the name)
+#
+
+HOSTNAME_C=`hostname`
+#hostname -I generates a trailing space, xargs without argumements removes it - dyna cwl eh?!"
+IPADDRESS_C=`hostname -I | xargs`
+PORT_C=8530
+ASURL_C=http://10.144.176.154:8510
+PROTOCOL_C=A10HTTPREST
+NAME_C=`hostname`
+DESCRIPTION_C="to lazy to write this"
+LOCATION_C="60.22309,24.75877"
+TYPES_C="x86,tpm2,uefi,arm,pi"
+
+#Element Identification Details
+echo "\nSetting up the basic element identification details"
+
+
+read -p "Short  Name [$HOSTNAME_C]: " NAME
+NAME=${NAME:-$NAME_C}
+
+read -p "Longer Description [$DESCRIPTION_C]: " DESCRIPTION
+DESCRIPTION=${DESCRIPTION:-$DESCRIPTION_C}
+
+read -p "Location [$LOCATION_C]: " LOCATION
+LOCATION=${LOCATION:-$LOCATION_C}
+
+read -p "Types (comma separated) [$TYPES_C]: " TYPES
+TYPES=${TYPES:-$TYPES_C}
+
+read -p "This machine's hostname [$HOSTNAME_C]: " HOSTNAME
+HOSTNAME=${HOSTNAME:-$HOSTNAME_C}
+
+read -p "This machine's IP address [$IPADDRESS_C]: " IPADDRESS
+IPADDRESS=${IPADDRESS:-$IPADDRESS_C}
+
+read -p "Protocol [$PROTOCOL_C]: " PROTOCOL
+PROTOCOL=${PROTOCOL:-$PROTOCOL_C}
+
+read -p "TA Port [$PORT_C]: " PORT
+PORT=${PORT:-$PORT_C}
+
+read -p "Attestation server URLs (comma separated if more than one) [$ASURL_C]: " ASURL
+ASURL=${ASURL:-$ASURL_C}
+
+
+
+#
+# TPM Stuff
+#
+
+EKHANDLE_C=0x810100ee
+AKHANDLE_C=0x810100aa
+
+echo "\nSetting up keys - the EK will be removed after these operations"
+echo "Generation will fail if keys already exist at the given handles"
+
+read -p "Enter EK handle location [$EKHANDLE_C]: " EKHANDLE
+EKHANDLE=${EKHANDLE:-$EKHANDLE_C}
+
+
+read -p "Enter AK handle location [$AKHANDLE_C]: " AKHANDLE
+AKHANDLE=${AKHANDLE:-$AKHANDLE_C}
+
+
+#
+# UEFI Stuff
+#
+
+UEFIEVENTLOG_C=/sys/kernel/security/tpm0/binary_bios_measurements
+
+echo "\nIf the UEFI eventlog is available accept the default (or modify the location)"
+echo "If this is not a UEFI machine then delete the default answer and leave blank"
+
+read -p "Enter UEFI eventlog location [$UEFIEVENTLOG_C]: " UEFIEVENTLOG
+UEFIEVENTLOG=${UEFIEVENTLOG:-$UEFIEVENTLOG_C}
+
+
+
+echo "\n\nThis is what I have"
+
+echo $NAME
+echo $DESCRIPTION
+echo $LOCATION
+echo $TYPES
+echo $HOSTNAME
+echo $PROTOCOL $IPADDRESS $PORT
+echo $ASURL
+echo $EKHANDLE
+echo $AKHANDLE
+echo $UEFIEVENTLOG
+
+read -p "Does everything look good?  Ctrl-C exits, Enter continues" x
+
+#
+# Provisioning the keys in the TPM
+#
+
+echo "Continuing with setup"
+
+echo "Cleaning up any temporary files - this will generate errors if these files do not exist - this is good!"
+rm /tmp/ek.name
+rm /tmp/ek.pem
+rm /tmp/ak.name
+rm /tmp/ak.pem
+rm /tmp/ak.ctx
+
+
+
+echo "Removing any existing keys from $EKHANDLE and $AKHANDLE"
+tpm2_evictcontrol -Q -c $EKHANDLE
+tpm2_evictcontrol -Q -c $AKHANDLE
+
+echo "Generating EK"
+tpm2_createek -c $EKHANDLE -G rsa -u /ek.pub
+
+echo "Generating AK"
+tpm2_createak -C $EKHANDLE -c /tmp/ak.ctx -G rsa -g sha256 -s rsassa -u /tmp/ak.pub 
+tpm2_evictcontrol -c /tmp/ak.ctx $AKHANDLE
+
+echo "Generating PEM and data files"
+tpm2_readpublic -c $EKHANDLE > /tmp/ek.yaml 
+tpm2_readpublic -c $AKHANDLE > /tmp/ak.yaml 
+tpm2_readpublic -c $EKHANDLE -o /tmp/ek.pem -f pem 
+tpm2_readpublic -c $AKHANDLE -o /tmp/ak.pem -f pem 
+
+echo "Handles installed"
+tpm2_getcap handles-persistent
+
+
+echo "Constructing JSON object"
+
+python3 constructTPM2JSONobject.py $NAME "$DESCRIPTION" $LOCATION $TYPES $HOSTNAME $PROTOCOL $IPADDRESS $PORT $ASURL $EKHANDLE $AKHANDLE $UEFIEVENTLOG /tmp/ak.pem /tmp/ak.yaml /tmp/ek.pem /tmp/ek.yaml
+
+
+echo "This is the start of the object*********************"
+cat enroll.json
+echo "This is the end of the object*********************"
+
+read -p "Does everything look good?  Ctrl-C exits, Enter continues" x
+
+
+#Enrollment
+echo "\nSetting up the basic element identification details"
+
+ENROLLMENT_C="http://192.168.1.82:8521"
+
+read -p "Address of enrollment server [$ENROLLMENT_C]: " ENROLLMENT
+ENROLLMENT=${ENROLLMENT:-$ENROLLMENT_C}
+
+python3 enroll.py $ENROLLMENT enroll.json
+
+echo "Done."

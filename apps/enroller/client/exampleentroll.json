@@ -1,0 +1,27 @@
+{
+   "asurl": [
+      "http://10.144.176.154:8510"
+   ],
+   "description": "to lazy to write this",
+   "endpoint": "http://192.168.1.82:8530",
+   "hostname": "ubuntu",
+   "location": "60.22309,24.75877",
+   "name": "ubuntu",
+   "protocol": "A10HTTPREST",
+   "tpm2": {
+      "tpm0": {
+         "akhandle": "0x810100aa",
+         "akname": "000b8518cc7eaa5da4b672295308c2cdacc359f4bcc7f0446ab7a5d185bac6a21cb7",
+         "akpem": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA8jlp1I/M40vGOeasmlp5\nJSwFLp25Oien02a/Yq8y6YnU00XLdKuruPB3NuzIShDrjG/NrdOzF2de8cRodzG6\nC6YlhMoNzpJRT+1ujMsMlIesffWBYbm9cXojA2IqUSwZuLm12IKy4LVHqgFU+l+b\nRTYoeqBZC3ZEXVS+W3OzXQaoia3MZ2v3kb3DZrflNf5dBu9QvDcWg800NnRPZeyK\nrfAC0UiOMyiGUxW0GUiK6tm8to17T1whg5Bvx4Gqh1HgRfVk8jTugsk1WVMAhk9l\nMaVu+QEOO0cYHZVSR62ithvwrnTiXOyc8OPCNcbkZKTAI++IXtCR6qLQw8Du8/Zt\nPwIDAQAB\n-----END PUBLIC KEY-----\n",
+         "ekhandle": "0x810100ee",
+         "ekname": "000bc4ee61c9d0ecdca65d7f5a979dfaaab9164ec17a4628d6f36ee5ec229199bcc4",
+         "ekpem": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEApXdSia5I1t2OKqGJy2JV\nd1jHulStM58KGR8Me4cg1GmPlFXqWpMl/kAajweIPG1fCaO/u9s1XricOHo3j8I1\nhRAcO2ie53xSaRADZnD325V13ru55ZjApnu3kpRI1OukwmEGi5263551y1mWoLxN\npnjFUGwDz6llJmakcyoWdFQ4zrJhxgzV65gWha8RA7iOwc1BaE7SCnJAfCu4ComX\nuWswyCaGE1gdPoaPJHXQ1sQ7AZBX4eeNfiHjCvKp5CA6hckgJkrVLFyH03VR2c3e\nssjEHlaPWMuKnPJXR/iNVKN5mxY1yV1U0js8jQWlzv7YPp7ES2ZRrAzGclmNN2Fe\nuQIDAQAB\n-----END PUBLIC KEY-----\n"
+      }
+   },
+   "type": [
+      "x86"
+   ],
+   "uefi": {
+      "eventlog": "/sys/kernel/security/tpm0/binary_bios_measurements"
+   }
+}
