@@ -24,6 +24,7 @@ import com.example.mobileattester.pages.Home
 import com.example.mobileattester.pages.More
 import com.example.mobileattester.pages.Scanner
 import com.example.mobileattester.ui.theme.MobileAttesterTheme
+import com.example.mobileattester.util.NavUtils
 import compose.icons.TablerIcons
 import compose.icons.tablericons.DeviceDesktop
 import compose.icons.tablericons.Dots
@@ -34,7 +35,10 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            MainScreenView()
+            MobileAttesterTheme {
+                NavUtils.Navigator()
+            }
+            //MainScreenView()
         }
     }
 }
@@ -55,8 +59,8 @@ fun MainScreenView() {
             Scaffold(
                 bottomBar = {
                     Row(modifier = Modifier
-                            .fillMaxWidth()
-                            .background(Color(45, 48, 71)),
+                        .fillMaxWidth()
+                        .background(Color(45, 48, 71)),
                         horizontalArrangement = Arrangement.SpaceEvenly,
                     ) {
                         pages.forEach { // Create bottom button for each page

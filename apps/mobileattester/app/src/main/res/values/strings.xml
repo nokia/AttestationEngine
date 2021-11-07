@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Mobile Attester</string>
+    <string name="nav_home">Home</string>
+    <string name="nav_elements">Elements</string>
+    <string name="nav_scanner">Scanner</string>
+    <string name="nav_more">More</string>
 </resources>
