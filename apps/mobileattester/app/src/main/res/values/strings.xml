@@ -4,4 +4,7 @@
     <string name="nav_elements">Elements</string>
     <string name="nav_scanner">Scanner</string>
     <string name="nav_more">More</string>
+    <string name="placeholder_search_elementlist">Search…</string>
+    <string name="elementlist_additional">Additional</string>
+    <string name="nav_element">Element</string>
 </resources>

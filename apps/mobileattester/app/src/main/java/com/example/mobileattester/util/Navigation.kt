@@ -19,10 +19,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.mobileattester.R
-import com.example.mobileattester.pages.Elements
-import com.example.mobileattester.pages.Home
-import com.example.mobileattester.pages.More
-import com.example.mobileattester.pages.Scanner
+import com.example.mobileattester.pages.*
 import compose.icons.TablerIcons
 import compose.icons.tablericons.DeviceDesktop
 import compose.icons.tablericons.Dots
@@ -46,6 +43,7 @@ sealed class Screen(val route: String, @StringRes val stringResId: Int) {
     object Elements : Screen("elements", R.string.nav_elements)
     object Scanner : Screen("scanner", R.string.nav_scanner)
     object More : Screen("more", R.string.nav_more)
+    object Element : Screen("element", R.string.nav_element)
 }
 
 object NavUtils {
@@ -66,17 +64,21 @@ object NavUtils {
     fun Navigator() {
         val navController = rememberNavController()
 
-        Scaffold(bottomBar = {
-            BottomBar(navController)
-        }, topBar = { TopBar(navController) }) { innerPadding ->
-            // Add new nav destinations here
-            NavHost(
-                navController, startDestination = Screen.Home.route, Modifier.padding(innerPadding)
-            ) {
+        Scaffold(
+            topBar = { TopBar(navController) },
+            bottomBar = {
+                BottomBar(navController)
+            },
+        ) { innerPadding ->
+            NavHost(navController,
+                startDestination = Screen.Element.route,
+                Modifier.padding(innerPadding)) {
+                // Add new nav destinations here after Screen for it is created
                 composable(Screen.Home.route) { Home(navController) }
                 composable(Screen.Elements.route) { Elements(navController) }
                 composable(Screen.Scanner.route) { Scanner(navController) }
                 composable(Screen.More.route) { More(navController) }
+                composable(Screen.Element.route) { Element(navController) }
             }
         }
     }
@@ -89,17 +91,12 @@ object NavUtils {
 
             topNavDestinations.forEach { screen ->
                 BottomNavigationItem(icon = {
-                    Icon(
-                        getRouteIcon(screen), contentDescription = null
-                    )
+                    Icon(getRouteIcon(screen), contentDescription = null)
                 },
                     label = { Text(stringResource(screen.stringResId)) },
                     selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
                     onClick = {
                         navController.navigate(screen.route) {
-                            // Pop up to the start destination of the graph to
-                            // avoid building up a large stack of destinations
-                            // on the back stack as users select items
                             popUpTo(navController.graph.findStartDestination().id) {
                                 saveState = true
                             }
@@ -121,7 +118,7 @@ object NavUtils {
         val screen = currentRoute?.let { Screen.getScreenFromRoute(it) } ?: return
         val isTopDestination = topNavDestinations.contains(screen)
 
-        // Compose leaves an empty space in front of the title if provided navIcon is null
+        // This avoids an empty space in the top bar if the back icon is not needed
         if (isTopDestination) {
             TopAppBar(
                 title = { Text(stringResource(id = screen.stringResId)) },
@@ -134,9 +131,14 @@ object NavUtils {
                 backgroundColor = MaterialTheme.colors.primary,
                 contentColor = MaterialTheme.colors.onPrimary,
                 navigationIcon = {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_baseline_arrow_back_32),
-                        contentDescription = null
+                    IconButton(
+                        content = {
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_baseline_arrow_back_24),
+                                contentDescription = null,
+                            )
+                        },
+                        onClick = { navController.navigateUp() },
                     )
                 },
             )

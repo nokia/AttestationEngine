@@ -13,3 +13,7 @@ val Secondary = Color(0xFF2D3047)
 val White = Color(0xFFFFFFFF)
 val Ok = Color(0xFF298549)
 val Error = Color(0xFFB00020)
+
+val DividerColor = Color(0xFFE4E4E4)
+val LightGrey = Color(0xFF898989)
+val DarkGrey = Color(0xFF5F5F5F)
