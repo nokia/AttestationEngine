@@ -70,13 +70,17 @@ dependencies {
     debugImplementation "androidx.compose.ui:ui-tooling:$compose_version"
 
 
-    //LifeCycle
+    // Lifecycle
     implementation 'androidx.lifecycle:lifecycle-common:2.4.0'
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.4.0'
-    implementation 'android.arch.lifecycle:extensions:2.2.0'
-    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.4.0'
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.0"
 
-    //Retrofit
+
+    // Livedata
+    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.4.0'
+    implementation "androidx.compose.runtime:runtime-livedata:$compose_version"
+
+    // Retrofit
     implementation 'com.squareup.retrofit2:retrofit:2.6.0'
     implementation 'com.google.code.gson:gson:2.8.6'
     implementation 'com.squareup.retrofit2:converter-gson:2.5.0'

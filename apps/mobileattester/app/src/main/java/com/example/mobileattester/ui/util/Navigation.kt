@@ -1,5 +1,6 @@
 package com.example.mobileattester.ui.util
 
+import androidx.activity.ComponentActivity
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
@@ -9,8 +10,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -20,6 +23,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.mobileattester.R
 import com.example.mobileattester.ui.pages.*
+import com.example.mobileattester.ui.viewmodel.AttestationViewModelImpl
 import compose.icons.TablerIcons
 import compose.icons.tablericons.DeviceDesktop
 import compose.icons.tablericons.Dots
@@ -63,6 +67,8 @@ object NavUtils {
     @Composable
     fun Navigator() {
         val navController = rememberNavController()
+        val viewModel: AttestationViewModelImpl =
+            viewModel(viewModelStoreOwner = LocalContext.current as ComponentActivity)
 
         Scaffold(
             topBar = { TopBar(navController) },
@@ -71,10 +77,10 @@ object NavUtils {
             },
         ) { innerPadding ->
             NavHost(navController,
-                startDestination = Screen.Element.route,
+                startDestination = Screen.Home.route,
                 Modifier.padding(innerPadding)) {
                 // Add new nav destinations here after Screen for it is created
-                composable(Screen.Home.route) { Home(navController) }
+                composable(Screen.Home.route) { Home(navController, viewModel) }
                 composable(Screen.Elements.route) { Elements(navController) }
                 composable(Screen.Scanner.route) { Scanner(navController) }
                 composable(Screen.More.route) { More(navController) }
