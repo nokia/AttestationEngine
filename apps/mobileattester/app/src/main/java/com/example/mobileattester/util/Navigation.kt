@@ -7,6 +7,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
@@ -63,9 +65,10 @@ object NavUtils {
     @Composable
     fun Navigator() {
         val navController = rememberNavController()
+        val showTopBar = remember { mutableStateOf(true)}
 
         Scaffold(
-            topBar = { TopBar(navController) },
+            topBar = { if(showTopBar.value) TopBar(navController) },
             bottomBar = {
                 BottomBar(navController)
             },
@@ -74,11 +77,11 @@ object NavUtils {
                 startDestination = Screen.Home.route,
                 Modifier.padding(innerPadding)) {
                 // Add new nav destinations here after Screen for it is created
-                composable(Screen.Home.route) { Home(navController) }
-                composable(Screen.Elements.route) { Elements(navController) }
-                composable(Screen.Scanner.route) { Scanner(navController) }
-                composable(Screen.More.route) { More(navController) }
-                composable(Screen.Element.route) { Element(navController) }
+                composable(Screen.Home.route) { showTopBar.value = true;  Home(navController) }
+                composable(Screen.Elements.route) { showTopBar.value = true; Elements(navController) }
+                composable(Screen.Scanner.route) { showTopBar.value = false; Scanner(navController) }
+                composable(Screen.More.route) { showTopBar.value = true;  More(navController) }
+                composable(Screen.Element.route) { showTopBar.value = true;  Element(navController) }
             }
         }
     }
