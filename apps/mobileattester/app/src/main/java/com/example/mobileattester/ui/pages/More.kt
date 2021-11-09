@@ -1,4 +1,4 @@
-package com.example.mobileattester.pages
+package com.example.mobileattester.ui.pages
 
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable

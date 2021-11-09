@@ -1,4 +1,4 @@
-package com.example.mobileattester.pages
+package com.example.mobileattester.ui.pages
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.MaterialTheme
@@ -8,9 +8,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.mobileattester.components.TagRow
-import com.example.mobileattester.components.common.HeaderRoundedBottom
-import com.example.mobileattester.components.common.OutlinedIconButton
+import com.example.mobileattester.ui.components.TagRow
+import com.example.mobileattester.ui.components.common.HeaderRoundedBottom
+import com.example.mobileattester.ui.components.common.OutlinedIconButton
 import com.example.mobileattester.ui.theme.DarkGrey
 import com.example.mobileattester.ui.theme.Error
 import com.example.mobileattester.ui.theme.Ok

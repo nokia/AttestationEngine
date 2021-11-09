@@ -1,4 +1,4 @@
-package com.example.mobileattester.pages
+package com.example.mobileattester.ui.pages
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -17,7 +17,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.mobileattester.util.Preferences
+import com.example.mobileattester.ui.util.Preferences
 import compose.icons.TablerIcons
 import compose.icons.tablericons.AdjustmentsHorizontal
 import compose.icons.tablericons.X

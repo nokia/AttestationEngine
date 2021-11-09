@@ -1,4 +1,4 @@
-package com.example.mobileattester.components.common
+package com.example.mobileattester.ui.components.common
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable

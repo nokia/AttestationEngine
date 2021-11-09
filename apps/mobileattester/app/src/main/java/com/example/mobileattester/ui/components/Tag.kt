@@ -1,4 +1,4 @@
-package com.example.mobileattester.components
+package com.example.mobileattester.ui.components
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer

@@ -11,24 +11,21 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.navigation.NavOptions
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.mobileattester.pages.Elements
-import com.example.mobileattester.pages.Home
-import com.example.mobileattester.pages.More
-import com.example.mobileattester.pages.Scanner
+import com.example.mobileattester.ui.pages.Elements
+import com.example.mobileattester.ui.pages.Home
+import com.example.mobileattester.ui.pages.More
+import com.example.mobileattester.ui.pages.Scanner
 import com.example.mobileattester.ui.theme.MobileAttesterTheme
-import com.example.mobileattester.util.NavUtils
+import com.example.mobileattester.ui.util.NavUtils
 import compose.icons.TablerIcons
 import compose.icons.tablericons.DeviceDesktop
 import compose.icons.tablericons.Dots
-import compose.icons.tablericons.ListSearch
 import compose.icons.tablericons.Qrcode
 
 class MainActivity : ComponentActivity() {

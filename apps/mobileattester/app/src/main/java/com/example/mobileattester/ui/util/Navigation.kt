@@ -1,4 +1,4 @@
-package com.example.mobileattester.util
+package com.example.mobileattester.ui.util
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.padding
@@ -19,7 +19,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.mobileattester.R
-import com.example.mobileattester.pages.*
+import com.example.mobileattester.ui.pages.*
 import compose.icons.TablerIcons
 import compose.icons.tablericons.DeviceDesktop
 import compose.icons.tablericons.Dots
