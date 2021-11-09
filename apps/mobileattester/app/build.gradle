@@ -75,4 +75,5 @@ dependencies {
     // QR
     implementation('com.journeyapps:zxing-android-embedded:4.1.0') { transitive = false }
     implementation 'com.google.zxing:core:3.4.0'
+    implementation "org.jetbrains.kotlin:kotlin-reflect:1.5.31"
 }
