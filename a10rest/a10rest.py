@@ -118,10 +118,10 @@ def addElement():
 
     e = elements.addElement(content)
 
-    if e[1] != constants.SUCCESS:
-        return e[0], 400
+    if e.rc() != constants.SUCCESS:
+        return e.msg(), 400
     else:
-        return e[0], 200
+        return e.msg(), 201
 
 
 @a10rest.route("/element", methods=['DELETE'])
@@ -130,10 +130,10 @@ def deleteElement():
     print("itemid", itemid)
     e = elements.deleteElement(itemid)
 
-    if e[1] != constants.SUCCESS:
-        return e[0], 404
+    if e.rc() != constants.SUCCESS:
+        return e.msg(), 404
     else:
-        return e[0], 200
+        return e.msg(), 200
 
 
 @a10rest.route("/element", methods=['PUT'])
@@ -143,10 +143,10 @@ def updateElement():
 
     e = elements.updateElement(content)
 
-    if e[1] != constants.SUCCESS:
-        return e[0], 400
+    if e.rc() != constants.SUCCESS:
+        return e.msg(), 400
     else:
-        return e[0], 200
+        return e.msg(), 200
 
 
 
@@ -184,7 +184,7 @@ def addPolicy():
     if e.rc() != constants.SUCCESS:
         return e.msg(), 400
     else:
-        return e.msg(), 200
+        return e.msg(), 201
 
 
 @a10rest.route("/policy", methods=['DELETE'])
@@ -252,7 +252,7 @@ def addEV():
     if e.rc() != constants.SUCCESS:
         return e.msg(), 400
     else:
-        return e.msg(), 200
+        return e.msg(), 201
 
 
 @a10rest.route("/expectedvalue/<itemid>", methods=['DELETE'])
@@ -329,7 +329,7 @@ def attest():
     if e.rc() != constants.SUCCESS:
         return e.msg(), 400
     else:
-        return e.msg(), 200
+        return e.msg(), 201
 
 
 @a10rest.route("/verify", methods=['POST'])
@@ -344,7 +344,7 @@ def verify():
     if e.rc() != constants.SUCCESS:
         return e.msg(), 400
     else:
-        return e.msg(), 200
+        return e.msg(), 201
 
 
 #
