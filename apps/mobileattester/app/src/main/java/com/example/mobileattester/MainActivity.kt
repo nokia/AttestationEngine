@@ -69,9 +69,7 @@ fun MainScreenView() {
             val navController = rememberNavController()
             Scaffold(bottomBar = {
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(Color(45, 48, 71)),
+                    modifier = Modifier.fillMaxWidth().background(Color(45, 48, 71)),
                     horizontalArrangement = Arrangement.SpaceEvenly,
                 ) {
                     pages.forEach { // Create bottom button for each page
