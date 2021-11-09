@@ -71,7 +71,7 @@ object NavUtils {
             },
         ) { innerPadding ->
             NavHost(navController,
-                startDestination = Screen.Element.route,
+                startDestination = Screen.Home.route,
                 Modifier.padding(innerPadding)) {
                 // Add new nav destinations here after Screen for it is created
                 composable(Screen.Home.route) { Home(navController) }
@@ -97,6 +97,7 @@ object NavUtils {
                     selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
                     onClick = {
                         navController.navigate(screen.route) {
+                            while(navController.popBackStack()){} // Remove backstack for back button
                             popUpTo(navController.graph.findStartDestination().id) {
                                 saveState = true
                             }
