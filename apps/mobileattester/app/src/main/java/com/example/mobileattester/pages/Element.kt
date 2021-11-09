@@ -1,5 +1,6 @@
 package com.example.mobileattester.pages
 
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
@@ -22,6 +23,7 @@ import compose.icons.tablericons.Trash
 
 @Composable
 fun Element(navController: NavController) {
+    Log.i("ID", navController.currentBackStackEntry?.arguments?.get("id").toString())
     Column() {
         HeaderRoundedBottom {
             Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 24.dp)) {

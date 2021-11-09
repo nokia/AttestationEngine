@@ -1,5 +1,6 @@
 package com.example.mobileattester.util
 
+import android.os.Bundle
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
@@ -13,7 +14,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.navigation.NavController
+import androidx.core.net.toUri
+import androidx.navigation.*
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
@@ -22,6 +24,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.mobileattester.R
 import com.example.mobileattester.pages.*
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import compose.icons.TablerIcons
 import compose.icons.tablericons.DeviceDesktop
 import compose.icons.tablericons.Dots
@@ -48,6 +51,7 @@ sealed class Screen(val route: String, @StringRes val stringResId: Int) {
     object Element : Screen("element", R.string.nav_element)
 }
 
+@ExperimentalPermissionsApi
 object NavUtils {
     /**
      * Top nav destinations for the application (Bottom nav locations)
@@ -79,7 +83,7 @@ object NavUtils {
                 // Add new nav destinations here after Screen for it is created
                 composable(Screen.Home.route) { showTopBar.value = true;  Home(navController) }
                 composable(Screen.Elements.route) { showTopBar.value = true; Elements(navController) }
-                composable(Screen.Scanner.route) { showTopBar.value = false; Scanner(navController) }
+                composable(Screen.Scanner.route) { showTopBar.value = false; Scanner(navController) } // Experimental Permissions
                 composable(Screen.More.route) { showTopBar.value = true;  More(navController) }
                 composable(Screen.Element.route) { showTopBar.value = true;  Element(navController) }
             }
@@ -157,5 +161,27 @@ object NavUtils {
             Screen.More -> TablerIcons.Dots
             else -> TablerIcons.QuestionMark
         }
+    }
+}
+
+// NavController extension that allows arguments
+fun NavController.navigate(
+    route: String,
+    args: Bundle,
+    navOptions: NavOptions? = null,
+    navigatorExtras: Navigator.Extras? = null
+) {
+    val routeLink = NavDeepLinkRequest
+        .Builder
+        .fromUri(NavDestination.createRoute(route).toUri())
+        .build()
+
+    val deepLinkMatch = graph.matchDeepLink(routeLink)
+    if (deepLinkMatch != null) {
+        val destination = deepLinkMatch.destination
+        val id = destination.id
+        navigate(id, args, navOptions, navigatorExtras)
+    } else {
+        navigate(route, navOptions, navigatorExtras)
     }
 }
