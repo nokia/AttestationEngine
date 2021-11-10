@@ -1,7 +1,8 @@
-package com.example.mobileattester.util
+package com.example.mobileattester.ui.util
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import androidx.activity.ComponentActivity
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
@@ -13,9 +14,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.core.net.toUri
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.*
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -24,7 +27,12 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.mobileattester.R
-import com.example.mobileattester.pages.*
+import com.example.mobileattester.pages.Home
+import com.example.mobileattester.ui.pages.Element
+import com.example.mobileattester.ui.pages.Elements
+import com.example.mobileattester.ui.pages.More
+import com.example.mobileattester.ui.pages.Scanner
+import com.example.mobileattester.ui.viewmodel.AttestationViewModelImpl
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import compose.icons.TablerIcons
 import compose.icons.tablericons.DeviceDesktop
@@ -70,23 +78,36 @@ object NavUtils {
     @Composable
     fun Navigator() {
         val navController = rememberNavController()
-        val showTopBar = remember { mutableStateOf(true)}
+        val showTopBar = remember { mutableStateOf(true) }
+        val viewModel: AttestationViewModelImpl =
+            viewModel(viewModelStoreOwner = LocalContext.current as ComponentActivity)
 
         Scaffold(
-            topBar = { if(showTopBar.value) TopBar(navController) },
+            topBar = { if (showTopBar.value) TopBar(navController) },
             bottomBar = {
                 BottomBar(navController)
             },
         ) { innerPadding ->
-            NavHost(navController,
+            NavHost(
+                navController,
                 startDestination = Screen.Home.route,
-                Modifier.padding(innerPadding)) {
+                Modifier.padding(innerPadding)
+            ) {
                 // Add new nav destinations here after Screen for it is created
-                composable(Screen.Home.route) { showTopBar.value = true;  Home(navController) }
-                composable(Screen.Elements.route) { showTopBar.value = true; Elements(navController) }
-                composable(Screen.Scanner.route) { showTopBar.value = false; Scanner(navController) } // Experimental Permissions
-                composable(Screen.More.route) { showTopBar.value = true;  More(navController) }
-                composable(Screen.Element.route) { showTopBar.value = true;  Element(navController) }
+                composable(Screen.Home.route) {
+                    showTopBar.value = true; Home(
+                    navController,
+                    viewModel
+                )
+                }
+                composable(Screen.Elements.route) {
+                    showTopBar.value = true; Elements(navController)
+                }
+                composable(Screen.Scanner.route) {
+                    showTopBar.value = false; Scanner(navController)
+                } // Experimental Permissions
+                composable(Screen.More.route) { showTopBar.value = true; More(navController) }
+                composable(Screen.Element.route) { showTopBar.value = true; Element(navController) }
             }
         }
     }
@@ -105,7 +126,8 @@ object NavUtils {
                     selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
                     onClick = {
                         navController.navigate(screen.route) {
-                            while(navController.popBackStack()){} // Remove backstack for back button
+                            while (navController.popBackStack()) {
+                            } // Remove backstack for back button
                             popUpTo(navController.graph.findStartDestination().id) {
                                 saveState = true
                             }

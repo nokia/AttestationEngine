@@ -1,4 +1,4 @@
-package com.example.mobileattester.components.common
+package com.example.mobileattester.ui.components.common
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement

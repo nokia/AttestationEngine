@@ -1,4 +1,4 @@
-package com.example.mobileattester.util
+package com.example.mobileattester.ui.util
 
 import android.content.Context
 import androidx.datastore.core.DataStore
@@ -24,13 +24,11 @@ class Preferences(private val context: Context) {
         private val defaultConfig = mutableSetOf("127.0.0.1:1883")
 
 
+        private var _currentEngine: String? = null
 
-        private var _currentEngine : String? = null
-
-        var currentEngine : String
+        var currentEngine: String
             // getter
             get() = _currentEngine ?: defaultConfig.first()
-
             // setter
             set(value) {
                 _currentEngine = value
@@ -40,15 +38,17 @@ class Preferences(private val context: Context) {
 
     val engines: Flow<SortedSet<String>> by lazy {
         context.dataStore.data
-        .map { preferences ->
-            if(preferences[enginesKey] == null || preferences[enginesKey]!!.isEmpty())
-                defaultConfig.toSortedSet()
-            else
-                preferences[enginesKey]!!.ifEmpty { defaultConfig }.also { if(_currentEngine == null) _currentEngine = it.first() }.toSortedSet()
-        }
+            .map { preferences ->
+                if (preferences[enginesKey] == null || preferences[enginesKey]!!.isEmpty())
+                    defaultConfig.toSortedSet()
+                else
+                    preferences[enginesKey]!!.ifEmpty { defaultConfig }
+                        .also { if (_currentEngine == null) _currentEngine = it.first() }
+                        .toSortedSet()
+            }
     }
 
-    suspend fun saveEngines(engines : SortedSet<String>) {
+    suspend fun saveEngines(engines: SortedSet<String>) {
         context.dataStore.edit { preferences ->
             preferences[enginesKey] = engines
         }

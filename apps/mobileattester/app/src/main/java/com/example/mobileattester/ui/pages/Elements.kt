@@ -1,4 +1,4 @@
-package com.example.mobileattester.pages
+package com.example.mobileattester.ui.pages
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -17,12 +17,12 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.mobileattester.R
-import com.example.mobileattester.components.SearchBar
-import com.example.mobileattester.components.Tag
-import com.example.mobileattester.components.common.HeaderRoundedBottom
-import com.example.mobileattester.components.common.TextClickableWithIcon
+import com.example.mobileattester.ui.components.SearchBar
+import com.example.mobileattester.ui.components.Tag
+import com.example.mobileattester.ui.components.common.HeaderRoundedBottom
+import com.example.mobileattester.ui.components.common.TextClickableWithIcon
 import com.example.mobileattester.ui.theme.DividerColor
-import com.example.mobileattester.util.Screen
+import com.example.mobileattester.ui.util.Screen
 import compose.icons.TablerIcons
 import compose.icons.tablericons.ChevronDown
 import compose.icons.tablericons.ChevronRight

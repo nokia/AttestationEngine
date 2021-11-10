@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -18,11 +19,13 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import com.example.mobileattester.util.Preferences
+import com.example.mobileattester.data.network.Response
+import com.example.mobileattester.data.network.Status
+import com.example.mobileattester.ui.util.Preferences
+import com.example.mobileattester.ui.viewmodel.AttestationViewModel
 import compose.icons.TablerIcons
 import compose.icons.tablericons.AdjustmentsHorizontal
 import compose.icons.tablericons.Plus
@@ -31,8 +34,10 @@ import kotlinx.coroutines.launch
 
 
 @Composable
-@Preview
-fun Home(navController: NavController? = null) {
+fun Home(navController: NavController? = null, viewModel: AttestationViewModel) {
+    val ids: Response<List<String>> by viewModel.getElementIds()
+        .observeAsState(Response(status = Status.LOADING))
+
     val context = LocalContext.current
     Column(
         modifier = Modifier
@@ -50,7 +55,8 @@ fun Home(navController: NavController? = null) {
         )
         {
             val preferences = Preferences(LocalContext.current)
-            val list = preferences.engines.collectAsState(initial = sortedSetOf(Preferences.currentEngine))
+            val list =
+                preferences.engines.collectAsState(initial = sortedSetOf(Preferences.currentEngine))
             var showAllConfigurations by remember { mutableStateOf(false) }
 
             val scope = rememberCoroutineScope()
@@ -73,32 +79,32 @@ fun Home(navController: NavController? = null) {
 
 
             if (showAllConfigurations) {
-            list.value
-                .filter { it != Preferences.currentEngine  }
-                .forEach { engineAddress ->
-                    ConfigurationButton(text = engineAddress,
-                        onClick =
-                        {
-                            Preferences.currentEngine = it
-
-                            // Refresh
-                            showAllConfigurations = false
-                            showAllConfigurations = true
-                        },
-                        onIconClick = {
-                            list.value.remove(it)
-
-                            scope.launch {
-                                preferences.saveEngines(list.value)
+                list.value
+                    .filter { it != Preferences.currentEngine }
+                    .forEach { engineAddress ->
+                        ConfigurationButton(text = engineAddress,
+                            onClick =
+                            {
+                                Preferences.currentEngine = it
 
                                 // Refresh
                                 showAllConfigurations = false
                                 showAllConfigurations = true
-                            }
+                            },
+                            onIconClick = {
+                                list.value.remove(it)
 
-                        }
-                    )
-                }
+                                scope.launch {
+                                    preferences.saveEngines(list.value)
+
+                                    // Refresh
+                                    showAllConfigurations = false
+                                    showAllConfigurations = true
+                                }
+
+                            }
+                        )
+                    }
 
                 ConfigurationButton(text = "Ipaddress:port",
                     name = "",
@@ -142,7 +148,10 @@ fun Home(navController: NavController? = null) {
                 .fillMaxSize()
                 .clip(RoundedCornerShape(5, 5, 0, 0))
                 .background(Color.White)
-        ) {}
+        ) {
+            Text(text = ids.data?.reduce { a, b -> a + b } ?: ids.message
+            ?: "Data not received for some reason")
+        }
     }
 }
 
