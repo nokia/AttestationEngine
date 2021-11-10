@@ -30,6 +30,7 @@ import compose.icons.TablerIcons
 import compose.icons.tablericons.DeviceDesktop
 import compose.icons.tablericons.Dots
 import compose.icons.tablericons.Qrcode
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
 
 class MainActivity : ComponentActivity() {
     /*
@@ -40,75 +41,19 @@ class MainActivity : ComponentActivity() {
     */
     private lateinit var viewModel: AttestationViewModel
 
+    @ExperimentalPermissionsApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         viewModel = ViewModelProvider(this,
-            Injector.provideAttestationViewModelFactory(baseUrl = "http://172.30.92.46:8520/")).get(
-            AttestationViewModelImpl::class.java)
+                Injector.provideAttestationViewModelFactory(baseUrl = "http://172.30.92.46:8520/")).get(
+                AttestationViewModelImpl::class.java)
 
         setContent {
             MobileAttesterTheme {
                 NavUtils.Navigator()
             }
             //MainScreenView()
-        }
-    }
-}
-
-val pages = listOf(Pair("Home", Icons.Filled.Home),
-    Pair("Elements", TablerIcons.DeviceDesktop),
-    Pair("Scanner", TablerIcons.Qrcode),
-    Pair("More", TablerIcons.Dots))
-
-@Composable
-@Preview
-fun MainScreenView() {
-    MobileAttesterTheme {
-        Surface(color = MaterialTheme.colors.background) {
-            val navController = rememberNavController()
-            Scaffold(bottomBar = {
-                Row(
-                    modifier = Modifier.fillMaxWidth().background(Color(45, 48, 71)),
-                    horizontalArrangement = Arrangement.SpaceEvenly,
-                ) {
-                    pages.forEach { // Create bottom button for each page
-                        BottomIcon(label = it.first, icon = it.second) { page ->  // OnClick
-                            while (navController.popBackStack()) {
-                            } // Remove backstack
-                            navController.navigate(page)
-                        }
-                    }
-                }
-            }) { innerPadding -> // CONTENT
-                NavHost(navController = navController,
-                    startDestination = pages.first().first,
-                    modifier = Modifier.padding(innerPadding)) {
-                    pages.forEach {
-                        when (it.first) {
-                            //"Home" -> composable(it.first) { _ -> Home(navController) }
-                            "Elements" -> composable(it.first) { _ -> Elements(navController) }
-                            "Scanner" -> composable(it.first) { _ -> Scanner(navController) }
-                            "More" -> composable(it.first) { _ -> More(navController) }
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
-@Composable
-fun BottomIcon(label: String, icon: ImageVector, onClick: (page: String) -> Unit = {}) {
-    Box {
-        Button(onClick = { onClick(label) },
-            colors = ButtonDefaults.buttonColors(backgroundColor = Color.Transparent,
-                contentColor = Color.White),
-            elevation = null) {
-            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Icon(icon, contentDescription = label)
-                Text(label)
-            }
         }
     }
 }

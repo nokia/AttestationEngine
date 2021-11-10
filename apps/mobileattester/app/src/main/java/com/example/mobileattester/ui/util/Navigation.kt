@@ -1,4 +1,4 @@
-package com.example.mobileattester.ui.util
+package com.example.mobileattester.util
 
 import androidx.activity.ComponentActivity
 import androidx.annotation.StringRes
@@ -8,6 +8,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
@@ -15,6 +17,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import androidx.core.net.toUri
+import androidx.navigation.*
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
@@ -29,6 +33,7 @@ import compose.icons.tablericons.DeviceDesktop
 import compose.icons.tablericons.Dots
 import compose.icons.tablericons.Qrcode
 import compose.icons.tablericons.QuestionMark
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
 
 /**
  * Contains all the screens of the application
@@ -50,6 +55,7 @@ sealed class Screen(val route: String, @StringRes val stringResId: Int) {
     object Element : Screen("element", R.string.nav_element)
 }
 
+@ExperimentalPermissionsApi
 object NavUtils {
     /**
      * Top nav destinations for the application (Bottom nav locations)
@@ -67,11 +73,12 @@ object NavUtils {
     @Composable
     fun Navigator() {
         val navController = rememberNavController()
+        val showTopBar = remember { mutableStateOf(true)}
         val viewModel: AttestationViewModelImpl =
             viewModel(viewModelStoreOwner = LocalContext.current as ComponentActivity)
 
         Scaffold(
-            topBar = { TopBar(navController) },
+            topBar = { if(showTopBar.value) TopBar(navController) },
             bottomBar = {
                 BottomBar(navController)
             },
@@ -80,11 +87,11 @@ object NavUtils {
                 startDestination = Screen.Home.route,
                 Modifier.padding(innerPadding)) {
                 // Add new nav destinations here after Screen for it is created
-                composable(Screen.Home.route) { Home(navController, viewModel) }
-                composable(Screen.Elements.route) { Elements(navController) }
-                composable(Screen.Scanner.route) { Scanner(navController) }
-                composable(Screen.More.route) { More(navController) }
-                composable(Screen.Element.route) { Element(navController) }
+                composable(Screen.Home.route) { showTopBar.value = true;  Home(navController, viewModel) }
+                composable(Screen.Elements.route) { showTopBar.value = true; Elements(navController) }
+                composable(Screen.Scanner.route) { showTopBar.value = false; Scanner(navController) } // Experimental Permissions
+                composable(Screen.More.route) { showTopBar.value = true;  More(navController) }
+                composable(Screen.Element.route) { showTopBar.value = true;  Element(navController) }
             }
         }
     }
@@ -103,6 +110,7 @@ object NavUtils {
                     selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
                     onClick = {
                         navController.navigate(screen.route) {
+                            while(navController.popBackStack()){} // Remove backstack for back button
                             popUpTo(navController.graph.findStartDestination().id) {
                                 saveState = true
                             }
@@ -159,5 +167,28 @@ object NavUtils {
             Screen.More -> TablerIcons.Dots
             else -> TablerIcons.QuestionMark
         }
+    }
+}
+
+// NavController extension that allows arguments
+@SuppressLint("RestrictedApi")
+fun NavController.navigate(
+    route: String,
+    args: Bundle,
+    navOptions: NavOptions? = null,
+    navigatorExtras: Navigator.Extras? = null
+) {
+    val routeLink = NavDeepLinkRequest
+        .Builder
+        .fromUri(NavDestination.createRoute(route).toUri())
+        .build()
+
+    val deepLinkMatch = graph.matchDeepLink(routeLink)
+    if (deepLinkMatch != null) {
+        val destination = deepLinkMatch.destination
+        val id = destination.id
+        navigate(id, args, navOptions, navigatorExtras)
+    } else {
+        navigate(route, navOptions, navigatorExtras)
     }
 }
