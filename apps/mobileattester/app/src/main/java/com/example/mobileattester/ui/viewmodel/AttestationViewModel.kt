@@ -13,6 +13,7 @@ import kotlinx.coroutines.launch
 interface AttestationViewModel {
     val isRefreshing: StateFlow<Boolean>
     val isLoading: StateFlow<Boolean>
+    val currentUrl: StateFlow<String>
 
     /** Elements which have been downloaded to the client */
     val elementFlow: StateFlow<List<Element>>
@@ -25,8 +26,8 @@ interface AttestationViewModel {
     fun getMoreElements()
     fun refreshElements()
 
-    var baseUrl: MutableLiveData<String>
-    fun isDefaultBaseUrl(): Boolean
+    /** Switch the base url used for the engine */
+    fun switchBaseUrl(url: String)
 }
 
 // --------- Implementation ---------
@@ -57,12 +58,9 @@ class AttestationViewModelImpl(
 
     override val isRefreshing: StateFlow<Boolean> = _isRefreshing
     override val isLoading: StateFlow<Boolean> = batchedDataHandler.isLoading
+    override val currentUrl: StateFlow<String> = repo.currentUrl
     override val elementFlow: StateFlow<List<Element>> = _elements
     override val elementCount: StateFlow<Int> = _elementCount
-
-    override var baseUrl = repo.baseUrl
-
-    override fun isDefaultBaseUrl(): Boolean = repo.isDefaultBaseUrl()
 
     init {
         println("Fetching element ids")
@@ -99,6 +97,7 @@ class AttestationViewModelImpl(
     override fun refreshElements() {
         _isRefreshing.value = true
 
+        fetchElementIds()
         // Clear batch cache + local element values
         batchedDataHandler.clearBatches()
         _elements.value = listOf()
@@ -107,6 +106,11 @@ class AttestationViewModelImpl(
         getMoreElements()
 
         _isRefreshing.value = false
+    }
+
+    override fun switchBaseUrl(url: String) {
+        repo.rebuildService(url)
+        refreshElements()
     }
 
     // ---- Private ----

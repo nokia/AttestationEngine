@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -36,8 +35,14 @@ import kotlinx.coroutines.launch
 @Composable
 fun Home(navController: NavController? = null, viewModel: AttestationViewModel) {
     val context = LocalContext.current
-    val currentEngineBaseUrl by viewModel.baseUrl.observeAsState()
-    val currentEngine = parseBaseUrl(currentEngineBaseUrl!!)
+    val currentUrl = viewModel.currentUrl.collectAsState().value
+    val currentEngine = parseBaseUrl(currentUrl)
+
+    val preferences = Preferences(LocalContext.current)
+    val list = preferences.engines.collectAsState(initial = sortedSetOf<String>())
+
+    var showAllConfigurations by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
 
     Log.e("currentEngine", currentEngine)
 
@@ -54,11 +59,6 @@ fun Home(navController: NavController? = null, viewModel: AttestationViewModel) 
                 .padding(10.dp)
                 .border(0.dp, Color.Transparent),
         ) {
-            val preferences = Preferences(LocalContext.current, viewModel)
-            val list = preferences.engines.collectAsState(initial = Preferences.defaultConfig)
-            var showAllConfigurations by remember { mutableStateOf(false) }
-
-            val scope = rememberCoroutineScope()
 
             Text(text = AnnotatedString("Current Configuration",
                 SpanStyle(Color.White, fontSize = 24.sp)),
@@ -75,45 +75,49 @@ fun Home(navController: NavController? = null, viewModel: AttestationViewModel) 
 
             if (showAllConfigurations) {
                 list.value.filter { it != currentEngine }.forEach { engineAddress ->
-                    ConfigurationButton(text = engineAddress, onClick = {
-                        viewModel.baseUrl.value = "http://${it}/"
-
-                        // Refresh
-                        showAllConfigurations = false
-                        showAllConfigurations = true
-                    }, onIconClick = {
-                        list.value.remove(it)
-
-                        scope.launch {
-                            preferences.saveEngines(list.value.toSortedSet())
+                    ConfigurationButton(
+                        text = engineAddress,
+                        onClick = {
+                            viewModel.switchBaseUrl("http://${it}/")
 
                             // Refresh
                             showAllConfigurations = false
                             showAllConfigurations = true
-                        }
+                        },
+                        onIconClick = {
+                            list.value.remove(it)
 
-                    })
+                            scope.launch {
+                                preferences.saveEngines(list.value.toSortedSet())
+
+                                // Refresh
+                                showAllConfigurations = false
+                                showAllConfigurations = true
+                            }
+
+                        },
+                    )
                 }
 
                 ConfigurationButton(text = "Ipaddress:port",
                     name = "",
                     icon = TablerIcons.Plus,
                     editable = true,
-                    onIconClick = {
-                        val port = it.takeLastWhile { it != ':' }
+                    onIconClick = { str ->
+                        val port = str.takeLastWhile { it != ':' }
                         val validPort = port.toUShortOrNull() != null
 
-                        val address = it.dropLast(port.length + 1)
+                        val address = str.dropLast(port.length + 1)
 
                         val validAddress = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                             InetAddresses.isNumericAddress(address) // Todo: DNS address resolution
                         } else Patterns.IP_ADDRESS.matcher(address).matches()
 
                         if (validAddress && validPort) {
-                            list.value.add(it)
+                            list.value.add(str)
 
                             scope.launch {
-                                preferences.saveEngines(list.value.toSortedSet())
+                                preferences.saveEngines(list.value)
 
                                 // Refresh
                                 showAllConfigurations = false

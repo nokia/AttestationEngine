@@ -1,18 +1,22 @@
 package com.example.mobileattester.data.repository
 
-import androidx.lifecycle.MutableLiveData
 import com.example.mobileattester.data.model.Element
 import com.example.mobileattester.data.model.ExpectedValue
 import com.example.mobileattester.data.model.Policy
 import com.example.mobileattester.data.network.AttestationDataHandler
+import kotlinx.coroutines.flow.MutableStateFlow
 
 /**
  * Repository providing methods for Attestation stuff
  */
 interface AttestationRepository {
-    /** Call to change the url used */
-    var baseUrl : MutableLiveData<String>
-    fun isDefaultBaseUrl() : Boolean
+
+    // --- URL ---
+    /** Base url currently used for api calls */
+    val currentUrl: MutableStateFlow<String>
+
+    /** Call to rebuild the api service with a new url */
+    fun rebuildService(withUrl: String)
 
     // --- Elements ---
     suspend fun getElementIds(): List<String>
@@ -28,41 +32,27 @@ interface AttestationRepository {
     suspend fun getExpectedValueByElementPolicyIds(eid: String, pid: String): ExpectedValue
 }
 
-// TODO Caching stuff
 class AttestationRepositoryImpl(
     private val handler: AttestationDataHandler,
 ) : AttestationRepository {
-    override var baseUrl = handler.baseUrl
-    override fun isDefaultBaseUrl(): Boolean = handler.isDefaultBaseUrl()
 
-    override suspend fun getElementIds(): List<String> {
-        return handler.getElementIds()
-    }
+    override val currentUrl: MutableStateFlow<String> = handler.currentUrl
 
-    override suspend fun getElement(itemid: String): Element {
-        return handler.getElement(itemid)
-    }
+    override fun rebuildService(withUrl: String) = handler.rebuildService(withUrl)
 
-    override suspend fun getAllTypes(): List<String> {
-        return handler.getAllTypes()
-    }
+    override suspend fun getElementIds(): List<String> = handler.getElementIds()
+    override suspend fun getElement(itemid: String): Element = handler.getElement(itemid)
+    override suspend fun getAllTypes(): List<String> = handler.getAllTypes()
 
-    override suspend fun getPolicyIds(): List<String> {
-        return handler.getPolicyIds()
-    }
+    override suspend fun getPolicyIds(): List<String> = handler.getPolicyIds()
+    override suspend fun getPolicy(itemid: String): Policy = handler.getPolicy(itemid)
 
-    override suspend fun getPolicy(itemid: String): Policy {
-        return handler.getPolicy(itemid)
-    }
-
-    override suspend fun getExpectedValue(itemid: String): ExpectedValue {
-        return handler.getExpectedValue(itemid)
-    }
+    override suspend fun getExpectedValue(itemid: String): ExpectedValue =
+        handler.getExpectedValue(itemid)
 
     override suspend fun getExpectedValueByElementPolicyIds(
         eid: String,
-        pid: String
-    ): ExpectedValue {
-        return handler.getExpectedValueByElementPolicyIds(eid, pid)
-    }
+        pid: String,
+    ): ExpectedValue = handler.getExpectedValueByElementPolicyIds(eid, pid)
+
 }
