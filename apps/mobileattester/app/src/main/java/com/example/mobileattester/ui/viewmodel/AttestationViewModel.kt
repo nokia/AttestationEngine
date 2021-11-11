@@ -5,12 +5,16 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.liveData
+import com.example.mobileattester.data.model.Element
 import com.example.mobileattester.data.network.Response
 import com.example.mobileattester.data.repository.AttestationRepository
 import kotlinx.coroutines.Dispatchers
 
 interface AttestationViewModel {
     fun getElementIds(): LiveData<Response<List<String>>>
+    suspend fun getElement(itemid: String): Response<Element>
+
+    fun getPolicyIds(): LiveData<Response<List<String>>>
 }
 
 // --------- Implementation ---------
@@ -19,18 +23,45 @@ class AttestationViewModelImpl(
     private val repo: AttestationRepository,
 ) : AttestationViewModel, ViewModel() {
 
-    private val listOfElementIds = liveData(Dispatchers.IO) {
-        emit(Response.loading(data = null))
-        try {
-            emit(Response.success(data = repo.getElementIds()))
-        } catch (exception: Exception) {
-            emit(Response.error(data = null, message = exception.message ?: "Error Occurred!"))
-            Log.d("TEST", "Error getting element ids: ${exception.message}");
+    private val elements = mutableListOf<Element>()
+
+
+    private val listOfElementIds = emitResponse(repo::getElementIds)
+    private val listOfPolicyIds = emitResponse(repo::getPolicyIds)
+
+    override fun getElementIds() = listOfElementIds
+
+    override suspend fun getElement(itemid: String): Response<Element> {
+        return try {
+            elements.find { it.itemid == itemid }?.let {
+                return Response.success(it)
+            }
+
+            val element = repo.getElement(itemid)
+            elements.add(element)
+            Response.success(element)
+        } catch (e: Exception) {
+            Response.error(null, e.message.toString())
         }
     }
 
-    override fun getElementIds(): LiveData<Response<List<String>>> = listOfElementIds
+    override fun getPolicyIds() = listOfPolicyIds
+
+
+    private fun <T> emitResponse(func: suspend () -> T): LiveData<Response<T>> {
+        return liveData(Dispatchers.IO) {
+            emit(Response.loading(null))
+            try {
+                emit(Response.success(data = func()))
+                Log.d("TEST", "data fetched successfully")
+            } catch (exception: Exception) {
+                emit(Response.error(data = null, message = exception.message ?: "Error Occurred!"))
+                Log.d("TEST", "Error getting data: ${exception.message}");
+            }
+        }
+    }
 }
+
 
 class AttestationViewModelImplFactory(
     private val repo: AttestationRepository,
