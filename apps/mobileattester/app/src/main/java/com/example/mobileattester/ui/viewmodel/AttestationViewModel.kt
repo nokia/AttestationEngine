@@ -1,16 +1,16 @@
 package com.example.mobileattester.ui.viewmodel
 
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.liveData
+import androidx.lifecycle.*
 import com.example.mobileattester.data.model.Element
 import com.example.mobileattester.data.network.Response
 import com.example.mobileattester.data.repository.AttestationRepository
 import kotlinx.coroutines.Dispatchers
 
 interface AttestationViewModel {
+    var baseUrl : MutableLiveData<String>
+    fun isDefaultBaseUrl() : Boolean
+
     fun getElementIds(): LiveData<Response<List<String>>>
     suspend fun getElement(itemid: String): Response<Element>
 
@@ -28,6 +28,8 @@ class AttestationViewModelImpl(
 
     private val listOfElementIds = emitResponse(repo::getElementIds)
     private val listOfPolicyIds = emitResponse(repo::getPolicyIds)
+    override var baseUrl = repo.baseUrl
+    override fun isDefaultBaseUrl(): Boolean = repo.isDefaultBaseUrl()
 
     override fun getElementIds() = listOfElementIds
 
@@ -56,7 +58,7 @@ class AttestationViewModelImpl(
                 Log.d("TEST", "data fetched successfully")
             } catch (exception: Exception) {
                 emit(Response.error(data = null, message = exception.message ?: "Error Occurred!"))
-                Log.d("TEST", "Error getting data: ${exception.message}");
+                Log.d("TEST", "Error getting data: ${exception.message}")
             }
         }
     }

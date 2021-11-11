@@ -1,5 +1,6 @@
 package com.example.mobileattester.data.repository
 
+import androidx.lifecycle.MutableLiveData
 import com.example.mobileattester.data.model.Element
 import com.example.mobileattester.data.model.ExpectedValue
 import com.example.mobileattester.data.model.Policy
@@ -10,7 +11,8 @@ import com.example.mobileattester.data.network.AttestationDataHandler
  */
 interface AttestationRepository {
     /** Call to change the url used */
-    fun setBaseUrl(url: String)
+    var baseUrl : MutableLiveData<String>
+    fun isDefaultBaseUrl() : Boolean
 
     // --- Elements ---
     suspend fun getElementIds(): List<String>
@@ -30,7 +32,8 @@ interface AttestationRepository {
 class AttestationRepositoryImpl(
     private val handler: AttestationDataHandler,
 ) : AttestationRepository {
-    override fun setBaseUrl(url: String) = handler.setBaseUrl(url)
+    override var baseUrl = handler.baseUrl
+    override fun isDefaultBaseUrl(): Boolean = handler.isDefaultBaseUrl()
 
     override suspend fun getElementIds(): List<String> {
         return handler.getElementIds()

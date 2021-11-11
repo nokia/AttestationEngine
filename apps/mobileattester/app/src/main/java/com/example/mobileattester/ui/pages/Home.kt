@@ -2,6 +2,7 @@ package com.example.mobileattester.pages
 
 import android.net.InetAddresses
 import android.os.Build
+import android.util.Log
 import android.util.Patterns
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -28,6 +29,7 @@ import com.example.mobileattester.data.network.Response
 import com.example.mobileattester.data.network.Status
 import com.example.mobileattester.ui.util.Preferences
 import com.example.mobileattester.ui.util.Screen
+import com.example.mobileattester.ui.util.parseBaseUrl
 import com.example.mobileattester.ui.viewmodel.AttestationViewModel
 import compose.icons.TablerIcons
 import compose.icons.tablericons.*
@@ -36,26 +38,30 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun Home(navController: NavController? = null, viewModel: AttestationViewModel) {
-
     val context = LocalContext.current
+    val currentEngineBaseUrl by viewModel.baseUrl.observeAsState()
+    val currentEngine =  parseBaseUrl(currentEngineBaseUrl!!)
+    Log.e("currentEngine", currentEngine)
+    //Log.e("currentEngineBaseUrl", currentEngineBaseUrl.data.toString())
+
     Column(
             modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color(13, 110, 253))
-                    .border(0.dp, Color.Transparent),
+                .fillMaxSize()
+                .background(Color(13, 110, 253))
+                .border(0.dp, Color.Transparent),
     )
     {
         // Top Bar
         Column(
                 modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(10.dp)
-                        .border(0.dp, Color.Transparent),
+                    .fillMaxWidth()
+                    .padding(10.dp)
+                    .border(0.dp, Color.Transparent),
         )
         {
-            val preferences = Preferences(LocalContext.current)
+            val preferences = Preferences(LocalContext.current,viewModel)
             val list =
-                    preferences.engines.collectAsState(initial = sortedSetOf(Preferences.currentEngine))
+                    preferences.engines.collectAsState(initial = Preferences.defaultConfig)
             var showAllConfigurations by remember { mutableStateOf(false) }
 
             val scope = rememberCoroutineScope()
@@ -69,7 +75,7 @@ fun Home(navController: NavController? = null, viewModel: AttestationViewModel) 
 
             // Current Engine
             ConfigurationButton(
-                    text = list.value.first { it == Preferences.currentEngine },
+                    text = currentEngine,
                     name = "Engine",
                     icon = TablerIcons.AdjustmentsHorizontal,
                     onClick = {
@@ -79,12 +85,12 @@ fun Home(navController: NavController? = null, viewModel: AttestationViewModel) 
 
             if (showAllConfigurations) {
                 list.value
-                        .filter { it != Preferences.currentEngine }
+                        .filter { it != currentEngine}
                         .forEach { engineAddress ->
                             ConfigurationButton(text = engineAddress,
                                     onClick =
                                     {
-                                        Preferences.currentEngine = it
+                                        viewModel.baseUrl.value = "http://${it}/"
 
                                         // Refresh
                                         showAllConfigurations = false
@@ -94,7 +100,7 @@ fun Home(navController: NavController? = null, viewModel: AttestationViewModel) 
                                         list.value.remove(it)
 
                                         scope.launch {
-                                            preferences.saveEngines(list.value)
+                                            preferences.saveEngines(list.value.toSortedSet())
 
                                             // Refresh
                                             showAllConfigurations = false
@@ -124,7 +130,7 @@ fun Home(navController: NavController? = null, viewModel: AttestationViewModel) 
                                 list.value.add(it)
 
                                 scope.launch {
-                                    preferences.saveEngines(list.value)
+                                    preferences.saveEngines(list.value.toSortedSet())
 
                                     // Refresh
                                     showAllConfigurations = false
