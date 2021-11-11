@@ -1,78 +1,94 @@
 package com.example.mobileattester.data.util
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.liveData
+import android.util.Log
 import com.example.mobileattester.data.network.Response
-import com.example.mobileattester.data.network.Status
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
+import com.example.mobileattester.data.network.retryIO
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.MutableStateFlow
+
+const val TIMEOUT = 10_000L
+const val TAG = "BatchedDataHandler"
 
 /**
  *  Data fetching in batches.
+ *  T - Id type
+ *  U - Data type
  */
 class BatchedDataHandler<T, U>(
-    private val identifierList: List<T>,
-    private val fetchData: suspend (id: T) -> Response<U>,
-    private val batchSize: Int
+    private var identifierList: List<T>,
+    private val batchSize: Int,
+    private val fetchData: suspend (id: T) -> U,
 ) {
-    private val listChunks = identifierList.chunked(batchSize)
+    private var listChunks = identifierList.chunked(batchSize)
 
     private val batches = mutableMapOf<Int, List<Pair<T, U>>>()
     private val batchesLoading = mutableSetOf<Int>()
 
-    private val job = Job()
-    private val coroutineScope = CoroutineScope(job)
+    val isLoading: MutableStateFlow<Boolean> = MutableStateFlow(batchesLoading.size != 0)
 
     /**
-     * Call to start fetching for the next batch, which does not yet contain data.
-     * Returns null when there are no more batches to get.
+     * Call to start fetching for the next batch.
      */
-    fun fetchNextBatch(): LiveData<Status> {
+    suspend fun fetchNextBatch(): Response<List<U>> {
         val nextBatch = (batches.keys.maxOrNull() ?: -1) + 1
 
-        if (batchesLoading.contains(nextBatch)) {
-            return liveData {
-                Status.ERROR
-            }
+        val isLoading = batchesLoading.contains(nextBatch)
+        if (isLoading) {
+            return Response.error(null, "This batch is currently loading")
         }
+        setLoading(nextBatch)
 
-        batchesLoading.add(nextBatch)
+        try {
+            val ids = listChunks.getOrNull(nextBatch)
+            val temp = mutableListOf<Pair<T, U>>()
 
-        return liveData(Dispatchers.IO) {
-            emit(Status.LOADING)
-
-            try {
-                val ids = listChunks.getOrNull(nextBatch)?.iterator()
-                val temp = mutableListOf<Pair<T, U>>()
-
-                while (ids?.hasNext() == true) {
-                    coroutineScope.launch(Dispatchers.IO) {
-                        val id = ids.next()
-                        val res = fetchData(id)
-                        res.data?.let {
-                            temp.add(Pair(id, it))
-                        } ?: throw Exception("Error getting data in a batch for id : $id")
+            // Kotlin gives warning here otherwise even when blocking is fine
+            @Suppress("BlockingMethodInNonBlockingContext") runBlocking {
+                val jobs = ids?.map { id ->
+                    launch(Dispatchers.IO) {
+                        retryIO {
+                            withTimeout(TIMEOUT) {
+                                val res = fetchData(id)
+                                res.let {
+                                    temp.add(Pair(id, it))
+                                }
+                            }
+                        }
                     }
                 }
 
-                job.join()
-
-                batches[nextBatch] = temp
-            } catch (e: Exception) {
-                println(e)
-            } finally {
-                batchesLoading.remove(nextBatch)
+                jobs?.joinAll()
             }
+            batches[nextBatch] = temp
+        } catch (e: Exception) {
+            Log.d(TAG, "failed to fetch next batch[$nextBatch]: $e")
+            return Response.error(null, "Failed to fetch batch[$nextBatch] data: $e")
+        } finally {
+            setNotLoading(nextBatch)
+        }
+
+        return Response.success(batches[nextBatch]!!.map {
+            it.second
+        })
+    }
+
+    fun clearBatches() {
+        val keys = batches.keys.map { it }
+        keys.forEach {
+            batches.remove(it)
         }
     }
 
+    fun allChunksLoaded(): Boolean {
+        val loaded = batches.containsKey(listChunks.lastIndex)
+        Log.d(TAG, "allChunksLoaded: $loaded")
+        return loaded
+    }
 
-    fun getDataForBatch(batchNumber: Int): List<U> {
-        return batches[batchNumber]?.map {
-            it.second
-        } ?: listOf()
+    fun replaceIdList(idList: List<T>) {
+        this.identifierList = idList
+        listChunks = identifierList.chunked(batchSize)
+        clearBatches()
     }
 
     fun getDataForId(id: T): U? {
@@ -82,9 +98,18 @@ class BatchedDataHandler<T, U>(
                 return it.second
             }
         }
-
         return null
     }
 
-    fun getTotalBatchCount(): Int = listChunks.size
+    // ---- Private ----
+
+    private fun setLoading(batchNumber: Int) {
+        batchesLoading.add(batchNumber)
+        isLoading.value = batchesLoading.size != 0
+    }
+
+    private fun setNotLoading(batchNumber: Int) {
+        batchesLoading.remove(batchNumber)
+        isLoading.value = batchesLoading.size != 0
+    }
 }

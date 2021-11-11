@@ -26,7 +26,7 @@ class MainActivity : ComponentActivity() {
 
         viewModel = ViewModelProvider(
             this,
-            Injector.provideAttestationViewModelFactory(baseUrl = "http://172.30.88.184:8520/")
+            Injector.provideAttestationViewModelFactory(baseUrl = "http://172.30.87.192:8520/")
         ).get(
             AttestationViewModelImpl::class.java
         )

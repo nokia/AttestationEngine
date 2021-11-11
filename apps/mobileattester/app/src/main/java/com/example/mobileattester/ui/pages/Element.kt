@@ -1,6 +1,5 @@
 package com.example.mobileattester.ui.pages
 
-import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
@@ -15,27 +14,39 @@ import com.example.mobileattester.ui.components.common.OutlinedIconButton
 import com.example.mobileattester.ui.theme.DarkGrey
 import com.example.mobileattester.ui.theme.Error
 import com.example.mobileattester.ui.theme.Ok
+import com.example.mobileattester.ui.viewmodel.AttestationViewModel
 import compose.icons.TablerIcons
 import compose.icons.tablericons.Checkbox
 import compose.icons.tablericons.Checks
 import compose.icons.tablericons.Edit
 import compose.icons.tablericons.Trash
 
+const val ARG_ITEM_ID = "item_id"
+
 @Composable
-fun Element(navController: NavController) {
-    Log.i("ID", navController.currentBackStackEntry?.arguments?.get("id").toString())
+fun Element(navController: NavController, viewModel: AttestationViewModel) {
+    val clickedElementId =
+        navController.currentBackStackEntry?.arguments?.get(ARG_ITEM_ID).toString()
+
+    val element = viewModel.getElement(clickedElementId)
+
+    if (element == null) {
+        Text(text = "Error...", style = MaterialTheme.typography.h3)
+        return
+    }
+
     Column() {
         HeaderRoundedBottom {
             Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 24.dp)) {
-                Text(text = "Element name", style = MaterialTheme.typography.h3)
-                Text(text = "http://192.168.1.1:12345",
+                Text(text = element.name, style = MaterialTheme.typography.h3)
+                Text(text = element.endpoint,
                     style = MaterialTheme.typography.body1,
                     modifier = Modifier.padding(vertical = 8.dp, horizontal = 2.dp))
             }
         }
 
         Column(Modifier.padding(horizontal = 16.dp, vertical = 10.dp)) {
-            TagRow(listOf("Tag1", "Tag2", "Tag3"))
+            TagRow(element.types)
             Spacer(modifier = Modifier.size(26.dp))
             Row(
                 Modifier.fillMaxWidth(),
@@ -53,7 +64,7 @@ fun Element(navController: NavController) {
             Spacer(modifier = Modifier.size(26.dp))
 
             Text(
-                text = "Element description should appear here if it exists, if it does not this section is ignored and nothing is displayed on this spot.",
+                text = element.description ?: "",
                 color = DarkGrey,
             )
         }

@@ -1,20 +1,26 @@
 package com.example.mobileattester.ui.viewmodel
 
-import android.util.Log
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.liveData
+import androidx.lifecycle.viewModelScope
 import com.example.mobileattester.data.model.Element
-import com.example.mobileattester.data.network.Response
+import com.example.mobileattester.data.network.retryIO
 import com.example.mobileattester.data.repository.AttestationRepository
+import com.example.mobileattester.data.util.BatchedDataHandler
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
 
 interface AttestationViewModel {
-    fun getElementIds(): LiveData<Response<List<String>>>
-    suspend fun getElement(itemid: String): Response<Element>
+    val isRefreshing: StateFlow<Boolean>
+    val isLoading: StateFlow<Boolean>
 
-    fun getPolicyIds(): LiveData<Response<List<String>>>
+    val elements: StateFlow<List<Element>>
+
+    fun getElement(itemid: String): Element?
+    fun getMoreElements()
+    fun refreshElements()
 }
 
 // --------- Implementation ---------
@@ -23,45 +29,85 @@ class AttestationViewModelImpl(
     private val repo: AttestationRepository,
 ) : AttestationViewModel, ViewModel() {
 
-    private val elements = mutableListOf<Element>()
+    private var listOfElementIds: List<String> = listOf()
 
+    private val batchedDataHandler =
+        BatchedDataHandler<String, Element>(identifierList = listOf(), batchSize = BATCH_SIZE) {
+            repo.getElement(it)
+        }
 
-    private val listOfElementIds = emitResponse(repo::getElementIds)
-    private val listOfPolicyIds = emitResponse(repo::getPolicyIds)
+    private val _elements = MutableStateFlow(listOf<Element>())
+    private val _isRefreshing = MutableStateFlow(false)
 
-    override fun getElementIds() = listOfElementIds
+    override val isRefreshing: StateFlow<Boolean> = _isRefreshing
+    override val isLoading: StateFlow<Boolean> = batchedDataHandler.isLoading
+    override val elements: StateFlow<List<Element>> = _elements
 
-    override suspend fun getElement(itemid: String): Response<Element> {
-        return try {
-            elements.find { it.itemid == itemid }?.let {
-                return Response.success(it)
+    init {
+        println("Fetching element ids initially")
+        fetchElementIds()
+    }
+
+    // ---- Public ----
+
+    override fun getElement(itemid: String): Element? = batchedDataHandler.getDataForId(itemid)
+
+    override fun getMoreElements() {
+        if (batchedDataHandler.allChunksLoaded()) {
+            return
+        }
+
+        launchCoroutine {
+            println("getMoreCalled")
+
+            val res = batchedDataHandler.fetchNextBatch().data ?: run {
+                println("Returning")
+                return@launchCoroutine
             }
 
-            val element = repo.getElement(itemid)
-            elements.add(element)
-            Response.success(element)
-        } catch (e: Exception) {
-            Response.error(null, e.message.toString())
+            println("Res length: ${res.size}")
+            val copy = mutableListOf<Element>().apply {
+                this.addAll(_elements.value)
+                this.addAll(res)
+            }
+            _elements.value = copy
         }
     }
 
-    override fun getPolicyIds() = listOfPolicyIds
+    override fun refreshElements() {
+        _isRefreshing.value = true
+        batchedDataHandler.clearBatches()
+        _elements.value = listOf()
+        getMoreElements()
+        _isRefreshing.value = false
+    }
 
+    // ---- Private ----
 
-    private fun <T> emitResponse(func: suspend () -> T): LiveData<Response<T>> {
-        return liveData(Dispatchers.IO) {
-            emit(Response.loading(null))
-            try {
-                emit(Response.success(data = func()))
-                Log.d("TEST", "data fetched successfully")
-            } catch (exception: Exception) {
-                emit(Response.error(data = null, message = exception.message ?: "Error Occurred!"))
-                Log.d("TEST", "Error getting data: ${exception.message}");
+    private fun fetchElementIds() {
+        launchCoroutine() {
+            listOfElementIds = repo.getElementIds()
+            println("ELEMENT ID LIST SIZE: ${listOfElementIds.size} ")
+            batchedDataHandler.replaceIdList(listOfElementIds)
+
+            println("Getting initial batch")
+            getMoreElements()
+        }
+    }
+
+    private fun launchCoroutine(rt: Int = 5, func: suspend () -> Unit) {
+        viewModelScope.launch(Dispatchers.IO) {
+            retryIO(rt) {
+                func()
             }
         }
+    }
+
+    companion object {
+        const val BATCH_SIZE = 5
+        const val FETCH_START_BUFFER = 3
     }
 }
-
 
 class AttestationViewModelImplFactory(
     private val repo: AttestationRepository,

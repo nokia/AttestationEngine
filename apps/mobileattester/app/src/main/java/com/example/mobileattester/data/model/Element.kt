@@ -1,16 +1,18 @@
 package com.example.mobileattester.data.model
 
+import com.google.gson.annotations.SerializedName
+
 /**
  * Represents an Element in the application.
- * This interface should contain all the data we are interested to see in the UI.
+ * This should contain all the data we are interested to see in the UI.
  */
 data class Element(
     val itemid: String,
     val name: String,
     val endpoint: String,
-    val types: List<String>,
+    @SerializedName("type") val types: List<String>,
     val protocol: String,
-    val description: String?
+    val description: String?,
 )
 
 /**
