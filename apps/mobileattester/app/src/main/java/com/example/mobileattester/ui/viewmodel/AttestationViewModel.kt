@@ -13,14 +13,20 @@ import kotlinx.coroutines.launch
 interface AttestationViewModel {
     val isRefreshing: StateFlow<Boolean>
     val isLoading: StateFlow<Boolean>
-    val elements: StateFlow<List<Element>>
+
+    /** Elements which have been downloaded to the client */
+    val elementFlow: StateFlow<List<Element>>
+
+    /** Total count of elements in the system */
+    val elementCount: StateFlow<Int>
+
+    /** Get element data, which has already been downloaded */
+    fun getElementFromCache(itemid: String): Element?
+    fun getMoreElements()
+    fun refreshElements()
 
     var baseUrl: MutableLiveData<String>
     fun isDefaultBaseUrl(): Boolean
-
-    fun getElement(itemid: String): Element?
-    fun getMoreElements()
-    fun refreshElements()
 }
 
 // --------- Implementation ---------
@@ -28,6 +34,16 @@ interface AttestationViewModel {
 class AttestationViewModelImpl(
     private val repo: AttestationRepository,
 ) : AttestationViewModel, ViewModel() {
+
+    companion object {
+        // How many element to fetch at a time
+        const val BATCH_SIZE = 5
+
+        // Index of rendered element + FETCH_START_BUFFER > currently fetched count => Fetch the next batch
+        const val FETCH_START_BUFFER = 3
+    }
+
+    // All element ids in the current system
     private var listOfElementIds: List<String> = listOf()
 
     private val batchedDataHandler =
@@ -35,24 +51,28 @@ class AttestationViewModelImpl(
             repo.getElement(it)
         }
 
+    private val _elementCount = MutableStateFlow(0)
     private val _elements = MutableStateFlow(listOf<Element>())
     private val _isRefreshing = MutableStateFlow(false)
 
     override val isRefreshing: StateFlow<Boolean> = _isRefreshing
     override val isLoading: StateFlow<Boolean> = batchedDataHandler.isLoading
-    override val elements: StateFlow<List<Element>> = _elements
+    override val elementFlow: StateFlow<List<Element>> = _elements
+    override val elementCount: StateFlow<Int> = _elementCount
 
     override var baseUrl = repo.baseUrl
+
     override fun isDefaultBaseUrl(): Boolean = repo.isDefaultBaseUrl()
 
     init {
-        println("Fetching element ids initially")
+        println("Fetching element ids")
         fetchElementIds()
     }
 
     // ---- Public ----
 
-    override fun getElement(itemid: String): Element? = batchedDataHandler.getDataForId(itemid)
+    override fun getElementFromCache(itemid: String): Element? =
+        batchedDataHandler.getDataForId(itemid)
 
     override fun getMoreElements() {
         if (batchedDataHandler.allChunksLoaded()) {
@@ -78,9 +98,14 @@ class AttestationViewModelImpl(
 
     override fun refreshElements() {
         _isRefreshing.value = true
+
+        // Clear batch cache + local element values
         batchedDataHandler.clearBatches()
         _elements.value = listOf()
+
+        // Start the loading process again
         getMoreElements()
+
         _isRefreshing.value = false
     }
 
@@ -89,10 +114,10 @@ class AttestationViewModelImpl(
     private fun fetchElementIds() {
         launchCoroutine() {
             listOfElementIds = repo.getElementIds()
-            println("ELEMENT ID LIST SIZE: ${listOfElementIds.size} ")
             batchedDataHandler.replaceIdList(listOfElementIds)
+            _elementCount.value = listOfElementIds.count()
 
-            println("Getting initial batch")
+            // Load initial batch
             getMoreElements()
         }
     }
@@ -103,11 +128,6 @@ class AttestationViewModelImpl(
                 func()
             }
         }
-    }
-
-    companion object {
-        const val BATCH_SIZE = 5
-        const val FETCH_START_BUFFER = 3
     }
 
 }

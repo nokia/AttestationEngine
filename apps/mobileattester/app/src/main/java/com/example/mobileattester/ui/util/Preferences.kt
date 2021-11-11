@@ -12,13 +12,11 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import java.util.*
 
-val Context.dataStore: DataStore<Preferences> by preferencesDataStore(
-    name = "Config"
-)
+val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "Config")
 
 class Preferences(
     private val context: Context,
-    private val viewModel: AttestationViewModel? = null
+    private val viewModel: AttestationViewModel? = null,
 ) {
 
     // to make sure there's only one instance
@@ -26,30 +24,22 @@ class Preferences(
         private val Context.dataStore: DataStore<Preferences> by preferencesDataStore("Config")
         private val enginesKey = stringSetPreferencesKey("addresses")
 
-        val defaultConfig = mutableSetOf("127.0.0.1:1883")
+        val defaultConfig = mutableSetOf("172.30.87.192/8520")
     }
 
-
     val engines: Flow<SortedSet<String>> by lazy {
-        context.dataStore.data
-            .map { preferences ->
-                if (preferences[enginesKey] == null || preferences[enginesKey]!!.isEmpty())
-                    defaultConfig.toSortedSet()
-                else {
-                    preferences[enginesKey]!!.ifEmpty { defaultConfig }
-                        .also {
-                            Log.e(
-                                "isDefaultBaseUrl",
-                                viewModel?.isDefaultBaseUrl().toString()
-                            )
-                            if (viewModel?.isDefaultBaseUrl() == true) {
-                                Log.e("Implicit BaseUrl", it.first().toString())
-                                viewModel?.baseUrl.value = "http://${it.first()}/"
-                            }
-                        }
-                        .toSortedSet()
-                }
+        context.dataStore.data.map { preferences ->
+            if (preferences[enginesKey] == null || preferences[enginesKey]!!.isEmpty()) defaultConfig.toSortedSet()
+            else {
+                preferences[enginesKey]!!.ifEmpty { defaultConfig }.also {
+                    Log.e("isDefaultBaseUrl", viewModel?.isDefaultBaseUrl().toString())
+                    if (viewModel?.isDefaultBaseUrl() == true) {
+                        Log.e("Implicit BaseUrl", it.first().toString())
+                        viewModel.baseUrl.value = "http://${it.first()}/"
+                    }
+                }.toSortedSet()
             }
+        }
     }
 
     suspend fun saveEngines(engines: SortedSet<String>) {

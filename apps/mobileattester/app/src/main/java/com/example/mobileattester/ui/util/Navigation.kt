@@ -27,7 +27,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.mobileattester.R
-import com.example.mobileattester.pages.Home
+import com.example.mobileattester.ui.pages.Home
 import com.example.mobileattester.ui.pages.Element
 import com.example.mobileattester.ui.pages.Elements
 import com.example.mobileattester.ui.pages.More

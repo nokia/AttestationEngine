@@ -24,12 +24,8 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        viewModel = ViewModelProvider(
-            this,
-            Injector.provideAttestationViewModelFactory(baseUrl = "http://172.30.88.184:8520/")
-        ).get(
-            AttestationViewModelImpl::class.java
-        )
+        viewModel = ViewModelProvider(this, Injector.provideAttestationViewModelFactory()).get(
+            AttestationViewModelImpl::class.java)
 
         setContent {
             MobileAttesterTheme {

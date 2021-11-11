@@ -27,8 +27,7 @@ const val ARG_ITEM_ID = "item_id"
 fun Element(navController: NavController, viewModel: AttestationViewModel) {
     val clickedElementId =
         navController.currentBackStackEntry?.arguments?.get(ARG_ITEM_ID).toString()
-
-    val element = viewModel.getElement(clickedElementId)
+    val element = viewModel.getElementFromCache(clickedElementId)
 
     if (element == null) {
         Text(text = "Error...", style = MaterialTheme.typography.h3)
@@ -36,6 +35,7 @@ fun Element(navController: NavController, viewModel: AttestationViewModel) {
     }
 
     Column() {
+        // Render element header
         HeaderRoundedBottom {
             Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 24.dp)) {
                 Text(text = element.name, style = MaterialTheme.typography.h3)
@@ -45,24 +45,12 @@ fun Element(navController: NavController, viewModel: AttestationViewModel) {
             }
         }
 
+        // Content
         Column(Modifier.padding(horizontal = 16.dp, vertical = 10.dp)) {
             TagRow(element.types)
             Spacer(modifier = Modifier.size(26.dp))
-            Row(
-                Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center,
-            ) {
-                OutlinedIconButton(TablerIcons.Checkbox, color = Ok) {}
-                SpacerSmall()
-                OutlinedIconButton(TablerIcons.Checks, color = Ok) {}
-                SpacerSmall()
-                OutlinedIconButton(TablerIcons.Edit, color = DarkGrey) {}
-                SpacerSmall()
-                OutlinedIconButton(TablerIcons.Trash, color = Error) {}
-            }
+            ElementActions()
             Spacer(modifier = Modifier.size(26.dp))
-
             Text(
                 text = element.description ?: "",
                 color = DarkGrey,
@@ -75,6 +63,23 @@ fun Element(navController: NavController, viewModel: AttestationViewModel) {
 @Composable
 fun ElementResult() {
 
+}
+
+@Composable
+fun ElementActions() {
+    Row(
+        Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center,
+    ) {
+        OutlinedIconButton(TablerIcons.Checkbox, color = Ok) {}
+        SpacerSmall()
+        OutlinedIconButton(TablerIcons.Checks, color = Ok) {}
+        SpacerSmall()
+        OutlinedIconButton(TablerIcons.Edit, color = DarkGrey) {}
+        SpacerSmall()
+        OutlinedIconButton(TablerIcons.Trash, color = Error) {}
+    }
 }
 
 @Composable

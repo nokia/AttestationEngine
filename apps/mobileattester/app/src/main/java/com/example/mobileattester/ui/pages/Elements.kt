@@ -36,27 +36,29 @@ import compose.icons.tablericons.ChevronRight
 
 @Composable
 fun Elements(navController: NavController, viewModel: AttestationViewModel) {
-    val elementState = viewModel.elements.collectAsState()
-    val lastIndex = viewModel.elements.collectAsState().value.lastIndex
+    val elementState = viewModel.elementFlow.collectAsState()
+    val lastIndex = viewModel.elementFlow.collectAsState().value.lastIndex
     val isLoading = viewModel.isLoading.collectAsState()
     val isRefreshing = viewModel.isRefreshing.collectAsState()
 
+    // Navigate to single element view, pass clicked id as argument
     fun onElementClicked(itemid: String) {
         navController.navigate(Screen.Element.route, bundleOf(Pair(ARG_ITEM_ID, itemid)))
     }
-
 
     SwipeRefresh(
         state = rememberSwipeRefreshState(isRefreshing.value),
         onRefresh = { viewModel.refreshElements() },
     ) {
-
         LazyColumn() {
+
+            // Header
             item {
                 ElementListHeader()
                 Spacer(modifier = Modifier.size(5.dp))
             }
 
+            // List of the elements
             itemsIndexed(elementState.value) { index, element ->
                 println("rendering index: $index // $lastIndex ")
                 if (index + FETCH_START_BUFFER >= lastIndex) {
@@ -69,6 +71,7 @@ fun Elements(navController: NavController, viewModel: AttestationViewModel) {
                 }
             }
 
+            // Footer
             item {
                 Row(Modifier
                     .fillMaxWidth()
@@ -104,11 +107,10 @@ private fun ElementListHeader() {
 }
 
 @Composable
-fun ElementListItem(
+private fun ElementListItem(
     element: Element,
     onElementClick: (id: String) -> Unit,
 ) {
-
     Row(
         modifier = Modifier
             .fillMaxWidth()
