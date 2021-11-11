@@ -7,8 +7,8 @@ import com.example.mobileattester.ui.viewmodel.AttestationViewModelImplFactory
 
 object Injector {
 
-    fun provideAttestationViewModelFactory(baseUrl: String): ViewModelProvider.Factory {
-        val handler = AttestationDataHandlerImpl(baseUrl)
+    fun provideAttestationViewModelFactory(): ViewModelProvider.Factory {
+        val handler = AttestationDataHandlerImpl()
         val repo = AttestationRepositoryImpl(handler)
         return AttestationViewModelImplFactory(repo)
     }

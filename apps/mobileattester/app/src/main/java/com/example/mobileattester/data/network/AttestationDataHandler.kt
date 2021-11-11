@@ -1,9 +1,11 @@
 package com.example.mobileattester.data.network
 
 import android.util.Log
+import androidx.lifecycle.MutableLiveData
 import com.example.mobileattester.data.model.Element
 import com.example.mobileattester.data.model.ExpectedValue
 import com.example.mobileattester.data.model.Policy
+import com.example.mobileattester.ui.util.Preferences
 import com.google.gson.GsonBuilder
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -14,7 +16,8 @@ import retrofit2.converter.gson.GsonConverterFactory
  */
 interface AttestationDataHandler {
     /** Call to change the base url used for requests */
-    fun setBaseUrl(url: String)
+    var baseUrl : MutableLiveData<String>
+    fun isDefaultBaseUrl() : Boolean
 
     // --- Elements ---
     suspend fun getElementIds(): List<String>
@@ -33,33 +36,35 @@ interface AttestationDataHandler {
 // ---------- Implementation ------------
 // ---------- Implementation ------------
 
-class AttestationDataHandlerImpl(
-    private var baseUrl: String,
-) : AttestationDataHandler {
+class AttestationDataHandlerImpl() : AttestationDataHandler {
 
     // TODO -----------  Move out of here -----------
 
+    override var baseUrl : MutableLiveData<String> = MutableLiveData("http://${Preferences.defaultConfig.first()}/")
+        set(value) {
+            field = value
+            buildService()
+        }
+    
     private lateinit var apiService: AttestationDataService
 
     init {
         buildService()
-        Log.d("TEST", "Url: $baseUrl");
+        Log.d("TEST", "Url: ${baseUrl.value}")
     }
 
     private fun buildService() {
         val gson = GsonBuilder().setLenient().create()
 
-        apiService = Retrofit.Builder().baseUrl(baseUrl)
+        apiService = Retrofit.Builder().baseUrl(baseUrl.value)
             .addConverterFactory(GsonConverterFactory.create(gson)).build()
             .create(AttestationDataService::class.java)
     }
 
     // TODO ----------------------------------------
-
-    override fun setBaseUrl(url: String) {
-        baseUrl = url
-        buildService()
-    }
+    
+    //override fun getBaseUrl(): String = baseUrl ?: "http://${Preferences.defaultConfig.first()}/"
+    override fun isDefaultBaseUrl(): Boolean = baseUrl.value == Preferences.defaultConfig.first()
 
     override suspend fun getElementIds(): List<String> = apiService.getElementIds()
     override suspend fun getElement(itemid: String): Element = apiService.getElement(itemid)

@@ -1,8 +1,6 @@
 package com.example.mobileattester.ui.viewmodel
 
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import com.example.mobileattester.data.model.Element
 import com.example.mobileattester.data.network.retryIO
 import com.example.mobileattester.data.repository.AttestationRepository
@@ -15,8 +13,10 @@ import kotlinx.coroutines.launch
 interface AttestationViewModel {
     val isRefreshing: StateFlow<Boolean>
     val isLoading: StateFlow<Boolean>
-
     val elements: StateFlow<List<Element>>
+
+    var baseUrl: MutableLiveData<String>
+    fun isDefaultBaseUrl(): Boolean
 
     fun getElement(itemid: String): Element?
     fun getMoreElements()
@@ -28,7 +28,6 @@ interface AttestationViewModel {
 class AttestationViewModelImpl(
     private val repo: AttestationRepository,
 ) : AttestationViewModel, ViewModel() {
-
     private var listOfElementIds: List<String> = listOf()
 
     private val batchedDataHandler =
@@ -42,6 +41,9 @@ class AttestationViewModelImpl(
     override val isRefreshing: StateFlow<Boolean> = _isRefreshing
     override val isLoading: StateFlow<Boolean> = batchedDataHandler.isLoading
     override val elements: StateFlow<List<Element>> = _elements
+
+    override var baseUrl = repo.baseUrl
+    override fun isDefaultBaseUrl(): Boolean = repo.isDefaultBaseUrl()
 
     init {
         println("Fetching element ids initially")
@@ -107,6 +109,7 @@ class AttestationViewModelImpl(
         const val BATCH_SIZE = 5
         const val FETCH_START_BUFFER = 3
     }
+
 }
 
 class AttestationViewModelImplFactory(

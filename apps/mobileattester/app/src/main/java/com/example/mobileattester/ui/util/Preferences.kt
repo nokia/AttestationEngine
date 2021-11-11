@@ -1,11 +1,13 @@
 package com.example.mobileattester.ui.util
 
 import android.content.Context
+import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.example.mobileattester.ui.viewmodel.AttestationViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import java.util.*
@@ -14,25 +16,17 @@ val Context.dataStore: DataStore<Preferences> by preferencesDataStore(
     name = "Config"
 )
 
-class Preferences(private val context: Context) {
+class Preferences(
+    private val context: Context,
+    private val viewModel: AttestationViewModel? = null
+) {
 
     // to make sure there's only one instance
     companion object {
         private val Context.dataStore: DataStore<Preferences> by preferencesDataStore("Config")
         private val enginesKey = stringSetPreferencesKey("addresses")
 
-        private val defaultConfig = mutableSetOf("127.0.0.1:1883")
-
-
-        private var _currentEngine: String? = null
-
-        var currentEngine: String
-            // getter
-            get() = _currentEngine ?: defaultConfig.first()
-            // setter
-            set(value) {
-                _currentEngine = value
-            }
+        val defaultConfig = mutableSetOf("127.0.0.1:1883")
     }
 
 
@@ -41,10 +35,20 @@ class Preferences(private val context: Context) {
             .map { preferences ->
                 if (preferences[enginesKey] == null || preferences[enginesKey]!!.isEmpty())
                     defaultConfig.toSortedSet()
-                else
+                else {
                     preferences[enginesKey]!!.ifEmpty { defaultConfig }
-                        .also { if (_currentEngine == null) _currentEngine = it.first() }
+                        .also {
+                            Log.e(
+                                "isDefaultBaseUrl",
+                                viewModel?.isDefaultBaseUrl().toString()
+                            )
+                            if (viewModel?.isDefaultBaseUrl() == true) {
+                                Log.e("Implicit BaseUrl", it.first().toString())
+                                viewModel?.baseUrl.value = "http://${it.first()}/"
+                            }
+                        }
                         .toSortedSet()
+                }
             }
     }
 
