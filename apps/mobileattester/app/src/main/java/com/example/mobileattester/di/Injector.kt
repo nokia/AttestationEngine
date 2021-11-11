@@ -7,8 +7,11 @@ import com.example.mobileattester.ui.viewmodel.AttestationViewModelImplFactory
 
 object Injector {
 
-    fun provideAttestationViewModelFactory(): ViewModelProvider.Factory {
-        val handler = AttestationDataHandlerImpl()
+    /**
+     * @param baseUrl url to use when initializing the service. Call method from viewModel to change this.
+     */
+    fun provideAttestationViewModelFactory(baseUrl: String): ViewModelProvider.Factory {
+        val handler = AttestationDataHandlerImpl(baseUrl)
         val repo = AttestationRepositoryImpl(handler)
         return AttestationViewModelImplFactory(repo)
     }

@@ -12,24 +12,20 @@ import com.example.mobileattester.ui.viewmodel.AttestationViewModelImpl
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 
 class MainActivity : ComponentActivity() {
-    /*
-    Init viewmodel in here, get in a Composable with:
-
-    val viewModel: AttestationViewModelImpl = viewModel(viewModelStoreOwner = LocalContext.current as ComponentActivity)
-
-    */
     private lateinit var viewModel: AttestationViewModel
 
     @ExperimentalPermissionsApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        viewModel = ViewModelProvider(
-            this,
-            Injector.provideAttestationViewModelFactory()
-        ).get(
-            AttestationViewModelImpl::class.java
-        )
+        /**
+         * APPLICATION CURRENTLY CRASHES AFTER A WHILE IF AN INVALID ADDRESS IS PROVIDED
+         * TO RETROFIT SERVICE.
+         */
+        val url = "http://172.30.87.192:8520/"
+
+        viewModel = ViewModelProvider(this, Injector.provideAttestationViewModelFactory(url)).get(
+            AttestationViewModelImpl::class.java)
 
         setContent {
             MobileAttesterTheme {

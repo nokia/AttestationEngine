@@ -27,7 +27,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.mobileattester.R
-import com.example.mobileattester.pages.Home
+import com.example.mobileattester.ui.pages.Home
 import com.example.mobileattester.ui.pages.Element
 import com.example.mobileattester.ui.pages.Elements
 import com.example.mobileattester.ui.pages.More
@@ -88,17 +88,12 @@ object NavUtils {
                 BottomBar(navController)
             },
         ) { innerPadding ->
-            NavHost(
-                navController,
+            NavHost(navController,
                 startDestination = Screen.Home.route,
-                Modifier.padding(innerPadding)
-            ) {
+                Modifier.padding(innerPadding)) {
                 // Add new nav destinations here after Screen for it is created
                 composable(Screen.Home.route) {
-                    showTopBar.value = true; Home(
-                    navController,
-                    viewModel
-                )
+                    showTopBar.value = true; Home(navController, viewModel)
                 }
                 composable(Screen.Elements.route) {
                     showTopBar.value = true; Elements(navController, viewModel)
@@ -107,16 +102,16 @@ object NavUtils {
                     showTopBar.value = false; Scanner(navController)
                 } // Experimental Permissions
                 composable(Screen.More.route) { showTopBar.value = true; More(navController) }
-                composable(Screen.Element.route) { showTopBar.value = true; Element(navController) }
+                composable(Screen.Element.route) {
+                    showTopBar.value = true; Element(navController, viewModel)
+                }
             }
         }
     }
 
     @Composable
     private fun BottomBar(navController: NavController) {
-        BottomNavigation(
-            backgroundColor = MaterialTheme.colors.secondary
-        ) {
+        BottomNavigation(backgroundColor = MaterialTheme.colors.secondary) {
             val navBackStackEntry by navController.currentBackStackEntryAsState()
             val currentDestination = navBackStackEntry?.destination
 
@@ -193,17 +188,15 @@ object NavUtils {
 }
 
 // NavController extension that allows arguments
-@SuppressLint("RestrictedApi")
+@SuppressLint("RestrictedApi") // ?
 fun NavController.navigate(
     route: String,
     args: Bundle,
     navOptions: NavOptions? = null,
-    navigatorExtras: Navigator.Extras? = null
+    navigatorExtras: Navigator.Extras? = null,
 ) {
-    val routeLink = NavDeepLinkRequest
-        .Builder
-        .fromUri(NavDestination.createRoute(route).toUri())
-        .build()
+    val routeLink =
+        NavDeepLinkRequest.Builder.fromUri(NavDestination.createRoute(route).toUri()).build()
 
     val deepLinkMatch = graph.matchDeepLink(routeLink)
     if (deepLinkMatch != null) {

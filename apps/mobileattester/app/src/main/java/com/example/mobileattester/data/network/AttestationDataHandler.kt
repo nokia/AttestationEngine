@@ -1,12 +1,10 @@
 package com.example.mobileattester.data.network
 
-import android.util.Log
-import androidx.lifecycle.MutableLiveData
 import com.example.mobileattester.data.model.Element
 import com.example.mobileattester.data.model.ExpectedValue
 import com.example.mobileattester.data.model.Policy
-import com.example.mobileattester.ui.util.Preferences
 import com.google.gson.GsonBuilder
+import kotlinx.coroutines.flow.MutableStateFlow
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
@@ -15,9 +13,13 @@ import retrofit2.converter.gson.GsonConverterFactory
  * @see AttestationDataService
  */
 interface AttestationDataHandler {
-    /** Call to change the base url used for requests */
-    var baseUrl : MutableLiveData<String>
-    fun isDefaultBaseUrl() : Boolean
+
+    // --- URL ---
+    /** Base url currently used for api calls */
+    val currentUrl: MutableStateFlow<String>
+
+    /** Call to rebuild the api service with a new url */
+    fun rebuildService(withUrl: String)
 
     // --- Elements ---
     suspend fun getElementIds(): List<String>
@@ -36,37 +38,38 @@ interface AttestationDataHandler {
 // ---------- Implementation ------------
 // ---------- Implementation ------------
 
-class AttestationDataHandlerImpl() : AttestationDataHandler {
+class AttestationDataHandlerImpl(
+    private var initialUrl: String,
+) : AttestationDataHandler {
 
     // TODO -----------  Move out of here -----------
 
-    override var baseUrl : MutableLiveData<String> = MutableLiveData("http://${Preferences.defaultConfig.first()}/")
-        set(value) {
-            field = value
-            buildService()
-        }
-    
+    override val currentUrl: MutableStateFlow<String> = MutableStateFlow(initialUrl)
     private lateinit var apiService: AttestationDataService
 
     init {
         buildService()
-        Log.d("TEST", "Url: ${baseUrl.value}")
     }
 
     private fun buildService() {
         val gson = GsonBuilder().setLenient().create()
 
-        apiService = Retrofit.Builder().baseUrl(baseUrl.value)
+        apiService = Retrofit.Builder().baseUrl(initialUrl)
             .addConverterFactory(GsonConverterFactory.create(gson)).build()
             .create(AttestationDataService::class.java)
     }
 
+    override fun rebuildService(withUrl: String) {
+        println("REBUILDSERVICE CALLED: $withUrl")
+        initialUrl = withUrl
+        buildService()
+        currentUrl.value = initialUrl
+    }
+
     // TODO ----------------------------------------
-    
-    //override fun getBaseUrl(): String = baseUrl ?: "http://${Preferences.defaultConfig.first()}/"
-    override fun isDefaultBaseUrl(): Boolean = baseUrl.value == Preferences.defaultConfig.first()
 
     override suspend fun getElementIds(): List<String> = apiService.getElementIds()
+
     override suspend fun getElement(itemid: String): Element = apiService.getElement(itemid)
     override suspend fun getAllTypes(): List<String> = apiService.getAllTypes()
 
@@ -78,6 +81,6 @@ class AttestationDataHandlerImpl() : AttestationDataHandler {
 
     override suspend fun getExpectedValueByElementPolicyIds(
         eid: String,
-        pid: String
+        pid: String,
     ): ExpectedValue = apiService.getExpectedValueByElementPolicyIds(eid, pid)
 }
