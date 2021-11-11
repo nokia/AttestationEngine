@@ -101,7 +101,7 @@ object NavUtils {
                 )
                 }
                 composable(Screen.Elements.route) {
-                    showTopBar.value = true; Elements(navController)
+                    showTopBar.value = true; Elements(navController, viewModel)
                 }
                 composable(Screen.Scanner.route) {
                     showTopBar.value = false; Scanner(navController)
@@ -114,14 +114,17 @@ object NavUtils {
 
     @Composable
     private fun BottomBar(navController: NavController) {
-        BottomNavigation {
+        BottomNavigation(
+            backgroundColor = MaterialTheme.colors.secondary
+        ) {
             val navBackStackEntry by navController.currentBackStackEntryAsState()
             val currentDestination = navBackStackEntry?.destination
 
             topNavDestinations.forEach { screen ->
-                BottomNavigationItem(icon = {
-                    Icon(getRouteIcon(screen), contentDescription = null)
-                },
+                BottomNavigationItem(
+                    icon = {
+                        Icon(getRouteIcon(screen), contentDescription = null)
+                    },
                     label = { Text(stringResource(screen.stringResId)) },
                     selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
                     onClick = {
@@ -137,7 +140,9 @@ object NavUtils {
                             // Restore state when reselecting a previously selected item
                             restoreState = true
                         }
-                    })
+                    },
+
+                    )
             }
         }
     }

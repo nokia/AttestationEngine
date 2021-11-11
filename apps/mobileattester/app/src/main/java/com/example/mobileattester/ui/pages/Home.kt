@@ -35,7 +35,10 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun Home(navController: NavController? = null, viewModel: AttestationViewModel) {
-    val ids: Response<List<String>> by viewModel.getElementIds()
+    val eIds: Response<List<String>> by viewModel.getElementIds()
+        .observeAsState(Response(status = Status.LOADING))
+
+    val pIds: Response<List<String>> by viewModel.getPolicyIds()
         .observeAsState(Response(status = Status.LOADING))
 
     val context = LocalContext.current
@@ -149,7 +152,12 @@ fun Home(navController: NavController? = null, viewModel: AttestationViewModel) 
                 .clip(RoundedCornerShape(5, 5, 0, 0))
                 .background(Color.White)
         ) {
-            Text(text = ids.data?.reduce { a, b -> a + b } ?: ids.message
+            Text(text = eIds.data?.reduce { a, b -> a + b } ?: eIds.message
+            ?: "Data not received for some reason")
+
+            Divider(Modifier.size(20.dp))
+
+            Text(text = pIds.data?.reduce { a, b -> a + b } ?: pIds.message
             ?: "Data not received for some reason")
         }
     }
