@@ -5,10 +5,10 @@ import android.os.Build
 import android.util.Log
 import android.util.Patterns
 import android.widget.Toast
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
@@ -41,23 +41,20 @@ fun Home(navController: NavController? = null, viewModel: AttestationViewModel) 
     val preferences = Preferences(LocalContext.current)
     val list = preferences.engines.collectAsState(initial = sortedSetOf<String>())
 
-    Log.e("currentEngine", currentEngine)
-    Log.e("engineList", list.toString())
-
-    if(list.value.isNotEmpty() && !list.value.contains(currentEngine)) {
-        Log.e("CurrentUrl","Current Url Switched to http://${list.value.first()}/")
+    if(list.value.isNotEmpty() && !list.value.contains(currentEngine))
         viewModel.switchBaseUrl("http://${list.value.first()}/")
-    }
 
     var showAllConfigurations by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
+    val scrollState = ScrollState(0)
 
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color(13, 110, 253))
-            .border(0.dp, Color.Transparent),
+            .border(0.dp, Color.Transparent)
+            .verticalScroll(scrollState),
     ) {
         // Top Bar
         Column(
@@ -81,7 +78,7 @@ fun Home(navController: NavController? = null, viewModel: AttestationViewModel) 
 
 
             if (showAllConfigurations) {
-                list.value.filter { it != currentEngine }.forEach { engineAddress ->
+                    (list.value.filter { it != currentEngine }).forEach { engineAddress ->
                     ConfigurationButton(
                         text = engineAddress,
                         onClick = {
@@ -105,6 +102,7 @@ fun Home(navController: NavController? = null, viewModel: AttestationViewModel) 
                         },
                     )
                 }
+
 
                 ConfigurationButton(text = "Ipaddress:port",
                     name = "",
