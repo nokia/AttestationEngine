@@ -2,13 +2,10 @@ package com.example.mobileattester.ui.pages
 
 import android.net.InetAddresses
 import android.os.Build
-import android.util.Log
 import android.util.Patterns
 import android.widget.Toast
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.*
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
@@ -35,14 +32,13 @@ import kotlinx.coroutines.launch
 @Composable
 fun Home(navController: NavController? = null, viewModel: AttestationViewModel) {
     val context = LocalContext.current
-    var currentUrl = viewModel.currentUrl.collectAsState()
+    val currentUrl = viewModel.currentUrl.collectAsState()
     val currentEngine = parseBaseUrl(currentUrl.value)
 
     val preferences = Preferences(LocalContext.current)
     val list = preferences.engines.collectAsState(initial = sortedSetOf<String>())
 
-    if(list.value.isNotEmpty() && !list.value.contains(currentEngine))
-        viewModel.switchBaseUrl("http://${list.value.first()}/")
+    if (list.value.isNotEmpty() && !list.value.contains(currentEngine)) viewModel.switchBaseUrl("http://${list.value.first()}/")
 
     var showAllConfigurations by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
@@ -78,7 +74,7 @@ fun Home(navController: NavController? = null, viewModel: AttestationViewModel) 
 
 
             if (showAllConfigurations) {
-                    (list.value.filter { it != currentEngine }).forEach { engineAddress ->
+                (list.value.filter { it != currentEngine }).forEach { engineAddress ->
                     ConfigurationButton(
                         text = engineAddress,
                         onClick = {

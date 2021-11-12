@@ -24,7 +24,8 @@ class MainActivity : ComponentActivity() {
          * TO RETROFIT SERVICE.
          */
 
-        viewModel = ViewModelProvider(this, Injector.provideAttestationViewModelFactory("http://${Preferences.defaultConfig.first()}/")).get(
+        viewModel = ViewModelProvider(this,
+            Injector.provideAttestationViewModelFactory("http://${Preferences.defaultConfig.first()}/")).get(
             AttestationViewModelImpl::class.java)
 
         setContent {
