@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import java.util.*
@@ -22,7 +23,7 @@ class Preferences(
         private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(CONFIG)
         private val enginesKey = stringSetPreferencesKey("addresses")
 
-        val defaultConfig = mutableSetOf("172.30.87.192/8520")
+        val defaultConfig = mutableSetOf("172.30.87.192:8520")
     }
 
     // Access set of saved configs?

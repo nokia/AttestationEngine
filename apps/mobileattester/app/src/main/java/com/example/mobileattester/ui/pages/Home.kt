@@ -35,16 +35,23 @@ import kotlinx.coroutines.launch
 @Composable
 fun Home(navController: NavController? = null, viewModel: AttestationViewModel) {
     val context = LocalContext.current
-    val currentUrl = viewModel.currentUrl.collectAsState().value
-    val currentEngine = parseBaseUrl(currentUrl)
+    var currentUrl = viewModel.currentUrl.collectAsState()
+    val currentEngine = parseBaseUrl(currentUrl.value)
 
     val preferences = Preferences(LocalContext.current)
     val list = preferences.engines.collectAsState(initial = sortedSetOf<String>())
 
+    Log.e("currentEngine", currentEngine)
+    Log.e("engineList", list.toString())
+
+    if(list.value.isNotEmpty() && !list.value.contains(currentEngine)) {
+        Log.e("CurrentUrl","Current Url Switched to http://${list.value.first()}/")
+        viewModel.switchBaseUrl("http://${list.value.first()}/")
+    }
+
     var showAllConfigurations by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
 
-    Log.e("currentEngine", currentEngine)
 
     Column(
         modifier = Modifier

@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.mobileattester.di.Injector
 import com.example.mobileattester.ui.theme.MobileAttesterTheme
 import com.example.mobileattester.ui.util.NavUtils
+import com.example.mobileattester.ui.util.Preferences
 import com.example.mobileattester.ui.viewmodel.AttestationViewModel
 import com.example.mobileattester.ui.viewmodel.AttestationViewModelImpl
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
@@ -22,9 +23,8 @@ class MainActivity : ComponentActivity() {
          * APPLICATION CURRENTLY CRASHES AFTER A WHILE IF AN INVALID ADDRESS IS PROVIDED
          * TO RETROFIT SERVICE.
          */
-        val url = "http://172.30.87.192:8520/"
 
-        viewModel = ViewModelProvider(this, Injector.provideAttestationViewModelFactory(url)).get(
+        viewModel = ViewModelProvider(this, Injector.provideAttestationViewModelFactory("http://${Preferences.defaultConfig.first()}/")).get(
             AttestationViewModelImpl::class.java)
 
         setContent {
