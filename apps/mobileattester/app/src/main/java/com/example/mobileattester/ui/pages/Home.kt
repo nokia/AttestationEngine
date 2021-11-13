@@ -193,28 +193,42 @@ fun ConfigurationButton(
 @Composable
 fun Content(navController: NavController? = null, viewModel: AttestationViewModel) {
     val elementCount = viewModel.elementCount.collectAsState()
+    val refreshing = viewModel.isRefreshing.collectAsState()
 
     Row(modifier = Modifier
         .padding(15.dp)
-        .fillMaxWidth()) {
-        Icon(TablerIcons.DeviceDesktop,
-            contentDescription = null,
-            modifier = Modifier
-                .padding(5.dp, 0.dp)
-                .align(Alignment.CenterVertically)
-                .size(25.dp))
-        Text("System Devices",
-            modifier = Modifier
-                .padding(5.dp, 0.dp)
-                .align(Alignment.CenterVertically),
-            fontSize = 18.sp)
-        Text(AnnotatedString(elementCount.value.toString()),
-            modifier = Modifier
-                .padding(5.dp, 0.dp)
-                .align(Alignment.CenterVertically)
-                .fillMaxWidth(),
-            textAlign = TextAlign.End,
-            fontSize = 24.sp)
+        .fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween) {
+        Row() {
+            Icon(TablerIcons.DeviceDesktop,
+                contentDescription = null,
+                modifier = Modifier
+                    .padding(5.dp, 0.dp)
+                    .align(Alignment.CenterVertically)
+                    .size(25.dp))
+            Text("System Devices",
+                modifier = Modifier
+                    .padding(5.dp, 0.dp)
+                    .align(Alignment.CenterVertically),
+                fontSize = 18.sp)
+        }
+
+        if (refreshing.value) {
+            CircularProgressIndicator(
+                modifier = Modifier
+                    .size(32.dp)
+                    .align(Alignment.CenterVertically),
+                color = MaterialTheme.colors.primary,
+            )
+        } else {
+            Text(AnnotatedString(elementCount.value.toString()),
+                modifier = Modifier
+                    .padding(5.dp, 0.dp)
+                    .align(Alignment.CenterVertically)
+                    .fillMaxWidth(),
+                textAlign = TextAlign.End,
+                fontSize = 24.sp)
+        }
     }
 
     Text(text = AnnotatedString("Attestation Overview", SpanStyle(fontSize = 24.sp)),

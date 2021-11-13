@@ -46,9 +46,6 @@ class AttestationViewModelImpl(
     override val elementFlow: StateFlow<List<Element>> = elementDataHandler.dataFlow
     override val elementCount: StateFlow<Int> = elementDataHandler.idCount
 
-    init {
-        elementDataHandler.refreshData()
-    }
 
     override fun getElementFromCache(itemid: String): Element? =
         elementDataHandler.getDataForId(itemid)

@@ -62,6 +62,7 @@ fun Elements(navController: NavController, viewModel: AttestationViewModel) {
             itemsIndexed(elementState.value) { index, element ->
                 println("rendering index: $index // $lastIndex ")
                 if (index + FETCH_START_BUFFER >= lastIndex) {
+
                     viewModel.getMoreElements()
                 }
 
