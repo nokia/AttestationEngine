@@ -4,6 +4,7 @@ import com.example.mobileattester.data.model.Element
 import com.example.mobileattester.data.model.ExpectedValue
 import com.example.mobileattester.data.model.Policy
 import com.example.mobileattester.data.network.AttestationDataHandler
+import com.example.mobileattester.data.util.BatchedDataProvider
 import kotlinx.coroutines.flow.MutableStateFlow
 
 /**
@@ -34,7 +35,7 @@ interface AttestationRepository {
 
 class AttestationRepositoryImpl(
     private val handler: AttestationDataHandler,
-) : AttestationRepository {
+) : AttestationRepository, BatchedDataProvider<String, Element> {
 
     override val currentUrl: MutableStateFlow<String> = handler.currentUrl
 
@@ -55,4 +56,6 @@ class AttestationRepositoryImpl(
         pid: String,
     ): ExpectedValue = handler.getExpectedValueByElementPolicyIds(eid, pid)
 
+    override suspend fun getIdList(): List<String> = getElementIds()
+    override suspend fun getDataForId(id: String): Element = getElement(id)
 }
