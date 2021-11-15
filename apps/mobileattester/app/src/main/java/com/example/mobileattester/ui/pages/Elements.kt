@@ -1,5 +1,6 @@
 package com.example.mobileattester.ui.pages
 
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -13,8 +14,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.os.bundleOf
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.mobileattester.R
 import com.example.mobileattester.data.model.Element
@@ -41,6 +44,8 @@ fun Elements(navController: NavController, viewModel: AttestationViewModel) {
     val isLoading = viewModel.isLoading.collectAsState()
     val isRefreshing = viewModel.isRefreshing.collectAsState()
 
+    val filters = remember { mutableStateOf(TextFieldValue()) }
+
     // Navigate to single element view, pass clicked id as argument
     fun onElementClicked(itemid: String) {
         navController.navigate(Screen.Element.route, bundleOf(Pair(ARG_ITEM_ID, itemid)))
@@ -54,12 +59,14 @@ fun Elements(navController: NavController, viewModel: AttestationViewModel) {
 
             // Header
             item {
-                ElementListHeader()
+                HeaderRoundedBottom {
+                    SearchBar(filters, stringResource(id = R.string.placeholder_search_elementlist))
+                }
                 Spacer(modifier = Modifier.size(5.dp))
             }
 
             // List of the elements
-            itemsIndexed(elementState.value) { index, element ->
+            itemsIndexed(if(filters.value.text.isEmpty()) elementState.value else viewModel.filterElements(filters.value.text)) { index, element ->
                 println("rendering index: $index // $lastIndex ")
                 if (index + FETCH_START_BUFFER >= lastIndex) {
 
@@ -74,9 +81,10 @@ fun Elements(navController: NavController, viewModel: AttestationViewModel) {
 
             // Footer
             item {
-                Row(Modifier
-                    .fillMaxWidth()
-                    .padding(24.dp),
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(24.dp),
                     horizontalArrangement = Arrangement.Center) {
                     if (isLoading.value) {
                         CircularProgressIndicator(modifier = Modifier.size(32.dp),
@@ -89,22 +97,6 @@ fun Elements(navController: NavController, viewModel: AttestationViewModel) {
         }
     }
 
-}
-
-@Composable
-private fun ElementListHeader() {
-    val text = remember {
-        mutableStateOf(TextFieldValue())
-    }
-
-    HeaderRoundedBottom {
-        SearchBar(text, stringResource(id = R.string.placeholder_search_elementlist))
-        TextClickableWithIcon(text = stringResource(id = R.string.elementlist_additional),
-            icon = TablerIcons.ChevronDown,
-            onClick = {
-                // TODO
-            })
-    }
 }
 
 @Composable

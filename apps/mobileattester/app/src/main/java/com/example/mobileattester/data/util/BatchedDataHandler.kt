@@ -14,13 +14,13 @@ const val TAG = "BatchedDataHandler"
  * T - Id type
  * U - Data type
  */
-interface BatchedDataProvider<T, U> {
-    suspend fun getIdList(): List<T>
-    suspend fun getDataForId(id: T): U
+interface BatchedDataProvider {
+    suspend fun getIdList(): List<String>
+    suspend fun getDataForId(id: String): Element
 }
 
-class ElementDataHandler(dataProvider: BatchedDataProvider<String, Element>, batchSize: Int) :
-    BatchedDataHandler<String, Element>(dataProvider, batchSize) {}
+class ElementDataHandler(dataProvider: BatchedDataProvider, batchSize: Int) :
+    BatchedDataHandler(dataProvider, batchSize) {}
 
 /**
  *  Data fetching in batches.
@@ -37,25 +37,25 @@ class ElementDataHandler(dataProvider: BatchedDataProvider<String, Element>, bat
  *
  *  -   Proper error handling
  */
-abstract class BatchedDataHandler<T, U>(
-    private val dataProvider: BatchedDataProvider<T, U>,
+abstract class BatchedDataHandler(
+    private val dataProvider: BatchedDataProvider,
     private val batchSize: Int,
 ) {
     private val job = Job()
     private val scope = CoroutineScope(job)
 
-    private var idList: List<T>? = null
-    private var listChunks: List<List<T>>? = null
+    private var idList: List<String>? = null
+    private var listChunks: List<List<String>>? = null
     private var _refreshingData = MutableStateFlow(false)
 
     /**
      * Fetched data
      */
-    private val batches = mutableMapOf<Int, List<Pair<T, U>>>()
+    private val batches = mutableMapOf<Int, List<Pair<String, Element>>>()
     private val batchesLoading = mutableSetOf<Int>()
 
     /** Data from batches in a list */
-    val dataFlow = MutableStateFlow(listOf<U>())
+    val dataFlow = MutableStateFlow(listOf<Element>())
 
     /** Any of the batches currently loading? */
     val isLoading: MutableStateFlow<Boolean> = MutableStateFlow(batchesLoading.size != 0)
@@ -121,7 +121,7 @@ abstract class BatchedDataHandler<T, U>(
         }
     }
 
-    fun getDataForId(id: T): U? {
+    fun getDataForId(id: String): Element? {
         for (list in batches.values) {
             val data = list.find { it.first == id }
             data?.let {
@@ -134,12 +134,12 @@ abstract class BatchedDataHandler<T, U>(
     // ---- Private ----
     // ---- Private ----
 
-    private suspend fun fetchBatch(batchNumber: Int): List<Pair<T, U>> {
+    private suspend fun fetchBatch(batchNumber: Int): List<Pair<String, Element>> {
         Log.d(TAG, "fetchBatch: Fetching batch $batchNumber")
         return scope.async(Dispatchers.IO) {
             // Get next batches chunk from the list
             val ids = listChunks?.getOrNull(batchNumber)
-            val temp = mutableListOf<Pair<T, U>>()
+            val temp = mutableListOf<Pair<String, Element>>()
 
             Log.d(TAG, "fetchBatch: IDS TO GET: $ids")
 
@@ -156,7 +156,7 @@ abstract class BatchedDataHandler<T, U>(
                         withTimeout(TIMEOUT) {
                             val res = dataProvider.getDataForId(id)
                             res.let {
-                                temp.add(Pair(id, it))
+                                temp.add(Pair<String, Element>(id, it))
                             }
                         }
                     }
@@ -194,20 +194,34 @@ abstract class BatchedDataHandler<T, U>(
     }
 
     /**
-     * Returns all data from downloaded batches as a list
+     * Returns all data from downloaded batches as a list and optionally filters using keywords separated by spaces.
      */
-    private fun dataAsList(): List<U> {
-        val loadedBatchValues = mutableListOf<U>()
+    fun dataAsList(filters: String? = null): List<Element> {
+        val loadedBatchValues = mutableListOf<Element>()
+
 
         batches.entries.forEach { entry ->
-            val values = entry.value.map {
-                it.second
+            entry.value.forEach {
+                if (filters == null)
+                    loadedBatchValues.add(it.second)
+                else if (filters.split(' ').all { filter ->
+                        when {
+                            it.second.name.lowercase().contains(filter.lowercase()) -> true
+                            (it.second.description?.lowercase() ?: "").contains(filter.lowercase()) -> true
+                            it.second.endpoint.lowercase().contains(filter.lowercase()) -> true
+                            it.second.protocol.lowercase().contains(filter.lowercase()) -> true
+                            it.second.types.any { tag ->
+                                tag.lowercase().contains(filter.lowercase())
+                            } -> true
+                            else -> false
+                        }
+                    })
+                    loadedBatchValues.add(it.second)
+
             }
-            loadedBatchValues.addAll(values)
         }
 
         println("DataAsList size: ${loadedBatchValues.size}")
-
         return loadedBatchValues
     }
 
