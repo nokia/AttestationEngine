@@ -85,6 +85,8 @@ ocredf.close()
 
 enrollbody = { 'secret':revealedsecret, 'element':jsondata }
 
+print("Entrollment body is ",type(jsondata),jsondata)
+
 r = requests.post(enrollmentserver+"/enrol/element/"+sessionid,json=enrollbody)
 
 if r.status_code!=201:

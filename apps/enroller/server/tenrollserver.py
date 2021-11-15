@@ -93,6 +93,7 @@ def credentialcheck():
 @eapp.route("/enrol/element/<sessionid>", methods=['POST'])
 def enrolelement(sessionid):
 	#First check if there is a valid session id
+	print("Arrived here ",sessionid)
 	sessionsecret=""
 	try:
 		sessionsecret = enrollmentdb[sessionid]
@@ -108,8 +109,9 @@ def enrolelement(sessionid):
 		return "Incorrect secret",400
 
 	# Now call the attestation engine API to add an element
+	print("AERESTENDPOINT IS ",aerestendpoint)
 	r = requests.post(aerestendpoint+"/element",json=eelement)
-	print("RETURN=",r.status_code,r.text,r.json)
+	print("AERETURN=",r.status_code,r.text,r.json)
 
 	if r.status_code == 201:
 		return r.text, 201

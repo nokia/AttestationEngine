@@ -1,0 +1,27 @@
+{
+   "asurl": [
+      "http://10.144.176.154:8510"
+   ],
+   "description": "to lazy to write this",
+   "endpoint": "http://10.144.176.154:8530",
+   "hostname": "covid19v2",
+   "location": "60.22309,24.75877",
+   "name": "covid19",
+   "protocol": "A10HTTPREST",
+   "tpm2": {
+      "tpm0": {
+         "akhandle": "0x810100aa",
+         "akname": "000bc16a3ac7aaaf2d4c5e1cf40593addbdb7c8b5edc09a7824b10bc13afb8a65ee8",
+         "akpem": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA4LrV1R/R5Bxj3FIgXNt5\nY6mwFTmnYwZLYptpYJF3U8AenjekIQQJua1I2Fmqaa/aG6KGgR0oplpRHnzAy7Oa\nDqdwLIS84or31LVsrNi4MTPbf3UwR72ovGngUdHHlzEMAtM7f+k9vAkwvUNM4CoQ\nsz0CoFUBGiXQ5/x8YQJi5UmeOpjTb6U55TZ9dGHupTexrmFnThb5J4sf1SxXt/gF\nFb4VPcTQ5FmvPI4ac/OPxI/4cSXS/ULbMUggSLVkQJI/JQeHFfRi/5vliKi/RTRL\n53OOO83nkRtj8EnbD5CxfNry70v4dUFjZknfbveUXKUYdygbD2yRsHYKasyJT6RO\n5QIDAQAB\n-----END PUBLIC KEY-----\n",
+         "ekhandle": "0x810100ee",
+         "ekname": "000b4a3d09eed2ea64768abe43528b118bc28df6a24365c6a2f1a81cee9180aa0a3c",
+         "ekpem": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAht0Z9CUlL6DCubuUXKGH\n0mBedrTQn3N9Ne5yJ106YjLpCrf9bGvq2KQBsbg8tumcKqAzi5xDnWaZea6zYQch\nOz6U4hzJw38G4KLABHbWJF0QgUPESCM2JfB7UyN3TIH2Ss2xojJnE0YO33McCEj6\n7Py4MYY2aj2VQ9b/Zya59ZYu7TAHgsLb7bQDV1S7YFLj33dg6DQFeQzXDZmgoPgz\nGsK59XT2aOSoeybhjcN0acGz+MSkGy2BBIpr7jdWRSqfE16ITjK2Bt2R6jqPyX1P\n8wFfuSw8bVc7vNKURDk6lymv3VPPVdp1kG3EOHQb733n21YSul2J1gZQOPbZcwgT\nKwIDAQAB\n-----END PUBLIC KEY-----\n"
+      }
+   },
+   "type": [
+      "x86,tpm2,uefi,arm,pi"
+   ],
+   "uefi": {
+      "eventlog": "/sys/kernel/security/tpm0/binary_bios_measurements"
+   }
+}
