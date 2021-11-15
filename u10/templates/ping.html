@@ -1,0 +1,28 @@
+<!--
+ Copyright 2021 Nokia
+ Licensed under the BSD 3-Clause License.
+ SPDX-License-Identifier: BSD-3-Clause
+-->
+
+{% extends "base.html" %}
+{% block content %}
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Endpoint</th>
+            <th>Ping Result</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for p in prs %}
+        <tr>
+            <td><a href="/element/{{p.itemid}}">{{ p.name }}</td>
+            <td>{{ p.ip }}</td>
+            <td>{{ p.result }}</td>
+                      
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
