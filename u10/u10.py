@@ -18,6 +18,8 @@ from blueprints.attestation import attestation_blueprint
 from blueprints.hashes import hashes_blueprint
 from blueprints.elementanalytics import elementanalytics_blueprint
 from blueprints.log import log_blueprint
+from blueprints.ping import ping_blueprint
+
 
 
 u10 = Flask(__name__)
@@ -38,6 +40,7 @@ u10.register_blueprint(attestation_blueprint)
 u10.register_blueprint(hashes_blueprint)
 u10.register_blueprint(elementanalytics_blueprint)
 u10.register_blueprint(log_blueprint)
+u10.register_blueprint(ping_blueprint)
 
 # This function is unused but I'll leave it here for documentation and future purposes
 # You can call this function from a template, eg: {{ resolveTheHash }} - use the name in the returned dict
