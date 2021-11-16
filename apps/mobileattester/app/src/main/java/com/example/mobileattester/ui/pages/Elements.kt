@@ -1,6 +1,5 @@
 package com.example.mobileattester.ui.pages
 
-import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -14,17 +13,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.os.bundleOf
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.mobileattester.R
 import com.example.mobileattester.data.model.Element
 import com.example.mobileattester.ui.components.SearchBar
 import com.example.mobileattester.ui.components.TagRow
 import com.example.mobileattester.ui.components.common.HeaderRoundedBottom
-import com.example.mobileattester.ui.components.common.TextClickableWithIcon
 import com.example.mobileattester.ui.theme.DarkGrey
 import com.example.mobileattester.ui.theme.DividerColor
 import com.example.mobileattester.ui.util.Screen
@@ -34,7 +30,6 @@ import com.example.mobileattester.ui.viewmodel.AttestationViewModelImpl.Companio
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import compose.icons.TablerIcons
-import compose.icons.tablericons.ChevronDown
 import compose.icons.tablericons.ChevronRight
 
 @Composable
