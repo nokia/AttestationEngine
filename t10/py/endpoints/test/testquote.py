@@ -6,21 +6,21 @@ from flask import Blueprint, request, jsonify
 import json
 import datetime
 
-testquote_endpoint = Blueprint('testquote_endpoint', __name__)
+testquote_endpoint = Blueprint("testquote_endpoint", __name__)
 
 
-@testquote_endpoint.route('/', methods=['GET','POST'])
+@testquote_endpoint.route("/", methods=["GET", "POST"])
 def returnTestQuote():
     # POST allows a body with JSON...
     # GET according to the standard should ignore any body, however we leave both here just in case...GET is more natural but I'm not
     # encoding everything into the URL...too much...POST is fine
     #
     # in the body we should have a policy object structure in JSON form
-    #{
-   #'policyType' : 'tpm20_tpms_attest',
-   #'description' : 'x86 SRTM',
-   #'pcrs' : 'sha256:0,1,2,3,4,5,6,7'
-   # }
+    # {
+    #'policyType' : 'tpm20_tpms_attest',
+    #'description' : 'x86 SRTM',
+    #'pcrs' : 'sha256:0,1,2,3,4,5,6,7'
+    # }
 
     policy = json.loads(request.json)
 
@@ -45,20 +45,16 @@ def returnTestQuote():
     claimHeader = {
         "claimType": "tpm20_tpms_attest",
         "claimCreated": str(datetime.datetime.now()),
-        "signingKeyName": "1234"
+        "signingKeyName": "1234",
     }
 
-    claimSignature = {
-        "hash": "0x1234",
-        "signed": "0x1234"
-    }
+    claimSignature = {"hash": "0x1234", "signed": "0x1234"}
 
-    claim = {"header": claimHeader,
-             "payload": {
-                 "quote": quote,
-                 "requestedPCRs": policy['pcrs']
-             },
-             "signature": claimSignature}
+    claim = {
+        "header": claimHeader,
+        "payload": {"quote": quote, "requestedPCRs": policy["pcrs"]},
+        "signature": claimSignature,
+    }
 
     returncode = 200
 
@@ -67,4 +63,3 @@ def returnTestQuote():
     # 20x
 
     return jsonify(claim), returncode
-

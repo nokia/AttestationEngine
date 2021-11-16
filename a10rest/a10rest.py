@@ -5,7 +5,15 @@
 import os
 import sys
 
-from a10.asvr import elements, policies, attestation, claims, expectedvalues, results, types
+from a10.asvr import (
+    elements,
+    policies,
+    attestation,
+    claims,
+    expectedvalues,
+    results,
+    types,
+)
 from a10.structures import constants
 from flask import Flask, request, send_from_directory, jsonify
 
@@ -21,34 +29,32 @@ a10rest = Flask(__name__)
 #
 
 
-
 @a10rest.route("/")
 def hello():
     return "Hello from A10REST"
-
-
 
 
 #
 # Swagger - documentation for OpenAPI
 #
 
+
 @a10rest.route("/spec")
 def spec():
     swag = swagger(a10rest)
-    swag['info']['version'] = "1.0"
-    swag['info']['description'] = "The A10 REST API Server"
-    swag['info']['title'] = "A10REST"
-    swag['title']= "A10REST"
+    swag["info"]["version"] = "1.0"
+    swag["info"]["description"] = "The A10 REST API Server"
+    swag["info"]["title"] = "A10REST"
+    swag["title"] = "A10REST"
     return jsonify(swag)
-
 
 
 #
 # ELEMENTS (ALL OF THEM)
 #
 
-@a10rest.route("/elements", methods=['GET'])
+
+@a10rest.route("/elements", methods=["GET"])
 def getelements():
     """
     Gets a list of all elements
@@ -60,12 +66,12 @@ def getelements():
                 application/json:
                     schema: list itemid
     """
-    es = [ x['itemid'] for x in elements.getElements() ]
-    print("ES is ",es)
+    es = [x["itemid"] for x in elements.getElements()]
+    print("ES is ", es)
     return str(es), 200
 
 
-@a10rest.route("/elements/types", methods=['GET'])
+@a10rest.route("/elements/types", methods=["GET"])
 def getTypes():
     """
     Gets a list of all types currently in use
@@ -81,13 +87,13 @@ def getTypes():
 
     return ts, 200
 
+
 #
 # ELEMENT (SINGULAR)
 #
 
 
-
-@a10rest.route("/element/<itemid>", methods=['GET'])
+@a10rest.route("/element/<itemid>", methods=["GET"])
 def getelement(itemid):
     """
     Gets the details of a specific element
@@ -111,7 +117,7 @@ def getelement(itemid):
         return elem.msg(), 200
 
 
-@a10rest.route("/element", methods=['POST'])
+@a10rest.route("/element", methods=["POST"])
 def addElement():
     content = request.json
     print("content", content)
@@ -124,9 +130,9 @@ def addElement():
         return e.msg(), 201
 
 
-@a10rest.route("/element", methods=['DELETE'])
+@a10rest.route("/element", methods=["DELETE"])
 def deleteElement():
-    itemid = request.args.get('itemid')
+    itemid = request.args.get("itemid")
     print("itemid", itemid)
     e = elements.deleteElement(itemid)
 
@@ -136,7 +142,7 @@ def deleteElement():
         return e.msg(), 200
 
 
-@a10rest.route("/element", methods=['PUT'])
+@a10rest.route("/element", methods=["PUT"])
 def updateElement():
     content = request.json
     print("content", content)
@@ -149,20 +155,18 @@ def updateElement():
         return e.msg(), 200
 
 
-
-
-
 #
 # POLICIES
 #
-@a10rest.route("/policies", methods=['GET'])
+@a10rest.route("/policies", methods=["GET"])
 def getpolicies():
 
-    ps = [ x['itemid'] for x in policies.getPolicies() ]
-    print("ES is ",ps)
+    ps = [x["itemid"] for x in policies.getPolicies()]
+    print("ES is ", ps)
     return str(ps), 200
 
-@a10rest.route("/policy/<itemid>", methods=['GET'])
+
+@a10rest.route("/policy/<itemid>", methods=["GET"])
 def getpolicy(itemid):
 
     print("itemid", itemid)
@@ -174,7 +178,7 @@ def getpolicy(itemid):
         return e.msg(), 200
 
 
-@a10rest.route("/policy", methods=['POST'])
+@a10rest.route("/policy", methods=["POST"])
 def addPolicy():
     content = request.json
     print("content", content)
@@ -187,9 +191,9 @@ def addPolicy():
         return e.msg(), 201
 
 
-@a10rest.route("/policy", methods=['DELETE'])
+@a10rest.route("/policy", methods=["DELETE"])
 def deletePolicy():
-    itemid = request.args.get('itemid')
+    itemid = request.args.get("itemid")
     print("itemid", itemid)
     e = policies.deletePolicy(itemid)
 
@@ -199,7 +203,7 @@ def deletePolicy():
         return e.msg(), 200
 
 
-@a10rest.route("/policy", methods=['PUT'])
+@a10rest.route("/policy", methods=["PUT"])
 def updatePolicy():
     content = request.json
     print("content", content)
@@ -217,7 +221,7 @@ def updatePolicy():
 #
 
 
-@a10rest.route("/expectedvalue/<itemid>", methods=['GET'])
+@a10rest.route("/expectedvalue/<itemid>", methods=["GET"])
 def getEV(itemid):
     print("itemid", itemid)
     e = expectedValues.getExpectedValue(itemid)
@@ -228,21 +232,19 @@ def getEV(itemid):
         return e.msg(), 200
 
 
+@a10rest.route("/expectedvalue/<eid>/<pid>", methods=["GET"])
+def getEVep(eid, pid):
 
+    print(" eid", eid, " pid", pid)
+    e = expectedValues.getExpectedValueByElementPolicyIDs(typ, eid, pid)
 
-@a10rest.route("/expectedvalue/<eid>/<pid>", methods=['GET'])
-def getEVep(eid,pid):
-    
-    print(" eid",eid," pid",pid)
-    e = expectedValues.getExpectedValueByElementPolicyIDs(typ,eid,pid)
-    
     if e.rc() != constants.SUCCESS:
-        return e.msg(),404
+        return e.msg(), 404
     else:
-        return e.msg(),200
+        return e.msg(), 200
 
 
-@a10rest.route("/expectedvalue", methods=['POST'])
+@a10rest.route("/expectedvalue", methods=["POST"])
 def addEV():
     content = request.json
     print("content", content)
@@ -255,7 +257,7 @@ def addEV():
         return e.msg(), 201
 
 
-@a10rest.route("/expectedvalue/<itemid>", methods=['DELETE'])
+@a10rest.route("/expectedvalue/<itemid>", methods=["DELETE"])
 def deleteEV(itemid):
     print("itemid", itemid)
     e = expectedValues.deleteExpectedValue(itemid)
@@ -266,7 +268,7 @@ def deleteEV(itemid):
         return e.msg(), 200
 
 
-@a10rest.route("/expectedvalue", methods=['PUT'])
+@a10rest.route("/expectedvalue", methods=["PUT"])
 def updateEV():
     content = request.json
     print("content", content)
@@ -284,7 +286,7 @@ def updateEV():
 #
 
 
-@a10rest.route("/claim/<itemid>", methods=['GET'])
+@a10rest.route("/claim/<itemid>", methods=["GET"])
 def getclaim(itemid):
     print("itemid", itemid)
     e = claims.getClaimByID(itemid)
@@ -300,7 +302,7 @@ def getclaim(itemid):
 #
 
 
-@a10rest.route("/result/<itemid>", methods=['GET'])
+@a10rest.route("/result/<itemid>", methods=["GET"])
 def getresult(itemid):
     print("itemid", itemid)
     e = results.getResultByID(itemid)
@@ -316,7 +318,7 @@ def getresult(itemid):
 #
 
 
-@a10rest.route("/attest", methods=['POST'])
+@a10rest.route("/attest", methods=["POST"])
 def attest():
     content = request.json
     print("content", content)
@@ -332,7 +334,7 @@ def attest():
         return e.msg(), 201
 
 
-@a10rest.route("/verify", methods=['POST'])
+@a10rest.route("/verify", methods=["POST"])
 def verify():
     content = request.json
     print("content", content)
@@ -352,18 +354,25 @@ def verify():
 #
 
 
-def main(cert, key, config_filename='a10rest.conf'):
+def main(cert, key, config_filename="a10rest.conf"):
     a10rest.config.from_pyfile(config_filename)
     if cert and key:
-        a10rest.run(debug=a10rest.config['FLASKDEBUG'], threaded=a10rest.config['FLASKTHREADED'],
-                    host=a10rest.config['DEFAULTHOST'],
-                    port=a10rest.config['DEFAULTPORT'], ssl_context=(cert, key))
+        a10rest.run(
+            debug=a10rest.config["FLASKDEBUG"],
+            threaded=a10rest.config["FLASKTHREADED"],
+            host=a10rest.config["DEFAULTHOST"],
+            port=a10rest.config["DEFAULTPORT"],
+            ssl_context=(cert, key),
+        )
     else:
-        a10rest.run(debug=a10rest.config['FLASKDEBUG'], threaded=a10rest.config['FLASKTHREADED'],
-                    host=a10rest.config['DEFAULTHOST'],
-                    port=a10rest.config['DEFAULTPORT'])
+        a10rest.run(
+            debug=a10rest.config["FLASKDEBUG"],
+            threaded=a10rest.config["FLASKTHREADED"],
+            host=a10rest.config["DEFAULTHOST"],
+            port=a10rest.config["DEFAULTPORT"],
+        )
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     print("A10REST Starting")
-    main('', '')
+    main("", "")

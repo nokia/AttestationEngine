@@ -22,7 +22,9 @@ class A10Container(A10ProtocolBase):
         super().__init__(endpoint, policyintent, policyparameters, None)
 
     def exec(self):
-        print(f"Calling protocol A10Container {self.endpoint} with intent {self.policyintent}")
+        print(
+            f"Calling protocol A10Container {self.endpoint} with intent {self.policyintent}"
+        )
 
         if self.policyintent == A10ContainerIntents.IMAGE:
             """
@@ -45,18 +47,23 @@ class A10Container(A10ProtocolBase):
 
         element_url = f"{self.endpoint}/attest/{self.policyintent}"
 
-        call_body = {'policyparameters': self.policyparameters, 'callparameters': self.additionalparameters}
+        call_body = {
+            "policyparameters": self.policyparameters,
+            "callparameters": self.additionalparameters,
+        }
         json_data = json.dumps(call_body, ensure_ascii=False)
 
         response = requests.post(
             url=element_url,
             json=json_data,
-            headers={'Content-type': 'application/json', 'Accept': 'text/plain'},
-            timeout=20
+            headers={"Content-type": "application/json", "Accept": "text/plain"},
+            timeout=20,
         )
 
         if response.status_code == 200:
             return a10_constants.PROTOCOLSUCCESS, json.loads(response.text)
         else:
-            return a10_constants.PROTOCOLEXECUTIONFAILURE, {"message": "http failure",
-                                                            "return code": response.status_code}
+            return (
+                a10_constants.PROTOCOLEXECUTIONFAILURE,
+                {"message": "http failure", "return code": response.status_code},
+            )

@@ -4,44 +4,42 @@
 
 """This module contains the return codes used in the returncode structure"""
 
-#General success code
+# General success code
 SUCCESS = 0
 
-#General error codes
+# General error codes
 GENERALERROR = 1000
 MISSINGFIELDS = 1100
 NORESULT = 1200
 
-#Element management code
+# Element management code
 ADDITEMFAIL = 1200
 ITEMDOESNOTEXIST = 1201
 DELETEITEMFAIL = 1202
 UPDATEITEMFAIL = 1203
 EVALREADYEXISTS = 1250
 
-#Claim codes
+# Claim codes
 CLAIMSUCCESSFUL = SUCCESS
 ADDCLAIMFAIL = 1300
 UNKNOWNTAPROTOCOL = 2000
 
-#Result codes
+# Result codes
 RESULTSUCCESSFUL = SUCCESS
 
 
-
-#Verification code
+# Verification code
 VERIFYSUCCEED = SUCCESS
 VERIFYFAIL = 9001
 VERIFYERROR = 9002
 VERIFYNORESULT = 9100
 
-#Rule codes
+# Rule codes
 RULESUCCESS = SUCCESS
 UNKNOWNRULE = 4500
 
 
-
-#Protocol Failures
+# Protocol Failures
 PROTOCOLSUCCESS = SUCCESS
 PROTOCOLEXECUTIONFAILURE = 4000
 PROTOCOLNETWORKFAILURE = 4002

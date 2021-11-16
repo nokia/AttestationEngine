@@ -16,7 +16,6 @@ import a10.asvr.rules.rule_dispatcher
 from a10.asvr import elements, policies, expectedvalues, claims, results
 
 
-
 def attest(e, p, aps):
     """
     This is the attestation process. Adds the claim if not an error to the database - well depends upon the kind of error, eg: network timeout, 404 etc
@@ -32,7 +31,7 @@ def attest(e, p, aps):
 
     element = elements.getElement(e).msg()
 
-    # 2. get the policy structure    
+    # 2. get the policy structure
 
     policy = policies.getPolicy(p).msg()
 
@@ -50,9 +49,6 @@ def attest(e, p, aps):
         return result
 
 
-
-
-
 def resolvePolicyIntent(element, policy, additionalparameters):
     """
       The type are STR, STR and DICT (!!! <- dict is really important!!!)
@@ -68,8 +64,8 @@ def resolvePolicyIntent(element, policy, additionalparameters):
     protocol = element["protocol"]
     policyintent = policy["intent"]
     policyparameters = policy["parameters"]
-    e_aid = element['itemid']
-    p_aid = policy['itemid']
+    e_aid = element["itemid"]
+    p_aid = policy["itemid"]
 
     requestedTime = a10.structures.timestamps.now()
 
@@ -94,13 +90,14 @@ def resolvePolicyIntent(element, policy, additionalparameters):
     # First set up the protocol handler class
     #
 
-
-    handler_return = a10.asvr.protocols.protocol_dispatcher.getProtocolHandler( protocol )
+    handler_return = a10.asvr.protocols.protocol_dispatcher.getProtocolHandler(protocol)
     if handler_return.rc() != a10.structures.constants.SUCCESS:
         return handler_return  # this is a return structure anyway :)
 
-    protocol_handler = handler_return.msg()   # this is the actual class instance
-    handler_instance = protocol_handler(endpoint,policyintent,policyparameters,additionalparameters)
+    protocol_handler = handler_return.msg()  # this is the actual class instance
+    handler_instance = protocol_handler(
+        endpoint, policyintent, policyparameters, additionalparameters
+    )
 
     #
     # And make the call!
@@ -109,25 +106,28 @@ def resolvePolicyIntent(element, policy, additionalparameters):
     exec_result = handler_instance.exec()
 
     if exec_result.rc() != a10.structures.constants.PROTOCOLSUCCESS:
-        return exec_result   # this is a ResultCode already
+        return exec_result  # this is a ResultCode already
 
     # Into this variable is where we write the finalised JSON result
     # actually it is a python dict and we convert afterwards
     resultStructure = exec_result.msg()
     receivedTime = a10.structures.timestamps.now()
-    theClaim = a10.structures.claim.Claim(element,policy,requestedTime,receivedTime,resultStructure,additionalparameters)
+    theClaim = a10.structures.claim.Claim(
+        element,
+        policy,
+        requestedTime,
+        receivedTime,
+        resultStructure,
+        additionalparameters,
+    )
 
     # If we get here then everything has gone well - we got something. If the network failed then we still get a claim
     if exec_result.rc() != a10.structures.constants.PROTOCOLSUCCESS:
-        return exec_result   # this is a ResultCode already
+        return exec_result  # this is a ResultCode already
     else:
-        return a10.structures.returncode.ReturnCode( a10.structures.constants.PROTOCOLSUCCESS, theClaim.asDict() )
-
-
-
-
-
-
+        return a10.structures.returncode.ReturnCode(
+            a10.structures.constants.PROTOCOLSUCCESS, theClaim.asDict()
+        )
 
 
 def verify(cid, rule):
@@ -148,8 +148,8 @@ def verify(cid, rule):
     if handler_return.rc() != a10.structures.constants.RULESUCCESS:
         return handler_return  # this is a return structure anyway :)
 
-    rule_handler = handler_return.msg()   # this is the actual class instance
-    handler_instance = rule_handler(cid,rule_parameters)
+    rule_handler = handler_return.msg()  # this is the actual class instance
+    handler_instance = rule_handler(cid, rule_parameters)
 
     #
     # And make the call!
@@ -165,7 +165,7 @@ def verify(cid, rule):
     # get the element and policy ids from the claim and add these to the results
     clm = claims.getClaim(cid).msg()
 
-    #What needs to be in a result are:
+    # What needs to be in a result are:
     # the ids of the claim, pid and eid
     # the rule name that was applied
     # the parameters to that rule
@@ -175,19 +175,23 @@ def verify(cid, rule):
     # the message           [1]
     # additional            [2]
 
-    cid=clm['itemid']
-    eid = clm['header']['element']['itemid']
-    pid= clm['header']['policy']['itemid']
+    cid = clm["itemid"]
+    eid = clm["header"]["element"]["itemid"]
+    pid = clm["header"]["policy"]["itemid"]
 
-    theResult = a10.structures.result.Result( application_result['result'], application_result['message'], application_result['additional'],
-                                                eid,pid,cid,
-                                                verifiedAt,
-                                                rule_parameters,
-                                                rule_name,
-                                                application_result['ev']
-                                              )
+    theResult = a10.structures.result.Result(
+        application_result["result"],
+        application_result["message"],
+        application_result["additional"],
+        eid,
+        pid,
+        cid,
+        verifiedAt,
+        rule_parameters,
+        rule_name,
+        application_result["ev"],
+    )
 
     # and add the result to the database and return the result
     rid = results.addResult(theResult.asDict())
     return rid
-

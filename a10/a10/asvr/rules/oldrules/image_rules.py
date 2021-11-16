@@ -4,7 +4,13 @@
 
 import a10.utils.constants
 from a10.rules import baserule
-from a10.rules.tpm2rules import TPM2Safe, TPM2QuoteMagicNumber, TPM2QuoteType, TPM2QuoteAttestedValue, TPM2FirmwareVersion
+from a10.rules.tpm2rules import (
+    TPM2Safe,
+    TPM2QuoteMagicNumber,
+    TPM2QuoteType,
+    TPM2QuoteAttestedValue,
+    TPM2FirmwareVersion,
+)
 
 
 class ImageStandardVerify(baserule.BaseRule):
@@ -26,15 +32,19 @@ class ImageStandardVerify(baserule.BaseRule):
         subresults.append(av_result)
         subresults.append(fw_result)
 
-        trusted = (magicRule_result['result'] == a10.utils.constants.VERIFYSUCCEED) and (
-                    quoteType_result['result'] == a10.utils.constants.VERIFYSUCCEED) and (
-                              safe_result['result'] == a10.utils.constants.VERIFYSUCCEED) and (
-                              av_result['result'] == a10.utils.constants.VERIFYSUCCEED) and (
-                              fw_result['result'] == a10.utils.constants.VERIFYSUCCEED)
+        trusted = (
+            (magicRule_result["result"] == a10.utils.constants.VERIFYSUCCEED)
+            and (quoteType_result["result"] == a10.utils.constants.VERIFYSUCCEED)
+            and (safe_result["result"] == a10.utils.constants.VERIFYSUCCEED)
+            and (av_result["result"] == a10.utils.constants.VERIFYSUCCEED)
+            and (fw_result["result"] == a10.utils.constants.VERIFYSUCCEED)
+        )
 
         msg = "Additional contains " + str(len(subresults)) + " items"
 
         if trusted == True:
-            return self.returnMessage(a10.utils.constants.VERIFYSUCCEED, msg, subresults)
+            return self.returnMessage(
+                a10.utils.constants.VERIFYSUCCEED, msg, subresults
+            )
         else:
             return self.returnMessage(a10.utils.constants.VERIFYFAIL, msg, subresults)

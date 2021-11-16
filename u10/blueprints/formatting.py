@@ -4,6 +4,7 @@
 
 import datetime
 
+
 def futc(t):
     # formats a timestamp to a UTC date:
-    return datetime.datetime.utcfromtimestamp(float(t)).strftime('%Y-%m-%d_%H:%M:%S')
+    return datetime.datetime.utcfromtimestamp(float(t)).strftime("%Y-%m-%d_%H:%M:%S")

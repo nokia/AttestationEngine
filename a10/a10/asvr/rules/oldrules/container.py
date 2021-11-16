@@ -12,14 +12,18 @@ class ImageVerification(baserule.BaseRule):
         self.description = "ContainerImageVerification"
 
     def apply(self):
-        manifest_result = ContainerImageQuoteAttestedValue(self.claimID, self.parameters).apply()
+        manifest_result = ContainerImageQuoteAttestedValue(
+            self.claimID, self.parameters
+        ).apply()
 
         trusted = manifest_result["result"]
         msg = manifest_result["message"]
         subresults = []
 
         if trusted:
-            return self.returnMessage(a10.utils.constants.VERIFYSUCCEED, msg, subresults)
+            return self.returnMessage(
+                a10.utils.constants.VERIFYSUCCEED, msg, subresults
+            )
         else:
             return self.returnMessage(a10.utils.constants.VERIFYFAIL, msg, subresults)
 
@@ -30,14 +34,18 @@ class InstanceVerification(baserule.BaseRule):
         self.description = "ContainerInstanceVerification"
 
     def apply(self):
-        manifest_result = ContainerInstanceQuoteAttestedValue(self.claimID, self.parameters).apply()
+        manifest_result = ContainerInstanceQuoteAttestedValue(
+            self.claimID, self.parameters
+        ).apply()
 
         trusted = manifest_result["result"]
         msg = manifest_result["message"]
         subresults = []
 
         if trusted:
-            return self.returnMessage(a10.utils.constants.VERIFYSUCCEED, msg, subresults)
+            return self.returnMessage(
+                a10.utils.constants.VERIFYSUCCEED, msg, subresults
+            )
         else:
             return self.returnMessage(a10.utils.constants.VERIFYFAIL, msg, subresults)
 
@@ -50,14 +58,25 @@ class ContainerImageQuoteAttestedValue(baserule.BaseRule):
     def apply(self):
         self.setExpectedValue()
 
-        known_good_value = self.ev['evs']['imageManifestDigest']
-        claimed_attested_value = self.claim["payload"]["quote"]["attested"]["quote"]["imageManifestDigest"]
-        trusted = (claimed_attested_value == known_good_value)
+        known_good_value = self.ev["evs"]["imageManifestDigest"]
+        claimed_attested_value = self.claim["payload"]["quote"]["attested"]["quote"][
+            "imageManifestDigest"
+        ]
+        trusted = claimed_attested_value == known_good_value
 
         if trusted:
-            return self.returnMessage(a10.utils.constants.VERIFYSUCCEED, "attested value == known good value", [])
+            return self.returnMessage(
+                a10.utils.constants.VERIFYSUCCEED,
+                "attested value == known good value",
+                [],
+            )
         else:
-            msg = "Incorrect attested value, got " + claimed_attested_value + " was expecting " + known_good_value
+            msg = (
+                "Incorrect attested value, got "
+                + claimed_attested_value
+                + " was expecting "
+                + known_good_value
+            )
             return self.returnMessage(a10.utils.constants.VERIFYFAIL, msg, [])
 
 
@@ -69,12 +88,23 @@ class ContainerInstanceQuoteAttestedValue(baserule.BaseRule):
     def apply(self):
         self.setExpectedValue()
 
-        known_good_value = self.ev['evs']['copyOnWriteSnapshotDigest']
-        claimed_attested_value = self.claim["payload"]["quote"]["attested"]["quote"]["copyOnWriteSnapshotDigest"]
-        trusted = (claimed_attested_value == known_good_value)
+        known_good_value = self.ev["evs"]["copyOnWriteSnapshotDigest"]
+        claimed_attested_value = self.claim["payload"]["quote"]["attested"]["quote"][
+            "copyOnWriteSnapshotDigest"
+        ]
+        trusted = claimed_attested_value == known_good_value
 
         if trusted:
-            return self.returnMessage(a10.utils.constants.VERIFYSUCCEED, "attested value == known good value", [])
+            return self.returnMessage(
+                a10.utils.constants.VERIFYSUCCEED,
+                "attested value == known good value",
+                [],
+            )
         else:
-            msg = "Incorrect attested value, got " + claimed_attested_value + " was expecting " + known_good_value
+            msg = (
+                "Incorrect attested value, got "
+                + claimed_attested_value
+                + " was expecting "
+                + known_good_value
+            )
             return self.returnMessage(a10.utils.constants.VERIFYFAIL, msg, [])
