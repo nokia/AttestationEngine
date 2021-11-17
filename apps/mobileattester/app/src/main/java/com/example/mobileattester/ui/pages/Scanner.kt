@@ -21,6 +21,17 @@ import com.google.accompanist.permissions.PermissionRequired
 import com.google.accompanist.permissions.rememberPermissionState
 import com.journeyapps.barcodescanner.CaptureManager
 import com.journeyapps.barcodescanner.CompoundBarcodeView
+import androidx.core.app.ActivityCompat.startActivityForResult
+
+import android.content.Intent
+import android.net.Uri
+import android.provider.Settings
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import androidx.core.content.ContextCompat.startActivity
+
+
+
 
 
 @ExperimentalPermissionsApi
@@ -44,7 +55,16 @@ fun Scanner(navController: NavController? = null) {
                 )
             },
             permissionNotAvailableContent = {
-                PermissionDenied { navController!!.popBackStack() }
+                PermissionDenied {
+                    try {
+                        cameraPermissionState.launchPermissionRequest()
+                        val intent = Intent(
+                            Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                            Uri.parse("package:" + context.packageName)
+                        )
+                        startActivity(context, intent, null)
+                    } catch (err : Error) {navController?.navigate(Screen.Home.route)}
+                }
             }
         ) {
 
@@ -133,16 +153,20 @@ private fun Rationale(
 
 @Composable
 private fun PermissionDenied(
-    navigateToSettingsScreen: () -> Unit
+    onRequestPermission: () -> Unit
 ) {
-    Column {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
         Text(
-            "Camera permission denied. See this FAQ with information about why we " +
-                    "need this permission. Please, grant us access on the Settings screen."
+            "Requesting camera permission was denied. It must be granted manually from the settings",
+            modifier = Modifier.padding(16.dp)
         )
         Spacer(modifier = Modifier.height(8.dp))
-        Button(onClick = navigateToSettingsScreen) {
-            Text("Open Settings")
+        Button(onClick = { onRequestPermission() }) {
+            Text("Go to settings")
         }
     }
 }
