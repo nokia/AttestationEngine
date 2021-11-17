@@ -9,7 +9,6 @@ import a10.asvr.db.core
 import a10.asvr.db.announce
 
 
-
 def addPolicy(e):
     #
     # Parameters: e - is a dictionary containing the policy information
@@ -23,21 +22,28 @@ def addPolicy(e):
     #
 
     i = a10.structures.identity.generateID()
-    e['itemid'] = i
+    e["itemid"] = i
     r = a10.asvr.db.core.addPolicy(e)
-    if r==True:
-        a10.asvr.db.announce.announceItemManagement("add",{"type":"policy","itemid":i})        
-        return a10.structures.returncode.ReturnCode( a10.structures.constants.SUCCESS, i )
+    if r == True:
+        a10.asvr.db.announce.announceItemManagement(
+            "add", {"type": "policy", "itemid": i}
+        )
+        return a10.structures.returncode.ReturnCode(a10.structures.constants.SUCCESS, i)
     else:
-        return a10.structures.returncode.ReturnCode( a10.structures.constants.ADDITEMFAIL, "Policy not added to database" )
+        return a10.structures.returncode.ReturnCode(
+            a10.structures.constants.ADDITEMFAIL, "Policy not added to database"
+        )
 
 
 def getPolicy(i):
     e = a10.asvr.db.core.getPolicy(i)
     if e == None:
-        return a10.structures.returncode.ReturnCode( a10.structures.constants.ITEMDOESNOTEXIST, i )
+        return a10.structures.returncode.ReturnCode(
+            a10.structures.constants.ITEMDOESNOTEXIST, i
+        )
     else:
-        return a10.structures.returncode.ReturnCode( a10.structures.constants.SUCCESS, e  )
+        return a10.structures.returncode.ReturnCode(a10.structures.constants.SUCCESS, e)
+
 
 def getPolicyByName(n):
     """Gets a single policy from the database by its name.
@@ -49,10 +55,12 @@ def getPolicyByName(n):
 
     e = a10.asvr.db.core.getPolicyByName(n)
     if e is None:
-        return a10.structures.returncode.ReturnCode( a10.structures.constants.ITEMDOESNOTEXIST,"Element does not exist")
+        return a10.structures.returncode.ReturnCode(
+            a10.structures.constants.ITEMDOESNOTEXIST, "Element does not exist"
+        )
     else:
-        return a10.structures.returncode.ReturnCode( a10.structures.constants.SUCCESS,e)
-    
+        return a10.structures.returncode.ReturnCode(a10.structures.constants.SUCCESS, e)
+
 
 def getPolicies():
     ps = a10.asvr.db.core.getPolicies()
@@ -64,18 +72,22 @@ def getPoliciesFull():
     return ps
 
 
-
-
 def deletePolicy(i):
     # itemid MUST be present
 
     r = a10.asvr.db.core.deletePolicy(i)
 
-    if (r == True):
-        a10.asvr.db.announce.announceItemManagement("delete",{"type":"policy","itemid":i})        
-        return a10.structures.returncode.ReturnCode( a10.structures.constants.SUCCESS, "Successfully deleted policy" )
+    if r == True:
+        a10.asvr.db.announce.announceItemManagement(
+            "delete", {"type": "policy", "itemid": i}
+        )
+        return a10.structures.returncode.ReturnCode(
+            a10.structures.constants.SUCCESS, "Successfully deleted policy"
+        )
     else:
-        return a10.structures.returncode.ReturnCode( a10.structures.constants.DELETEITEMFAIL,"Deletion failed.")
+        return a10.structures.returncode.ReturnCode(
+            a10.structures.constants.DELETEITEMFAIL, "Deletion failed."
+        )
 
 
 def updatePolicy(i):
@@ -93,10 +105,14 @@ def updatePolicy(i):
 
     r = a10.asvr.db.core.updatePolicy(i)
 
-    if (r == True):
-        a10.asvr.db.announce.announceItemManagement("update",{"type":"policy","itemid":i})        
-        return a10.structures.returncode.ReturnCode( a10.structures.constants.SUCCESS, "Policy updated" )
+    if r == True:
+        a10.asvr.db.announce.announceItemManagement(
+            "update", {"type": "policy", "itemid": i}
+        )
+        return a10.structures.returncode.ReturnCode(
+            a10.structures.constants.SUCCESS, "Policy updated"
+        )
     else:
-        return a10.structures.returncode.ReturnCode( a10.structures.constants.UPDATEITEMFAIL, "Element not modified" )  
-
-        
+        return a10.structures.returncode.ReturnCode(
+            a10.structures.constants.UPDATEITEMFAIL, "Element not modified"
+        )

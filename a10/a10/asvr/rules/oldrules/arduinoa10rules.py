@@ -9,6 +9,7 @@ from a10.rules import baserule
 
 # Individual Rules
 
+
 class TestRule(baserule.BaseRule):
     def __init__(self, cid, ps):
         super().__init__(cid, ps)
@@ -24,9 +25,11 @@ class TestRule(baserule.BaseRule):
         # print("Payload is ",claim['payload'],"\n\n")
         # print("Payload is ",claim['payload']['sn'],"\n\n")
 
-        trusted = (claim["payload"]["sn"] == "42")
+        trusted = claim["payload"]["sn"] == "42"
 
         if trusted == True:
             return self.returnMessage(a10.utils.constants.VERIFYSUCCEED, "sn == 42", [])
         else:
-            return self.returnMessage(a10.utils.constants.VERIFYFAIL, "Incorrect SN", [])
+            return self.returnMessage(
+                a10.utils.constants.VERIFYFAIL, "Incorrect SN", []
+            )

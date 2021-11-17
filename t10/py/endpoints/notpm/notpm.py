@@ -5,47 +5,47 @@
 from flask import Blueprint, request, jsonify
 import json
 import datetime
-#from tpm import tpm
+
+# from tpm import tpm
 from claims import claimstructure
 
-notpm = Blueprint('notpm', __name__)
+notpm = Blueprint("notpm", __name__)
 
 
-@notpm.route('/null', methods=['GET','POST'])
+@notpm.route("/null", methods=["GET", "POST"])
 def returnTPMSATTEST():
-    #tpmdevice = tpm.TPM()
+    # tpmdevice = tpm.TPM()
 
     # This is how it works
 
     # 1. take the policy and extract the PCRs
     print("Now in TA")
     body = json.loads(request.json)
-    print("Received body is",body)    
+    print("Received body is", body)
 
     # 2. deal with any additional information, eg: nonce etc from the additional parameters
 
     print("HERE WE GO!")
 
     # 3.1.1 build the initial claim structure
-    
-    c = claimstructure.Claim()
-    c.addHeaderItem("ta_received",str(datetime.datetime.utcnow()))
 
-    
+    c = claimstructure.Claim()
+    c.addHeaderItem("ta_received", str(datetime.datetime.utcnow()))
+
     # 4. populate the claim with the quote and other header items
 
-    c.addPayloadItem("notpm","notpm")
-    c.addHeaderItem("ta_complete",str(datetime.datetime.utcnow()))
-    
+    c.addPayloadItem("notpm", "notpm")
+    c.addHeaderItem("ta_complete", str(datetime.datetime.utcnow()))
+
     # 5. Signing ... this should be done by the TPM and use the same key (AK) as the quote
     #   also include the ak.name in the header for completeness
-    
-    c.addHeaderItem("ak_name","whatever the AK name is here")    
+
+    c.addHeaderItem("ak_name", "whatever the AK name is here")
     c.sign()
 
     rc = c.getClaim()
-    
-    print("Returned claimed is ",rc)
+
+    print("Returned claimed is ", rc)
 
     # 6. return the claim
 
@@ -54,4 +54,3 @@ def returnTPMSATTEST():
     # 20x
 
     return jsonify(rc), 200
-

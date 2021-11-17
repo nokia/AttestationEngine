@@ -18,6 +18,7 @@ from blueprints.attestation import attestation_blueprint
 from blueprints.hashes import hashes_blueprint
 from blueprints.elementanalytics import elementanalytics_blueprint
 from blueprints.log import log_blueprint
+from blueprints.ping import ping_blueprint
 
 
 u10 = Flask(__name__)
@@ -38,11 +39,12 @@ u10.register_blueprint(attestation_blueprint)
 u10.register_blueprint(hashes_blueprint)
 u10.register_blueprint(elementanalytics_blueprint)
 u10.register_blueprint(log_blueprint)
+u10.register_blueprint(ping_blueprint)
 
 # This function is unused but I'll leave it here for documentation and future purposes
 # You can call this function from a template, eg: {{ resolveTheHash }} - use the name in the returned dict
 # Historical fact: I had a use for this function, but didn't need it nor find a convenience place in the end :-)
-#@u10.context_processor
+# @u10.context_processor
 # def resolveHash():
 #    print("Calling context processor")
 #    return dict(resolveTheHash='Shw Mae!')
@@ -50,25 +52,34 @@ u10.register_blueprint(log_blueprint)
 #
 # Use this for development
 #
-def main(cert, key, config_filename='u10.conf'):
+def main(cert, key, config_filename="u10.conf"):
     u10.config.from_pyfile(config_filename)
     if cert and key:
-        u10.run(debug=u10.config['FLASKDEBUG'], threaded=u10.config['FLASKTHREADED'], host=u10.config['DEFAULTHOST'],
-                port=u10.config['DEFAULTPORT'], ssl_context=(cert, key))
+        u10.run(
+            debug=u10.config["FLASKDEBUG"],
+            threaded=u10.config["FLASKTHREADED"],
+            host=u10.config["DEFAULTHOST"],
+            port=u10.config["DEFAULTPORT"],
+            ssl_context=(cert, key),
+        )
     else:
         print("running")
-        u10.run(debug=u10.config['FLASKDEBUG'], threaded=u10.config['FLASKTHREADED'], host=u10.config['DEFAULTHOST'],
-                port=u10.config['DEFAULTPORT'])
+        u10.run(
+            debug=u10.config["FLASKDEBUG"],
+            threaded=u10.config["FLASKTHREADED"],
+            host=u10.config["DEFAULTHOST"],
+            port=u10.config["DEFAULTPORT"],
+        )
 
 
 #
 # Use this in production
 #
-#def main(cert, key):
+# def main(cert, key):
 #    from waitress import serve
 #    serve(u10, host="0.0.0.0", port=8540)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     print("U10 Starting")
-    main('', '')
+    main("", "")

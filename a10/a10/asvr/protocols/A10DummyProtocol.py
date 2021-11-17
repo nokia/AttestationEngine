@@ -20,15 +20,19 @@ class A10DummyProtocol(a10.asvr.protocols.A10ProtocolBase.A10ProtocolBase):
         #      type(self.policyparameters), type(self.additionalparameters))
 
         elementURL = self.endpoint + "/" + self.policyintent
-        callbody = {'policyparameters': self.policyparameters, 'callparameters': self.additionalparameters}
-      
-        return_data = { "Greeting":"Croeso!",
-                        "endpoint":self.endpoint,
-                        "policyintent":self.policyintent,
-                        "policyparameters":self.policyparameters,
-                        "additionalparameters":self.additionalparameters
-              }
+        callbody = {
+            "policyparameters": self.policyparameters,
+            "callparameters": self.additionalparameters,
+        }
 
+        return_data = {
+            "Greeting": "Croeso!",
+            "endpoint": self.endpoint,
+            "policyintent": self.policyintent,
+            "policyparameters": self.policyparameters,
+            "additionalparameters": self.additionalparameters,
+        }
 
-        return a10.structures.returncode.ReturnCode( a10.structures.constants.SUCCESS, return_data )
-        
+        return a10.structures.returncode.ReturnCode(
+            a10.structures.constants.SUCCESS, return_data
+        )
