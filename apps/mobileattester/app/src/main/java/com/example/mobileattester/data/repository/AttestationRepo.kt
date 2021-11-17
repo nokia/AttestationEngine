@@ -35,7 +35,7 @@ interface AttestationRepository {
 
 class AttestationRepositoryImpl(
     private val handler: AttestationDataHandler,
-) : AttestationRepository, BatchedDataProvider {
+) : AttestationRepository, BatchedDataProvider<String,Element> {
 
     override val currentUrl: MutableStateFlow<String> = handler.currentUrl
 

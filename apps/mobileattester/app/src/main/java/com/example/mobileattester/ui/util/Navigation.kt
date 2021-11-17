@@ -27,11 +27,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.mobileattester.R
-import com.example.mobileattester.ui.pages.Home
-import com.example.mobileattester.ui.pages.Element
-import com.example.mobileattester.ui.pages.Elements
-import com.example.mobileattester.ui.pages.More
-import com.example.mobileattester.ui.pages.Scanner
+import com.example.mobileattester.ui.pages.*
 import com.example.mobileattester.ui.viewmodel.AttestationViewModelImpl
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import compose.icons.TablerIcons
@@ -58,6 +54,7 @@ sealed class Screen(val route: String, @StringRes val stringResId: Int) {
     object Scanner : Screen("scanner", R.string.nav_scanner)
     object More : Screen("more", R.string.nav_more)
     object Element : Screen("element", R.string.nav_element)
+    object Attest : Screen("attest", R.string.nav_attest)
 }
 
 @ExperimentalPermissionsApi
@@ -88,9 +85,11 @@ object NavUtils {
                 BottomBar(navController)
             },
         ) { innerPadding ->
-            NavHost(navController,
+            NavHost(
+                navController,
                 startDestination = Screen.Home.route,
-                Modifier.padding(innerPadding)) {
+                Modifier.padding(innerPadding)
+            ) {
                 // Add new nav destinations here after Screen for it is created
                 composable(Screen.Home.route) {
                     showTopBar.value = true; Home(navController, viewModel)
@@ -104,6 +103,9 @@ object NavUtils {
                 composable(Screen.More.route) { showTopBar.value = true; More(navController) }
                 composable(Screen.Element.route) {
                     showTopBar.value = true; Element(navController, viewModel)
+                }
+                composable(Screen.Attest.route) {
+                    showTopBar.value = true; Attest(navController, viewModel)
                 }
             }
         }

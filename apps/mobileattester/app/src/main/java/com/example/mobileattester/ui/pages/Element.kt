@@ -11,6 +11,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.os.bundleOf
 import androidx.navigation.NavController
 import com.example.mobileattester.ui.components.TagRow
 import com.example.mobileattester.ui.components.common.HeaderRoundedBottom
@@ -20,6 +21,8 @@ import com.example.mobileattester.ui.theme.DarkGrey
 import com.example.mobileattester.ui.theme.Error
 import com.example.mobileattester.ui.theme.Ok
 import com.example.mobileattester.ui.theme.PrimaryDark
+import com.example.mobileattester.ui.util.Screen
+import com.example.mobileattester.ui.util.navigate
 import com.example.mobileattester.ui.viewmodel.AttestationViewModel
 import compose.icons.TablerIcons
 import compose.icons.tablericons.EyeCheck
@@ -39,14 +42,20 @@ fun Element(navController: NavController, viewModel: AttestationViewModel) {
         return
     }
 
+    fun onAttestClick() {
+        navController.navigate(Screen.Attest.route, bundleOf(Pair(ARG_ITEM_ID, element.itemid)))
+    }
+
     Column() {
         // Render element header
         HeaderRoundedBottom {
             Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 24.dp)) {
                 Text(text = element.name, style = MaterialTheme.typography.h3)
-                Text(text = element.endpoint,
+                Text(
+                    text = element.endpoint,
                     style = MaterialTheme.typography.body1,
-                    modifier = Modifier.padding(vertical = 8.dp, horizontal = 2.dp))
+                    modifier = Modifier.padding(vertical = 8.dp, horizontal = 2.dp)
+                )
             }
         }
 
@@ -54,7 +63,7 @@ fun Element(navController: NavController, viewModel: AttestationViewModel) {
         Column(Modifier.padding(horizontal = 16.dp, vertical = 10.dp)) {
             TagRow(element.types)
             Spacer(modifier = Modifier.size(26.dp))
-            ElementActions()
+            ElementActions(onAttestClick = ::onAttestClick)
             Spacer(modifier = Modifier.size(26.dp))
             Text(
                 text = element.description ?: "",
@@ -78,21 +87,24 @@ fun ElementResult() {
     }
     SpacerSmall()
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
-        OutlinedIconButton(text = "5",
+        OutlinedIconButton(
+            text = "5",
             rounded = true,
             width = 20.dp,
             height = 20.dp,
             color = MaterialTheme.colors.primary,
             filled = true
         ) // TODO: Use AspectRatio
-        OutlinedIconButton(text = "4",
+        OutlinedIconButton(
+            text = "4",
             rounded = true,
             width = 20.dp,
             height = 20.dp,
             color = Ok,
             filled = true
         ) // TODO: Use AspectRatio
-        OutlinedIconButton(text = "1",
+        OutlinedIconButton(
+            text = "1",
             rounded = true,
             width = 20.dp,
             height = 20.dp,
@@ -103,13 +115,15 @@ fun ElementResult() {
 }
 
 @Composable
-fun ElementActions() {
+fun ElementActions(onAttestClick: () -> Unit) {
     Row(
         Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center,
     ) {
-        OutlinedIconButton(TablerIcons.EyeCheck, text = "Attest") {}
+        OutlinedIconButton(TablerIcons.EyeCheck, text = "Attest") {
+            onAttestClick()
+        }
         SpacerSmall()
         OutlinedIconButton(TablerIcons.ZoomCheck, text = "Verify") {}
     }

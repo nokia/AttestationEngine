@@ -24,6 +24,7 @@ interface AttestationViewModel {
     fun getMoreElements()
     fun refreshElements()
 
+
     /** Switch the base url used for the engine */
     fun switchBaseUrl(url: String)
 }
@@ -52,9 +53,7 @@ class AttestationViewModelImpl(
         elementDataHandler.getDataForId(itemid)
 
     override fun getMoreElements() = elementDataHandler.fetchNextBatch()
-
-    override fun filterElements(filters : String) = elementDataHandler.dataAsList(filters)
-
+    override fun filterElements(filters: String) = elementDataHandler.dataAsList(filters)
     override fun refreshElements() = elementDataHandler.refreshData(hardReset = true)
 
     override fun switchBaseUrl(url: String) {
