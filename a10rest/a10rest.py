@@ -7,7 +7,9 @@ import sys
 
 from a10.asvr import elements, policies, attestation, claims, expectedvalues, results, types
 from a10.structures import constants
+from bson.objectid import ObjectId
 from flask import Flask, request, send_from_directory, jsonify
+from flask.json import JSONEncoder
 
 from flask_swagger import swagger
 
@@ -15,6 +17,13 @@ print(sys.path)
 
 a10rest = Flask(__name__)
 
+
+class A10JSONEncoder(JSONEncoder):
+    def default(self,obj):
+        if isinstance(obj,ObjectId):
+            return str(obj)
+        return JSONEncoder.default(self, obj)
+a10rest.json_encoder = A10JSONEncoder
 
 #
 # Home
@@ -303,12 +312,37 @@ def getclaim(itemid):
 @a10rest.route("/result/<itemid>", methods=['GET'])
 def getresult(itemid):
     print("itemid", itemid)
-    e = results.getResultByID(itemid)
+    e = results.getResult(itemid)
 
     if e.rc() != constants.SUCCESS:
         return e.msg(), 404
     else:
         return e.msg(), 200
+
+@a10rest.route("/result/element/latest/<itemid>", methods=['GET'])
+def getresultlatest(itemid):
+    print("itemid", itemid)
+    
+    rs = results.getLatestResults(itemid)
+    if len(rs) == 0:
+        return jsonify(rs), 404
+    else:
+        return jsonify(rs), 200
+
+@a10rest.route("/result/element/latest/<itemid>/<limit>", methods=['GET'])
+def getresultlatestlimit(itemid, limit):
+    print("itemid", itemid)
+
+    try:
+        lim = int(limit)
+    except ValueError:
+        lim = 10
+    
+    rs = results.getLatestResults(itemid, lim)
+    if len(rs) == 0:
+        return jsonify(rs), 404
+    else:
+        return jsonify(rs), 200
 
 
 #
