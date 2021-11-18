@@ -14,13 +14,13 @@ const val TAG = "BatchedDataHandler"
  * T - Id type
  * U - Data type
  */
-interface BatchedDataProvider {
-    suspend fun getIdList(): List<String>
-    suspend fun getDataForId(id: String): Element
+interface BatchedDataProvider<T, U> {
+    suspend fun getIdList(): List<T>
+    suspend fun getDataForId(id: T): U
 }
 
-class ElementDataHandler(dataProvider: BatchedDataProvider, batchSize: Int) :
-    BatchedDataHandler(dataProvider, batchSize) {}
+class ElementDataHandler(dataProvider: BatchedDataProvider<String, Element>, batchSize: Int) :
+    BatchedDataHandler<String, Element>(dataProvider, batchSize) {}
 
 /**
  *  Data fetching in batches.
@@ -37,25 +37,25 @@ class ElementDataHandler(dataProvider: BatchedDataProvider, batchSize: Int) :
  *
  *  -   Proper error handling
  */
-abstract class BatchedDataHandler(
-    private val dataProvider: BatchedDataProvider,
+abstract class BatchedDataHandler<T, U>(
+    private val dataProvider: BatchedDataProvider<T, U>,
     private val batchSize: Int,
 ) {
     private val job = Job()
     private val scope = CoroutineScope(job)
 
-    private var idList: List<String>? = null
-    private var listChunks: List<List<String>>? = null
+    private var idList: List<T>? = null
+    private var listChunks: List<List<T>>? = null
     private var _refreshingData = MutableStateFlow(false)
 
     /**
      * Fetched data
      */
-    private val batches = mutableMapOf<Int, List<Pair<String, Element>>>()
+    private val batches = mutableMapOf<Int, List<Pair<T, U>>>()
     private val batchesLoading = mutableSetOf<Int>()
 
     /** Data from batches in a list */
-    val dataFlow = MutableStateFlow(listOf<Element>())
+    val dataFlow = MutableStateFlow(listOf<U>())
 
     /** Any of the batches currently loading? */
     val isLoading: MutableStateFlow<Boolean> = MutableStateFlow(batchesLoading.size != 0)
@@ -121,7 +121,7 @@ abstract class BatchedDataHandler(
         }
     }
 
-    fun getDataForId(id: String): Element? {
+    fun getDataForId(id: String): U? {
         for (list in batches.values) {
             val data = list.find { it.first == id }
             data?.let {
@@ -134,12 +134,12 @@ abstract class BatchedDataHandler(
     // ---- Private ----
     // ---- Private ----
 
-    private suspend fun fetchBatch(batchNumber: Int): List<Pair<String, Element>> {
+    private suspend fun fetchBatch(batchNumber: Int): List<Pair<T, U>> {
         Log.d(TAG, "fetchBatch: Fetching batch $batchNumber")
         return scope.async(Dispatchers.IO) {
             // Get next batches chunk from the list
             val ids = listChunks?.getOrNull(batchNumber)
-            val temp = mutableListOf<Pair<String, Element>>()
+            val temp = mutableListOf<Pair<T, U>>()
 
             Log.d(TAG, "fetchBatch: IDS TO GET: $ids")
 
@@ -156,7 +156,7 @@ abstract class BatchedDataHandler(
                         withTimeout(TIMEOUT) {
                             val res = dataProvider.getDataForId(id)
                             res.let {
-                                temp.add(Pair<String, Element>(id, it))
+                                temp.add(Pair(id, it))
                             }
                         }
                     }
@@ -196,8 +196,8 @@ abstract class BatchedDataHandler(
     /**
      * Returns all data from downloaded batches as a list and optionally filters using keywords separated by spaces.
      */
-    fun dataAsList(filters: String? = null): List<Element> {
-        val loadedBatchValues = mutableListOf<Element>()
+    fun dataAsList(filters: String? = null): List<U> {
+        val loadedBatchValues = mutableListOf<U>()
 
 
         batches.entries.forEach { entry ->
@@ -206,11 +206,16 @@ abstract class BatchedDataHandler(
                     loadedBatchValues.add(it.second)
                 else if (filters.split(' ').all { filter ->
                         when {
-                            it.second.name.lowercase().contains(filter.lowercase()) -> true
-                            (it.second.description?.lowercase() ?: "").contains(filter.lowercase()) -> true
-                            it.second.endpoint.lowercase().contains(filter.lowercase()) -> true
-                            it.second.protocol.lowercase().contains(filter.lowercase()) -> true
-                            it.second.types.any { tag ->
+                            // TODO Abstraction
+                            (it.second as Element).name.lowercase()
+                                .contains(filter.lowercase()) -> true
+                            ((it.second as Element).description?.lowercase()
+                                ?: "").contains(filter.lowercase()) -> true
+                            (it.second as Element).endpoint.lowercase()
+                                .contains(filter.lowercase()) -> true
+                            (it.second as Element).protocol.lowercase()
+                                .contains(filter.lowercase()) -> true
+                            (it.second as Element).types.any { tag ->
                                 tag.lowercase().contains(filter.lowercase())
                             } -> true
                             else -> false
