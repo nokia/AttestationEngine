@@ -19,8 +19,8 @@ interface BatchedDataProvider<T, U> {
     suspend fun getDataForId(id: T): U
 }
 
-class ElementDataHandler(dataProvider: BatchedDataProvider<String, Element>, batchSize: Int) :
-    BatchedDataHandler<String, Element>(dataProvider, batchSize) {}
+class ElementDataHandler<T,U>(dataProvider: BatchedDataProvider<T, U>, batchSize: Int) :
+    BatchedDataHandler<T, U>(dataProvider, batchSize) {}
 
 /**
  *  Data fetching in batches.
@@ -121,7 +121,7 @@ abstract class BatchedDataHandler<T, U>(
         }
     }
 
-    fun getDataForId(id: String): U? {
+    fun getDataForId(id: T): U? {
         for (list in batches.values) {
             val data = list.find { it.first == id }
             data?.let {
@@ -204,25 +204,28 @@ abstract class BatchedDataHandler<T, U>(
             entry.value.forEach {
                 if (filters == null)
                     loadedBatchValues.add(it.second)
-                else if (filters.split(' ').all { filter ->
-                        when {
-                            // TODO Abstraction
-                            (it.second as Element).name.lowercase()
-                                .contains(filter.lowercase()) -> true
-                            ((it.second as Element).description?.lowercase()
-                                ?: "").contains(filter.lowercase()) -> true
-                            (it.second as Element).endpoint.lowercase()
-                                .contains(filter.lowercase()) -> true
-                            (it.second as Element).protocol.lowercase()
-                                .contains(filter.lowercase()) -> true
-                            (it.second as Element).types.any { tag ->
-                                tag.lowercase().contains(filter.lowercase())
-                            } -> true
-                            else -> false
-                        }
-                    })
-                    loadedBatchValues.add(it.second)
-
+                else {
+                    if(it.second is Element) {
+                        if (filters.split(' ').all { filter ->
+                                when {
+                                    // TODO Abstraction
+                                    (it.second as Element).name.lowercase()
+                                        .contains(filter.lowercase()) -> true
+                                    ((it.second as Element).description?.lowercase()
+                                        ?: "").contains(filter.lowercase()) -> true
+                                    (it.second as Element).endpoint.lowercase()
+                                        .contains(filter.lowercase()) -> true
+                                    (it.second as Element).protocol.lowercase()
+                                        .contains(filter.lowercase()) -> true
+                                    (it.second as Element).types.any { tag ->
+                                        tag.lowercase().contains(filter.lowercase())
+                                    } -> true
+                                    else -> false
+                                }
+                            })
+                            loadedBatchValues.add(it.second)
+                    }
+                }
             }
         }
 

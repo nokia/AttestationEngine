@@ -1,5 +1,6 @@
 package com.example.mobileattester.ui.pages
 
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Divider
 import androidx.compose.material.MaterialTheme
@@ -8,11 +9,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.os.bundleOf
 import androidx.navigation.NavController
+import com.example.mobileattester.data.model.Element
 import com.example.mobileattester.ui.components.TagRow
 import com.example.mobileattester.ui.components.common.HeaderRoundedBottom
 import com.example.mobileattester.ui.components.common.OutlinedIconButton
@@ -72,15 +73,14 @@ fun Element(navController: NavController, viewModel: AttestationViewModel) {
             Spacer(modifier = Modifier.size(26.dp))
             Divider(color = Color(197, 197, 197), thickness = 1.dp)
             Spacer(modifier = Modifier.size(26.dp))
-            ElementResult()
+            ElementResult(element)
         }
 
     }
 }
 
 @Composable
-@Preview
-fun ElementResult() {
+fun ElementResult(element: Element) {
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
         Text("Results", fontSize = 24.sp)
         TextWithIcon(text = "24h", icon = TablerIcons.ListCheck, color = PrimaryDark)
@@ -112,6 +112,7 @@ fun ElementResult() {
             filled = true
         ) // TODO: Use AspectRatio
     }
+    Log.e("Data", element.results.toString())
 }
 
 @Composable

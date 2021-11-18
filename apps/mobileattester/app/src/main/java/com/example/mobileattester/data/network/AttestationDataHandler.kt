@@ -1,6 +1,7 @@
 package com.example.mobileattester.data.network
 
 import com.example.mobileattester.data.model.Element
+import com.example.mobileattester.data.model.ElementResult
 import com.example.mobileattester.data.model.ExpectedValue
 import com.example.mobileattester.data.model.Policy
 import com.google.gson.GsonBuilder
@@ -33,6 +34,9 @@ interface AttestationDataHandler {
     // --- Expected values ---
     suspend fun getExpectedValue(itemid: String): ExpectedValue
     suspend fun getExpectedValueByElementPolicyIds(eid: String, pid: String): ExpectedValue
+
+    // --- Results ---
+    suspend fun getElementResults(itemid: String, limit: Int): List<ElementResult>
 }
 
 // ---------- Implementation ------------
@@ -83,4 +87,6 @@ class AttestationDataHandlerImpl(
         eid: String,
         pid: String,
     ): ExpectedValue = apiService.getExpectedValueByElementPolicyIds(eid, pid)
+
+    override suspend fun getElementResults(itemid: String, limit: Int): List<ElementResult> = apiService.getElementResults(itemid,limit.toString())
 }

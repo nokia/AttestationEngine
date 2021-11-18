@@ -1,6 +1,7 @@
 package com.example.mobileattester.data.repository
 
 import com.example.mobileattester.data.model.Element
+import com.example.mobileattester.data.model.ElementResult
 import com.example.mobileattester.data.model.ExpectedValue
 import com.example.mobileattester.data.model.Policy
 import com.example.mobileattester.data.network.AttestationDataHandler
@@ -31,6 +32,9 @@ interface AttestationRepository {
     // --- Expected values ---
     suspend fun getExpectedValue(itemid: String): ExpectedValue
     suspend fun getExpectedValueByElementPolicyIds(eid: String, pid: String): ExpectedValue
+
+    // --- Results ---
+    suspend fun getElementResults(itemid: String, limit: Int = 10): List<ElementResult>
 }
 
 class AttestationRepositoryImpl(
@@ -56,6 +60,17 @@ class AttestationRepositoryImpl(
         pid: String,
     ): ExpectedValue = handler.getExpectedValueByElementPolicyIds(eid, pid)
 
+    override suspend fun getElementResults(itemid: String, limit: Int): List<ElementResult> = handler.getElementResults(itemid, limit)
+
     override suspend fun getIdList(): List<String> = getElementIds()
-    override suspend fun getDataForId(id: String): Element = getElement(id)
+    override suspend fun getDataForId(id: String): Element {
+        val element = getElement(id)
+
+        try { element.results = getElementResults(element.itemid) }
+        catch(err : Error) {
+            element.results = listOf()
+        }
+
+        return element
+    }
 }

@@ -27,6 +27,9 @@ interface AttestationViewModel {
 
     /** Switch the base url used for the engine */
     fun switchBaseUrl(url: String)
+
+    /** Get attestation results of a specific element */
+    //fun getElementResults(itemid: String, limit: Int = 10) : List<ElementResult>
 }
 
 // --------- Implementation ---------
@@ -34,7 +37,7 @@ interface AttestationViewModel {
 // Repo should be replaced with handlers / create a facade for everything?
 class AttestationViewModelImpl(
     private val repo: AttestationRepository,
-    private val elementDataHandler: ElementDataHandler,
+    private val elementDataHandler: ElementDataHandler<String,Element>,
 ) : AttestationViewModel, ViewModel() {
 
     companion object {
@@ -60,11 +63,13 @@ class AttestationViewModelImpl(
         repo.rebuildService(url)
         elementDataHandler.refreshData(hardReset = true)
     }
+
+    //override fun getElementResults(itemid: String, limit: Int): List<ElementResult> = repo.getElementResults(itemid, limit)
 }
 
 class AttestationViewModelImplFactory(
     private val repo: AttestationRepository,
-    private val elementDataHandler: ElementDataHandler,
+    private val elementDataHandler: ElementDataHandler<String,Element>,
 ) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {

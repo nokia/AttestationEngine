@@ -13,6 +13,7 @@ data class Element(
     @SerializedName("type") val types: List<String>,
     val protocol: String,
     val description: String?,
+    @Transient var results: List<ElementResult>
 )
 
 /**
