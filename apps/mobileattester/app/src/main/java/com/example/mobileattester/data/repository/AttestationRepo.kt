@@ -34,7 +34,7 @@ interface AttestationRepository {
     suspend fun getExpectedValueByElementPolicyIds(eid: String, pid: String): ExpectedValue
 
     // --- Results ---
-    suspend fun getElementResults(itemid: String, limit: Int = 10): List<ElementResult>
+    suspend fun getElementResults(itemid: String, limit: Int = 100): List<ElementResult>
 }
 
 class AttestationRepositoryImpl(
