@@ -30,6 +30,7 @@ import com.example.mobileattester.ui.theme.Ok
 import com.example.mobileattester.ui.theme.PrimaryDark
 import com.example.mobileattester.ui.util.Screen
 import com.example.mobileattester.ui.util.navigate
+import com.example.mobileattester.ui.util.parseBaseUrl
 import com.example.mobileattester.ui.viewmodel.AttestationViewModel
 import compose.icons.TablerIcons
 import compose.icons.tablericons.*
@@ -41,49 +42,69 @@ const val ARG_ITEM_ID = "item_id"
 @Composable
 fun Element(navController: NavController, viewModel: AttestationViewModel) {
     val clickedElementId =
-        navController.currentBackStackEntry?.arguments?.get(ARG_ITEM_ID).toString()
+        navController.currentBackStackEntry?.arguments?.get(ARG_ITEM_ID).toString().let {
+            if (it.startsWith("http")) {
+                println("Found Link: $it")
+                parseBaseUrl(it)
+            }
+            else
+                it.trim()
+        }
+
+    println(clickedElementId)
     val element = viewModel.getElementFromCache(clickedElementId)
 
     if (element == null) {
-        Text(text = "Error...", style = MaterialTheme.typography.h3)
-        return
-    }
-
-    fun onAttestClick() {
-        navController.navigate(Screen.Attest.route, bundleOf(Pair(ARG_ITEM_ID, element.itemid)))
-    }
-
-    val scrollState = ScrollState(0)
-
-    Column(modifier = Modifier.verticalScroll(scrollState)) {
-        // Render element header
-        HeaderRoundedBottom {
-            Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 24.dp)) {
-                Text(text = element.name, style = MaterialTheme.typography.h3)
-                Text(
-                    text = element.endpoint,
-                    style = MaterialTheme.typography.body1,
-                    modifier = Modifier.padding(vertical = 8.dp, horizontal = 2.dp)
-                )
-            }
-        }
-
-        // Content
-        Column(Modifier.padding(horizontal = 16.dp, vertical = 10.dp)) {
-            TagRow(element.types)
-            Spacer(modifier = Modifier.size(26.dp))
-            ElementActions(onAttestClick = ::onAttestClick)
-            Spacer(modifier = Modifier.size(26.dp))
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
             Text(
-                text = element.description ?: "",
-                color = DarkGrey,
+                "This element was not found, please ensure that the server contains this element",
+                modifier = Modifier.padding(16.dp)
             )
-            Spacer(modifier = Modifier.size(26.dp))
-            Divider(color = Color(197, 197, 197), thickness = 1.dp)
-            Spacer(modifier = Modifier.size(26.dp))
-            ElementResult(element)
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+    }
+    else {
+
+        fun onAttestClick() {
+            navController.navigate(Screen.Attest.route, bundleOf(Pair(ARG_ITEM_ID, element.itemid)))
         }
 
+        val scrollState = ScrollState(0)
+
+        Column(modifier = Modifier.verticalScroll(scrollState)) {
+            // Render element header
+            HeaderRoundedBottom {
+                Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 24.dp)) {
+                    Text(text = element.name, style = MaterialTheme.typography.h3)
+                    Text(
+                        text = element.endpoint,
+                        style = MaterialTheme.typography.body1,
+                        modifier = Modifier.padding(vertical = 8.dp, horizontal = 2.dp)
+                    )
+                }
+            }
+
+            // Content
+            Column(Modifier.padding(horizontal = 16.dp, vertical = 10.dp)) {
+                TagRow(element.types)
+                Spacer(modifier = Modifier.size(26.dp))
+                ElementActions(onAttestClick = ::onAttestClick)
+                Spacer(modifier = Modifier.size(26.dp))
+                Text(
+                    text = element.description ?: "",
+                    color = DarkGrey,
+                )
+                Spacer(modifier = Modifier.size(26.dp))
+                Divider(color = Color(197, 197, 197), thickness = 1.dp)
+                Spacer(modifier = Modifier.size(26.dp))
+                ElementResult(element)
+            }
+
+        }
     }
 }
 

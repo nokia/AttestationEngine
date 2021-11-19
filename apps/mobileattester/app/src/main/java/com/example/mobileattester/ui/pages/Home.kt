@@ -91,7 +91,6 @@ fun Home(navController: NavController? = null, viewModel: AttestationViewModel) 
 
                             // Refresh
                             showAllConfigurations = false
-                            showAllConfigurations = true
                         },
                         onIconClick = {
                             list.value.remove(it)

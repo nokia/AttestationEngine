@@ -62,7 +62,7 @@ object NavUtils {
     /**
      * Top nav destinations for the application (Bottom nav locations)
      */
-    private val topNavDestinations = listOf<Screen>(
+    private val bottomNavDestinations = listOf<Screen>(
         Screen.Home,
         Screen.Elements,
         Screen.Scanner,
@@ -117,7 +117,7 @@ object NavUtils {
             val navBackStackEntry by navController.currentBackStackEntryAsState()
             val currentDestination = navBackStackEntry?.destination
 
-            topNavDestinations.forEach { screen ->
+            bottomNavDestinations.forEach { screen ->
                 BottomNavigationItem(
                     icon = {
                         Icon(getRouteIcon(screen), contentDescription = null)
@@ -125,18 +125,20 @@ object NavUtils {
                     label = { Text(stringResource(screen.stringResId)) },
                     selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
                     onClick = {
-                        navController.navigate(screen.route) {
-                            while (navController.popBackStack()) {
-                            } // Remove backstack for back button
-                            popUpTo(navController.graph.findStartDestination().id) {
-                                saveState = true
+                        if (screen.route != currentDestination?.route)
+                            navController.navigate(screen.route) {
+                                while (navController.popBackStack()) {
+                                } // Remove backstack for back button
+
+                                popUpTo(navController.graph.findStartDestination().id) {
+                                    saveState = true
+                                }
+                                // Avoid multiple copies of the same destination when
+                                // reselecting the same item
+                                launchSingleTop = true
+                                // Restore state when reselecting a previously selected item
+                                restoreState = true
                             }
-                            // Avoid multiple copies of the same destination when
-                            // reselecting the same item
-                            launchSingleTop = true
-                            // Restore state when reselecting a previously selected item
-                            restoreState = true
-                        }
                     },
 
                     )
@@ -149,7 +151,7 @@ object NavUtils {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentRoute = navBackStackEntry?.destination?.route
         val screen = currentRoute?.let { Screen.getScreenFromRoute(it) } ?: return
-        val isTopDestination = topNavDestinations.contains(screen)
+        val isTopDestination = bottomNavDestinations.contains(screen)
 
         // This avoids an empty space in the top bar if the back icon is not needed
         if (isTopDestination) {
