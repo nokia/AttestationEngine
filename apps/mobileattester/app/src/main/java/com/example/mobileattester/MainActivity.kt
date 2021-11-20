@@ -25,7 +25,7 @@ class MainActivity : ComponentActivity() {
          */
 
         viewModel = ViewModelProvider(this,
-            Injector.provideAttestationViewModelFactory("http://${Preferences.defaultConfig.first()}/")).get(
+            Injector.provideAttestationViewModelFactory()).get(
             AttestationViewModelImpl::class.java)
 
         setContent {

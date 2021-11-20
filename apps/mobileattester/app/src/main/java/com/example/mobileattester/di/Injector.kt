@@ -1,20 +1,55 @@
 package com.example.mobileattester.di
 
 import androidx.lifecycle.ViewModelProvider
+import com.example.mobileattester.data.network.AttestationDataHandler
 import com.example.mobileattester.data.network.AttestationDataHandlerImpl
+import com.example.mobileattester.data.repository.AttestationRepository
 import com.example.mobileattester.data.repository.AttestationRepositoryImpl
+import com.example.mobileattester.data.util.AttestUtil
 import com.example.mobileattester.data.util.ElementDataHandler
+import com.example.mobileattester.data.util.PolicyDataHandler
+import com.example.mobileattester.data.util.RuleDataHandler
+import com.example.mobileattester.ui.util.Preferences
 import com.example.mobileattester.ui.viewmodel.AttestationViewModelImplFactory
 
-object Injector {
 
-    /**
-     * @param baseUrl url to use when initializing the service. Call method from viewModel to change this.
-     */
-    fun provideAttestationViewModelFactory(baseUrl: String): ViewModelProvider.Factory {
-        val handler = AttestationDataHandlerImpl(baseUrl)
-        val repo = AttestationRepositoryImpl(handler)
-        val elementDataHandler = ElementDataHandler(repo, batchSize = 5)
-        return AttestationViewModelImplFactory(repo, elementDataHandler)
+object Injector {
+    private const val DEFAULT_BATCH_SIZE = 10
+
+    private val handler: AttestationDataHandler =
+        AttestationDataHandlerImpl("http://192.168.16.193:8520/")
+    private val attestationRepo: AttestationRepository = AttestationRepositoryImpl(handler)
+
+    init {
+        println("URL VALUE : ${handler.currentUrl.value}")
+
+    }
+
+    fun provideAttestationViewModelFactory(): ViewModelProvider.Factory {
+
+        /*
+            Here, Initialize the BatchedDataHandlers of different types.
+
+            Link the repository methods to the corresponding handlers to get the
+            data each of them are managing.
+        */
+        val elementDataHandler = ElementDataHandler(
+            DEFAULT_BATCH_SIZE,
+            { attestationRepo.getElementIds() },
+            { attestationRepo.getElement(it) }
+        )
+
+        val policyDataHandler = PolicyDataHandler(
+            DEFAULT_BATCH_SIZE,
+            { attestationRepo.getPolicyIds() },
+            { attestationRepo.getPolicy(it) }
+        )
+
+        val attestUtil = AttestUtil(
+            handler,
+            policyDataHandler
+        )
+
+        return AttestationViewModelImplFactory(attestationRepo, elementDataHandler, attestUtil)
     }
 }

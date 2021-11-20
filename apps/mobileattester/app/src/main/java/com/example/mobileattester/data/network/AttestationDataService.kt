@@ -48,7 +48,7 @@ interface AttestationDataService {
     @GET("expectedvalue/{eid}/{pid}")
     suspend fun getExpectedValueByElementPolicyIds(
         @Path("eid") elementId: String,
-        @Path("pid") policyId: String
+        @Path("pid") policyId: String,
     ): ExpectedValue
 
     /**
@@ -58,7 +58,7 @@ interface AttestationDataService {
     @GET("result/element/latest/{itemid}/{limit}")
     suspend fun getElementResults(
         @Path("itemid") itemid: String,
-        @Path("limit") limit: String
+        @Path("limit") limit: Int,
     ): List<ElementResult>
 
 
@@ -66,9 +66,9 @@ interface AttestationDataService {
     Attestation
      */
 
-    @POST("attest/")
+    @POST("attest")
     suspend fun attestElement(@Body eid: String, @Body pid: String)
 
-    @POST("verify/")
+    @POST("verify")
     suspend fun verifyClaim(@Body cid: String, @Body rul: String)
 }

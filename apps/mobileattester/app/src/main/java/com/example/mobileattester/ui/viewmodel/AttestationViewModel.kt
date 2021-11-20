@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.mobileattester.data.model.Element
 import com.example.mobileattester.data.repository.AttestationRepository
+import com.example.mobileattester.data.util.AttestationUtil
 import com.example.mobileattester.data.util.ElementDataHandler
 import kotlinx.coroutines.flow.StateFlow
 
@@ -30,6 +31,8 @@ interface AttestationViewModel {
 
     /** Get attestation results of a specific element */
     //fun getElementResults(itemid: String, limit: Int = 10) : List<ElementResult>
+
+    fun useAttestationUtil(): AttestationUtil
 }
 
 // --------- Implementation ---------
@@ -37,7 +40,8 @@ interface AttestationViewModel {
 // Repo should be replaced with handlers / create a facade for everything?
 class AttestationViewModelImpl(
     private val repo: AttestationRepository,
-    private val elementDataHandler: ElementDataHandler<String, Element>,
+    private val elementDataHandler: ElementDataHandler,
+    private val attestationUtil: AttestationUtil,
 ) : AttestationViewModel, ViewModel() {
 
     companion object {
@@ -63,15 +67,18 @@ class AttestationViewModelImpl(
         elementDataHandler.refreshData(hardReset = true)
     }
 
+    override fun useAttestationUtil(): AttestationUtil = attestationUtil
+
     //override fun getElementResults(itemid: String, limit: Int): List<ElementResult> = repo.getElementResults(itemid, limit)
 }
 
 class AttestationViewModelImplFactory(
     private val repo: AttestationRepository,
-    private val elementDataHandler: ElementDataHandler<String, Element>,
+    private val elementDataHandler: ElementDataHandler,
+    private val attestUtil: AttestationUtil,
 ) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        return AttestationViewModelImpl(repo, elementDataHandler) as T
+        return AttestationViewModelImpl(repo, elementDataHandler, attestUtil) as T
     }
 }

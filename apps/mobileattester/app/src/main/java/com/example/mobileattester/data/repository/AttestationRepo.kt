@@ -5,7 +5,6 @@ import com.example.mobileattester.data.model.ElementResult
 import com.example.mobileattester.data.model.ExpectedValue
 import com.example.mobileattester.data.model.Policy
 import com.example.mobileattester.data.network.AttestationDataHandler
-import com.example.mobileattester.data.util.BatchedDataProvider
 import kotlinx.coroutines.flow.MutableStateFlow
 
 /**
@@ -44,14 +43,27 @@ interface AttestationRepository {
 
 class AttestationRepositoryImpl(
     private val handler: AttestationDataHandler,
-) : AttestationRepository, BatchedDataProvider<String, Element> {
+) : AttestationRepository {
 
     override val currentUrl: MutableStateFlow<String> = handler.currentUrl
 
     override fun rebuildService(withUrl: String) = handler.rebuildService(withUrl)
 
     override suspend fun getElementIds(): List<String> = handler.getElementIds()
-    override suspend fun getElement(itemid: String): Element = handler.getElement(itemid)
+    override suspend fun getElement(itemid: String): Element {
+        val element = handler.getElement(itemid)
+
+        try {
+            //element.results = getElementResults(element.itemid)
+            element.results = listOf()
+        } catch (err: Error) {
+            println(err)
+            element.results = listOf()
+        }
+
+        return element
+    }
+
     override suspend fun getAllTypes(): List<String> = handler.getAllTypes()
 
     override suspend fun getPolicyIds(): List<String> = handler.getPolicyIds()
@@ -67,22 +79,4 @@ class AttestationRepositoryImpl(
 
     override suspend fun getElementResults(itemid: String, limit: Int): List<ElementResult> =
         handler.getElementResults(itemid, limit)
-
-
-    // -------------- Batched data provider methods --------------------
-    // -------------- Batched data provider methods --------------------
-
-
-    override suspend fun getIdList(): List<String> = getElementIds()
-    override suspend fun getDataForId(id: String): Element {
-        val element = getElement(id)
-
-        try {
-            element.results = getElementResults(element.itemid)
-        } catch (err: Error) {
-            element.results = listOf()
-        }
-
-        return element
-    }
 }

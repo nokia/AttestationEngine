@@ -93,7 +93,7 @@ class AttestationDataHandlerImpl(
     ): ExpectedValue = apiService.getExpectedValueByElementPolicyIds(eid, pid)
 
     override suspend fun getElementResults(itemid: String, limit: Int): List<ElementResult> =
-        apiService.getElementResults(itemid, limit.toString())
+        apiService.getElementResults(itemid, limit)
 
     override suspend fun attestElement(eid: String, pid: String) =
         apiService.attestElement(eid, pid)

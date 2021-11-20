@@ -24,6 +24,7 @@ interface AttestationUtil {
 
 class AttestUtil(
     private val dataHandler: AttestationDataHandler,
+    private val policyDataHandler: PolicyDataHandler,
 ) : AttestationUtil {
 
     override val policyFlow: MutableStateFlow<Response<List<Policy>>> =

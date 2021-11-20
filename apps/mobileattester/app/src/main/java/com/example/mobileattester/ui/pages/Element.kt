@@ -46,8 +46,7 @@ fun Element(navController: NavController, viewModel: AttestationViewModel) {
             if (it.startsWith("http")) {
                 println("Found Link: $it")
                 parseBaseUrl(it)
-            }
-            else
+            } else
                 it.trim()
         }
 
@@ -65,8 +64,7 @@ fun Element(navController: NavController, viewModel: AttestationViewModel) {
             )
             Spacer(modifier = Modifier.height(8.dp))
         }
-    }
-    else {
+    } else {
 
         fun onAttestClick() {
             navController.navigate(Screen.Attest.route, bundleOf(Pair(ARG_ITEM_ID, element.itemid)))
@@ -131,9 +129,11 @@ fun ElementResult(element: Element) {
     ElementResultFull(latestResults, latestResults.size == element.results.size) {
         // On more items requested fetch a batch of items by time.
         val hourInSeconds = 3600
-        val resultSeconds = element.results[latestResults.size].verifiedAt.toDoubleOrNull()!!.roundToLong()
+        val resultSeconds =
+            element.results[latestResults.size].verifiedAt.toDoubleOrNull()!!.roundToLong()
         val curTimeInSeconds: Long = System.currentTimeMillis() / 1000
-        resultHoursShown.value = curTimeInSeconds.minus(resultSeconds).div(hourInSeconds).toInt().hoursHWMYRounded()
+        resultHoursShown.value =
+            curTimeInSeconds.minus(resultSeconds).div(hourInSeconds).toInt().hoursHWMYRounded()
     }
 }
 
@@ -182,7 +182,7 @@ fun ElementResultSummary(results: Collection<ElementResult>) {
 fun ElementResultFull(
     results: Collection<ElementResult>,
     allShown: Boolean,
-    onMoreRequested: () -> Unit
+    onMoreRequested: () -> Unit,
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -212,7 +212,7 @@ fun ElementResultFull(
             }
         }
 
-        if(!allShown) {
+        if (!allShown) {
             Text(
                 text = "More results",
                 modifier = Modifier.clickable { onMoreRequested() },
@@ -253,7 +253,7 @@ private fun Collection<ElementResult>.latestResults(hours: Int = 24): Collection
     }
 }
 
-private fun Int.shownHoursToString() : String {
+private fun Int.shownHoursToString(): String {
     return when {
         this % (24 * 7 * 4 * 12) == 0 // year
         -> "${this / (24 * 7 * 4 * 12)}Y"
@@ -265,8 +265,7 @@ private fun Int.shownHoursToString() : String {
     }
 }
 
-private fun Int.hoursHWMYRounded() : Int
-{
+private fun Int.hoursHWMYRounded(): Int {
     val mul = when {
         this < 24 * 7
         -> 24
@@ -278,5 +277,5 @@ private fun Int.hoursHWMYRounded() : Int
         -> 24 * 7 * 4 * 12
     }
 
-    return this + mul - (this % mul).also{if(it == 0) return this }
+    return this + mul - (this % mul).also { if (it == 0) return this }
 }

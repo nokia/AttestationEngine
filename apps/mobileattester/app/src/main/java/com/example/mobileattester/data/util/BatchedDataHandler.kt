@@ -3,6 +3,7 @@ package com.example.mobileattester.data.util
 import android.util.Log
 import com.example.mobileattester.data.model.Element
 import com.example.mobileattester.data.model.Policy
+import com.example.mobileattester.data.model.Rule
 import com.example.mobileattester.data.network.retryIO
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -10,34 +11,37 @@ import kotlinx.coroutines.flow.MutableStateFlow
 const val TIMEOUT = 10_000L
 const val TAG = "BatchedDataHandler"
 
-/**
- * Class that can act as a data provider for Batched data handler
- * T - Id type
- * U - Data type
- */
-interface BatchedDataProvider<T, U> {
-    suspend fun getIdList(): List<T>
-    suspend fun getDataForId(id: T): U
-}
-
-interface ElementDataProvider : BatchedDataProvider<String, Element>
-interface PolicyDataProvider : BatchedDataProvider<String, Policy>
-
-// ---------------------------
-// ---------------------------
-// ---------------------------
-// ---------------------------
-// ---------------------------
-// ---------------------------
+// Typealiases for the functions that need to be provided for the Batched data handler.
+typealias FetchIdList<T> = suspend () -> List<T>
+typealias FetchIdData<T, U> = suspend (T) -> U
 
 
-class ElementDataHandler<T, U>(dataProvider: BatchedDataProvider<T, U>, batchSize: Int) :
-    BatchedDataHandler<T, U>(dataProvider, batchSize) {}
+// ------------------------------------------------------------------------------------------
+// ------------ Concrete classes to handle different types of data in batches ---------------
+// ------------------------------------------------------------------------------------------
 
-class PolicyDataHandler<String, Policy>(
-    dataProvider: BatchedDataProvider<String, Policy>,
+class ElementDataHandler(
     batchSize: Int,
-) : BatchedDataHandler<String, Policy>(dataProvider, batchSize)
+    fetchIdList: FetchIdList<String>,
+    fetchDataForId: FetchIdData<String, Element>,
+) : BatchedDataHandler<String, Element>(batchSize, fetchIdList, fetchDataForId)
+
+class PolicyDataHandler(
+    batchSize: Int,
+    fetchIdList: FetchIdList<String>,
+    fetchDataForId: FetchIdData<String, Policy>,
+) : BatchedDataHandler<String, Policy>(batchSize, fetchIdList, fetchDataForId)
+
+class RuleDataHandler(
+    batchSize: Int,
+    fetchIdList: FetchIdList<String>,
+    fetchDataForId: FetchIdData<String, Rule>,
+) : BatchedDataHandler<String, Rule>(batchSize, fetchIdList, fetchDataForId)
+
+
+// ------------------------------------------------------------------------------------------
+// --------------- Abstract class for above to handle data in batches -----------------------
+// ------------------------------------------------------------------------------------------
 
 /**
  *  Data fetching in batches.
@@ -55,8 +59,9 @@ class PolicyDataHandler<String, Policy>(
  *  -   Proper error handling
  */
 abstract class BatchedDataHandler<T, U>(
-    private val dataProvider: BatchedDataProvider<T, U>,
     private val batchSize: Int,
+    private val fetchIdList: FetchIdList<T>,
+    private val fetchDataForId: FetchIdData<T, U>,
 ) {
     private val job = Job()
     private val scope = CoroutineScope(job)
@@ -184,7 +189,7 @@ abstract class BatchedDataHandler<T, U>(
             }
         }
 
-        println("DataAsList size: ${loadedBatchValues.size}")
+        println("DataAsList: ${loadedBatchValues}")
         return loadedBatchValues
     }
 
@@ -211,7 +216,7 @@ abstract class BatchedDataHandler<T, U>(
                 launch(Dispatchers.IO) {
                     retryIO(times = 5, catchErrors = false) {
                         withTimeout(TIMEOUT) {
-                            val res = dataProvider.getDataForId(id)
+                            val res = fetchDataForId(id)
                             res.let {
                                 temp.add(Pair(id, it))
                             }
@@ -233,7 +238,7 @@ abstract class BatchedDataHandler<T, U>(
                 listChunks = listOf()
                 idCount.value = 0
 
-                idList = dataProvider.getIdList()
+                idList = fetchIdList()
                 listChunks = idList!!.chunked(batchSize)
                 idCount.value = idList!!.size
             }
