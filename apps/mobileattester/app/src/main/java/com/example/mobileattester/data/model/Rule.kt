@@ -1,4 +1,6 @@
 package com.example.mobileattester.data.model
 
-class Rule {
-}
+data class Rule(
+    val name: String,
+    val description: String
+)

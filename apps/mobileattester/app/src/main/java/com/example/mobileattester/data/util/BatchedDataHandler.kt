@@ -2,6 +2,7 @@ package com.example.mobileattester.data.util
 
 import android.util.Log
 import com.example.mobileattester.data.model.Element
+import com.example.mobileattester.data.model.Policy
 import com.example.mobileattester.data.network.retryIO
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,8 +20,24 @@ interface BatchedDataProvider<T, U> {
     suspend fun getDataForId(id: T): U
 }
 
-class ElementDataHandler<T,U>(dataProvider: BatchedDataProvider<T, U>, batchSize: Int) :
+interface ElementDataProvider : BatchedDataProvider<String, Element>
+interface PolicyDataProvider : BatchedDataProvider<String, Policy>
+
+// ---------------------------
+// ---------------------------
+// ---------------------------
+// ---------------------------
+// ---------------------------
+// ---------------------------
+
+
+class ElementDataHandler<T, U>(dataProvider: BatchedDataProvider<T, U>, batchSize: Int) :
     BatchedDataHandler<T, U>(dataProvider, batchSize) {}
+
+class PolicyDataHandler<String, Policy>(
+    dataProvider: BatchedDataProvider<String, Policy>,
+    batchSize: Int,
+) : BatchedDataHandler<String, Policy>(dataProvider, batchSize)
 
 /**
  *  Data fetching in batches.
@@ -131,6 +148,46 @@ abstract class BatchedDataHandler<T, U>(
         return null
     }
 
+    /**
+     * Returns all data from downloaded batches as a list and optionally filters using keywords separated by spaces.
+     */
+    fun dataAsList(filters: String? = null): List<U> {
+        val loadedBatchValues = mutableListOf<U>()
+
+
+        batches.entries.forEach { entry ->
+            entry.value.forEach {
+                if (filters == null)
+                    loadedBatchValues.add(it.second)
+                else {
+                    if (it.second is Element) {
+                        if (filters.split(' ').all { filter ->
+                                when {
+                                    // TODO Abstraction
+                                    (it.second as Element).name.lowercase()
+                                        .contains(filter.lowercase()) -> true
+                                    ((it.second as Element).description?.lowercase()
+                                        ?: "").contains(filter.lowercase()) -> true
+                                    (it.second as Element).endpoint.lowercase()
+                                        .contains(filter.lowercase()) -> true
+                                    (it.second as Element).protocol.lowercase()
+                                        .contains(filter.lowercase()) -> true
+                                    (it.second as Element).types.any { tag ->
+                                        tag.lowercase().contains(filter.lowercase())
+                                    } -> true
+                                    else -> false
+                                }
+                            })
+                            loadedBatchValues.add(it.second)
+                    }
+                }
+            }
+        }
+
+        println("DataAsList size: ${loadedBatchValues.size}")
+        return loadedBatchValues
+    }
+
     // ---- Private ----
     // ---- Private ----
 
@@ -191,46 +248,6 @@ abstract class BatchedDataHandler<T, U>(
             batches.remove(it)
         }
         dataFlow.value = listOf()
-    }
-
-    /**
-     * Returns all data from downloaded batches as a list and optionally filters using keywords separated by spaces.
-     */
-    fun dataAsList(filters: String? = null): List<U> {
-        val loadedBatchValues = mutableListOf<U>()
-
-
-        batches.entries.forEach { entry ->
-            entry.value.forEach {
-                if (filters == null)
-                    loadedBatchValues.add(it.second)
-                else {
-                    if(it.second is Element) {
-                        if (filters.split(' ').all { filter ->
-                                when {
-                                    // TODO Abstraction
-                                    (it.second as Element).name.lowercase()
-                                        .contains(filter.lowercase()) -> true
-                                    ((it.second as Element).description?.lowercase()
-                                        ?: "").contains(filter.lowercase()) -> true
-                                    (it.second as Element).endpoint.lowercase()
-                                        .contains(filter.lowercase()) -> true
-                                    (it.second as Element).protocol.lowercase()
-                                        .contains(filter.lowercase()) -> true
-                                    (it.second as Element).types.any { tag ->
-                                        tag.lowercase().contains(filter.lowercase())
-                                    } -> true
-                                    else -> false
-                                }
-                            })
-                            loadedBatchValues.add(it.second)
-                    }
-                }
-            }
-        }
-
-        println("DataAsList size: ${loadedBatchValues.size}")
-        return loadedBatchValues
     }
 
     private fun allChunksLoaded(): Boolean = batches.containsKey(listChunks?.lastIndex)

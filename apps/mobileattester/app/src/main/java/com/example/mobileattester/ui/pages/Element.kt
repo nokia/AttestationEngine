@@ -51,7 +51,6 @@ fun Element(navController: NavController, viewModel: AttestationViewModel) {
                 it.trim()
         }
 
-    println(clickedElementId)
     val element = viewModel.getElementFromCache(clickedElementId)
 
     if (element == null) {

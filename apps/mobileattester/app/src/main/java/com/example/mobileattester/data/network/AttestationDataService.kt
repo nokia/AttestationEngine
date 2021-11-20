@@ -4,7 +4,9 @@ import com.example.mobileattester.data.model.Element
 import com.example.mobileattester.data.model.ElementResult
 import com.example.mobileattester.data.model.ExpectedValue
 import com.example.mobileattester.data.model.Policy
+import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.POST
 import retrofit2.http.Path
 
 /**
@@ -54,5 +56,19 @@ interface AttestationDataService {
      */
 
     @GET("result/element/latest/{itemid}/{limit}")
-    suspend fun getElementResults(@Path("itemid") itemid: String, @Path("limit") limit: String): List<ElementResult>
+    suspend fun getElementResults(
+        @Path("itemid") itemid: String,
+        @Path("limit") limit: String
+    ): List<ElementResult>
+
+
+    /**
+    Attestation
+     */
+
+    @POST("attest/")
+    suspend fun attestElement(@Body eid: String, @Body pid: String)
+
+    @POST("verify/")
+    suspend fun verifyClaim(@Body cid: String, @Body rul: String)
 }

@@ -37,6 +37,10 @@ interface AttestationDataHandler {
 
     // --- Results ---
     suspend fun getElementResults(itemid: String, limit: Int): List<ElementResult>
+
+    // --- Attestation ---
+    suspend fun attestElement(eid: String, pid: String)
+    suspend fun verifyClaim(cid: String, rul: String)
 }
 
 // ---------- Implementation ------------
@@ -88,5 +92,13 @@ class AttestationDataHandlerImpl(
         pid: String,
     ): ExpectedValue = apiService.getExpectedValueByElementPolicyIds(eid, pid)
 
-    override suspend fun getElementResults(itemid: String, limit: Int): List<ElementResult> = apiService.getElementResults(itemid,limit.toString())
+    override suspend fun getElementResults(itemid: String, limit: Int): List<ElementResult> =
+        apiService.getElementResults(itemid, limit.toString())
+
+    override suspend fun attestElement(eid: String, pid: String) =
+        apiService.attestElement(eid, pid)
+
+    override suspend fun verifyClaim(cid: String, rul: String) =
+        apiService.verifyClaim(cid, rul)
+
 }

@@ -37,9 +37,14 @@ interface AttestationRepository {
     suspend fun getElementResults(itemid: String, limit: Int = 100): List<ElementResult>
 }
 
+
+// ----------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------------------------
+
 class AttestationRepositoryImpl(
     private val handler: AttestationDataHandler,
-) : AttestationRepository, BatchedDataProvider<String,Element> {
+) : AttestationRepository, BatchedDataProvider<String, Element> {
 
     override val currentUrl: MutableStateFlow<String> = handler.currentUrl
 
@@ -60,14 +65,21 @@ class AttestationRepositoryImpl(
         pid: String,
     ): ExpectedValue = handler.getExpectedValueByElementPolicyIds(eid, pid)
 
-    override suspend fun getElementResults(itemid: String, limit: Int): List<ElementResult> = handler.getElementResults(itemid, limit)
+    override suspend fun getElementResults(itemid: String, limit: Int): List<ElementResult> =
+        handler.getElementResults(itemid, limit)
+
+
+    // -------------- Batched data provider methods --------------------
+    // -------------- Batched data provider methods --------------------
+
 
     override suspend fun getIdList(): List<String> = getElementIds()
     override suspend fun getDataForId(id: String): Element {
         val element = getElement(id)
 
-        try { element.results = getElementResults(element.itemid) }
-        catch(err : Error) {
+        try {
+            element.results = getElementResults(element.itemid)
+        } catch (err: Error) {
             element.results = listOf()
         }
 

@@ -37,11 +37,10 @@ interface AttestationViewModel {
 // Repo should be replaced with handlers / create a facade for everything?
 class AttestationViewModelImpl(
     private val repo: AttestationRepository,
-    private val elementDataHandler: ElementDataHandler<String,Element>,
+    private val elementDataHandler: ElementDataHandler<String, Element>,
 ) : AttestationViewModel, ViewModel() {
 
     companion object {
-        // Index of rendered element + FETCH_START_BUFFER > currently fetched count => Fetch the next batch
         const val FETCH_START_BUFFER = 3
     }
 
@@ -69,7 +68,7 @@ class AttestationViewModelImpl(
 
 class AttestationViewModelImplFactory(
     private val repo: AttestationRepository,
-    private val elementDataHandler: ElementDataHandler<String,Element>,
+    private val elementDataHandler: ElementDataHandler<String, Element>,
 ) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
