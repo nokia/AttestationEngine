@@ -18,17 +18,5 @@ data class ElementResult(
     val result: Int,
     val ruleName: String,
     val ruleParameters: HashMap<String, String>,
-    val verifiedAt: String
+    val verifiedAt: String,
 )
-
-/**
- * A10 Element impl.
- */
-//data class ElementA10(
-//    override val itemid: String,
-//    override val name: String,
-//    override val endpoint: String,
-//    override val description: String?,
-//    override val protocol: String,
-//    @SerializedName("type") override val types: List<String>,
-//) : Element

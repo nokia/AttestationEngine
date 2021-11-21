@@ -8,7 +8,6 @@ enum class Status {
     SUCCESS, ERROR, LOADING
 }
 
-class NONE()
 
 data class Response<out T>(val status: Status, val data: T? = null, val message: String? = null) {
     companion object {

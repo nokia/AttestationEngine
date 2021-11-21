@@ -1,9 +1,6 @@
 package com.example.mobileattester.data.network
 
-import com.example.mobileattester.data.model.Element
-import com.example.mobileattester.data.model.ElementResult
-import com.example.mobileattester.data.model.ExpectedValue
-import com.example.mobileattester.data.model.Policy
+import com.example.mobileattester.data.model.*
 import org.json.JSONObject
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -53,6 +50,13 @@ interface AttestationDataService {
     ): ExpectedValue
 
     /**
+    Claims
+     */
+
+    @GET("claim/{itemid}")
+    suspend fun getClaim(@Path("itemid") itemid: String): Claim
+
+    /**
     Results
      */
 
@@ -73,4 +77,11 @@ interface AttestationDataService {
 
     @POST("verify")
     suspend fun verifyClaim(@Body cid: String, @Body rul: String)
+
+    /**
+    Rules
+     */
+
+    @GET("rules")
+    suspend fun getRules(): List<Rule>
 }

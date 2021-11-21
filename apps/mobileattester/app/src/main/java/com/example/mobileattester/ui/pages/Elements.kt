@@ -79,9 +79,8 @@ private fun RenderElementList(navController: NavController, viewModel: Attestati
             // List of the elements
             itemsIndexed(if (filters.value.text.isEmpty()) elements else viewModel.filterElements(
                 filters.value.text)) { index, element ->
-                println("rendering index: $index // $lastIndex ")
+//                println("rendering index: $index // $lastIndex ")
                 if (index + FETCH_START_BUFFER >= lastIndex) {
-
                     viewModel.getMoreElements()
                 }
 

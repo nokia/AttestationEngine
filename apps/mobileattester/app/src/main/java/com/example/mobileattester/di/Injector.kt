@@ -19,7 +19,7 @@ object Injector {
     private const val DEFAULT_BATCH_SIZE = Int.MAX_VALUE
 
     private val handler: AttestationDataHandler =
-        AttestationDataHandlerImpl("http://192.168.16.142:8520/")
+        AttestationDataHandlerImpl("http://192.168.16.83:8520/")
     private val attestationRepo: AttestationRepository = AttestationRepositoryImpl(handler)
 
     init {

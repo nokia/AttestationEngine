@@ -1,9 +1,6 @@
 package com.example.mobileattester.data.network
 
-import com.example.mobileattester.data.model.Element
-import com.example.mobileattester.data.model.ElementResult
-import com.example.mobileattester.data.model.ExpectedValue
-import com.example.mobileattester.data.model.Policy
+import com.example.mobileattester.data.model.*
 import com.google.gson.GsonBuilder
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.json.JSONObject
@@ -42,6 +39,13 @@ interface AttestationDataHandler {
     // --- Attestation ---
     suspend fun attestElement(eid: String, pid: String): String
     suspend fun verifyClaim(cid: String, rul: String)
+
+    // --- Rules ---
+    suspend fun getRules(): List<Rule>
+
+    // --- Claims ---
+    suspend fun getClaim(itemid: String): Claim
+
 }
 
 // ---------- Implementation ------------
@@ -106,5 +110,8 @@ class AttestationDataHandlerImpl(
 
     override suspend fun verifyClaim(cid: String, rul: String) =
         apiService.verifyClaim(cid, rul)
+
+    override suspend fun getRules(): List<Rule> = apiService.getRules()
+    override suspend fun getClaim(itemid: String): Claim = apiService.getClaim(itemid)
 
 }
