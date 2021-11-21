@@ -89,7 +89,7 @@ object NavUtils {
         ) { innerPadding ->
             NavHost(
                 navController,
-                startDestination = Screen.Elements.route,
+                startDestination = Screen.Home.route,
                 Modifier.padding(innerPadding)
             ) {
                 // Add new nav destinations here after Screen for it is created
@@ -114,7 +114,11 @@ object NavUtils {
                 }
                 composable(Screen.Result.route) {
                     showTopBar.value =
-                        true; ResultScreenProvider(resultFlow = viewModel.useAttestationUtil().result)
+                        true; ResultScreenProvider(
+                    navController = navController,
+                    viewModel = viewModel,
+                    resultFlow = viewModel.useAttestationUtil().result,
+                )
                 }
             }
         }

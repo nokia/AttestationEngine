@@ -14,6 +14,6 @@ data class ElementResult(
     val policyID: String,
     val result: Int,
     val ruleName: String,
-    val ruleParameters: HashMap<String, String>,
+//    val ruleParameters: HashMap<String, String>,
     val verifiedAt: String,
 )

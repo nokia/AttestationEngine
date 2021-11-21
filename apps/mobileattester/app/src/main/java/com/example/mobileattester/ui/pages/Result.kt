@@ -1,5 +1,6 @@
 package com.example.mobileattester.ui.pages
 
+import android.transition.Fade
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -20,14 +21,19 @@ import com.example.mobileattester.data.util.AttestationUtil
 import com.example.mobileattester.ui.components.anim.FadeInWithDelay
 import com.example.mobileattester.ui.components.common.ErrorIndicator
 import com.example.mobileattester.ui.components.common.LoadingFullScreen
+import com.example.mobileattester.ui.components.common.LoadingIndicator
 import com.example.mobileattester.ui.theme.DarkGrey
 import com.example.mobileattester.ui.theme.FONTSIZE_XL
 import com.example.mobileattester.ui.theme.FONTSIZE_XXL
 import com.example.mobileattester.ui.theme.Ok
+import com.example.mobileattester.ui.util.parseBaseUrl
+import com.example.mobileattester.ui.viewmodel.AttestationViewModel
 import compose.icons.TablerIcons
 import compose.icons.tablericons.Checkbox
 import compose.icons.tablericons.QuestionMark
 import kotlinx.coroutines.flow.MutableStateFlow
+
+const val ARG_RESULT_ID = "arg_result_id"
 
 
 /**
@@ -37,6 +43,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
  */
 @Composable
 fun ResultScreenProvider(
+    viewModel: AttestationViewModel,
+    navController: NavController,
     resultFlow: MutableStateFlow<Response<ElementResult>?>? = null,
     result: ElementResult? = null,
 ) {
@@ -57,19 +65,30 @@ fun ResultScreenProvider(
 
     // --------------------------------------------------
 
-    val res = resultFlow?.collectAsState()?.value ?: run {
-        Text(text = "ResultFlow was null.")
-        return
-    }
-
-    when (res.status) {
+    val res = resultFlow?.collectAsState()?.value
+    when (res?.status) {
         Status.LOADING -> LoadingFullScreen()
         Status.ERROR -> ErrorIndicator(msg = "Error loading result")
         Status.SUCCESS -> {
             FadeInWithDelay(50) {
                 Result(res.data!!)
             }
+            return
         }
+    }
+
+
+    // --------------------------------------------------
+
+    navController.currentBackStackEntry?.arguments?.getString(ARG_RESULT_ID)?.let { id ->
+        viewModel.findElementResult(id)?.let {
+            Result(result = it)
+            return
+        }
+    }
+
+    FadeInWithDelay(2000) {
+        Text(text = "Result data not found")
     }
 }
 
@@ -96,7 +115,6 @@ fun Result(
         TextVertSpace(txt = "Result: ${result.result}")
         TextVertSpace(txt = "Message: ${result.ruleName}")
         TextVertSpace(txt = "Message: ${result.message}")
-        TextVertSpace(txt = "Rule params: ${result.ruleParameters}")
         TextVertSpace(txt = "Verified at: ${result.verifiedAt}")
         SpacerSmall()
         SpacerSmall()

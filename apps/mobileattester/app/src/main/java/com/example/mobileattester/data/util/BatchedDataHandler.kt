@@ -5,9 +5,11 @@ import com.example.mobileattester.data.model.Element
 import com.example.mobileattester.data.model.Policy
 import com.example.mobileattester.data.model.Rule
 import com.example.mobileattester.data.network.Response
+import com.example.mobileattester.data.network.Status
 import com.example.mobileattester.data.network.retryIO
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
+import java.util.concurrent.Future
 
 const val TIMEOUT = 10_000L
 private const val TAG = "BatchedDataHandler"
@@ -68,7 +70,7 @@ abstract class BatchedDataHandler<T, U>(
     /**
      * Fetched data
      */
-    private val batches = mutableMapOf<Int, List<Pair<T, U>>>()
+    private val batches = mutableMapOf<Int, MutableList<Pair<T, U>>>()
     private val batchesLoading = mutableSetOf<Int>()
 
     /** Data from batches in a list */
@@ -101,7 +103,7 @@ abstract class BatchedDataHandler<T, U>(
 
         try {
             scope.launch {
-                batches[batchNumber] = fetchBatch(batchNumber)
+                batches[batchNumber] = fetchBatch(batchNumber).toMutableList()
                 dataFlow.value = Response.loading(dataAsList())
             }
             Log.d(TAG, "fetchNextBatch: Successfully loaded batch $batchNumber")
@@ -146,6 +148,29 @@ abstract class BatchedDataHandler<T, U>(
             }
         }
         return null
+    }
+
+    /**
+     * Call to refresh data for a single item
+     */
+    fun refreshSingleValue(id: T) {
+        scope.launch {
+            try {
+                val updatedData = fetchDataForId(id)
+
+                for (list in batches) {
+                    list.value.forEachIndexed { index, it ->
+                        if (it.first == id) {
+                            list.value[index] = Pair(id, updatedData)
+                            println("Successful update for id $id")
+                            return@launch
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                println("Cannot refresh single value: $e")
+            }
+        }
     }
 
     /**

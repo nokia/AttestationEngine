@@ -38,8 +38,6 @@ import compose.icons.tablericons.ChevronRight
 fun Elements(navController: NavController, viewModel: AttestationViewModel) {
     val response = viewModel.elementFlowResponse.collectAsState().value
 
-
-
     when (response.status) {
         Status.ERROR -> ErrorIndicator(msg = response.message.toString())
         else -> RenderElementList(navController, viewModel)
@@ -67,7 +65,6 @@ private fun RenderElementList(navController: NavController, viewModel: Attestati
         onRefresh = { viewModel.refreshElements() },
     ) {
         LazyColumn() {
-
             // Header
             item {
                 HeaderRoundedBottom {
@@ -79,7 +76,6 @@ private fun RenderElementList(navController: NavController, viewModel: Attestati
             // List of the elements
             itemsIndexed(if (filters.value.text.isEmpty()) elements else viewModel.filterElements(
                 filters.value.text)) { index, element ->
-//                println("rendering index: $index // $lastIndex ")
                 if (index + FETCH_START_BUFFER >= lastIndex) {
                     viewModel.getMoreElements()
                 }
@@ -117,10 +113,10 @@ private fun ElementListItem(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 12.dp, bottom = 18.dp)
             .clickable {
                 onElementClick(element.itemid)
-            },
+            }
+            .padding(top = 12.dp, bottom = 18.dp, start = 4.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {

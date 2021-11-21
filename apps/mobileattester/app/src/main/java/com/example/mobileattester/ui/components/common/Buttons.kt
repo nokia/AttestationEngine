@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.mobileattester.ui.theme.ELEVATION_SM
+import com.example.mobileattester.ui.theme.ROUNDED_MD
 import com.example.mobileattester.ui.theme.White
 import com.example.mobileattester.ui.util.`if`
 
@@ -41,26 +42,31 @@ fun OutlinedIconButton(
         modifier = Modifier
             .clickable { onClick?.invoke() },
         border = border,
-        color = if(filled) color else White,
-        elevation = if(onClick != null) ELEVATION_SM else 0.dp,
-        shape = if(rounded) RoundedCornerShape(10.dp) else CutCornerShape(0.dp),
+        color = if (filled) color else White,
+        elevation = if (onClick != null) ELEVATION_SM else 0.dp,
+        shape = if (rounded) ROUNDED_MD else CutCornerShape(0.dp),
     ) {
-            Row (
-                horizontalArrangement = if(icon != null && !text.isNullOrEmpty())
-                    Arrangement.SpaceBetween else Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .padding(if(border != null) 14.dp else 0.dp)
-                    .`if` (aspectRatio != null) { aspectRatio(aspectRatio!!) }
-                    .`if` (width != null) { width(width!!) }
-                    .`if` (height != null) { height(height!!) }
-            ) {
-                if(icon != null)
-                    Icon(icon, contentDescription = "", tint = if(filled) Color.White else color, modifier = Modifier.size(height?.plus(100.dp) ?: 32.dp))
-                if( icon != null && !text.isNullOrEmpty()) Spacer(modifier = Modifier.size(8.dp))
-                if (!text.isNullOrEmpty())
-                    Text(AnnotatedString(text, SpanStyle(fontSize = 16.sp, fontWeight = FontWeight.Bold)), color = if(filled) Color.White else color)
-            }
+        Row(
+            horizontalArrangement = if (icon != null && !text.isNullOrEmpty())
+                Arrangement.SpaceBetween else Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .padding(if (border != null) 14.dp else 0.dp)
+                .`if`(aspectRatio != null) { aspectRatio(aspectRatio!!) }
+                .`if`(width != null) { width(width!!) }
+                .`if`(height != null) { height(height!!) }
+        ) {
+            if (icon != null)
+                Icon(icon,
+                    contentDescription = "",
+                    tint = if (filled) Color.White else color,
+                    modifier = Modifier.size(height?.plus(100.dp) ?: 32.dp))
+            if (icon != null && !text.isNullOrEmpty()) Spacer(modifier = Modifier.size(8.dp))
+            if (!text.isNullOrEmpty())
+                Text(AnnotatedString(text,
+                    SpanStyle(fontSize = 16.sp, fontWeight = FontWeight.Bold)),
+                    color = if (filled) Color.White else color)
+        }
 
     }
 }

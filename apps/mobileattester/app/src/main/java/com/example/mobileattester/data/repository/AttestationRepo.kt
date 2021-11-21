@@ -54,8 +54,7 @@ class AttestationRepositoryImpl(
         val element = handler.getElement(itemid)
 
         try {
-            //element.results = getElementResults(element.itemid)
-            element.results = listOf()
+            element.results = getElementResults(element.itemid)
         } catch (err: Error) {
             println(err)
             element.results = listOf()

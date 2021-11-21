@@ -1,5 +1,6 @@
 package com.example.mobileattester.data.network
 
+import android.util.Log
 import com.example.mobileattester.data.model.*
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonElement
@@ -9,6 +10,10 @@ import org.json.JSONArray
 import org.json.JSONObject
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import okhttp3.OkHttpClient
+
+import okhttp3.logging.HttpLoggingInterceptor
+
 
 /**
  * Middleman for REST-api service and X.
@@ -71,7 +76,7 @@ class AttestationDataHandlerImpl(
     private fun buildService() {
         val gson = GsonBuilder().setLenient().create()
 
-        apiService = Retrofit.Builder().baseUrl(initialUrl)
+        apiService = Retrofit.Builder().baseUrl(initialUrl).client(getOkHttpClient())
             .addConverterFactory(GsonConverterFactory.create(gson)).build()
             .create(AttestationDataService::class.java)
     }
@@ -81,6 +86,22 @@ class AttestationDataHandlerImpl(
         initialUrl = withUrl
         buildService()
         currentUrl.value = initialUrl
+    }
+
+    private fun getOkHttpClient(): OkHttpClient? {
+        //Log display level
+        val level = HttpLoggingInterceptor.Level.BODY
+        //New log interceptor
+        val loggingInterceptor = HttpLoggingInterceptor { message ->
+            Log.d("RETROFIT",
+                "OkHttp====Message:$message")
+        }
+        loggingInterceptor.level = level
+        //Custom OKHTTP
+        val httpClientBuilder = OkHttpClient.Builder()
+        //OKHTTP to add interceptors loggingInterceptor
+        httpClientBuilder.addInterceptor(loggingInterceptor)
+        return httpClientBuilder.build()
     }
 
     // TODO ----------------------------------------

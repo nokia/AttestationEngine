@@ -17,16 +17,13 @@ object Injector {
     // Change to edit batch size
     private const val DEFAULT_BATCH_SIZE = Int.MAX_VALUE
 
-    private val handler: AttestationDataHandler =
-        AttestationDataHandlerImpl("http://192.168.16.206:8520/")
-    private val attestationRepo: AttestationRepository = AttestationRepositoryImpl(handler)
-
-    init {
-        println("URL VALUE : ${handler.currentUrl.value}")
-
-    }
-
-    fun provideAttestationViewModelFactory(): ViewModelProvider.Factory {
+    /**
+     * @param address Address to init attestation service with
+     */
+    fun provideAttestationViewModelFactory(address: String): ViewModelProvider.Factory {
+        val handler: AttestationDataHandler =
+            AttestationDataHandlerImpl("http://$address/")
+        val attestationRepo: AttestationRepository = AttestationRepositoryImpl(handler)
 
         /*
             Here, Initialize the BatchedDataHandlers of different types.

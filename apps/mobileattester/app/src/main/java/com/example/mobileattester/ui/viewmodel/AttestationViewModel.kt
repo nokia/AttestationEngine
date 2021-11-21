@@ -3,6 +3,7 @@ package com.example.mobileattester.ui.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.mobileattester.data.model.Element
+import com.example.mobileattester.data.model.ElementResult
 import com.example.mobileattester.data.network.Response
 import com.example.mobileattester.data.repository.AttestationRepository
 import com.example.mobileattester.data.util.AttestationUtil
@@ -25,7 +26,10 @@ interface AttestationViewModel {
     fun filterElements(filters: String): List<Element>
     fun getMoreElements()
     fun refreshElements()
+    fun refreshElement(itemid: String)
 
+    /** Returns ElementResult if it exists in downloaded data */
+    fun findElementResult(resultId: String): ElementResult?
 
     /** Switch the base url used for the engine */
     fun switchBaseUrl(url: String)
@@ -63,15 +67,30 @@ class AttestationViewModelImpl(
     override fun getMoreElements() = elementDataHandler.fetchNextBatch()
     override fun filterElements(filters: String) = elementDataHandler.dataAsList(filters)
     override fun refreshElements() = elementDataHandler.refreshData(hardReset = true)
+    override fun refreshElement(itemid: String) = elementDataHandler.refreshSingleValue(itemid)
+
+    override fun findElementResult(resultId: String): ElementResult? {
+
+        val data = elementDataHandler.dataFlow.value.data ?: return null
+
+        for (element in data) {
+            element.results.find {
+                it.itemid == resultId
+            }?.let {
+                return it
+            }
+        }
+
+        return null
+    }
 
     override fun switchBaseUrl(url: String) {
+        println("SwitchedBaseUrl")
         repo.rebuildService(url)
         elementDataHandler.refreshData(hardReset = true)
     }
 
     override fun useAttestationUtil(): AttestationUtil = attestationUtil
-
-    //override fun getElementResults(itemid: String, limit: Int): List<ElementResult> = repo.getElementResults(itemid, limit)
 }
 
 class AttestationViewModelImplFactory(

@@ -17,14 +17,13 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.mobileattester.ui.components.common.LoadingIndicator
-import com.example.mobileattester.ui.theme.Error
-import com.example.mobileattester.ui.theme.Ok
-import com.example.mobileattester.ui.theme.Primary
+import com.example.mobileattester.ui.theme.*
 import com.example.mobileattester.ui.util.Preferences
 import com.example.mobileattester.ui.util.Screen
 import com.example.mobileattester.ui.util.parseBaseUrl
@@ -50,8 +49,6 @@ fun Home(navController: NavController? = null, viewModel: AttestationViewModel) 
     val scrollState = ScrollState(0)
 
 
-
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -68,12 +65,10 @@ fun Home(navController: NavController? = null, viewModel: AttestationViewModel) 
         ) {
 
             Text(
-                text = AnnotatedString(
-                    "Current Configuration",
-                    SpanStyle(Color.White, fontSize = 24.sp)
-                ),
-                modifier = Modifier.padding(0.dp, 15.dp, 0.dp, 5.dp)
-
+                text = "Current Configuration",
+                modifier = Modifier.padding(0.dp, 15.dp, 0.dp, 5.dp),
+                fontSize = FONTSIZE_XXL,
+                color = Color.White
             )
 
             // Current Engine
@@ -83,7 +78,6 @@ fun Home(navController: NavController? = null, viewModel: AttestationViewModel) 
                 onClick = {
                     showAllConfigurations = !showAllConfigurations
                 })
-
 
             if (showAllConfigurations) {
                 (list.value.filter { it != currentEngine }).forEach { engineAddress ->
@@ -152,7 +146,9 @@ fun Home(navController: NavController? = null, viewModel: AttestationViewModel) 
                 .clip(RoundedCornerShape(5, 5, 0, 0))
                 .background(Color.White)
         ) {
-            Content(navController, viewModel)
+            Column(Modifier.padding(4.dp)) {
+                Content(navController, viewModel)
+            }
         }
 
 
@@ -258,25 +254,19 @@ fun Content(navController: NavController? = null, viewModel: AttestationViewMode
     }
 
     Text(
-        text = AnnotatedString("Attestation Overview", SpanStyle(fontSize = 24.sp)),
+        text = "Attestation Overview",
         modifier = Modifier
             .fillMaxWidth()
             .padding(0.dp, 15.dp, 0.dp, 5.dp),
-        textAlign = TextAlign.Center
+        textAlign = TextAlign.Center,
+        fontSize = FONTSIZE_XXL
     )
+    Spacer(modifier = Modifier.size(10.dp))
     Alert("24h") { navController!!.navigate(Screen.Elements.route) }
+    Spacer(modifier = Modifier.size(20.dp))
     Alert("Past week") { navController!!.navigate(Screen.Elements.route) }
 
-
-
-    Text(
-        text = AnnotatedString("Debug", SpanStyle(fontSize = 24.sp)),
-        modifier = Modifier.padding(10.dp)
-    )
-
-    Text(text = elementCount.value.toString(), modifier = Modifier.padding(10.dp))
-
-    Spacer(modifier = Modifier.size(100.dp))
+    Spacer(modifier = Modifier.size(200.dp))
 }
 
 @Composable
@@ -287,20 +277,32 @@ fun Alert(
     onClick: () -> Unit = {},
 ) {
     Text(
-        text = AnnotatedString(alertDurationInfo, SpanStyle(fontSize = 24.sp)),
-        modifier = Modifier.padding(10.dp)
+        text = alertDurationInfo,
+        modifier = Modifier.padding(10.dp, 5.dp),
+        fontSize = FONTSIZE_XL
     )
-    Row(modifier = Modifier
-        .fillMaxWidth()
-        .clickable { onClick() }) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() },
+        Arrangement.SpaceBetween,
+        Alignment.CenterVertically
+    ) {
         Column(modifier = Modifier.padding(10.dp)) {
             Text(text = "Verified Attestations", color = Primary)
-            Row {
-                Icon(TablerIcons.ListSearch, contentDescription = null, tint = Primary)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    TablerIcons.ListSearch,
+                    contentDescription = null,
+                    tint = Primary,
+                    modifier = Modifier.size(28.dp),
+                )
                 Text(
                     (accepted + failed).toString(),
                     color = Primary,
-                    modifier = Modifier.padding(5.dp, 0.dp)
+                    modifier = Modifier.padding(5.dp, 0.dp),
+                    fontSize = FONTSIZE_LG,
+                    fontWeight = FontWeight.SemiBold
                 )
             }
         }
@@ -311,7 +313,9 @@ fun Alert(
                 Text(
                     accepted.toString(),
                     color = Ok,
-                    modifier = Modifier.padding(5.dp, 0.dp)
+                    modifier = Modifier.padding(5.dp, 0.dp),
+                    fontSize = FONTSIZE_LG,
+                    fontWeight = FontWeight.SemiBold
                 )
             }
         }
@@ -322,7 +326,9 @@ fun Alert(
                 Text(
                     failed.toString(),
                     color = Error,
-                    modifier = Modifier.padding(5.dp, 0.dp)
+                    modifier = Modifier.padding(5.dp, 0.dp),
+                    fontSize = FONTSIZE_LG,
+                    fontWeight = FontWeight.SemiBold
                 )
             }
         }
