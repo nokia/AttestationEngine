@@ -20,6 +20,7 @@ from flask import Flask, request, send_from_directory, jsonify
 from flask.json import JSONEncoder
 
 from flask_swagger import swagger
+import a10.asvr.rules.rule_dispatcher
 
 print(sys.path)
 
@@ -298,7 +299,7 @@ def updateEV():
 @a10rest.route("/claim/<itemid>", methods=["GET"])
 def getclaim(itemid):
     print("itemid", itemid)
-    e = claims.getClaimByID(itemid)
+    e = claims.getClaim(itemid)
 
     if e.rc() != constants.SUCCESS:
         return e.msg(), 404
@@ -382,6 +383,27 @@ def verify():
     else:
         return e.msg(), 201
 
+
+
+#
+# Rules
+#
+
+@a10rest.route("/rules", methods=["GET"])
+def getRules():
+    rs = list(a10.asvr.rules.rule_dispatcher.getRegisteredRules())
+
+    rsl = []
+    for r in rs:
+        rsl.append(
+            {
+                "name": r,
+                "description": a10.asvr.rules.rule_dispatcher.getRuleDescription(
+                    r
+                ).msg(),
+            }
+        )
+    return jsonify(rsl), 200
 
 #
 # Main
