@@ -3,6 +3,7 @@ package com.example.mobileattester.data.network
 import com.example.mobileattester.data.model.*
 import com.google.gson.GsonBuilder
 import kotlinx.coroutines.flow.MutableStateFlow
+import org.json.JSONArray
 import org.json.JSONObject
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -108,8 +109,15 @@ class AttestationDataHandlerImpl(
         return apiService.attestElement(params)
     }
 
-    override suspend fun verifyClaim(cid: String, rul: String) =
-        apiService.verifyClaim(cid, rul)
+    override suspend fun verifyClaim(cid: String, rul: String) {
+        println("OK")
+        val params = VerifyParams(
+            cid,
+            listOf(rul, "{}")
+        )
+        println("Params: $params")
+        apiService.verifyClaim(params)
+    }
 
     override suspend fun getRules(): List<Rule> = apiService.getRules()
     override suspend fun getClaim(itemid: String): Claim = apiService.getClaim(itemid)

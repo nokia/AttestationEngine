@@ -18,10 +18,10 @@ fun Claim(
     navController: NavController,
     attestationUtil: AttestationUtil,
 ) {
-    val claim = attestationUtil.attestationResult.collectAsState()
-    val formatted = JSONObject(claim.value.data.toString()).toString(2)
+    val claim = attestationUtil.claim.collectAsState()
+    val formatted = JSONObject(claim.value?.data.toString()).toString(2)
 
-    println("CLAIM SCREEN")
+
     LazyColumn(Modifier.fillMaxWidth()) {
         item {
             Text(modifier = Modifier.padding(16.dp), text = formatted)

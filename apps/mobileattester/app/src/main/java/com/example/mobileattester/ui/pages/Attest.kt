@@ -48,13 +48,15 @@ sealed class AttestationType(@StringRes val resId: Int) {
 
 /**
  * Provides attestation screen
+ *
+ * TODO Clean up.
  */
 @Composable
 fun Attest(navController: NavController, viewModel: AttestationViewModel) {
     val clickedElementId =
         navController.currentBackStackEntry?.arguments?.get(ARG_ITEM_ID).toString()
     val element = viewModel.getElementFromCache(clickedElementId) ?: run {
-        Text(text = "Error getting element data for id $clickedElementId")
+        Text(text = "Error getting element data for id: $clickedElementId")
         return
     }
 
@@ -63,11 +65,8 @@ fun Attest(navController: NavController, viewModel: AttestationViewModel) {
     val context = LocalContext.current
 
     val attestationStatus = u.attestationStatus.collectAsState().value
-    val lastClaimId = u.attestationResult.collectAsState().value
 
-    /**
-     * Attestation types are expected to have unique strings.
-     */
+    // Attestation types are expected to have unique strings.
     val attestTypes = AttestationType.getStringList(context)
     val selectedAttestType = remember {
         mutableStateOf(context.getString(AttestationType.Attest.resId))
@@ -85,11 +84,33 @@ fun Attest(navController: NavController, viewModel: AttestationViewModel) {
         mutableStateOf(rules.getOrNull(0)?.name ?: "")
     }
 
+    fun submit() {
+        u.reset()
+        scope.launch {
+            val policyId =
+                policies.find { it.name == selectedPolicy.value }?.itemid ?: kotlin.run {
+                    println("PolicyId not found")
+                    return@launch
+                }
+
+            val rule =
+                if (selectedAttestType.value == context.getString(AttestationType.Attest.resId)) {
+                    null
+                } else selectedRule
+
+            u.attest(element.itemid, policyId, rule?.value)
+        }
+    }
+
+    // Decide what to render
     when (attestationStatus) {
         AttestationStatus.LOADING -> LoadingFullScreen()
-        AttestationStatus.ERROR -> ErrorIndicator(msg = "Attestation error")
+        AttestationStatus.ERROR -> AttestationErrorScreen(
+            onReset = { u.reset() },
+            onRetry = { submit() },
+        )
         AttestationStatus.SUCCESS -> AttestationSuccessScreen(
-            onAgain = { u.reset() },
+            onReset = { u.reset() },
             onNav = { navController.navigate(Screen.Claim.route) },
         )
         AttestationStatus.IDLE -> AttestationConfig(
@@ -101,15 +122,7 @@ fun Attest(navController: NavController, viewModel: AttestationViewModel) {
             rules,
             selectedRule,
         ) {
-            scope.launch {
-                val policyId =
-                    policies.find { it.name == selectedPolicy.value }?.itemid ?: kotlin.run {
-                        println("PolicyId not found")
-                        return@launch
-                    }
-
-                u.attest(element.itemid, policyId)
-            }
+            submit()
         }
     }
 }
@@ -181,7 +194,7 @@ private fun AttestationConfig(
 
 @Composable
 private fun AttestationSuccessScreen(
-    onAgain: () -> Unit,
+    onReset: () -> Unit,
     onNav: () -> Unit,
 ) {
     Column(Modifier.fillMaxWidth(), Arrangement.Center, Alignment.CenterHorizontally) {
@@ -192,18 +205,41 @@ private fun AttestationSuccessScreen(
             contentDescription = null,
             tint = Ok,
         )
-        Text(modifier = Modifier.padding(32.dp), text = "Attestation successful", color = Ok)
+        Text(modifier = Modifier.padding(32.dp), text = "Claim received", color = Ok)
 
 
         Row(Modifier.fillMaxWidth(), Arrangement.Center, Alignment.CenterVertically) {
             Button(
-                onClick = { onAgain() }) {
-                Text(text = "Again", color = Color.White)
+                onClick = { onReset() }) {
+                Text(text = "Reset", color = Color.White)
             }
             Spacer(Modifier.size(16.dp))
             Button(
                 onClick = { onNav() }) {
                 Text(text = "See claim", color = Color.White)
+            }
+        }
+    }
+}
+
+@Composable
+private fun AttestationErrorScreen(
+    onReset: () -> Unit,
+    onRetry: () -> Unit,
+) {
+    Column(Modifier
+        .fillMaxWidth()
+        .padding(horizontal = 16.dp, vertical = 32.dp)) {
+        ErrorIndicator(msg = "Something went wrong")
+        Row(Modifier.fillMaxWidth(), Arrangement.Center, Alignment.CenterVertically) {
+            Button(
+                onClick = { onReset() }) {
+                Text(text = "Reset", color = Color.White)
+            }
+            Spacer(Modifier.size(16.dp))
+            Button(
+                onClick = { onRetry() }) {
+                Text(text = "Submit again", color = Color.White)
             }
         }
     }

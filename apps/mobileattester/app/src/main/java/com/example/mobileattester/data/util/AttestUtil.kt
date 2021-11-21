@@ -6,15 +6,20 @@ import com.example.mobileattester.data.model.ElementResult
 import com.example.mobileattester.data.model.Policy
 import com.example.mobileattester.data.model.Rule
 import com.example.mobileattester.data.network.*
-import com.example.mobileattester.ui.pages.AttestationType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
 
-enum class AttestationStatus(val msg: String = "") {
+enum class AttestationStatus(msg: String = "") {
     IDLE, LOADING, ERROR, SUCCESS
+}
+
+sealed class AttestationResponse<T>(val data: Response<T>) {
+    class AttestOnly(data: Response<Claim>) : AttestationResponse<Claim>(data)
+    class AttestVerify(data: Response<ElementResult>) : AttestationResponse<ElementResult>(data)
 }
 
 interface AttestationUtil {
@@ -27,15 +32,20 @@ interface AttestationUtil {
 
     val attestationStatus: MutableStateFlow<AttestationStatus>
 
-    val attestationResult: MutableStateFlow<Response<>>
+    /** Last successfully created claim */
+    val claim: MutableStateFlow<Response<Claim>?>
+
+    /** Last result from attestation */
+    val result: MutableStateFlow<Response<ElementResult>?>
+
 
     /**
      * Attest an element.
-     * If rule is provided, also sends a verification request for the claim.
+     * If rule is provided, also sends a verification request for the received claim.
      */
     fun attest(eid: String, pid: String, rule: String? = null)
 
-    // Reset the attestation state
+    /** Reset status+claim+result, cancel running coroutines */
     fun reset()
 }
 
@@ -59,8 +69,8 @@ class AttestUtil(
         MutableStateFlow(Response.loading())
 
     override val attestationStatus: MutableStateFlow<AttestationStatus> = _stat
-    override val attestationResult: MutableStateFlow<AttestationResponse<Any>> =
-        MutableStateFlow(AttestationResponse.Empty())
+    override val claim: MutableStateFlow<Response<Claim>?> = MutableStateFlow(null)
+    override val result: MutableStateFlow<Response<ElementResult>?> = MutableStateFlow(null)
 
     init {
         scope.launch {
@@ -84,43 +94,48 @@ class AttestUtil(
                 ) {
                     when (rule) {
                         null -> attestOnly(eid, pid)
-                        else -> attestVerify(pid, eid, rule)
+                        else -> attestVerify(eid, pid, rule)
                     }
                     setStatus(AttestationStatus.SUCCESS)
                 }
             } catch (e: Exception) {
-                Log.d(TAG, "attest: ")
+                Log.d(TAG, "attest error: $e")
                 setStatus(AttestationStatus.ERROR)
             }
         }
     }
 
     override fun reset() {
+        job.cancelChildren()
         setStatus(AttestationStatus.IDLE)
+        claim.value = null
+        result.value = null
     }
 
-    // ---- Private ----
+    // ----------------------- Private ---------------------------
+    // ----------------------- Private ---------------------------
 
     private suspend fun attestOnly(eid: String, pid: String) {
         val claimId = dataHandler.attestElement(eid, pid)
         println("Attest only response: $claimId")
 
         try {
-            val claim = dataHandler.getClaim(claimId)
-            attestationResult.value = Response.success(claim)
+            val c = dataHandler.getClaim(claimId)
+            claim.value = Response.success(c)
         } catch (e: Exception) {
-            attestationResult.value = Response.error(message = "Error getting claim data $e")
+            println("ATTEST ERROR $e")
+            claim.value = Response.error(message = "Error attesting element $e")
         }
     }
 
     private suspend fun attestVerify(eid: String, pid: String, rule: String) {
+        println("ATTEST + VERIFY CALLED")
         val claimId = dataHandler.attestElement(eid, pid)
 
-        try {
-            dataHandler.verifyClaim(claimId, rule)
-        } catch (e: Exception) {
+        println("CLAIM ID GOTTEN: $claimId, SENDING VERIFICATION REQ")
 
-        }
+        dataHandler.verifyClaim(claimId, rule)
+        println("CLAIM VERIFIED??")
     }
 
     private fun setStatus(status: AttestationStatus) {

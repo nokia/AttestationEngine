@@ -76,7 +76,7 @@ interface AttestationDataService {
     suspend fun attestElement(@Body body: AttestationParams): String
 
     @POST("verify")
-    suspend fun verifyClaim(@Body cid: String, @Body rul: String)
+    suspend fun verifyClaim(@Body body: VerifyParams)
 
     /**
     Rules

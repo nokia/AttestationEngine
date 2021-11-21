@@ -8,7 +8,6 @@ import com.example.mobileattester.data.repository.AttestationRepositoryImpl
 import com.example.mobileattester.data.util.AttestUtil
 import com.example.mobileattester.data.util.ElementDataHandler
 import com.example.mobileattester.data.util.PolicyDataHandler
-import com.example.mobileattester.data.util.RuleDataHandler
 import com.example.mobileattester.ui.util.Preferences
 import com.example.mobileattester.ui.viewmodel.AttestationViewModelImplFactory
 

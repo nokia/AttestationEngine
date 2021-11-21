@@ -33,12 +33,6 @@ class PolicyDataHandler(
     fetchDataForId: FetchIdData<String, Policy>,
 ) : BatchedDataHandler<String, Policy>(batchSize, fetchIdList, fetchDataForId)
 
-class RuleDataHandler(
-    batchSize: Int,
-    fetchIdList: FetchIdList<String>,
-    fetchDataForId: FetchIdData<String, Rule>,
-) : BatchedDataHandler<String, Rule>(batchSize, fetchIdList, fetchDataForId)
-
 
 // ------------------------------------------------------------------------------------------
 // --------------- Abstract class for above to handle data in batches -----------------------
