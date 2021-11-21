@@ -1,6 +1,7 @@
 package com.example.mobileattester.data.network
 
 import com.example.mobileattester.data.model.Element
+import com.example.mobileattester.data.model.ElementResult
 import com.example.mobileattester.data.model.ExpectedValue
 import com.example.mobileattester.data.model.Policy
 import retrofit2.http.GET
@@ -47,4 +48,11 @@ interface AttestationDataService {
         @Path("eid") elementId: String,
         @Path("pid") policyId: String
     ): ExpectedValue
+
+    /**
+    Results
+     */
+
+    @GET("result/element/latest/{itemid}/{limit}")
+    suspend fun getElementResults(@Path("itemid") itemid: String, @Path("limit") limit: String): List<ElementResult>
 }

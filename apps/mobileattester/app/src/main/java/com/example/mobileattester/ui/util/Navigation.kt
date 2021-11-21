@@ -27,11 +27,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.mobileattester.R
-import com.example.mobileattester.ui.pages.Home
-import com.example.mobileattester.ui.pages.Element
-import com.example.mobileattester.ui.pages.Elements
-import com.example.mobileattester.ui.pages.More
-import com.example.mobileattester.ui.pages.Scanner
+import com.example.mobileattester.ui.pages.*
 import com.example.mobileattester.ui.viewmodel.AttestationViewModelImpl
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import compose.icons.TablerIcons
@@ -58,6 +54,7 @@ sealed class Screen(val route: String, @StringRes val stringResId: Int) {
     object Scanner : Screen("scanner", R.string.nav_scanner)
     object More : Screen("more", R.string.nav_more)
     object Element : Screen("element", R.string.nav_element)
+    object Attest : Screen("attest", R.string.nav_attest)
 }
 
 @ExperimentalPermissionsApi
@@ -65,7 +62,7 @@ object NavUtils {
     /**
      * Top nav destinations for the application (Bottom nav locations)
      */
-    private val topNavDestinations = listOf<Screen>(
+    private val bottomNavDestinations = listOf<Screen>(
         Screen.Home,
         Screen.Elements,
         Screen.Scanner,
@@ -88,9 +85,11 @@ object NavUtils {
                 BottomBar(navController)
             },
         ) { innerPadding ->
-            NavHost(navController,
+            NavHost(
+                navController,
                 startDestination = Screen.Home.route,
-                Modifier.padding(innerPadding)) {
+                Modifier.padding(innerPadding)
+            ) {
                 // Add new nav destinations here after Screen for it is created
                 composable(Screen.Home.route) {
                     showTopBar.value = true; Home(navController, viewModel)
@@ -105,6 +104,9 @@ object NavUtils {
                 composable(Screen.Element.route) {
                     showTopBar.value = true; Element(navController, viewModel)
                 }
+                composable(Screen.Attest.route) {
+                    showTopBar.value = true; Attest(navController, viewModel)
+                }
             }
         }
     }
@@ -115,7 +117,7 @@ object NavUtils {
             val navBackStackEntry by navController.currentBackStackEntryAsState()
             val currentDestination = navBackStackEntry?.destination
 
-            topNavDestinations.forEach { screen ->
+            bottomNavDestinations.forEach { screen ->
                 BottomNavigationItem(
                     icon = {
                         Icon(getRouteIcon(screen), contentDescription = null)
@@ -123,18 +125,20 @@ object NavUtils {
                     label = { Text(stringResource(screen.stringResId)) },
                     selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
                     onClick = {
-                        navController.navigate(screen.route) {
-                            while (navController.popBackStack()) {
-                            } // Remove backstack for back button
-                            popUpTo(navController.graph.findStartDestination().id) {
-                                saveState = true
+                        if (screen.route != currentDestination?.route)
+                            navController.navigate(screen.route) {
+                                while (navController.popBackStack()) {
+                                } // Remove backstack for back button
+
+                                popUpTo(navController.graph.findStartDestination().id) {
+                                    saveState = true
+                                }
+                                // Avoid multiple copies of the same destination when
+                                // reselecting the same item
+                                launchSingleTop = true
+                                // Restore state when reselecting a previously selected item
+                                restoreState = true
                             }
-                            // Avoid multiple copies of the same destination when
-                            // reselecting the same item
-                            launchSingleTop = true
-                            // Restore state when reselecting a previously selected item
-                            restoreState = true
-                        }
                     },
 
                     )
@@ -147,7 +151,7 @@ object NavUtils {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentRoute = navBackStackEntry?.destination?.route
         val screen = currentRoute?.let { Screen.getScreenFromRoute(it) } ?: return
-        val isTopDestination = topNavDestinations.contains(screen)
+        val isTopDestination = bottomNavDestinations.contains(screen)
 
         // This avoids an empty space in the top bar if the back icon is not needed
         if (isTopDestination) {

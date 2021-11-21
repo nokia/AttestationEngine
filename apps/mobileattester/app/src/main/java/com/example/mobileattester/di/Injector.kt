@@ -3,6 +3,7 @@ package com.example.mobileattester.di
 import androidx.lifecycle.ViewModelProvider
 import com.example.mobileattester.data.network.AttestationDataHandlerImpl
 import com.example.mobileattester.data.repository.AttestationRepositoryImpl
+import com.example.mobileattester.data.util.ElementDataHandler
 import com.example.mobileattester.ui.viewmodel.AttestationViewModelImplFactory
 
 object Injector {
@@ -13,6 +14,7 @@ object Injector {
     fun provideAttestationViewModelFactory(baseUrl: String): ViewModelProvider.Factory {
         val handler = AttestationDataHandlerImpl(baseUrl)
         val repo = AttestationRepositoryImpl(handler)
-        return AttestationViewModelImplFactory(repo)
+        val elementDataHandler = ElementDataHandler(repo, batchSize = 5)
+        return AttestationViewModelImplFactory(repo, elementDataHandler)
     }
 }

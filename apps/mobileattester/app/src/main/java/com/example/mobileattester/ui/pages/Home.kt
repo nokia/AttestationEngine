@@ -2,12 +2,9 @@ package com.example.mobileattester.ui.pages
 
 import android.net.InetAddresses
 import android.os.Build
-import android.util.Log
 import android.util.Patterns
 import android.widget.Toast
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -24,6 +21,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.mobileattester.ui.components.common.LoadingIndicator
 import com.example.mobileattester.ui.util.Preferences
 import com.example.mobileattester.ui.util.Screen
 import com.example.mobileattester.ui.util.parseBaseUrl
@@ -32,25 +30,31 @@ import compose.icons.TablerIcons
 import compose.icons.tablericons.*
 import kotlinx.coroutines.launch
 
+
 @Composable
 fun Home(navController: NavController? = null, viewModel: AttestationViewModel) {
     val context = LocalContext.current
-    val currentUrl = viewModel.currentUrl.collectAsState().value
-    val currentEngine = parseBaseUrl(currentUrl)
+    val currentUrl = viewModel.currentUrl.collectAsState()
+    val currentEngine = parseBaseUrl(currentUrl.value)
 
     val preferences = Preferences(LocalContext.current)
     val list = preferences.engines.collectAsState(initial = sortedSetOf<String>())
 
+    if (list.value.isNotEmpty() && !list.value.contains(currentEngine)) viewModel.switchBaseUrl("http://${list.value.first()}/")
+
     var showAllConfigurations by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
+    val scrollState = ScrollState(0)
 
-    Log.e("currentEngine", currentEngine)
+
+
 
     Column(
         modifier = Modifier
             .fillMaxSize()
             .background(Color(13, 110, 253))
-            .border(0.dp, Color.Transparent),
+            .border(0.dp, Color.Transparent)
+            .verticalScroll(scrollState),
     ) {
         // Top Bar
         Column(
@@ -60,9 +64,14 @@ fun Home(navController: NavController? = null, viewModel: AttestationViewModel) 
                 .border(0.dp, Color.Transparent),
         ) {
 
-            Text(text = AnnotatedString("Current Configuration",
-                SpanStyle(Color.White, fontSize = 24.sp)),
-                modifier = Modifier.padding(0.dp, 15.dp, 0.dp, 5.dp))
+            Text(
+                text = AnnotatedString(
+                    "Current Configuration",
+                    SpanStyle(Color.White, fontSize = 24.sp)
+                ),
+                modifier = Modifier.padding(0.dp, 15.dp, 0.dp, 5.dp)
+
+            )
 
             // Current Engine
             ConfigurationButton(text = currentEngine,
@@ -74,7 +83,7 @@ fun Home(navController: NavController? = null, viewModel: AttestationViewModel) 
 
 
             if (showAllConfigurations) {
-                list.value.filter { it != currentEngine }.forEach { engineAddress ->
+                (list.value.filter { it != currentEngine }).forEach { engineAddress ->
                     ConfigurationButton(
                         text = engineAddress,
                         onClick = {
@@ -82,7 +91,6 @@ fun Home(navController: NavController? = null, viewModel: AttestationViewModel) 
 
                             // Refresh
                             showAllConfigurations = false
-                            showAllConfigurations = true
                         },
                         onIconClick = {
                             list.value.remove(it)
@@ -98,6 +106,7 @@ fun Home(navController: NavController? = null, viewModel: AttestationViewModel) 
                         },
                     )
                 }
+
 
                 ConfigurationButton(text = "Ipaddress:port",
                     name = "",
@@ -124,20 +133,26 @@ fun Home(navController: NavController? = null, viewModel: AttestationViewModel) 
                                 showAllConfigurations = true
                             }
                         } else {
-                            Toast.makeText(context,
+                            Toast.makeText(
+                                context,
                                 "${if (!validAddress) "Address" else "Port"} is invalid",
-                                Toast.LENGTH_SHORT).show()
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
                     })
             }
         }
         // Content
-        Column(modifier = Modifier
-            .fillMaxSize()
-            .clip(RoundedCornerShape(5, 5, 0, 0))
-            .background(Color.White)) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .clip(RoundedCornerShape(5, 5, 0, 0))
+                .background(Color.White)
+        ) {
             Content(navController, viewModel)
         }
+
+
     }
 }
 
@@ -151,13 +166,17 @@ fun ConfigurationButton(
     onTextChange: (String) -> Unit = {},
     onIconClick: (String) -> Unit = {},
 ) {
-    Button(modifier = Modifier
-        .fillMaxWidth()
-        .padding(0.dp, 5.dp),
+    Button(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(0.dp, 5.dp),
         onClick = { onClick(text) },
-        colors = ButtonDefaults.buttonColors(backgroundColor = Color.Transparent,
-            contentColor = Color.White),
-        elevation = null) {
+        colors = ButtonDefaults.buttonColors(
+            backgroundColor = Color.Transparent,
+            contentColor = Color.White
+        ),
+        elevation = null
+    ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -170,7 +189,8 @@ fun ConfigurationButton(
                 if (!editable) {
                     Text(name)
                     Text(text)
-                } else OutlinedTextField(value = input,
+                } else OutlinedTextField(
+                    value = input,
                     label = { Text(text) },
                     onValueChange = { input = it; onTextChange(input) },
                     singleLine = true,
@@ -179,7 +199,8 @@ fun ConfigurationButton(
                         focusedLabelColor = Color.White,
                         unfocusedBorderColor = Color.White,
                         focusedBorderColor = Color.White,
-                    ))
+                    )
+                )
             }
 
             IconButton(onClick = { if (!editable) onIconClick(text) else onIconClick(input) }) {
@@ -192,42 +213,63 @@ fun ConfigurationButton(
 @Composable
 fun Content(navController: NavController? = null, viewModel: AttestationViewModel) {
     val elementCount = viewModel.elementCount.collectAsState()
+    val refreshing = viewModel.isRefreshing.collectAsState()
 
-    Row(modifier = Modifier
-        .padding(15.dp)
-        .fillMaxWidth()) {
-        Icon(TablerIcons.DeviceDesktop,
-            contentDescription = null,
-            modifier = Modifier
-                .padding(5.dp, 0.dp)
-                .align(Alignment.CenterVertically)
-                .size(25.dp))
-        Text("System Devices",
-            modifier = Modifier
-                .padding(5.dp, 0.dp)
-                .align(Alignment.CenterVertically),
-            fontSize = 18.sp)
-        Text(AnnotatedString(elementCount.value.toString()),
-            modifier = Modifier
-                .padding(5.dp, 0.dp)
-                .align(Alignment.CenterVertically)
-                .fillMaxWidth(),
-            textAlign = TextAlign.End,
-            fontSize = 24.sp)
+    Row(
+        modifier = Modifier
+            .padding(15.dp)
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Row() {
+            Icon(
+                TablerIcons.DeviceDesktop,
+                contentDescription = null,
+                modifier = Modifier
+                    .padding(5.dp, 0.dp)
+                    .align(Alignment.CenterVertically)
+                    .size(25.dp)
+            )
+            Text(
+                "System Devices",
+                modifier = Modifier
+                    .padding(5.dp, 0.dp)
+                    .align(Alignment.CenterVertically),
+                fontSize = 18.sp
+            )
+        }
+
+        if (refreshing.value) {
+            LoadingIndicator()
+        } else {
+            Text(
+                AnnotatedString(elementCount.value.toString()),
+                modifier = Modifier
+                    .padding(5.dp, 0.dp)
+                    .align(Alignment.CenterVertically)
+                    .fillMaxWidth(),
+                textAlign = TextAlign.End,
+                fontSize = 24.sp
+            )
+        }
     }
 
-    Text(text = AnnotatedString("Attestation Overview", SpanStyle(fontSize = 24.sp)),
+    Text(
+        text = AnnotatedString("Attestation Overview", SpanStyle(fontSize = 24.sp)),
         modifier = Modifier
             .fillMaxWidth()
             .padding(0.dp, 15.dp, 0.dp, 5.dp),
-        textAlign = TextAlign.Center)
+        textAlign = TextAlign.Center
+    )
     Alert("24h") { navController!!.navigate(Screen.Elements.route) }
     Alert("Past week") { navController!!.navigate(Screen.Elements.route) }
 
 
 
-    Text(text = AnnotatedString("Debug", SpanStyle(fontSize = 24.sp)),
-        modifier = Modifier.padding(10.dp))
+    Text(
+        text = AnnotatedString("Debug", SpanStyle(fontSize = 24.sp)),
+        modifier = Modifier.padding(10.dp)
+    )
 
     Text(text = elementCount.value.toString(), modifier = Modifier.padding(10.dp))
 }
@@ -239,8 +281,10 @@ fun Alert(
     failed: Int = 0,
     onClick: () -> Unit = {},
 ) {
-    Text(text = AnnotatedString(alertDurationInfo, SpanStyle(fontSize = 24.sp)),
-        modifier = Modifier.padding(10.dp))
+    Text(
+        text = AnnotatedString(alertDurationInfo, SpanStyle(fontSize = 24.sp)),
+        modifier = Modifier.padding(10.dp)
+    )
     Row(modifier = Modifier
         .fillMaxWidth()
         .clickable { onClick() }) {
@@ -248,32 +292,40 @@ fun Alert(
             Text(text = "Verified Attestations", color = Color(13, 110, 253))
             Row {
                 Icon(TablerIcons.ListSearch, contentDescription = null, tint = Color(13, 110, 253))
-                Text((accepted + failed).toString(),
+                Text(
+                    (accepted + failed).toString(),
                     color = Color(13, 110, 253),
-                    modifier = Modifier.padding(5.dp, 0.dp))
+                    modifier = Modifier.padding(5.dp, 0.dp)
+                )
             }
         }
         Column(modifier = Modifier.padding(10.dp)) {
             Text(text = "Accepted", color = Color(41, 113, 73))
             Row {
                 Icon(TablerIcons.SquareCheck, contentDescription = null, tint = Color(41, 113, 73))
-                Text(accepted.toString(),
+                Text(
+                    accepted.toString(),
                     color = Color(41, 113, 73),
-                    modifier = Modifier.padding(5.dp, 0.dp))
+                    modifier = Modifier.padding(5.dp, 0.dp)
+                )
             }
         }
         Column(modifier = Modifier.padding(10.dp)) {
             Text(text = "Failed", color = Color(173, 0, 32))
             Row {
                 Icon(TablerIcons.SquareX, contentDescription = null, tint = Color(173, 0, 32))
-                Text(failed.toString(),
+                Text(
+                    failed.toString(),
                     color = Color(173, 0, 32),
-                    modifier = Modifier.padding(5.dp, 0.dp))
+                    modifier = Modifier.padding(5.dp, 0.dp)
+                )
             }
         }
-        Column(modifier = Modifier
-            .padding(10.dp)
-            .align(Alignment.CenterVertically)) {
+        Column(
+            modifier = Modifier
+                .padding(10.dp)
+                .align(Alignment.CenterVertically)
+        ) {
             Icon(TablerIcons.ChevronRight, contentDescription = null)
         }
     }

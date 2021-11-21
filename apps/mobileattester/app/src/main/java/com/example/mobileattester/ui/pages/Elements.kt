@@ -21,7 +21,6 @@ import com.example.mobileattester.data.model.Element
 import com.example.mobileattester.ui.components.SearchBar
 import com.example.mobileattester.ui.components.TagRow
 import com.example.mobileattester.ui.components.common.HeaderRoundedBottom
-import com.example.mobileattester.ui.components.common.TextClickableWithIcon
 import com.example.mobileattester.ui.theme.DarkGrey
 import com.example.mobileattester.ui.theme.DividerColor
 import com.example.mobileattester.ui.util.Screen
@@ -31,7 +30,6 @@ import com.example.mobileattester.ui.viewmodel.AttestationViewModelImpl.Companio
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import compose.icons.TablerIcons
-import compose.icons.tablericons.ChevronDown
 import compose.icons.tablericons.ChevronRight
 
 @Composable
@@ -40,6 +38,8 @@ fun Elements(navController: NavController, viewModel: AttestationViewModel) {
     val lastIndex = viewModel.elementFlow.collectAsState().value.lastIndex
     val isLoading = viewModel.isLoading.collectAsState()
     val isRefreshing = viewModel.isRefreshing.collectAsState()
+
+    val filters = remember { mutableStateOf(TextFieldValue()) }
 
     // Navigate to single element view, pass clicked id as argument
     fun onElementClicked(itemid: String) {
@@ -54,14 +54,17 @@ fun Elements(navController: NavController, viewModel: AttestationViewModel) {
 
             // Header
             item {
-                ElementListHeader()
+                HeaderRoundedBottom {
+                    SearchBar(filters, stringResource(id = R.string.placeholder_search_elementlist))
+                }
                 Spacer(modifier = Modifier.size(5.dp))
             }
 
             // List of the elements
-            itemsIndexed(elementState.value) { index, element ->
+            itemsIndexed(if(filters.value.text.isEmpty()) elementState.value else viewModel.filterElements(filters.value.text)) { index, element ->
                 println("rendering index: $index // $lastIndex ")
                 if (index + FETCH_START_BUFFER >= lastIndex) {
+
                     viewModel.getMoreElements()
                 }
 
@@ -73,9 +76,10 @@ fun Elements(navController: NavController, viewModel: AttestationViewModel) {
 
             // Footer
             item {
-                Row(Modifier
-                    .fillMaxWidth()
-                    .padding(24.dp),
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(24.dp),
                     horizontalArrangement = Arrangement.Center) {
                     if (isLoading.value) {
                         CircularProgressIndicator(modifier = Modifier.size(32.dp),
@@ -88,22 +92,6 @@ fun Elements(navController: NavController, viewModel: AttestationViewModel) {
         }
     }
 
-}
-
-@Composable
-private fun ElementListHeader() {
-    val text = remember {
-        mutableStateOf(TextFieldValue())
-    }
-
-    HeaderRoundedBottom {
-        SearchBar(text, stringResource(id = R.string.placeholder_search_elementlist))
-        TextClickableWithIcon(text = stringResource(id = R.string.elementlist_additional),
-            icon = TablerIcons.ChevronDown,
-            onClick = {
-                // TODO
-            })
-    }
 }
 
 @Composable

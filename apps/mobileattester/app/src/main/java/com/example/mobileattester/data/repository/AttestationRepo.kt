@@ -1,9 +1,11 @@
 package com.example.mobileattester.data.repository
 
 import com.example.mobileattester.data.model.Element
+import com.example.mobileattester.data.model.ElementResult
 import com.example.mobileattester.data.model.ExpectedValue
 import com.example.mobileattester.data.model.Policy
 import com.example.mobileattester.data.network.AttestationDataHandler
+import com.example.mobileattester.data.util.BatchedDataProvider
 import kotlinx.coroutines.flow.MutableStateFlow
 
 /**
@@ -30,11 +32,14 @@ interface AttestationRepository {
     // --- Expected values ---
     suspend fun getExpectedValue(itemid: String): ExpectedValue
     suspend fun getExpectedValueByElementPolicyIds(eid: String, pid: String): ExpectedValue
+
+    // --- Results ---
+    suspend fun getElementResults(itemid: String, limit: Int = 100): List<ElementResult>
 }
 
 class AttestationRepositoryImpl(
     private val handler: AttestationDataHandler,
-) : AttestationRepository {
+) : AttestationRepository, BatchedDataProvider<String,Element> {
 
     override val currentUrl: MutableStateFlow<String> = handler.currentUrl
 
@@ -55,4 +60,17 @@ class AttestationRepositoryImpl(
         pid: String,
     ): ExpectedValue = handler.getExpectedValueByElementPolicyIds(eid, pid)
 
+    override suspend fun getElementResults(itemid: String, limit: Int): List<ElementResult> = handler.getElementResults(itemid, limit)
+
+    override suspend fun getIdList(): List<String> = getElementIds()
+    override suspend fun getDataForId(id: String): Element {
+        val element = getElement(id)
+
+        try { element.results = getElementResults(element.itemid) }
+        catch(err : Error) {
+            element.results = listOf()
+        }
+
+        return element
+    }
 }
