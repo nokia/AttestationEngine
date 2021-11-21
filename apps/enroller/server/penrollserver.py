@@ -41,17 +41,25 @@ def credentialcheck():
     ekpub = content["ekpub"]
     akname = content["akname"]
 
+    print(str(akname))
+
+    #print("\ntype ",type(ekpub),ekpub.encode('ascii'))
+    #print("akn  ",type(akname),akname.encode('ascii'))
+
     # generate secret
     # This must be a maximum of 32 bytes for makecredential - it is possible that your TPM might vary, but 32 seems to be usual
     alphabet = string.ascii_letters + string.digits
-    secret = "".join(secrets.choice(alphabet) for i in range(30))
-    print("Secret is ", secret)
+    secret = "".join(secrets.choice(alphabet) for i in range(16))
+    #print("Secret is ", secret)
 
     # makecredential
     with ESAPI("mssim:host=localhost,port=2321") as e:
-        temphandle = e.tr_from_tpmpublic(0x81010004)
-        print("Typ=", type(temphandle))
-        bincred, encsecret = e.makecredential(temphandle, TPMS2B_DIGEST(ekpub), akname)
+        pub = TPM2B_PUBLIC.from_pem(ekpub.encode('ascii'))
+        h =  e.load_external(None, pub)
+        print( e.tr_get_name(h) )
+        print( pub.get_name() )
+        cred,csec = e.make_credential(h, TPM2B_DIGEST(secret), TPM2B_NAME(akname))
+
 
     # if that worked then create a session ID and add that with the secret to the enrollmentdb
     sessionid = str(uuid.uuid4())
