@@ -18,8 +18,10 @@ import androidx.core.os.bundleOf
 import androidx.navigation.NavController
 import com.example.mobileattester.R
 import com.example.mobileattester.data.model.Element
+import com.example.mobileattester.data.network.Status
 import com.example.mobileattester.ui.components.SearchBar
 import com.example.mobileattester.ui.components.TagRow
+import com.example.mobileattester.ui.components.common.ErrorIndicator
 import com.example.mobileattester.ui.components.common.HeaderRoundedBottom
 import com.example.mobileattester.ui.theme.DarkGrey
 import com.example.mobileattester.ui.theme.DividerColor
@@ -34,24 +36,35 @@ import compose.icons.tablericons.ChevronRight
 
 @Composable
 fun Elements(navController: NavController, viewModel: AttestationViewModel) {
-    val elementState = viewModel.elementFlow.collectAsState()
-    val lastIndex = viewModel.elementFlow.collectAsState().value.lastIndex
-    val isLoading = viewModel.isLoading.collectAsState()
-    val isRefreshing = viewModel.isRefreshing.collectAsState()
+    val response = viewModel.elementFlowResponse.collectAsState().value
 
-    val filters = remember { mutableStateOf(TextFieldValue()) }
+    when (response.status) {
+        Status.ERROR -> ErrorIndicator(msg = response.message.toString())
+        else -> RenderElementList(navController, viewModel)
+    }
+
+}
+
+@Composable
+private fun RenderElementList(navController: NavController, viewModel: AttestationViewModel) {
 
     // Navigate to single element view, pass clicked id as argument
     fun onElementClicked(itemid: String) {
         navController.navigate(Screen.Element.route, bundleOf(Pair(ARG_ITEM_ID, itemid)))
     }
 
+    val elements = viewModel.elementFlowResponse.collectAsState().value.data ?: listOf()
+    val lastIndex = viewModel.elementFlowResponse.collectAsState().value.data?.lastIndex ?: 0
+
+    val isRefreshing = viewModel.isRefreshing.collectAsState()
+    val filters = remember { mutableStateOf(TextFieldValue()) }
+    val isLoading = viewModel.isLoading.collectAsState()
+
     SwipeRefresh(
         state = rememberSwipeRefreshState(isRefreshing.value),
         onRefresh = { viewModel.refreshElements() },
     ) {
         LazyColumn() {
-
             // Header
             item {
                 HeaderRoundedBottom {
@@ -61,10 +74,9 @@ fun Elements(navController: NavController, viewModel: AttestationViewModel) {
             }
 
             // List of the elements
-            itemsIndexed(if(filters.value.text.isEmpty()) elementState.value else viewModel.filterElements(filters.value.text)) { index, element ->
-                println("rendering index: $index // $lastIndex ")
+            itemsIndexed(if (filters.value.text.isEmpty()) elements else viewModel.filterElements(
+                filters.value.text)) { index, element ->
                 if (index + FETCH_START_BUFFER >= lastIndex) {
-
                     viewModel.getMoreElements()
                 }
 
@@ -91,7 +103,6 @@ fun Elements(navController: NavController, viewModel: AttestationViewModel) {
             }
         }
     }
-
 }
 
 @Composable
@@ -102,10 +113,10 @@ private fun ElementListItem(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 12.dp, bottom = 18.dp)
             .clickable {
                 onElementClick(element.itemid)
-            },
+            }
+            .padding(top = 12.dp, bottom = 18.dp, start = 4.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
