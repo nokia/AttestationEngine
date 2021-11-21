@@ -2,12 +2,9 @@ package com.example.mobileattester.data.model
 
 import com.google.gson.annotations.SerializedName
 
-/**
- * Represents an Element in the application.
- * This should contain all the data we are interested to see in the UI.
- */
+const val CODE_RESULT_OK = 0
+
 data class ElementResult(
-    @SerializedName("_id") val resultId: String,
     // missing "additional: []"
     val claimID: String,
     val elementID: String,

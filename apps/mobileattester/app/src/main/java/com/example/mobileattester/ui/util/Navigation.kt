@@ -56,6 +56,7 @@ sealed class Screen(val route: String, @StringRes val stringResId: Int) {
     object Element : Screen("element", R.string.nav_element)
     object Attest : Screen("attest", R.string.nav_attest)
     object Claim : Screen("claim", R.string.nav_claim)
+    object Result : Screen("result", R.string.nav_result)
 }
 
 @ExperimentalPermissionsApi
@@ -110,6 +111,10 @@ object NavUtils {
                 }
                 composable(Screen.Claim.route) {
                     showTopBar.value = true; Claim(navController, viewModel.useAttestationUtil())
+                }
+                composable(Screen.Result.route) {
+                    showTopBar.value =
+                        true; ResultScreenProvider(resultFlow = viewModel.useAttestationUtil().result)
                 }
             }
         }

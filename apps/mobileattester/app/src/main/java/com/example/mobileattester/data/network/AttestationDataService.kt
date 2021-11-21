@@ -60,6 +60,11 @@ interface AttestationDataService {
     Results
      */
 
+
+    @GET("result/{itemid}")
+    suspend fun getResult(@Path("itemid") itemid: String): ElementResult
+
+
     @GET("result/element/latest/{itemid}/{limit}")
     suspend fun getElementResults(
         @Path("itemid") itemid: String,
@@ -76,7 +81,7 @@ interface AttestationDataService {
     suspend fun attestElement(@Body body: AttestationParams): String
 
     @POST("verify")
-    suspend fun verifyClaim(@Body body: VerifyParams)
+    suspend fun verifyClaim(@Body body: VerifyParams): String
 
     /**
     Rules

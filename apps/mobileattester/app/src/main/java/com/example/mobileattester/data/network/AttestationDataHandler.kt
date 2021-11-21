@@ -2,6 +2,8 @@ package com.example.mobileattester.data.network
 
 import com.example.mobileattester.data.model.*
 import com.google.gson.GsonBuilder
+import com.google.gson.JsonElement
+import com.google.gson.JsonObject
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.json.JSONArray
 import org.json.JSONObject
@@ -35,11 +37,12 @@ interface AttestationDataHandler {
     suspend fun getExpectedValueByElementPolicyIds(eid: String, pid: String): ExpectedValue
 
     // --- Results ---
+    suspend fun getResult(itemid: String): ElementResult
     suspend fun getElementResults(itemid: String, limit: Int): List<ElementResult>
 
     // --- Attestation ---
     suspend fun attestElement(eid: String, pid: String): String
-    suspend fun verifyClaim(cid: String, rul: String)
+    suspend fun verifyClaim(cid: String, rul: String): String
 
     // --- Rules ---
     suspend fun getRules(): List<Rule>
@@ -98,6 +101,8 @@ class AttestationDataHandlerImpl(
         pid: String,
     ): ExpectedValue = apiService.getExpectedValueByElementPolicyIds(eid, pid)
 
+    override suspend fun getResult(itemid: String): ElementResult = apiService.getResult(itemid)
+
     override suspend fun getElementResults(itemid: String, limit: Int): List<ElementResult> =
         apiService.getElementResults(itemid, limit)
 
@@ -109,14 +114,12 @@ class AttestationDataHandlerImpl(
         return apiService.attestElement(params)
     }
 
-    override suspend fun verifyClaim(cid: String, rul: String) {
-        println("OK")
+    override suspend fun verifyClaim(cid: String, rul: String): String {
         val params = VerifyParams(
             cid,
-            listOf(rul, "{}")
+            listOf(rul, JsonObject())
         )
-        println("Params: $params")
-        apiService.verifyClaim(params)
+        return apiService.verifyClaim(params)
     }
 
     override suspend fun getRules(): List<Rule> = apiService.getRules()

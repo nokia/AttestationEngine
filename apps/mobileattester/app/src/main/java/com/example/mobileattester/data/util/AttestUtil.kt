@@ -17,11 +17,6 @@ enum class AttestationStatus(msg: String = "") {
     IDLE, LOADING, ERROR, SUCCESS
 }
 
-sealed class AttestationResponse<T>(val data: Response<T>) {
-    class AttestOnly(data: Response<Claim>) : AttestationResponse<Claim>(data)
-    class AttestVerify(data: Response<ElementResult>) : AttestationResponse<ElementResult>(data)
-}
-
 interface AttestationUtil {
 
     /** Contains the policies */
@@ -117,25 +112,20 @@ class AttestUtil(
 
     private suspend fun attestOnly(eid: String, pid: String) {
         val claimId = dataHandler.attestElement(eid, pid)
-        println("Attest only response: $claimId")
 
         try {
             val c = dataHandler.getClaim(claimId)
             claim.value = Response.success(c)
         } catch (e: Exception) {
-            println("ATTEST ERROR $e")
             claim.value = Response.error(message = "Error attesting element $e")
         }
     }
 
     private suspend fun attestVerify(eid: String, pid: String, rule: String) {
-        println("ATTEST + VERIFY CALLED")
         val claimId = dataHandler.attestElement(eid, pid)
-
-        println("CLAIM ID GOTTEN: $claimId, SENDING VERIFICATION REQ")
-
-        dataHandler.verifyClaim(claimId, rule)
-        println("CLAIM VERIFIED??")
+        val resId = dataHandler.verifyClaim(claimId, rule)
+        println("Claim verification, Result id: $resId")
+        result.value = Response.success(dataHandler.getResult(resId))
     }
 
     private fun setStatus(status: AttestationStatus) {
