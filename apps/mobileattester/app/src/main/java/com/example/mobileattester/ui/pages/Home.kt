@@ -22,6 +22,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.mobileattester.ui.components.common.LoadingIndicator
+import com.example.mobileattester.ui.theme.Error
+import com.example.mobileattester.ui.theme.Ok
+import com.example.mobileattester.ui.theme.Primary
 import com.example.mobileattester.ui.util.Preferences
 import com.example.mobileattester.ui.util.Screen
 import com.example.mobileattester.ui.util.parseBaseUrl
@@ -52,7 +55,7 @@ fun Home(navController: NavController? = null, viewModel: AttestationViewModel) 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(13, 110, 253))
+            .background(Primary)
             .border(0.dp, Color.Transparent)
             .verticalScroll(scrollState),
     ) {
@@ -272,6 +275,8 @@ fun Content(navController: NavController? = null, viewModel: AttestationViewMode
     )
 
     Text(text = elementCount.value.toString(), modifier = Modifier.padding(10.dp))
+
+    Spacer(modifier = Modifier.size(100.dp))
 }
 
 @Composable
@@ -289,34 +294,34 @@ fun Alert(
         .fillMaxWidth()
         .clickable { onClick() }) {
         Column(modifier = Modifier.padding(10.dp)) {
-            Text(text = "Verified Attestations", color = Color(13, 110, 253))
+            Text(text = "Verified Attestations", color = Primary)
             Row {
-                Icon(TablerIcons.ListSearch, contentDescription = null, tint = Color(13, 110, 253))
+                Icon(TablerIcons.ListSearch, contentDescription = null, tint = Primary)
                 Text(
                     (accepted + failed).toString(),
-                    color = Color(13, 110, 253),
+                    color = Primary,
                     modifier = Modifier.padding(5.dp, 0.dp)
                 )
             }
         }
         Column(modifier = Modifier.padding(10.dp)) {
-            Text(text = "Accepted", color = Color(41, 113, 73))
+            Text(text = "Accepted", color = Ok)
             Row {
-                Icon(TablerIcons.SquareCheck, contentDescription = null, tint = Color(41, 113, 73))
+                Icon(TablerIcons.SquareCheck, contentDescription = null, tint = Ok)
                 Text(
                     accepted.toString(),
-                    color = Color(41, 113, 73),
+                    color = Ok,
                     modifier = Modifier.padding(5.dp, 0.dp)
                 )
             }
         }
         Column(modifier = Modifier.padding(10.dp)) {
-            Text(text = "Failed", color = Color(173, 0, 32))
+            Text(text = "Failed", color = Error)
             Row {
-                Icon(TablerIcons.SquareX, contentDescription = null, tint = Color(173, 0, 32))
+                Icon(TablerIcons.SquareX, contentDescription = null, tint = Error)
                 Text(
                     failed.toString(),
-                    color = Color(173, 0, 32),
+                    color = Error,
                     modifier = Modifier.padding(5.dp, 0.dp)
                 )
             }

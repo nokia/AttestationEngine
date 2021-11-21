@@ -4,6 +4,7 @@ import com.example.mobileattester.data.model.Element
 import com.example.mobileattester.data.model.ElementResult
 import com.example.mobileattester.data.model.ExpectedValue
 import com.example.mobileattester.data.model.Policy
+import org.json.JSONObject
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
@@ -66,8 +67,9 @@ interface AttestationDataService {
     Attestation
      */
 
+    // Returns the id of the claim which was produced if successful
     @POST("attest")
-    suspend fun attestElement(@Body eid: String, @Body pid: String)
+    suspend fun attestElement(@Body body: AttestationParams): String
 
     @POST("verify")
     suspend fun verifyClaim(@Body cid: String, @Body rul: String)

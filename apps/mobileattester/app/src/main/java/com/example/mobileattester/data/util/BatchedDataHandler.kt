@@ -4,12 +4,13 @@ import android.util.Log
 import com.example.mobileattester.data.model.Element
 import com.example.mobileattester.data.model.Policy
 import com.example.mobileattester.data.model.Rule
+import com.example.mobileattester.data.network.Response
 import com.example.mobileattester.data.network.retryIO
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 
 const val TIMEOUT = 10_000L
-const val TAG = "BatchedDataHandler"
+private const val TAG = "BatchedDataHandler"
 
 // Typealiases for the functions that need to be provided for the Batched data handler.
 typealias FetchIdList<T> = suspend () -> List<T>
@@ -77,7 +78,7 @@ abstract class BatchedDataHandler<T, U>(
     private val batchesLoading = mutableSetOf<Int>()
 
     /** Data from batches in a list */
-    val dataFlow = MutableStateFlow(listOf<U>())
+    val dataFlow = MutableStateFlow(Response.loading(listOf<U>()))
 
     /** Any of the batches currently loading? */
     val isLoading: MutableStateFlow<Boolean> = MutableStateFlow(batchesLoading.size != 0)
@@ -107,7 +108,7 @@ abstract class BatchedDataHandler<T, U>(
         try {
             scope.launch {
                 batches[batchNumber] = fetchBatch(batchNumber)
-                dataFlow.value = dataAsList()
+                dataFlow.value = Response.loading(dataAsList())
             }
             Log.d(TAG, "fetchNextBatch: Successfully loaded batch $batchNumber")
         } catch (e: Exception) {
@@ -252,7 +253,7 @@ abstract class BatchedDataHandler<T, U>(
         keys.forEach {
             batches.remove(it)
         }
-        dataFlow.value = listOf()
+        dataFlow.value = Response.loading(listOf())
     }
 
     private fun allChunksLoaded(): Boolean = batches.containsKey(listChunks?.lastIndex)

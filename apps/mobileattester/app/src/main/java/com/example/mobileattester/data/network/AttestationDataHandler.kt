@@ -6,6 +6,7 @@ import com.example.mobileattester.data.model.ExpectedValue
 import com.example.mobileattester.data.model.Policy
 import com.google.gson.GsonBuilder
 import kotlinx.coroutines.flow.MutableStateFlow
+import org.json.JSONObject
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
@@ -39,7 +40,7 @@ interface AttestationDataHandler {
     suspend fun getElementResults(itemid: String, limit: Int): List<ElementResult>
 
     // --- Attestation ---
-    suspend fun attestElement(eid: String, pid: String)
+    suspend fun attestElement(eid: String, pid: String): String
     suspend fun verifyClaim(cid: String, rul: String)
 }
 
@@ -95,8 +96,13 @@ class AttestationDataHandlerImpl(
     override suspend fun getElementResults(itemid: String, limit: Int): List<ElementResult> =
         apiService.getElementResults(itemid, limit)
 
-    override suspend fun attestElement(eid: String, pid: String) =
-        apiService.attestElement(eid, pid)
+    override suspend fun attestElement(eid: String, pid: String): String {
+        val params = AttestationParams(
+            eid = eid,
+            pid = pid
+        )
+        return apiService.attestElement(params)
+    }
 
     override suspend fun verifyClaim(cid: String, rul: String) =
         apiService.verifyClaim(cid, rul)

@@ -22,6 +22,7 @@ data class Response<out T>(val status: Status, val data: T? = null, val message:
     }
 }
 
+// TODO Fix
 suspend fun <T> retryIO(
     times: Int = Int.MAX_VALUE,
     catchErrors: Boolean = true, // If we want to catch the error elsewhere
@@ -45,5 +46,6 @@ suspend fun <T> retryIO(
         delay(currentDelay)
         currentDelay = (currentDelay * factor).toLong().coerceAtMost(maxDelay)
     }
+
     return null
 }

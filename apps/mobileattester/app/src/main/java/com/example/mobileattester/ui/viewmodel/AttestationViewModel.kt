@@ -3,6 +3,7 @@ package com.example.mobileattester.ui.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.mobileattester.data.model.Element
+import com.example.mobileattester.data.network.Response
 import com.example.mobileattester.data.repository.AttestationRepository
 import com.example.mobileattester.data.util.AttestationUtil
 import com.example.mobileattester.data.util.ElementDataHandler
@@ -13,8 +14,8 @@ interface AttestationViewModel {
     val isLoading: StateFlow<Boolean>
     val currentUrl: StateFlow<String>
 
-    /** Elements which have been downloaded to the client */
-    val elementFlow: StateFlow<List<Element>>
+    /** Response object containing the element data/errors */
+    val elementFlowResponse: StateFlow<Response<List<Element>>>
 
     /** Total count of elements in the system */
     val elementCount: StateFlow<Int>
@@ -51,7 +52,8 @@ class AttestationViewModelImpl(
     override val isRefreshing: StateFlow<Boolean> = elementDataHandler.isRefreshing
     override val isLoading: StateFlow<Boolean> = elementDataHandler.isLoading
     override val currentUrl: StateFlow<String> = repo.currentUrl
-    override val elementFlow: StateFlow<List<Element>> = elementDataHandler.dataFlow
+    override val elementFlowResponse: StateFlow<Response<List<Element>>> =
+        elementDataHandler.dataFlow
     override val elementCount: StateFlow<Int> = elementDataHandler.idCount
 
 
