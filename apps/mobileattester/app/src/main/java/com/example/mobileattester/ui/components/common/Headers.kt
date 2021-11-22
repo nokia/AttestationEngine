@@ -16,7 +16,7 @@ import com.example.mobileattester.ui.theme.White
  */
 @Composable
 fun HeaderRoundedBottom(
-    content: @Composable() () -> Unit
+    content: @Composable() () -> Unit = {}
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(),

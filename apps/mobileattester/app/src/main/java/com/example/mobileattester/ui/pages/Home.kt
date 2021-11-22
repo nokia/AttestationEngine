@@ -6,12 +6,10 @@ import android.util.Patterns
 import android.widget.Toast
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
@@ -21,6 +19,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.mobileattester.ui.components.common.HeaderRoundedBottom
 import com.example.mobileattester.ui.components.common.LoadingIndicator
 import com.example.mobileattester.ui.theme.*
 import com.example.mobileattester.ui.util.Preferences
@@ -48,24 +47,18 @@ fun Home(navController: NavController? = null, viewModel: AttestationViewModel) 
     val scrollState = ScrollState(0)
 
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Primary)
-            .border(0.dp, Color.Transparent)
-            .verticalScroll(scrollState),
-    ) {
-        // Top Bar
+    Column(modifier = Modifier.verticalScroll(scrollState)) {
         Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(10.dp)
-                .border(0.dp, Color.Transparent),
+                .fillMaxSize()
+                .background(Primary)
+                .border(0.dp, Color.Transparent)
         ) {
 
+            // Top Bar
             Text(
                 text = "Current Configuration",
-                modifier = Modifier.padding(0.dp, 15.dp, 0.dp, 5.dp),
+                modifier = Modifier.padding(10.dp, 15.dp, 10.dp, 5.dp),
                 fontSize = FONTSIZE_XXL,
                 color = Color.White
             )
@@ -137,20 +130,19 @@ fun Home(navController: NavController? = null, viewModel: AttestationViewModel) 
                         }
                     })
             }
+            HeaderRoundedBottom()
         }
+
         // Content
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .clip(RoundedCornerShape(5, 5, 0, 0))
                 .background(Color.White)
         ) {
             Column(Modifier.padding(4.dp)) {
                 Content(navController, viewModel)
             }
         }
-
-
     }
 }
 
@@ -264,8 +256,6 @@ fun Content(navController: NavController? = null, viewModel: AttestationViewMode
     Alert("24h") { navController!!.navigate(Screen.Elements.route) }
     Spacer(modifier = Modifier.size(20.dp))
     Alert("Past week") { navController!!.navigate(Screen.Elements.route) }
-
-    Spacer(modifier = Modifier.size(200.dp)) // TODO: Change layout to be similar to Elements page
 }
 
 @Composable
