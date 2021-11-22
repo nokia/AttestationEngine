@@ -26,7 +26,6 @@ jobs:
         working-directory: ./apps/mobileattester
         run: ./gradlew lintDebug
       - name: Upload html test report
-        working-directory: ./apps/mobileattester
         uses: actions/upload-artifact@v2
         with:
           name: lint.html
