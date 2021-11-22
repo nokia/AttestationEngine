@@ -55,6 +55,7 @@ jobs:
           java-version: 11
       - name: Build APK
         working-directory: ./apps/mobileattester
+        run: chmod +x gradlew
         run: ./gradlew assembleDebug
       - name: Upload APK
         uses: actions/upload-artifact@v2
