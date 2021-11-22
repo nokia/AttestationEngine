@@ -4,7 +4,7 @@
 
 import a10.asvr.db.core
 import a10.structures.identity
-import a10.structures.constants 
+import a10.structures.constants
 import a10.structures.returncode
 import a10.asvr.db.announce
 
@@ -25,31 +25,41 @@ def addClaim(e):
         # Force an exception if any of the following fields are missing
         tmp = e["header"]["as_requested"]
         tmp = e["header"]["as_received"]
-        #tmp = e["header"]["ta_received"]
-        #tmp = e["header"]["ta_complete"]
+        # tmp = e["header"]["ta_received"]
+        # tmp = e["header"]["ta_complete"]
         tmp = e["header"]["element"]
         tmp = e["header"]["policy"]
-        tmp = e["payload"]     
+        tmp = e["payload"]
     except KeyError as err:
-        a10.announce.announceClaim("error",{"msg":"Missing fields","content":(str(err)),"itemid":"X"})
-        return a10.structures.returncode.ReturnCode( a10.structures.constants.MISSINGFIELDS, "Missing fields "+(str(err)) )
+        a10.announce.announceClaim(
+            "error", {"msg": "Missing fields", "content": (str(err)), "itemid": "X"}
+        )
+        return a10.structures.returncode.ReturnCode(
+            a10.structures.constants.MISSINGFIELDS, "Missing fields " + (str(err))
+        )
     except Exception as err:
-        a10.announce.announceClaim("error",{"msg":"General error:","content":(str(err)),"itemid":"X"})
-        return a10.structures.returncode.ReturnCode( a10.structures.constants.GENERALERROR, "General error "+(str(err)) )
-
+        a10.announce.announceClaim(
+            "error", {"msg": "General error:", "content": (str(err)), "itemid": "X"}
+        )
+        return a10.structures.returncode.ReturnCode(
+            a10.structures.constants.GENERALERROR, "General error " + (str(err))
+        )
 
     i = a10.structures.identity.generateID()
-    e["itemid"]=i
+    e["itemid"] = i
 
-    r = a10.asvr.db.core.addClaim(e)    
-    
-    if (r==True):
-        a10.asvr.db.announce.announceClaim("add",{"type":"claim","itemid":i})        
-        return a10.structures.returncode.ReturnCode( a10.structures.constants.SUCCESS, i )
+    r = a10.asvr.db.core.addClaim(e)
+
+    if r == True:
+        a10.asvr.db.announce.announceClaim("add", {"type": "claim", "itemid": i})
+        return a10.structures.returncode.ReturnCode(a10.structures.constants.SUCCESS, i)
     else:
-        a10.asvr.db.announce.announceClaim("add",{"msg":"Claim not added to database","itemid":i})                
-        return a10.structures.returncode.ReturnCode( a10.structures.constants.ADDITEMFAIL, "Claim not added to database" )
-
+        a10.asvr.db.announce.announceClaim(
+            "add", {"msg": "Claim not added to database", "itemid": i}
+        )
+        return a10.structures.returncode.ReturnCode(
+            a10.structures.constants.ADDITEMFAIL, "Claim not added to database"
+        )
 
 
 def getClaim(i):
@@ -59,13 +69,15 @@ def getClaim(i):
     :params str i: an itemID of a claim
     :return: the claim as a dictionary
     :rtype: ReturnCode
-    """   
+    """
 
     e = a10.asvr.db.core.getClaim(i)
     if e == None:
-        return a10.structures.returncode.ReturnCode( a10.structures.constants.ITEMDOESNOTEXIST,"Element does not exist")
+        return a10.structures.returncode.ReturnCode(
+            a10.structures.constants.ITEMDOESNOTEXIST, "Element does not exist"
+        )
     else:
-        return a10.structures.returncode.ReturnCode( a10.structures.constants.SUCCESS,e)
+        return a10.structures.returncode.ReturnCode(a10.structures.constants.SUCCESS, e)
 
 
 def getClaims(n):
@@ -74,10 +86,11 @@ def getClaims(n):
 
     :return: the claim itemids as a list
     :rtype: list str
-    """   
+    """
 
     cs = a10.asvr.db.core.getClaims(n)
     return cs
+
 
 def getClaimsFull(n=50):
     """
@@ -86,10 +99,11 @@ def getClaimsFull(n=50):
     :params int n: limit to n results
     :return: list of claim structures as a dict
     :rtype: list dict
-    """   
+    """
 
     cs = a10.asvr.db.core.getClaimsFull(n)
-    return cs    
+    return cs
+
 
 def getAssociatedResults(i):
     """
@@ -98,7 +112,7 @@ def getAssociatedResults(i):
     :params int n: limit to n results
     :return: list of result structures as a dict
     :rtype: list dict
-    """   
+    """
 
     rs = a10.asvr.db.core.getAssociatedResults(i)
-    return rs     
+    return rs
