@@ -41,12 +41,6 @@ jobs:
       - name: Run unit tests
         working-directory: ./apps/mobileattester
         run: bash ./gradlew test --stacktrace
-      - name: Upload test report
-        working-directory: ./apps/mobileattester
-        uses: actions/upload-artifact@v2
-        with:
-          name: unit_test_report
-          path: ./app/build/reports/tests/testDebugUnitTest/
 
   apk:
     needs: [test]
