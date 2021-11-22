@@ -1,6 +1,7 @@
 package com.example.mobileattester.data.repository
 
 import com.example.mobileattester.data.model.Element
+import com.example.mobileattester.data.model.ElementResult
 import com.example.mobileattester.data.model.ExpectedValue
 import com.example.mobileattester.data.model.Policy
 import com.example.mobileattester.data.network.AttestationDataHandler
@@ -30,7 +31,15 @@ interface AttestationRepository {
     // --- Expected values ---
     suspend fun getExpectedValue(itemid: String): ExpectedValue
     suspend fun getExpectedValueByElementPolicyIds(eid: String, pid: String): ExpectedValue
+
+    // --- Results ---
+    suspend fun getElementResults(itemid: String, limit: Int = 100): List<ElementResult>
 }
+
+
+// ----------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------------------------
 
 class AttestationRepositoryImpl(
     private val handler: AttestationDataHandler,
@@ -41,7 +50,19 @@ class AttestationRepositoryImpl(
     override fun rebuildService(withUrl: String) = handler.rebuildService(withUrl)
 
     override suspend fun getElementIds(): List<String> = handler.getElementIds()
-    override suspend fun getElement(itemid: String): Element = handler.getElement(itemid)
+    override suspend fun getElement(itemid: String): Element {
+        val element = handler.getElement(itemid)
+
+        try {
+            element.results = getElementResults(element.itemid)
+        } catch (err: Error) {
+            println(err)
+            element.results = listOf()
+        }
+
+        return element
+    }
+
     override suspend fun getAllTypes(): List<String> = handler.getAllTypes()
 
     override suspend fun getPolicyIds(): List<String> = handler.getPolicyIds()
@@ -55,4 +76,6 @@ class AttestationRepositoryImpl(
         pid: String,
     ): ExpectedValue = handler.getExpectedValueByElementPolicyIds(eid, pid)
 
+    override suspend fun getElementResults(itemid: String, limit: Int): List<ElementResult> =
+        handler.getElementResults(itemid, limit)
 }

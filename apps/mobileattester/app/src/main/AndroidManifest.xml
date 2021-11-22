@@ -3,8 +3,7 @@
     package="com.example.mobileattester">
 
     <uses-permission
-        android:name="android.permission.CAMERA"
-        android:required="false" />
+        android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.INTERNET" />
 
 

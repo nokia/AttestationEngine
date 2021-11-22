@@ -6,10 +6,10 @@ import uuid
 
 
 def generateID():
-	"""Returns a UUID4 to be used as an identifier.
+    """Returns a UUID4 to be used as an identifier.
 
 	:return: a UUID4
 	:rtype: str
 	"""
 
-	return str(uuid.uuid4())
+    return str(uuid.uuid4())

@@ -6,7 +6,7 @@ package com.example.mobileattester.ui.util
 fun parseBaseUrl(baseUrl : String) : String
 {
     var nUrl = baseUrl.dropWhile { c -> c != '/' && !c.isDigit() }
-    if(!nUrl.first().isDigit())
-        nUrl = nUrl.dropWhile { c -> c == '/' }
+    if(!nUrl.first().isLetterOrDigit())
+        nUrl = nUrl.dropWhile { c -> c == '/' || c.isWhitespace()  }
     return nUrl.takeWhile { c -> c != '/' }
 }

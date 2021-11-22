@@ -7,4 +7,9 @@
     <string name="placeholder_search_elementlist">Search…</string>
     <string name="elementlist_additional">Additional</string>
     <string name="nav_element">Element</string>
+    <string name="nav_attest">Attest</string>
+    <string name="attest">Attest</string>
+    <string name="attest_verify">Attest and verify</string>
+    <string name="nav_claim">Claim</string>
+    <string name="nav_result">Result</string>
 </resources>

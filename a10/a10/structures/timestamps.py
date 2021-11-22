@@ -4,6 +4,7 @@
 
 import datetime
 
+
 def now():
-	n=datetime.datetime.now(datetime.timezone.utc)
-	return str(n.timestamp())
+    n = datetime.datetime.now(datetime.timezone.utc)
+    return str(n.timestamp())

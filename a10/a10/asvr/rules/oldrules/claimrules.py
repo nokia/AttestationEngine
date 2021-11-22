@@ -10,6 +10,7 @@ from a10.rules import baserule
 
 # Individual Rules
 
+
 class ClaimTimeliness(baserule.BaseRule):
     def __init__(self, cid, ps):
         super().__init__(cid, ps)
@@ -26,15 +27,19 @@ class ClaimTimeliness(baserule.BaseRule):
 
         difference = received - requested
         print(difference)
-        trusted = (difference < margin)
+        trusted = difference < margin
         print(trusted)
 
         additional = [{"timeDifference": str(difference), "margin": str(margin)}]
 
         if trusted == True:
-            return self.returnMessage(a10.utils.constants.VERIFYSUCCEED, "Timing within margin", additional)
+            return self.returnMessage(
+                a10.utils.constants.VERIFYSUCCEED, "Timing within margin", additional
+            )
         else:
-            return self.returnMessage(a10.utils.constants.VERIFYFAIL, "Timing outside of margin", additional)
+            return self.returnMessage(
+                a10.utils.constants.VERIFYFAIL, "Timing outside of margin", additional
+            )
 
 
 class ClaimTPMTimeliness(baserule.BaseRule):
@@ -55,15 +60,19 @@ class ClaimTPMTimeliness(baserule.BaseRule):
 
         difference = completed - received
         print(difference)
-        trusted = (difference < margin)
+        trusted = difference < margin
         print(trusted)
 
         additional = [{"timeDifference": str(difference), "margin": str(margin)}]
 
         if trusted == True:
-            return self.returnMessage(a10.utils.constants.VERIFYSUCCEED, "Timing within margin", additional)
+            return self.returnMessage(
+                a10.utils.constants.VERIFYSUCCEED, "Timing within margin", additional
+            )
         else:
-            return self.returnMessage(a10.utils.constants.VERIFYFAIL, "Timing outside of margin", additional)
+            return self.returnMessage(
+                a10.utils.constants.VERIFYFAIL, "Timing outside of margin", additional
+            )
 
 
 class ClaimClockIntegrity(baserule.BaseRule):
@@ -82,23 +91,29 @@ class ClaimClockIntegrity(baserule.BaseRule):
         print("CLOCK**************")
         print(as_requested, as_received, ta_received, ta_complete)
 
-        as_requested_t = datetime.datetime.strptime(as_requested, '%Y-%m-%d %H:%M:%S.%f')
-        as_received_t = datetime.datetime.strptime(as_received, '%Y-%m-%d %H:%M:%S.%f')
-        ta_received_t = datetime.datetime.strptime(ta_received, '%Y-%m-%d %H:%M:%S.%f')
-        ta_complete_t = datetime.datetime.strptime(ta_complete, '%Y-%m-%d %H:%M:%S.%f')
+        as_requested_t = datetime.datetime.strptime(
+            as_requested, "%Y-%m-%d %H:%M:%S.%f"
+        )
+        as_received_t = datetime.datetime.strptime(as_received, "%Y-%m-%d %H:%M:%S.%f")
+        ta_received_t = datetime.datetime.strptime(ta_received, "%Y-%m-%d %H:%M:%S.%f")
+        ta_complete_t = datetime.datetime.strptime(ta_complete, "%Y-%m-%d %H:%M:%S.%f")
 
         trusted = False
 
-        if (as_requested_t < ta_received_t < ta_complete_t < as_received_t):
+        if as_requested_t < ta_received_t < ta_complete_t < as_received_t:
             trusted = True
 
         additional = [
-            {"as_requested": str(as_requested_t), "ta_received": str(ta_received_t), "ta_complete": str(ta_complete_t),
-             "as_received": str(as_received_t),
-             "d1": str((ta_received_t - as_requested_t).total_seconds()),
-             "d2": str((ta_complete_t - ta_received_t).total_seconds()),
-             "d3": str((as_received_t - ta_complete_t).total_seconds())
-             }]
+            {
+                "as_requested": str(as_requested_t),
+                "ta_received": str(ta_received_t),
+                "ta_complete": str(ta_complete_t),
+                "as_received": str(as_received_t),
+                "d1": str((ta_received_t - as_requested_t).total_seconds()),
+                "d2": str((ta_complete_t - ta_received_t).total_seconds()),
+                "d3": str((as_received_t - ta_complete_t).total_seconds()),
+            }
+        ]
 
         print("\n***********************\nADDITIONAL=", additional)
 
@@ -106,6 +121,10 @@ class ClaimClockIntegrity(baserule.BaseRule):
         #  0 - The result
         #  1 - A description structure as a python dict
         if trusted == True:
-            return self.returnMessage(a10.utils.constants.VERIFYSUCCEED, "Timing within margin", additional)
+            return self.returnMessage(
+                a10.utils.constants.VERIFYSUCCEED, "Timing within margin", additional
+            )
         else:
-            return self.returnMessage(a10.utils.constants.VERIFYFAIL, "Timing outside of margin", additional)
+            return self.returnMessage(
+                a10.utils.constants.VERIFYFAIL, "Timing outside of margin", additional
+            )

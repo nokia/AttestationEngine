@@ -4,10 +4,10 @@
 
 from flask import Blueprint
 
-status_endpoint = Blueprint('status_endpoint',__name__)
+status_endpoint = Blueprint("status_endpoint", __name__)
 
-@status_endpoint.route('/', methods=['GET'])
+
+@status_endpoint.route("/", methods=["GET"])
 def status_homepage():
-	page="Trust Agent Services Running"
-	return page
-
+    page = "Trust Agent Services Running"
+    return page

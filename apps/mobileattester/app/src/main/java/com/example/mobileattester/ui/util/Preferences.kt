@@ -22,7 +22,7 @@ class Preferences(
         private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(CONFIG)
         private val enginesKey = stringSetPreferencesKey("addresses")
 
-        val defaultConfig = mutableSetOf("172.30.87.192/8520")
+        val defaultConfig = mutableSetOf("0.0.0.0:8520")
     }
 
     // Access set of saved configs?

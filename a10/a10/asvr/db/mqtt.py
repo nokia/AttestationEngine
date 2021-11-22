@@ -9,35 +9,44 @@ import threading
 import time
 
 
-
 def on_disconnect(client, userdata, rc):
-    logging.info("disconnecting reason  "  +str(rc))
-    client.connected_flag=False
-    client.disconnect_flag=True
+    logging.info("disconnecting reason  " + str(rc))
+    client.connected_flag = False
+    client.disconnect_flag = True
 
 
-def on_connect(client,metadata,flags,rc):
-	print("Connected mqtt: {}".format(rc))
-
-def on_disconnect(client,metadata,flags,rc):
-	print("MQTT Disconnected")
-	try:
-		client.reconnect()
-	except:
-		print("Connection is fscked")
+def on_connect(client, metadata, flags, rc):
+    print("Connected mqtt: {}".format(rc))
 
 
-def publish(ch,t,op,data):
-	payload = str({ "t":t,"op":op, "data":data})
-	mqttc.publish(ch,payload)
+def on_disconnect(client, metadata, flags, rc):
+    print("MQTT Disconnected")
+    try:
+        client.reconnect()
+    except:
+        print("Connection is fscked")
+
+
+def publish(ch, t, op, data):
+    payload = str({"t": t, "op": op, "data": data})
+    mqttc.publish(ch, payload)
 
 
 def sendKeepAlive():
-    print("Starting keepalive ping with rate ", a10.asvr.db.configuration.MQTTKEEPALIVEPING)
+    print(
+        "Starting keepalive ping with rate ",
+        a10.asvr.db.configuration.MQTTKEEPALIVEPING,
+    )
     while True:
         print("ping!")
-        publish("AS/MQTTPING", "ping", "ping", {"session": a10.asvr.db.configuration.ASSESSIONIDENTITY})
+        publish(
+            "AS/MQTTPING",
+            "ping",
+            "ping",
+            {"session": a10.asvr.db.configuration.ASSESSIONIDENTITY},
+        )
         time.sleep(int(a10.asvr.db.configuration.MQTTKEEPALIVEPING))
+
 
 print(a10.asvr.db.configuration.MQTTADDRESS)
 #
@@ -45,8 +54,14 @@ print(a10.asvr.db.configuration.MQTTADDRESS)
 # will be kicked off by the MQTT broker - at least in mosquitto
 # So we will add the AS_Session_Identity and a UUID
 #
-id = a10.asvr.db.configuration.MQTTCLIENTNAME+"_"+a10.asvr.db.configuration.ASSESSIONIDENTITY+"_"+a10.structures.identity.generateID()
-print("mqtt client id is ",id)
+id = (
+    a10.asvr.db.configuration.MQTTCLIENTNAME
+    + "_"
+    + a10.asvr.db.configuration.ASSESSIONIDENTITY
+    + "_"
+    + a10.structures.identity.generateID()
+)
+print("mqtt client id is ", id)
 mqttc = mqtt.Client(id)
 mqttc.on_connect = on_connect
 mqttc.connect(a10.asvr.db.configuration.MQTTADDRESS)

@@ -19,3 +19,14 @@ data class ExpectedValueA10(
     override val type: String,
     override val description: String? = null
 ) : ExpectedValue
+
+data class ExpectedValueElementResult(
+    override val itemid: String,
+    override val name: String,
+    val pcrDigest: String, // Current value
+    val evs: HashMap<String,String>, // Expected values, if set
+    @SerializedName("elementID") override val elementId: String,
+    @SerializedName("policyID") override val policyId: String,
+    override val type: String,
+    override val description: String? = null
+) : ExpectedValue

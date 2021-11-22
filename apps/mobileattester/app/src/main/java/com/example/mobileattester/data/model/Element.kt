@@ -13,16 +13,13 @@ data class Element(
     @SerializedName("type") val types: List<String>,
     val protocol: String,
     val description: String?,
+    @Transient var results: List<ElementResult>,
 )
 
-/**
- * A10 Element impl.
- */
-//data class ElementA10(
-//    override val itemid: String,
-//    override val name: String,
-//    override val endpoint: String,
-//    override val description: String?,
-//    override val protocol: String,
-//    @SerializedName("type") override val types: List<String>,
-//) : Element
+
+// For testing
+fun emptyElement(): Element {
+    return Element(
+        "", "", "", listOf(), "", "", listOf()
+    )
+}
