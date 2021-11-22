@@ -19,7 +19,7 @@ interface AttestationViewModel {
     val elementFlowResponse: StateFlow<Response<List<Element>>>
 
     /** Total count of elements in the system */
-    val elementCount: StateFlow<Int>
+    val elementCount: StateFlow<Response<Int>>
 
     /** Get element data, which has already been downloaded */
     fun getElementFromCache(itemid: String): Element?
@@ -58,7 +58,7 @@ class AttestationViewModelImpl(
     override val currentUrl: StateFlow<String> = repo.currentUrl
     override val elementFlowResponse: StateFlow<Response<List<Element>>> =
         elementDataHandler.dataFlow
-    override val elementCount: StateFlow<Int> = elementDataHandler.idCount
+    override val elementCount: StateFlow<Response<Int>> = elementDataHandler.idCount
 
 
     override fun getElementFromCache(itemid: String): Element? =

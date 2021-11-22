@@ -22,6 +22,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.mobileattester.data.network.Status
+import com.example.mobileattester.ui.components.common.ErrorIndicator
 import com.example.mobileattester.ui.components.common.LoadingIndicator
 import com.example.mobileattester.ui.theme.*
 import com.example.mobileattester.ui.util.Preferences
@@ -214,6 +216,19 @@ fun Content(navController: NavController? = null, viewModel: AttestationViewMode
     val elementCount = viewModel.elementCount.collectAsState()
     val refreshing = viewModel.isRefreshing.collectAsState()
 
+
+    when (elementCount.value.status) {
+        Status.ERROR -> {
+            ErrorIndicator(msg = elementCount.value.message.toString())
+            return
+        }
+        Status.LOADING -> {
+            LoadingIndicator()
+            return
+        }
+        else -> {}
+    }
+
     Row(
         modifier = Modifier
             .padding(15.dp)
@@ -242,7 +257,7 @@ fun Content(navController: NavController? = null, viewModel: AttestationViewMode
             LoadingIndicator()
         } else {
             Text(
-                AnnotatedString(elementCount.value.toString()),
+                text = elementCount.value.data.toString(),
                 modifier = Modifier
                     .padding(5.dp, 0.dp)
                     .align(Alignment.CenterVertically)

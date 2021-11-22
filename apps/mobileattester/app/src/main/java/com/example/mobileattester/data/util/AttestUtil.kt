@@ -40,8 +40,11 @@ interface AttestationUtil {
      */
     fun attest(eid: String, pid: String, rule: String? = null)
 
-    /** Reset status+claim+result, cancel running coroutines */
-    fun reset()
+    /**
+     * Reset status+claim+result, cancel running coroutines.
+     * @param hardReset set to true to fetch rule list again.
+     */
+    fun reset(hardReset: Boolean = false)
 }
 
 // ------------------------------------------
@@ -68,11 +71,7 @@ class AttestUtil(
     override val result: MutableStateFlow<Response<ElementResult>?> = MutableStateFlow(null)
 
     init {
-        scope.launch {
-            retryIO {
-                ruleFlow.value = Response.success(data = dataHandler.getRules())
-            }
-        }
+        fetchRules()
     }
 
     override fun attest(eid: String, pid: String, rule: String?) {
@@ -84,9 +83,7 @@ class AttestUtil(
 
         scope.launch {
             try {
-                retryIO(
-                    catchErrors = false
-                ) {
+                retryIO {
                     when (rule) {
                         null -> attestOnly(eid, pid)
                         else -> attestVerify(eid, pid, rule)
@@ -100,12 +97,17 @@ class AttestUtil(
         }
     }
 
-    override fun reset() {
+    override fun reset(hardReset: Boolean) {
         job.cancelChildren()
         setStatus(AttestationStatus.IDLE)
         claim.value = null
         result.value = null
+
+        if (hardReset) {
+            fetchRules()
+        }
     }
+
 
     // ----------------------- Private ---------------------------
     // ----------------------- Private ---------------------------
@@ -126,6 +128,19 @@ class AttestUtil(
         val resId = dataHandler.verifyClaim(claimId, rule)
         println("Claim verification, Result id: $resId")
         result.value = Response.success(dataHandler.getResult(resId))
+    }
+
+    private fun fetchRules() {
+        scope.launch {
+            try {
+                retryIO {
+                    ruleFlow.value = Response.success(data = dataHandler.getRules())
+                }
+            } catch (e: Exception) {
+                Log.d(TAG, "Error: $e: ")
+                ruleFlow.value = Response.error(message = "Could not get rules.")
+            }
+        }
     }
 
     private fun setStatus(status: AttestationStatus) {

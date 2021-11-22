@@ -90,17 +90,19 @@ class AttestationDataHandlerImpl(
 
     private fun getOkHttpClient(): OkHttpClient? {
         //Log display level
-        val level = HttpLoggingInterceptor.Level.BODY
+        val level = HttpLoggingInterceptor.Level.BASIC
         //New log interceptor
         val loggingInterceptor = HttpLoggingInterceptor { message ->
             Log.d("RETROFIT",
                 "OkHttp====Message:$message")
         }
         loggingInterceptor.level = level
+
         //Custom OKHTTP
         val httpClientBuilder = OkHttpClient.Builder()
         //OKHTTP to add interceptors loggingInterceptor
         httpClientBuilder.addInterceptor(loggingInterceptor)
+
         return httpClientBuilder.build()
     }
 

@@ -21,10 +21,12 @@ data class Response<out T>(val status: Status, val data: T? = null, val message:
     }
 }
 
-// TODO Fix
+/**
+ * Retries a given block x times with increasing delay between retries. (5 by default)
+ * @throws Exception If the block fails x times
+ */
 suspend fun <T> retryIO(
-    times: Int = Int.MAX_VALUE,
-    catchErrors: Boolean = true, // If we want to catch the error elsewhere
+    times: Int = 5,
     initialDelay: Long = 100, // Delay after first fail
     maxDelay: Long = 1000,
     factor: Double = 2.0,
@@ -35,16 +37,11 @@ suspend fun <T> retryIO(
     repeat(times) {
         try {
             return block()
-        } catch (e: IOException) {
-            if (!catchErrors) {
-                // If we don't want to catch errors here
-                throw e
-            }
-            Log.d("retryIO", "FAILED OPERATION $e")
+        } finally {
+            delay(currentDelay)
+            currentDelay = (currentDelay * factor).toLong().coerceAtMost(maxDelay)
         }
-        delay(currentDelay)
-        currentDelay = (currentDelay * factor).toLong().coerceAtMost(maxDelay)
     }
 
-    return null
+    throw Exception("Operation $block failed $times.")
 }

@@ -52,13 +52,7 @@ class AttestationRepositoryImpl(
     override suspend fun getElementIds(): List<String> = handler.getElementIds()
     override suspend fun getElement(itemid: String): Element {
         val element = handler.getElement(itemid)
-
-        try {
-            element.results = getElementResults(element.itemid)
-        } catch (err: Error) {
-            println(err)
-            element.results = listOf()
-        }
+        element.results = getElementResults(element.itemid)
 
         return element
     }

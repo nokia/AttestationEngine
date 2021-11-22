@@ -11,6 +11,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
@@ -53,7 +54,8 @@ private fun RenderElementList(navController: NavController, viewModel: Attestati
         navController.navigate(Screen.Element.route, bundleOf(Pair(ARG_ITEM_ID, itemid)))
     }
 
-    val elements = viewModel.elementFlowResponse.collectAsState().value.data ?: listOf()
+    val elementResponse = viewModel.elementFlowResponse.collectAsState().value
+    val elements = elementResponse.data ?: listOf()
     val lastIndex = viewModel.elementFlowResponse.collectAsState().value.data?.lastIndex ?: 0
 
     val isRefreshing = viewModel.isRefreshing.collectAsState()
@@ -64,40 +66,49 @@ private fun RenderElementList(navController: NavController, viewModel: Attestati
         state = rememberSwipeRefreshState(isRefreshing.value),
         onRefresh = { viewModel.refreshElements() },
     ) {
-        LazyColumn() {
-            // Header
-            item {
-                HeaderRoundedBottom {
-                    SearchBar(filters, stringResource(id = R.string.placeholder_search_elementlist))
-                }
-                Spacer(modifier = Modifier.size(5.dp))
+        when (elementResponse.status) {
+            Status.ERROR -> {
+                ErrorIndicator(msg = elementResponse.message.toString())
             }
+            else -> {
+                LazyColumn() {
+                    // Header
+                    item {
+                        HeaderRoundedBottom {
+                            SearchBar(filters,
+                                stringResource(id = R.string.placeholder_search_elementlist))
+                        }
+                        Spacer(modifier = Modifier.size(5.dp))
+                    }
 
-            // List of the elements
-            itemsIndexed(if (filters.value.text.isEmpty()) elements else viewModel.filterElements(
-                filters.value.text)) { index, element ->
-                if (index + FETCH_START_BUFFER >= lastIndex) {
-                    viewModel.getMoreElements()
-                }
 
-                Column(Modifier.padding(horizontal = 12.dp)) {
-                    ElementListItem(element, onElementClick = ::onElementClicked)
-                    Divider(modifier = Modifier.fillMaxWidth(), color = DividerColor)
-                }
-            }
+                    // List of the elements
+                    itemsIndexed(if (filters.value.text.isEmpty()) elements else viewModel.filterElements(
+                        filters.value.text)) { index, element ->
+                        if (index + FETCH_START_BUFFER >= lastIndex) {
+                            viewModel.getMoreElements()
+                        }
 
-            // Footer
-            item {
-                Row(
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(24.dp),
-                    horizontalArrangement = Arrangement.Center) {
-                    if (isLoading.value) {
-                        CircularProgressIndicator(modifier = Modifier.size(32.dp),
-                            color = MaterialTheme.colors.primary)
-                    } else {
-                        Text(text = "All elements loaded", color = DarkGrey)
+                        Column(Modifier.padding(horizontal = 12.dp)) {
+                            ElementListItem(element, onElementClick = ::onElementClicked)
+                            Divider(modifier = Modifier.fillMaxWidth(), color = DividerColor)
+                        }
+                    }
+
+                    // Footer
+                    item {
+                        Row(
+                            Modifier
+                                .fillMaxWidth()
+                                .padding(24.dp),
+                            horizontalArrangement = Arrangement.Center) {
+                            if (isLoading.value) {
+                                CircularProgressIndicator(modifier = Modifier.size(32.dp),
+                                    color = MaterialTheme.colors.primary)
+                            } else {
+                                Text(text = "All elements loaded", color = DarkGrey)
+                            }
+                        }
                     }
                 }
             }
