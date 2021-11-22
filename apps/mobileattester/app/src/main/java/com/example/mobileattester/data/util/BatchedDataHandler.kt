@@ -2,25 +2,43 @@ package com.example.mobileattester.data.util
 
 import android.util.Log
 import com.example.mobileattester.data.model.Element
+import com.example.mobileattester.data.model.Policy
+import com.example.mobileattester.data.model.Rule
+import com.example.mobileattester.data.network.Response
+import com.example.mobileattester.data.network.Status
 import com.example.mobileattester.data.network.retryIO
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
+import java.util.concurrent.Future
 
 const val TIMEOUT = 10_000L
-const val TAG = "BatchedDataHandler"
+private const val TAG = "BatchedDataHandler"
 
-/**
- * Class that can act as a data provider for Batched data handler
- * T - Id type
- * U - Data type
- */
-interface BatchedDataProvider<T, U> {
-    suspend fun getIdList(): List<T>
-    suspend fun getDataForId(id: T): U
-}
+// Typealiases for the functions that need to be provided for the Batched data handler.
+typealias FetchIdList<T> = suspend () -> List<T>
+typealias FetchIdData<T, U> = suspend (T) -> U
 
-class ElementDataHandler<T,U>(dataProvider: BatchedDataProvider<T, U>, batchSize: Int) :
-    BatchedDataHandler<T, U>(dataProvider, batchSize) {}
+
+// ------------------------------------------------------------------------------------------
+// ------------ Concrete classes to handle different types of data in batches ---------------
+// ------------------------------------------------------------------------------------------
+
+class ElementDataHandler(
+    batchSize: Int,
+    fetchIdList: FetchIdList<String>,
+    fetchDataForId: FetchIdData<String, Element>,
+) : BatchedDataHandler<String, Element>(batchSize, fetchIdList, fetchDataForId)
+
+class PolicyDataHandler(
+    batchSize: Int,
+    fetchIdList: FetchIdList<String>,
+    fetchDataForId: FetchIdData<String, Policy>,
+) : BatchedDataHandler<String, Policy>(batchSize, fetchIdList, fetchDataForId)
+
+
+// ------------------------------------------------------------------------------------------
+// --------------- Abstract class for above to handle data in batches -----------------------
+// ------------------------------------------------------------------------------------------
 
 /**
  *  Data fetching in batches.
@@ -38,8 +56,9 @@ class ElementDataHandler<T,U>(dataProvider: BatchedDataProvider<T, U>, batchSize
  *  -   Proper error handling
  */
 abstract class BatchedDataHandler<T, U>(
-    private val dataProvider: BatchedDataProvider<T, U>,
     private val batchSize: Int,
+    private val fetchIdList: FetchIdList<T>,
+    private val fetchDataForId: FetchIdData<T, U>,
 ) {
     private val job = Job()
     private val scope = CoroutineScope(job)
@@ -51,11 +70,11 @@ abstract class BatchedDataHandler<T, U>(
     /**
      * Fetched data
      */
-    private val batches = mutableMapOf<Int, List<Pair<T, U>>>()
+    private val batches = mutableMapOf<Int, MutableList<Pair<T, U>>>()
     private val batchesLoading = mutableSetOf<Int>()
 
     /** Data from batches in a list */
-    val dataFlow = MutableStateFlow(listOf<U>())
+    val dataFlow = MutableStateFlow(Response.loading(listOf<U>()))
 
     /** Any of the batches currently loading? */
     val isLoading: MutableStateFlow<Boolean> = MutableStateFlow(batchesLoading.size != 0)
@@ -84,8 +103,8 @@ abstract class BatchedDataHandler<T, U>(
 
         try {
             scope.launch {
-                batches[batchNumber] = fetchBatch(batchNumber)
-                dataFlow.value = dataAsList()
+                batches[batchNumber] = fetchBatch(batchNumber).toMutableList()
+                dataFlow.value = Response.loading(dataAsList())
             }
             Log.d(TAG, "fetchNextBatch: Successfully loaded batch $batchNumber")
         } catch (e: Exception) {
@@ -131,66 +150,27 @@ abstract class BatchedDataHandler<T, U>(
         return null
     }
 
-    // ---- Private ----
-    // ---- Private ----
+    /**
+     * Call to refresh data for a single item
+     */
+    fun refreshSingleValue(id: T) {
+        scope.launch {
+            try {
+                val updatedData = fetchDataForId(id)
 
-    private suspend fun fetchBatch(batchNumber: Int): List<Pair<T, U>> {
-        Log.d(TAG, "fetchBatch: Fetching batch $batchNumber")
-        return scope.async(Dispatchers.IO) {
-            // Get next batches chunk from the list
-            val ids = listChunks?.getOrNull(batchNumber)
-            val temp = mutableListOf<Pair<T, U>>()
-
-            Log.d(TAG, "fetchBatch: IDS TO GET: $ids")
-
-            val jobs = ids?.map { id ->
-
-                /*
-                Fetch data simultaneously for all the ids in the chunk, try each of them 5 times.
-
-                If even one of them fails 5+ times, error is thrown and the batch is handled as not
-                fetched.
-                */
-                launch(Dispatchers.IO) {
-                    retryIO(times = 5, catchErrors = false) {
-                        withTimeout(TIMEOUT) {
-                            val res = dataProvider.getDataForId(id)
-                            res.let {
-                                temp.add(Pair(id, it))
-                            }
+                for (list in batches) {
+                    list.value.forEachIndexed { index, it ->
+                        if (it.first == id) {
+                            list.value[index] = Pair(id, updatedData)
+                            println("Successful update for id $id")
+                            return@launch
                         }
                     }
                 }
+            } catch (e: Exception) {
+                println("Cannot refresh single value: $e")
             }
-
-            jobs?.joinAll()
-            Log.d(TAG, "fetchBatch: Batch $batchNumber fetched, length: ${temp.size}")
-            return@async temp
-        }.await()
-    }
-
-    private suspend fun reloadIdList() {
-        try {
-            retryIO {
-                idList = listOf()
-                listChunks = listOf()
-                idCount.value = 0
-
-                idList = dataProvider.getIdList()
-                listChunks = idList!!.chunked(batchSize)
-                idCount.value = idList!!.size
-            }
-        } catch (e: Exception) {
-            Log.d(TAG, "reloadIdList: Error loading ids: $e")
         }
-    }
-
-    private fun clearBatches() {
-        val keys = batches.keys.map { it }
-        keys.forEach {
-            batches.remove(it)
-        }
-        dataFlow.value = listOf()
     }
 
     /**
@@ -205,7 +185,7 @@ abstract class BatchedDataHandler<T, U>(
                 if (filters == null)
                     loadedBatchValues.add(it.second)
                 else {
-                    if(it.second is Element) {
+                    if (it.second is Element) {
                         if (filters.split(' ').all { filter ->
                                 when {
                                     // TODO Abstraction
@@ -229,8 +209,70 @@ abstract class BatchedDataHandler<T, U>(
             }
         }
 
-        println("DataAsList size: ${loadedBatchValues.size}")
+        println("DataAsList: ${loadedBatchValues}")
         return loadedBatchValues
+    }
+
+    // ---- Private ----
+    // ---- Private ----
+
+    private suspend fun fetchBatch(batchNumber: Int): List<Pair<T, U>> {
+        Log.d(TAG, "fetchBatch: Fetching batch $batchNumber")
+        return scope.async(Dispatchers.IO) {
+            // Get next batches chunk from the list
+            val ids = listChunks?.getOrNull(batchNumber)
+            val temp = mutableListOf<Pair<T, U>>()
+
+            Log.d(TAG, "fetchBatch: IDS TO GET: $ids")
+
+            val jobs = ids?.map { id ->
+
+                /*
+                Fetch data simultaneously for all the ids in the chunk, try each of them 5 times.
+
+                If even one of them fails 5+ times, error is thrown and the batch is handled as not
+                fetched.
+                */
+                launch(Dispatchers.IO) {
+                    retryIO(times = 5, catchErrors = false) {
+                        withTimeout(TIMEOUT) {
+                            val res = fetchDataForId(id)
+                            res.let {
+                                temp.add(Pair(id, it))
+                            }
+                        }
+                    }
+                }
+            }
+
+            jobs?.joinAll()
+            Log.d(TAG, "fetchBatch: Batch $batchNumber fetched, length: ${temp.size}")
+            return@async temp
+        }.await()
+    }
+
+    private suspend fun reloadIdList() {
+        try {
+            retryIO {
+                idList = listOf()
+                listChunks = listOf()
+                idCount.value = 0
+
+                idList = fetchIdList()
+                listChunks = idList!!.chunked(batchSize)
+                idCount.value = idList!!.size
+            }
+        } catch (e: Exception) {
+            Log.d(TAG, "reloadIdList: Error loading ids: $e")
+        }
+    }
+
+    private fun clearBatches() {
+        val keys = batches.keys.map { it }
+        keys.forEach {
+            batches.remove(it)
+        }
+        dataFlow.value = Response.loading(listOf())
     }
 
     private fun allChunksLoaded(): Boolean = batches.containsKey(listChunks?.lastIndex)

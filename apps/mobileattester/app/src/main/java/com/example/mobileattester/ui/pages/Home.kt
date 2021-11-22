@@ -16,12 +16,13 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.mobileattester.ui.components.common.LoadingIndicator
+import com.example.mobileattester.ui.theme.*
 import com.example.mobileattester.ui.util.Preferences
 import com.example.mobileattester.ui.util.Screen
 import com.example.mobileattester.ui.util.parseBaseUrl
@@ -47,12 +48,10 @@ fun Home(navController: NavController? = null, viewModel: AttestationViewModel) 
     val scrollState = ScrollState(0)
 
 
-
-
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(13, 110, 253))
+            .background(Primary)
             .border(0.dp, Color.Transparent)
             .verticalScroll(scrollState),
     ) {
@@ -65,12 +64,10 @@ fun Home(navController: NavController? = null, viewModel: AttestationViewModel) 
         ) {
 
             Text(
-                text = AnnotatedString(
-                    "Current Configuration",
-                    SpanStyle(Color.White, fontSize = 24.sp)
-                ),
-                modifier = Modifier.padding(0.dp, 15.dp, 0.dp, 5.dp)
-
+                text = "Current Configuration",
+                modifier = Modifier.padding(0.dp, 15.dp, 0.dp, 5.dp),
+                fontSize = FONTSIZE_XXL,
+                color = Color.White
             )
 
             // Current Engine
@@ -80,7 +77,6 @@ fun Home(navController: NavController? = null, viewModel: AttestationViewModel) 
                 onClick = {
                     showAllConfigurations = !showAllConfigurations
                 })
-
 
             if (showAllConfigurations) {
                 (list.value.filter { it != currentEngine }).forEach { engineAddress ->
@@ -149,7 +145,9 @@ fun Home(navController: NavController? = null, viewModel: AttestationViewModel) 
                 .clip(RoundedCornerShape(5, 5, 0, 0))
                 .background(Color.White)
         ) {
-            Content(navController, viewModel)
+            Column(Modifier.padding(4.dp)) {
+                Content(navController, viewModel)
+            }
         }
 
 
@@ -255,23 +253,19 @@ fun Content(navController: NavController? = null, viewModel: AttestationViewMode
     }
 
     Text(
-        text = AnnotatedString("Attestation Overview", SpanStyle(fontSize = 24.sp)),
+        text = "Attestation Overview",
         modifier = Modifier
             .fillMaxWidth()
             .padding(0.dp, 15.dp, 0.dp, 5.dp),
-        textAlign = TextAlign.Center
+        textAlign = TextAlign.Center,
+        fontSize = FONTSIZE_XXL
     )
+    Spacer(modifier = Modifier.size(10.dp))
     Alert("24h") { navController!!.navigate(Screen.Elements.route) }
+    Spacer(modifier = Modifier.size(20.dp))
     Alert("Past week") { navController!!.navigate(Screen.Elements.route) }
 
-
-
-    Text(
-        text = AnnotatedString("Debug", SpanStyle(fontSize = 24.sp)),
-        modifier = Modifier.padding(10.dp)
-    )
-
-    Text(text = elementCount.value.toString(), modifier = Modifier.padding(10.dp))
+    Spacer(modifier = Modifier.size(200.dp)) // TODO: Change layout to be similar to Elements page
 }
 
 @Composable
@@ -282,42 +276,58 @@ fun Alert(
     onClick: () -> Unit = {},
 ) {
     Text(
-        text = AnnotatedString(alertDurationInfo, SpanStyle(fontSize = 24.sp)),
-        modifier = Modifier.padding(10.dp)
+        text = alertDurationInfo,
+        modifier = Modifier.padding(10.dp, 5.dp),
+        fontSize = FONTSIZE_XL
     )
-    Row(modifier = Modifier
-        .fillMaxWidth()
-        .clickable { onClick() }) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() },
+        Arrangement.SpaceBetween,
+        Alignment.CenterVertically
+    ) {
         Column(modifier = Modifier.padding(10.dp)) {
-            Text(text = "Verified Attestations", color = Color(13, 110, 253))
-            Row {
-                Icon(TablerIcons.ListSearch, contentDescription = null, tint = Color(13, 110, 253))
+            Text(text = "Verified Attestations", color = Primary)
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Icon(
+                    TablerIcons.ListSearch,
+                    contentDescription = null,
+                    tint = Primary,
+                    modifier = Modifier.size(28.dp),
+                )
                 Text(
                     (accepted + failed).toString(),
-                    color = Color(13, 110, 253),
-                    modifier = Modifier.padding(5.dp, 0.dp)
+                    color = Primary,
+                    modifier = Modifier.padding(5.dp, 0.dp),
+                    fontSize = FONTSIZE_LG,
+                    fontWeight = FontWeight.SemiBold
                 )
             }
         }
         Column(modifier = Modifier.padding(10.dp)) {
-            Text(text = "Accepted", color = Color(41, 113, 73))
+            Text(text = "Accepted", color = Ok)
             Row {
-                Icon(TablerIcons.SquareCheck, contentDescription = null, tint = Color(41, 113, 73))
+                Icon(TablerIcons.SquareCheck, contentDescription = null, tint = Ok)
                 Text(
                     accepted.toString(),
-                    color = Color(41, 113, 73),
-                    modifier = Modifier.padding(5.dp, 0.dp)
+                    color = Ok,
+                    modifier = Modifier.padding(5.dp, 0.dp),
+                    fontSize = FONTSIZE_LG,
+                    fontWeight = FontWeight.SemiBold
                 )
             }
         }
         Column(modifier = Modifier.padding(10.dp)) {
-            Text(text = "Failed", color = Color(173, 0, 32))
+            Text(text = "Failed", color = Error)
             Row {
-                Icon(TablerIcons.SquareX, contentDescription = null, tint = Color(173, 0, 32))
+                Icon(TablerIcons.SquareX, contentDescription = null, tint = Error)
                 Text(
                     failed.toString(),
-                    color = Color(173, 0, 32),
-                    modifier = Modifier.padding(5.dp, 0.dp)
+                    color = Error,
+                    modifier = Modifier.padding(5.dp, 0.dp),
+                    fontSize = FONTSIZE_LG,
+                    fontWeight = FontWeight.SemiBold
                 )
             }
         }

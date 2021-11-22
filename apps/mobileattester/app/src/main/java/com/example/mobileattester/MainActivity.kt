@@ -25,14 +25,13 @@ class MainActivity : ComponentActivity() {
          */
 
         viewModel = ViewModelProvider(this,
-            Injector.provideAttestationViewModelFactory("http://${Preferences.defaultConfig.first()}/")).get(
+            Injector.provideAttestationViewModelFactory(Preferences.defaultConfig.first())).get(
             AttestationViewModelImpl::class.java)
 
         setContent {
             MobileAttesterTheme {
                 NavUtils.Navigator()
             }
-            //MainScreenView()
         }
     }
 }

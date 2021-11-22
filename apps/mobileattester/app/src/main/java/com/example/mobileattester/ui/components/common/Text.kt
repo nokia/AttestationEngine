@@ -1,13 +1,16 @@
 package com.example.mobileattester.ui.components.common
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.AnnotatedString
@@ -24,7 +27,7 @@ fun TextWithIconClickable(
     text: String,
     icon: ImageVector,
     color: Color = MaterialTheme.colors.primary,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     Row(
         Modifier
@@ -61,5 +64,25 @@ fun TextWithIcon(
             )
         Spacer(modifier = Modifier.size(8.dp))
         Icon(icon, contentDescription = "", tint = color)
+    }
+}
+
+@Composable
+fun DecorText(txt: String, color: Color) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Column() {
+            Box(modifier = Modifier.size(5.dp))
+            Box(
+                modifier = Modifier
+                    .size(8.dp)
+                    .clip(CircleShape)
+                    .background(color)
+            )
+        }
+        Text(
+            modifier = Modifier.padding(top = 4.dp, start = 4.dp),
+            text = txt,
+            color = color,
+        )
     }
 }

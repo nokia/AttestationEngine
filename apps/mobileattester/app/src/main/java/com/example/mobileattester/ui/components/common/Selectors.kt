@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.toSize
 import com.example.mobileattester.ui.theme.DarkGrey
 import com.example.mobileattester.ui.theme.ELEVATION_SM
 import com.example.mobileattester.ui.theme.LightGrey
+import com.example.mobileattester.ui.theme.Primary
 import compose.icons.TablerIcons
 import compose.icons.tablericons.ChevronDown
 import compose.icons.tablericons.ChevronUp
@@ -49,7 +50,7 @@ fun SimpleRadioGroup(
     selections: List<String>,
     selected: MutableState<String>,
     vertical: Boolean = true,
-    onSelectionChanged: (value: String) -> Unit
+    onSelectionChanged: (value: String) -> Unit,
 ) {
     @Composable
     fun CreateButtons() {
@@ -91,7 +92,7 @@ fun SimpleRadioGroup(
 fun <T> DropDown(
     items: List<T>,
     selectedValue: T,
-    onSelectionChanged: (T) -> Unit
+    onSelectionChanged: (T) -> Unit,
 ) {
     var expanded by remember { mutableStateOf(false) }
 
@@ -100,19 +101,20 @@ fun <T> DropDown(
             .fillMaxWidth()
             .wrapContentSize(Alignment.TopStart)
             .border(width = 1.dp, color = LightGrey, shape = RoundedCornerShape(4.dp))
-
     ) {
         Surface(modifier = Modifier.fillMaxWidth(), elevation = ELEVATION_SM) {
-            Text(
-                selectedValue.toString(),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable(onClick = { expanded = true })
-                    .background(
-                        Color.White
-                    )
-                    .padding(15.dp)
-            )
+            Row(Modifier.fillMaxWidth()) {
+                Text(
+                    selectedValue.toString(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable(onClick = { expanded = true })
+                        .background(
+                            Color.White
+                        )
+                        .padding(15.dp)
+                )
+            }
             DropdownMenu(
                 expanded = expanded,
                 onDismissRequest = { expanded = false },
@@ -134,7 +136,7 @@ fun <T> DropDown(
                             if (value == selectedValue) MaterialTheme.colors.primary
                             else MaterialTheme.colors.secondary
 
-                        Text(text = value.toString(), color = color)
+                        Text(modifier = Modifier.padding(vertical = 4.dp), text = value.toString(), color = color)
                     }
                 }
             }
