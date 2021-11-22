@@ -24,6 +24,7 @@ import androidx.core.os.bundleOf
 import androidx.navigation.NavController
 import com.example.mobileattester.ui.util.Screen
 import com.example.mobileattester.ui.util.navigate
+import com.example.mobileattester.ui.util.parseBaseUrl
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionRequired
 import com.google.accompanist.permissions.rememberPermissionState
@@ -88,7 +89,13 @@ fun Scanner(navController: NavController? = null) {
 
                             navController!!.navigate(
                                 Screen.Element.route,
-                                bundleOf(Pair(ARG_ITEM_ID, result.toString()))
+                                bundleOf(Pair(ARG_ITEM_ID, result.toString().let {
+                                    if (it.startsWith("http")) {
+                                        println("Found Link: $it")
+                                        parseBaseUrl(it)
+                                    } else
+                                        it.trim()
+                                }))
                             )
                         }
                     }

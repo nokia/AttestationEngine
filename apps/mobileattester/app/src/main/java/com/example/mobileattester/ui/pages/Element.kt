@@ -1,17 +1,20 @@
 package com.example.mobileattester.ui.pages
 
 import androidx.compose.foundation.ScrollState
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.*
-import androidx.compose.runtime.*
+import androidx.compose.material.Divider
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
+import androidx.compose.material.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -30,7 +33,6 @@ import com.example.mobileattester.ui.components.common.TextWithIcon
 import com.example.mobileattester.ui.theme.*
 import com.example.mobileattester.ui.util.Screen
 import com.example.mobileattester.ui.util.navigate
-import com.example.mobileattester.ui.util.parseBaseUrl
 import com.example.mobileattester.ui.viewmodel.AttestationViewModel
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
@@ -46,13 +48,7 @@ const val ARG_ITEM_ID = "item_id"
 @Composable
 fun Element(navController: NavController, viewModel: AttestationViewModel) {
     val clickedElementId =
-        navController.currentBackStackEntry?.arguments?.get(ARG_ITEM_ID).toString().let {
-            if (it.startsWith("http")) {
-                println("Found Link: $it")
-                parseBaseUrl(it)
-            } else
-                it.trim()
-        }
+        navController.currentBackStackEntry?.arguments?.get(ARG_ITEM_ID).toString()
 
     val element = viewModel.getElementFromCache(clickedElementId)
 
@@ -283,7 +279,7 @@ fun ElementResultFull(
 fun ElementActions(onAttestClick: () -> Unit) {
     Row(
         Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
+        verticalAlignment = CenterVertically,
         horizontalArrangement = Arrangement.Center,
     ) {
         OutlinedIconButton(TablerIcons.Checkbox, text = "Attest", rounded = true) {
