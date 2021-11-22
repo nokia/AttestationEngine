@@ -16,7 +16,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -266,7 +265,7 @@ fun Content(navController: NavController? = null, viewModel: AttestationViewMode
     Spacer(modifier = Modifier.size(20.dp))
     Alert("Past week") { navController!!.navigate(Screen.Elements.route) }
 
-    Spacer(modifier = Modifier.size(200.dp))
+    Spacer(modifier = Modifier.size(200.dp)) // TODO: Change layout to be similar to Elements page
 }
 
 @Composable
