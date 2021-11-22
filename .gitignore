@@ -1,0 +1,3 @@
+*.egg
+*.whl
+**/__pycache__/
