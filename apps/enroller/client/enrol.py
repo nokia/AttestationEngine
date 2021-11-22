@@ -96,13 +96,7 @@ ocredf.close()
 
 enrollbody = {"secret": revealedsecret, "element": jsondata}
 
-<<<<<<< HEAD
-print("Entrollment body is ",type(jsondata),jsondata)
-
-r = requests.post(enrollmentserver+"/enrol/element/"+sessionid,json=enrollbody)
-=======
 r = requests.post(enrollmentserver + "/enrol/element/" + sessionid, json=enrollbody)
->>>>>>> cc58eb9bdb0e4d3759b12a32cb6015600236c0a2
 
 if r.status_code != 201:
     print("Call to element enrollment on enrollment server failed ", r.text)
