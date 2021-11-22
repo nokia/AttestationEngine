@@ -26,24 +26,8 @@ jobs:
         working-directory: ./apps/mobileattester
         run: ./gradlew build
 
-  lint:
-    needs: [build]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout the code
-        uses: actions/checkout@v2
-      - name: Run lint
-        working-directory: ./apps/mobileattester
-        run: ./gradlew lintDebug
-      - name: Upload html test report
-        working-directory: ./apps/mobileattester
-        uses: actions/upload-artifact@v2
-        with:
-          name: lint.html
-          path: ./app/build/reports/lint-results-debug.html
-
   test:
-    needs: [lint]
+    needs: [build]
     name: Run Unit Tests
     runs-on: ubuntu-latest
     steps:
