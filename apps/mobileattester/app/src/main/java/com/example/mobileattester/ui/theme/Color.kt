@@ -12,6 +12,7 @@ val PrimaryDark = Color(0xFF031A6B)
 val Secondary = Color(0xFF2D3047)
 val White = Color(0xFFFFFFFF)
 val Ok = Color(0xFF298549)
+val Attention = Color(0xFFffae1a)
 val Error = Color(0xFFB00020)
 
 val DividerColor = Color(0xFFE4E4E4)

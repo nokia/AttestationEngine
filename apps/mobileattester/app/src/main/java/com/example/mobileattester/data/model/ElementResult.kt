@@ -3,6 +3,8 @@ package com.example.mobileattester.data.model
 import com.google.gson.annotations.SerializedName
 
 const val CODE_RESULT_OK = 0
+const val CODE_RESULT_ERROR = 9001
+const val CODE_RESULT_VERIFY_ERROR = 9002
 
 data class ElementResult(
     // missing "additional: []"

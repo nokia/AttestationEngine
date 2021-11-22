@@ -24,6 +24,7 @@ import com.example.mobileattester.ui.components.SearchBar
 import com.example.mobileattester.ui.components.TagRow
 import com.example.mobileattester.ui.components.common.ErrorIndicator
 import com.example.mobileattester.ui.components.common.HeaderRoundedBottom
+import com.example.mobileattester.ui.components.common.LoadingIndicator
 import com.example.mobileattester.ui.theme.DarkGrey
 import com.example.mobileattester.ui.theme.DividerColor
 import com.example.mobileattester.ui.util.Screen
@@ -70,6 +71,7 @@ private fun RenderElementList(navController: NavController, viewModel: Attestati
             Status.ERROR -> {
                 ErrorIndicator(msg = elementResponse.message.toString())
             }
+            Status.LOADING -> LoadingIndicator()
             else -> {
                 LazyColumn() {
                     // Header

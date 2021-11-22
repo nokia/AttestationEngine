@@ -28,9 +28,7 @@ import com.example.mobileattester.ui.components.common.HeaderRoundedBottom
 import com.example.mobileattester.ui.components.common.OutlinedIconButton
 import com.example.mobileattester.ui.components.common.TextWithIcon
 import com.example.mobileattester.ui.theme.*
-import com.example.mobileattester.ui.util.Screen
-import com.example.mobileattester.ui.util.navigate
-import com.example.mobileattester.ui.util.parseBaseUrl
+import com.example.mobileattester.ui.util.*
 import com.example.mobileattester.ui.viewmodel.AttestationViewModel
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
@@ -39,6 +37,7 @@ import compose.icons.tablericons.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
+import java.util.*
 import kotlin.math.roundToLong
 
 const val ARG_ITEM_ID = "item_id"
@@ -239,21 +238,18 @@ fun ElementResultFull(
                 verticalAlignment = CenterVertically,
             ) {
                 OutlinedIconButton(
-                    icon = if (it.result == 0) TablerIcons.Check else TablerIcons.X,
+                    icon = getResultIcon(it),
                     width = 24.dp,
                     height = 24.dp,
                     border = null,
-                    color = if (it.result == 0) Ok else Error,
+                    color = getCodeColor(it.result),
                     rounded = true
                 )
                 Text(modifier = Modifier.padding(horizontal = 4.dp),
                     text = it.ruleName,
                     maxLines = 1)
                 Text(
-                    text = SimpleDateFormat(
-                        "dd.MM.",
-                        java.util.Locale.getDefault()
-                    ).format(it.verifiedAt.toFloat() * 1000L),
+                    text = getTimeFormatted(it.verifiedAt, DatePattern.DateOnly),
                     maxLines = 1,
                     textAlign = TextAlign.End,
                     modifier = Modifier.fillMaxWidth(),
@@ -286,11 +282,11 @@ fun ElementActions(onAttestClick: () -> Unit) {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center,
     ) {
-        OutlinedIconButton(TablerIcons.Checkbox, text = "Attest", rounded = true) {
+        OutlinedIconButton(TablerIcons.Checkbox, rounded = true, color = Ok) {
             onAttestClick()
         }
         SpacerSmall()
-        OutlinedIconButton(TablerIcons.Checks, text = "Attest All", rounded = true) {}
+        OutlinedIconButton(TablerIcons.CurrentLocation, rounded = true) {}
     }
 }
 

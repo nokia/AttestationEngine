@@ -87,7 +87,8 @@ class AttestationViewModelImpl(
     override fun switchBaseUrl(url: String) {
         println("SwitchedBaseUrl")
         repo.rebuildService(url)
-        elementDataHandler.refreshData(hardReset = true)
+        elementDataHandler.refreshData(true)
+        attestationUtil.reset(true)
     }
 
     override fun useAttestationUtil(): AttestationUtil = attestationUtil

@@ -113,8 +113,7 @@ object NavUtils {
                     showTopBar.value = true; Claim(navController, viewModel.useAttestationUtil())
                 }
                 composable(Screen.Result.route) {
-                    showTopBar.value =
-                        true; ResultScreenProvider(
+                    showTopBar.value = false; ResultScreenProvider(
                     navController = navController,
                     viewModel = viewModel,
                     resultFlow = viewModel.useAttestationUtil().result,

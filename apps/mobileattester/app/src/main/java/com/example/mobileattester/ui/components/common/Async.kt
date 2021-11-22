@@ -22,16 +22,18 @@ fun LoadingIndicator() {
 
 @Composable
 fun LoadingFullScreen() {
-    Row(Modifier.fillMaxSize(), Arrangement.Center, Alignment.CenterVertically) {
+    Column(Modifier.fillMaxSize(), Arrangement.Center, Alignment.CenterHorizontally) {
         LoadingIndicator()
     }
 }
 
 @Composable
 fun ErrorIndicator(msg: String) {
-    Row(modifier = Modifier
-        .fillMaxWidth()
-        .padding(32.dp)) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(32.dp),
+    ) {
         Text(text = msg)
     }
 }

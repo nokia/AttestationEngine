@@ -41,8 +41,8 @@ interface AttestationUtil {
     fun attest(eid: String, pid: String, rule: String? = null)
 
     /**
-     * Reset status+claim+result, cancel running coroutines.
-     * @param hardReset set to true to fetch rule list again.
+     * Reset status, so that a different element can be attested.
+     * @param hardReset set to true to clear everything + fetch rules/policies again.
      */
     fun reset(hardReset: Boolean = false)
 }
@@ -100,11 +100,12 @@ class AttestUtil(
     override fun reset(hardReset: Boolean) {
         job.cancelChildren()
         setStatus(AttestationStatus.IDLE)
-        claim.value = null
-        result.value = null
 
         if (hardReset) {
+            claim.value = null
+            result.value = null
             fetchRules()
+            policyDataHandler.refreshData(true)
         }
     }
 
@@ -126,7 +127,6 @@ class AttestUtil(
     private suspend fun attestVerify(eid: String, pid: String, rule: String) {
         val claimId = dataHandler.attestElement(eid, pid)
         val resId = dataHandler.verifyClaim(claimId, rule)
-        println("Claim verification, Result id: $resId")
         result.value = Response.success(dataHandler.getResult(resId))
     }
 

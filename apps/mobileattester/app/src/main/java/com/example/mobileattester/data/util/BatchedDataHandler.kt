@@ -102,7 +102,7 @@ abstract class BatchedDataHandler<T, U>(
         scope.launch {
             try {
                 batches[batchNumber] = fetchBatch(batchNumber).toMutableList()
-                dataFlow.value = Response.loading(dataAsList())
+                dataFlow.value = Response.success(dataAsList())
             } catch (e: Exception) {
                 Log.d(TAG, "failed to fetch next batch[$batchNumber]: $e")
                 dataFlow.value = Response.error(message = "Data could not be fetched: $e")

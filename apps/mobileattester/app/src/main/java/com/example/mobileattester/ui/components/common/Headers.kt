@@ -8,7 +8,9 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.example.mobileattester.ui.theme.Primary
 import com.example.mobileattester.ui.theme.White
 
 /**
@@ -16,11 +18,12 @@ import com.example.mobileattester.ui.theme.White
  */
 @Composable
 fun HeaderRoundedBottom(
-    content: @Composable() () -> Unit
+    color: Color = Primary,
+    content: @Composable() () -> Unit,
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        color = MaterialTheme.colors.primary,
+        color = color,
     ) {
         Column() {
             content()
