@@ -70,15 +70,13 @@ class AttestationViewModelImpl(
     override fun refreshElement(itemid: String) = elementDataHandler.refreshSingleValue(itemid)
 
     override fun findElementResult(resultId: String): ElementResult? {
-
         val data = elementDataHandler.dataFlow.value.data ?: return null
 
         for (element in data) {
-            element.results.find {
+            val result = element.results.find {
                 it.itemid == resultId
-            }?.let {
-                return it
             }
+            if (result != null) return result
         }
 
         return null

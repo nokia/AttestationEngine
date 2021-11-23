@@ -114,7 +114,7 @@ fun Attest(navController: NavController, viewModel: AttestationViewModel) {
         u.reset()
 
         val policyId =
-            policies.find { it.name == selectedPolicy.value }?.itemid ?: kotlin.run {
+            policies.find { it.name == selectedPolicy.value }?.itemid ?: run {
                 println("PolicyId not found")
                 return
             }
@@ -134,15 +134,11 @@ fun Attest(navController: NavController, viewModel: AttestationViewModel) {
             onReset = { u.reset() },
             onRetry = { submit() },
         )
-        AttestationStatus.SUCCESS -> AttestationSuccessScreen(
-            type = AttestationType.getFromString(context, selectedType.value)!!,
-            onReset = { u.reset() },
-            onNav = {
-                if (selectedType.value == context.getString(AttestationType.Attest.resId)) {
-                    navController.navigate(Screen.Claim.route)
-                } else navController.navigate(Screen.Result.route)
-            },
-        )
+        AttestationStatus.SUCCESS -> {
+            if (selectedType.value == context.getString(AttestationType.Attest.resId)) {
+                navController.navigate(Screen.Claim.route)
+            } else navController.navigate(Screen.Result.route)
+        }
         AttestationStatus.IDLE -> AttestationConfig(
             element,
             attestationTypes,

@@ -6,6 +6,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
@@ -26,10 +27,7 @@ import com.example.mobileattester.ui.components.common.ErrorIndicator
 import com.example.mobileattester.ui.components.common.HeaderRoundedBottom
 import com.example.mobileattester.ui.components.common.LoadingFullScreen
 import com.example.mobileattester.ui.theme.*
-import com.example.mobileattester.ui.util.DatePattern
-import com.example.mobileattester.ui.util.getCodeColor
-import com.example.mobileattester.ui.util.getResultIcon
-import com.example.mobileattester.ui.util.getTimeFormatted
+import com.example.mobileattester.ui.util.*
 import com.example.mobileattester.ui.viewmodel.AttestationViewModel
 import compose.icons.TablerIcons
 import compose.icons.tablericons.*
@@ -49,28 +47,27 @@ fun ResultScreenProvider(
     viewModel: AttestationViewModel,
     navController: NavController,
     resultFlow: MutableStateFlow<Response<ElementResult>?>? = null,
-    result: ElementResult? = null,
 ) {
-    if (resultFlow != null && result != null) {
-        throw Error("Provide exactly one result parameter")
-    }
-    if (resultFlow == null && result == null) {
-        throw Error("Provide exactly one result parameter")
-    }
-
     fun navBack() {
         navController.navigateUp()
     }
 
+
     // --------------------------------------------------
 
-    result?.let {
-        Result(result, ::navBack)
+    // Check first if there is id provided in the arguments
+    navController.currentBackStackEntry?.arguments?.getString(ARG_RESULT_ID)?.let { id ->
+        viewModel.findElementResult(id)?.let {
+            Result(result = it) {
+                // Clear the arg on navigate out
+                navController.currentBackStackEntry?.arguments?.remove(ARG_RESULT_ID)
+                navBack()
+            }
+        } ?: Text(text = "Element result was null")
         return
     }
 
-
-    // --------------------------------------------------
+// --------------------------------------------------
 
     val res = resultFlow?.collectAsState()?.value
     when (res?.status) {
@@ -85,14 +82,7 @@ fun ResultScreenProvider(
     }
 
 
-    // --------------------------------------------------
-
-    navController.currentBackStackEntry?.arguments?.getString(ARG_RESULT_ID)?.let { id ->
-        viewModel.findElementResult(id)?.let {
-            Result(result = it, ::navBack)
-            return
-        }
-    }
+// --------------------------------------------------
 
     FadeInWithDelay(2000) {
         Text(text = "Result data not found")
@@ -105,6 +95,7 @@ fun Result(
     result: ElementResult,
     onNavigateUp: () -> Unit,
 ) {
+    println("Result render")
     FadeInWithDelay(50) {
 
         Column(

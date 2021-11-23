@@ -67,7 +67,7 @@ abstract class BatchedDataHandler<T, U>(
     /**
      * Fetched data
      */
-    private val batches = mutableMapOf<Int, MutableList<Pair<T, U>>>()
+    private val batches = mutableMapOf<Int, List<Pair<T, U>>>()
     private val batchesLoading = MutableStateFlow(mutableSetOf<Int>())
 
     /** Data from batches in a list */
@@ -101,7 +101,7 @@ abstract class BatchedDataHandler<T, U>(
 
         scope.launch {
             try {
-                batches[batchNumber] = fetchBatch(batchNumber).toMutableList()
+                batches[batchNumber] = fetchBatch(batchNumber)
                 dataFlow.value = Response.success(dataAsList())
             } catch (e: Exception) {
                 Log.d(TAG, "failed to fetch next batch[$batchNumber]: $e")
@@ -165,7 +165,11 @@ abstract class BatchedDataHandler<T, U>(
                 for (list in batches) {
                     list.value.forEachIndexed { index, it ->
                         if (it.first == id) {
-                            list.value[index] = Pair(id, updatedData)
+                            val cp = list.value.map { it }.toMutableList()
+                            cp[index] = Pair(id, updatedData)
+
+                            batches[list.key] = cp
+                            dataFlow.value = Response.success(dataAsList())
                             println("Successful update for id $id")
                             return@launch
                         }

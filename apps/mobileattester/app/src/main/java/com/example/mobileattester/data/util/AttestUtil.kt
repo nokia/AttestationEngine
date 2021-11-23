@@ -12,11 +12,13 @@ import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
-
 enum class AttestationStatus(msg: String = "") {
     IDLE, LOADING, ERROR, SUCCESS
 }
 
+/**
+ * Functionality to attest elements.
+ */
 interface AttestationUtil {
 
     /** Contains the policies */
