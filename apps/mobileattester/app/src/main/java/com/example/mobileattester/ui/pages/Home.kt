@@ -6,26 +6,28 @@ import android.util.Patterns
 import android.widget.Toast
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.os.bundleOf
 import androidx.navigation.NavController
 import com.example.mobileattester.data.network.Status
 import com.example.mobileattester.ui.components.common.ErrorIndicator
+import com.example.mobileattester.ui.components.common.HeaderRoundedBottom
 import com.example.mobileattester.ui.components.common.LoadingIndicator
 import com.example.mobileattester.ui.theme.*
 import com.example.mobileattester.ui.util.Preferences
 import com.example.mobileattester.ui.util.Screen
+import com.example.mobileattester.ui.util.navigate
 import com.example.mobileattester.ui.util.parseBaseUrl
 import com.example.mobileattester.ui.viewmodel.AttestationViewModel
 import compose.icons.TablerIcons
@@ -38,6 +40,7 @@ fun Home(navController: NavController? = null, viewModel: AttestationViewModel) 
     val context = LocalContext.current
     val currentUrl = viewModel.currentUrl.collectAsState()
     val currentEngine = parseBaseUrl(currentUrl.value)
+
     val preferences = Preferences(LocalContext.current)
     val list = preferences.engines.collectAsState(initial = sortedSetOf<String>())
 
@@ -48,24 +51,18 @@ fun Home(navController: NavController? = null, viewModel: AttestationViewModel) 
     val scrollState = ScrollState(0)
 
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Primary)
-            .border(0.dp, Color.Transparent)
-            .verticalScroll(scrollState),
-    ) {
-        // Top Bar
+    Column(modifier = Modifier.verticalScroll(scrollState)) {
         Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(10.dp)
-                .border(0.dp, Color.Transparent),
+                .fillMaxSize()
+                .background(Primary)
+                .border(0.dp, Color.Transparent)
         ) {
 
+            // Top Bar
             Text(
                 text = "Current Configuration",
-                modifier = Modifier.padding(0.dp, 15.dp, 0.dp, 5.dp),
+                modifier = Modifier.padding(10.dp, 15.dp, 10.dp, 5.dp),
                 fontSize = FONTSIZE_XXL,
                 color = Color.White
             )
@@ -137,7 +134,9 @@ fun Home(navController: NavController? = null, viewModel: AttestationViewModel) 
                         }
                     })
             }
+            HeaderRoundedBottom()
         }
+
         // Content
         Column(
             modifier = Modifier
@@ -210,7 +209,7 @@ fun ConfigurationButton(
 
 @Composable
 fun Content(navController: NavController? = null, viewModel: AttestationViewModel) {
-    val elementCount = viewModel.elementCount.collectAsState()
+    val elements = viewModel.filterElements()
     val refreshing = viewModel.isRefreshing.collectAsState()
 
 
@@ -254,7 +253,7 @@ fun Content(navController: NavController? = null, viewModel: AttestationViewMode
             LoadingIndicator()
         } else {
             Text(
-                text = elementCount.value.data.toString(),
+                AnnotatedString(elements.size.toString()),
                 modifier = Modifier
                     .padding(5.dp, 0.dp)
                     .align(Alignment.CenterVertically)
@@ -273,12 +272,18 @@ fun Content(navController: NavController? = null, viewModel: AttestationViewMode
         textAlign = TextAlign.Center,
         fontSize = FONTSIZE_XXL
     )
-    Spacer(modifier = Modifier.size(10.dp))
-    Alert("24h") { navController!!.navigate(Screen.Elements.route) }
-    Spacer(modifier = Modifier.size(20.dp))
-    Alert("Past week") { navController!!.navigate(Screen.Elements.route) }
 
-    Spacer(modifier = Modifier.size(200.dp))
+    val attestations = viewModel.filterElements("?")
+    val active = viewModel.filterElements("!")
+    val attestations24 = viewModel.filterElements("?24")
+    val active24 = viewModel.filterElements("!24")
+
+    Spacer(modifier = Modifier.size(10.dp))
+    Alert("Active", accepted = attestations.size - active.size, failed = active.size)
+    { navController!!.navigate(Screen.Elements.route, bundleOf(Pair(ARG_INITIAL_SEARCH, "!"))) }
+    Spacer(modifier = Modifier.size(20.dp))
+    Alert("24H", accepted = attestations24.size - active24.size, failed = active24.size)
+    { navController!!.navigate(Screen.Elements.route, bundleOf(Pair(ARG_INITIAL_SEARCH, "!24"))) }
 }
 
 @Composable
@@ -301,12 +306,13 @@ fun Alert(
         Alignment.CenterVertically
     ) {
         Column(modifier = Modifier.padding(10.dp)) {
-            Text(text = "Verified Attestations", color = Primary)
+            Text(text = "Attested Systems", color = Primary)
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
                     TablerIcons.ListSearch,
                     contentDescription = null,
                     tint = Primary,
+                    modifier = Modifier.size(28.dp),
                 )
                 Text(
                     (accepted + failed).toString(),

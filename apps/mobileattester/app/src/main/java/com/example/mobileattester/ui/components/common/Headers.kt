@@ -19,11 +19,11 @@ import com.example.mobileattester.ui.theme.White
 @Composable
 fun HeaderRoundedBottom(
     color: Color = Primary,
-    content: @Composable() () -> Unit,
+    content: @Composable() () -> Unit = {}
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        color = color,
+        color = MaterialTheme.colors.primary,
     ) {
         Column() {
             content()

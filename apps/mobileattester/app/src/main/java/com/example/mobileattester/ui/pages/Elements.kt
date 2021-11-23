@@ -38,6 +38,8 @@ import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import compose.icons.TablerIcons
 import compose.icons.tablericons.ChevronRight
 
+const val ARG_INITIAL_SEARCH = "initial_search"
+
 @Composable
 fun Elements(navController: NavController, viewModel: AttestationViewModel) {
     // Navigate to single element view, pass clicked id as argument

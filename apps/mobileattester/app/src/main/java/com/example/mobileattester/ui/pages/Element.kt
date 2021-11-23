@@ -1,14 +1,16 @@
 package com.example.mobileattester.ui.pages
 
-import androidx.compose.foundation.*
+import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -25,7 +27,9 @@ import com.example.mobileattester.ui.components.common.HeaderRoundedBottom
 import com.example.mobileattester.ui.components.common.OutlinedIconButton
 import com.example.mobileattester.ui.components.common.TextWithIcon
 import com.example.mobileattester.ui.theme.*
-import com.example.mobileattester.ui.util.*
+import com.example.mobileattester.ui.util.Screen
+import com.example.mobileattester.ui.util.navigate
+import com.example.mobileattester.ui.util.parseBaseUrl
 import com.example.mobileattester.ui.viewmodel.AttestationViewModel
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
@@ -34,7 +38,6 @@ import compose.icons.tablericons.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
-import java.util.*
 import kotlin.math.roundToLong
 
 const val ARG_ITEM_ID = "item_id"
@@ -144,12 +147,9 @@ private fun ElementResult(navController: NavController, element: Element) {
         },
     ) {
         // On more items requested fetch a batch of items by time.
-        val hourInSeconds = 3600
-        val resultSeconds =
-            element.results[latestResults.size].verifiedAt.toDoubleOrNull()!!.roundToLong()
-        val curTimeInSeconds: Long = System.currentTimeMillis() / 1000
         resultHoursShown.value =
-            curTimeInSeconds.minus(resultSeconds).div(hourInSeconds).toInt().hoursHWMYRounded()
+            parseTimestamp(element.results.getOrNull(latestResults.size)?.verifiedAt.toString())?.timeSince()
+                ?.toHours()?.hoursHWMYRounded() ?: resultHoursShown.value
     }
 }
 
@@ -235,12 +235,21 @@ private fun ElementResultFull(
                 )
             }
         } else {
-            Text(
-                modifier = Modifier
-                    .padding(24.dp),
-                text = "All results listed.",
-                textAlign = TextAlign.Center,
-            )
+            if (results.isEmpty()) {
+                Text(
+                    modifier = Modifier
+                        .padding(24.dp),
+                    text = "No results available",
+                    textAlign = TextAlign.Center,
+                )
+            } else {
+                Text(
+                    modifier = Modifier
+                        .padding(24.dp),
+                    text = "All results listed.",
+                    textAlign = TextAlign.Center,
+                )
+            }
         }
     }
 }
