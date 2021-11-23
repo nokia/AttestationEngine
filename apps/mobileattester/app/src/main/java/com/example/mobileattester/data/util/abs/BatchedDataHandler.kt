@@ -16,7 +16,7 @@ typealias FetchIdData<T, U> = suspend (T) -> U
  * Implement to make a class searchable by BatchedDataHandler.
  */
 interface Searchable {
-    /** Method should return true if the parameter string matches the object in some way */
+    /** Method should return true if the parameter string matches the object */
     fun filter(s: String): Boolean
 }
 

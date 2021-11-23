@@ -2,13 +2,17 @@ package com.example.mobileattester.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import com.example.mobileattester.data.model.Element
 import com.example.mobileattester.data.model.ElementResult
+import com.example.mobileattester.data.model.emptyElement
 import com.example.mobileattester.data.network.Response
 import com.example.mobileattester.data.repository.AttestationRepository
 import com.example.mobileattester.data.util.AttestationUtil
 import com.example.mobileattester.data.util.ElementDataHandler
-import kotlinx.coroutines.flow.StateFlow
+import com.example.mobileattester.data.util.UpdateUtil
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.*
 
 interface AttestationViewModel {
     val isRefreshing: StateFlow<Boolean>
@@ -23,6 +27,7 @@ interface AttestationViewModel {
 
     /** Get element data, which has already been downloaded */
     fun getElementFromCache(itemid: String): Element?
+
     fun filterElements(filters: String): List<Element>
     fun getMoreElements()
     fun refreshElements()
@@ -34,10 +39,8 @@ interface AttestationViewModel {
     /** Switch the base url used for the engine */
     fun switchBaseUrl(url: String)
 
-    /** Get attestation results of a specific element */
-    //fun getElementResults(itemid: String, limit: Int = 10) : List<ElementResult>
-
     fun useAttestationUtil(): AttestationUtil
+    fun useUpdateUtil(): UpdateUtil
 }
 
 // --------- Implementation ---------
@@ -47,11 +50,13 @@ class AttestationViewModelImpl(
     private val repo: AttestationRepository,
     private val elementDataHandler: ElementDataHandler,
     private val attestationUtil: AttestationUtil,
+    private val updateUtil: UpdateUtil,
 ) : AttestationViewModel, ViewModel() {
 
     companion object {
         const val FETCH_START_BUFFER = 3
     }
+
 
     override val isRefreshing: StateFlow<Boolean> = elementDataHandler.isRefreshing
     override val isLoading: StateFlow<Boolean> = elementDataHandler.isLoading
@@ -63,6 +68,7 @@ class AttestationViewModelImpl(
 
     override fun getElementFromCache(itemid: String): Element? =
         elementDataHandler.getDataForId(itemid)
+
 
     override fun getMoreElements() = elementDataHandler.fetchNextBatch()
     override fun filterElements(filters: String) = elementDataHandler.dataAsList(filters)
@@ -90,15 +96,17 @@ class AttestationViewModelImpl(
     }
 
     override fun useAttestationUtil(): AttestationUtil = attestationUtil
+    override fun useUpdateUtil(): UpdateUtil = updateUtil
 }
 
 class AttestationViewModelImplFactory(
     private val repo: AttestationRepository,
     private val elementDataHandler: ElementDataHandler,
     private val attestUtil: AttestationUtil,
+    private val updateUtil: UpdateUtil,
 ) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        return AttestationViewModelImpl(repo, elementDataHandler, attestUtil) as T
+        return AttestationViewModelImpl(repo, elementDataHandler, attestUtil, updateUtil) as T
     }
 }

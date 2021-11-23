@@ -17,8 +17,12 @@ class ElementDataHandler(
 ) : BatchedDataHandler<String, Element>(batchSize, fetchIdList, fetchDataForId) {
 
     override fun <T> notify(data: T) {
-        if (data is Element) {
-            this.refreshSingleValue(data.itemid)
+
+        when (data) {
+            // Element data update
+            is Element -> this.refreshSingleValue(data.itemid)
+            // Element Attestation completed
+            is ElementAttested -> this.refreshSingleValue(data.eid)
         }
     }
 }

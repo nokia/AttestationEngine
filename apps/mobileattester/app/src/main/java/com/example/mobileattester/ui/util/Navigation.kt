@@ -90,7 +90,7 @@ object NavUtils {
         ) { innerPadding ->
             NavHost(
                 navController,
-                startDestination = Screen.More.route,
+                startDestination = Screen.Home.route,
                 Modifier.padding(innerPadding)
             ) {
                 // Add new nav destinations here after Screen for it is created

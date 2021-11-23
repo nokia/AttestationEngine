@@ -24,7 +24,7 @@ interface AttestationDataService {
     suspend fun getAllTypes(): List<String>
 
     @PUT("element")
-    suspend fun updateElement(@Body element: Element): String
+    suspend fun updateElement(@Body element: Element)
 
     /**
     Policies

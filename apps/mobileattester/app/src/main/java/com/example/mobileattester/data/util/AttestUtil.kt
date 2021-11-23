@@ -1,20 +1,22 @@
 package com.example.mobileattester.data.util
 
 import android.util.Log
-import com.example.mobileattester.data.model.Claim
-import com.example.mobileattester.data.model.ElementResult
-import com.example.mobileattester.data.model.Policy
-import com.example.mobileattester.data.model.Rule
+import androidx.compose.ui.platform.isDebugInspectorInfoEnabled
+import com.example.mobileattester.data.model.*
 import com.example.mobileattester.data.network.*
+import com.example.mobileattester.data.util.abs.Notifier
+import com.example.mobileattester.data.util.abs.NotifySubscriber
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
-enum class AttestationStatus(msg: String = "") {
-    IDLE, LOADING, ERROR, SUCCESS
+enum class AttestationStatus {
+    IDLE, LOADING, ERROR, SUCCESS;
 }
+
+data class ElementAttested(val eid: String)
 
 /**
  * Functionality to attest elements.
@@ -55,6 +57,7 @@ interface AttestationUtil {
 private const val TAG = "AttestUtil"
 
 class AttestUtil(
+    private val notifier: Notifier,
     private val dataHandler: AttestationDataHandler,
     private val policyDataHandler: PolicyDataHandler,
 ) : AttestationUtil {
@@ -91,6 +94,7 @@ class AttestUtil(
                         else -> attestVerify(eid, pid, rule)
                     }
                     setStatus(AttestationStatus.SUCCESS)
+                    notifier.notifyAll(ElementAttested(eid))
                 }
             } catch (e: Exception) {
                 Log.d(TAG, "attest error: $e")

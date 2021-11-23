@@ -52,57 +52,48 @@ fun Element(navController: NavController, viewModel: AttestationViewModel) {
         ElementNull()
         return
     }
-    val scope = rememberCoroutineScope()
-    val refresh = remember { mutableStateOf(false) }
 
     fun onAttestClick() {
         navController.navigate(Screen.Attest.route, bundleOf(Pair(ARG_ITEM_ID, element.itemid)))
     }
 
-    SwipeRefresh(
-        // TODO A better way to refresh data
-        state = rememberSwipeRefreshState(refresh.value),
-        onRefresh = {
-            refresh.value = true
-            viewModel.refreshElement(element.itemid)
-            scope.launch {
-                delay(500)
-                refresh.value = false
-            }
-        },
-    ) {
-        // Content
-        Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
-            // Element header
-            HeaderRoundedBottom {
-                Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 24.dp)) {
-                    Text(
-                        text = element.name,
-                        fontSize = FONTSIZE_XXL,
-                        fontWeight = FontWeight.Bold,
-                    )
-                    Text(
-                        text = element.endpoint,
-                        style = MaterialTheme.typography.body1,
-                        modifier = Modifier.padding(vertical = 8.dp, horizontal = 2.dp)
-                    )
-                }
-            }
-            // Content
-            Column(Modifier.padding(horizontal = 16.dp, vertical = 10.dp)) {
-                TagRow(element.types)
-                Spacer(modifier = Modifier.size(26.dp))
-                ElementActions(onAttestClick = ::onAttestClick)
-                Spacer(modifier = Modifier.size(26.dp))
+    fun onLocationClick() {
+        element.name = Random().nextFloat().toString()
+        viewModel.useUpdateUtil().updateElement(element)
+    }
+
+    // Content
+    Column(modifier = Modifier.verticalScroll(rememberScrollState())) {
+        // Element header
+        HeaderRoundedBottom {
+            Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 24.dp)) {
                 Text(
-                    text = element.description ?: "",
-                    color = DarkGrey,
+                    text = element.name,
+                    fontSize = FONTSIZE_XXL,
+                    fontWeight = FontWeight.Bold,
                 )
-                Spacer(modifier = Modifier.size(26.dp))
-                Divider(color = LightGrey, thickness = 1.dp)
-                Spacer(modifier = Modifier.size(26.dp))
-                ElementResult(navController, element)
+                Text(
+                    text = element.endpoint,
+                    style = MaterialTheme.typography.body1,
+                    modifier = Modifier.padding(vertical = 8.dp, horizontal = 2.dp)
+                )
             }
+        }
+        // Content
+        Column(Modifier.padding(horizontal = 16.dp, vertical = 10.dp)) {
+            TagRow(element.types)
+            Spacer(modifier = Modifier.size(26.dp))
+            ElementActions(onAttestClick = ::onAttestClick, onLocationClick = ::onLocationClick)
+            Spacer(modifier = Modifier.size(26.dp))
+            Text(
+                text = element.description ?: "",
+                color = DarkGrey,
+            )
+            Spacer(modifier = Modifier.size(26.dp))
+            Divider(color = LightGrey, thickness = 1.dp)
+            Spacer(modifier = Modifier.size(26.dp))
+            ElementResult(navController, element)
+
         }
     }
 }
@@ -255,7 +246,7 @@ private fun ElementResultFull(
 }
 
 @Composable
-private fun ElementActions(onAttestClick: () -> Unit) {
+private fun ElementActions(onAttestClick: () -> Unit, onLocationClick: () -> Unit) {
     Row(
         Modifier.fillMaxWidth(),
         verticalAlignment = CenterVertically,
@@ -265,6 +256,8 @@ private fun ElementActions(onAttestClick: () -> Unit) {
             onAttestClick()
         }
         Spacer(modifier = Modifier.size(8.dp))
-        OutlinedIconButton(TablerIcons.CurrentLocation, rounded = true) {}
+        OutlinedIconButton(TablerIcons.CurrentLocation, rounded = true) {
+            onLocationClick()
+        }
     }
 }

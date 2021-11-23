@@ -8,7 +8,9 @@ import com.example.mobileattester.data.repository.AttestationRepositoryImpl
 import com.example.mobileattester.data.util.AttestUtil
 import com.example.mobileattester.data.util.ElementDataHandler
 import com.example.mobileattester.data.util.PolicyDataHandler
-import com.example.mobileattester.ui.util.Preferences
+import com.example.mobileattester.data.util.UpdateUtil
+import com.example.mobileattester.data.util.abs.AsyncRunner
+import com.example.mobileattester.data.util.abs.Notifier
 import com.example.mobileattester.ui.viewmodel.AttestationViewModelImplFactory
 
 
@@ -43,11 +45,27 @@ object Injector {
             { attestationRepo.getPolicy(it) }
         )
 
+        /**
+         * Create a notifier for updates
+         */
+        val notifier = Notifier().apply {
+            subscribe(elementDataHandler)
+        }
+
         val attestUtil = AttestUtil(
+            notifier,
             handler,
             policyDataHandler
         )
 
-        return AttestationViewModelImplFactory(attestationRepo, elementDataHandler, attestUtil)
+        val fnRunner = AsyncRunner(notifier)
+        val updateUtil = UpdateUtil(fnRunner, handler)
+
+        return AttestationViewModelImplFactory(
+            attestationRepo,
+            elementDataHandler,
+            attestUtil,
+            updateUtil,
+        )
     }
 }
