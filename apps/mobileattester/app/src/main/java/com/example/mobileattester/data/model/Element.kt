@@ -9,7 +9,7 @@ import com.google.gson.annotations.SerializedName
  */
 data class Element(
     val itemid: String,
-    var name: String,
+    val name: String,
     val endpoint: String,
     @SerializedName("type") val types: List<String>,
     val protocol: String,

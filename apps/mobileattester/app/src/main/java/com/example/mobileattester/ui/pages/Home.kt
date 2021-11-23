@@ -6,10 +6,12 @@ import android.util.Patterns
 import android.widget.Toast
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
@@ -209,6 +211,7 @@ fun ConfigurationButton(
 
 @Composable
 fun Content(navController: NavController? = null, viewModel: AttestationViewModel) {
+    val elementCount = viewModel.elementCount.collectAsState()
     val elements = viewModel.filterElements()
     val refreshing = viewModel.isRefreshing.collectAsState()
 

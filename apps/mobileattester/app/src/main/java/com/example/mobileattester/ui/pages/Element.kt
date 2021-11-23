@@ -1,10 +1,8 @@
 package com.example.mobileattester.ui.pages
 
-import androidx.compose.foundation.ScrollState
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.runtime.*
@@ -27,18 +25,11 @@ import com.example.mobileattester.ui.components.common.HeaderRoundedBottom
 import com.example.mobileattester.ui.components.common.OutlinedIconButton
 import com.example.mobileattester.ui.components.common.TextWithIcon
 import com.example.mobileattester.ui.theme.*
-import com.example.mobileattester.ui.util.Screen
-import com.example.mobileattester.ui.util.navigate
-import com.example.mobileattester.ui.util.parseBaseUrl
+import com.example.mobileattester.ui.util.*
 import com.example.mobileattester.ui.viewmodel.AttestationViewModel
-import com.google.accompanist.swiperefresh.SwipeRefresh
-import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import compose.icons.TablerIcons
 import compose.icons.tablericons.*
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
-import kotlin.math.roundToLong
+
 
 const val ARG_ITEM_ID = "item_id"
 
@@ -61,7 +52,6 @@ fun Element(navController: NavController, viewModel: AttestationViewModel) {
     }
 
     fun onLocationClick() {
-        element.name = Random().nextFloat().toString()
         viewModel.useUpdateUtil().updateElement(element)
     }
 
