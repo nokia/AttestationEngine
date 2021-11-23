@@ -2,10 +2,7 @@ package com.example.mobileattester.data.network
 
 import com.example.mobileattester.data.model.*
 import org.json.JSONObject
-import retrofit2.http.Body
-import retrofit2.http.GET
-import retrofit2.http.POST
-import retrofit2.http.Path
+import retrofit2.http.*
 
 /**
  * Communication with REST
@@ -25,6 +22,9 @@ interface AttestationDataService {
     // Return all types currently in use
     @GET("elements/types")
     suspend fun getAllTypes(): List<String>
+
+    @PUT("element")
+    suspend fun updateElement(@Body element: Element): String
 
     /**
     Policies
@@ -59,7 +59,6 @@ interface AttestationDataService {
     /**
     Results
      */
-
 
     @GET("result/{itemid}")
     suspend fun getResult(@Path("itemid") itemid: String): ElementResult

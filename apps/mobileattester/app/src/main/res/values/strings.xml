@@ -12,4 +12,5 @@
     <string name="attest_verify">Attest and verify</string>
     <string name="nav_claim">Claim</string>
     <string name="nav_result">Result</string>
+    <string name="nav_map">Map</string>
 </resources>

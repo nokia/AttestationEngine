@@ -124,7 +124,7 @@ fun Result(
                 }
             }
             Column(Modifier.padding(horizontal = 16.dp)) {
-                SpacerSmall()
+                Spacer(modifier = Modifier.size(8.dp))
                 TextVertSpace(txt = "Result: ${result.result}")
                 TextVertSpace(txt = "Message: ${result.ruleName}")
                 TextVertSpace(txt = "Message: ${result.message}")

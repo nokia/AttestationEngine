@@ -29,6 +29,7 @@ import com.example.mobileattester.ui.components.common.HeaderRoundedBottom
 import com.example.mobileattester.ui.components.common.LoadingIndicator
 import com.example.mobileattester.ui.theme.*
 import com.example.mobileattester.ui.util.Screen
+import com.example.mobileattester.ui.util.latestResults
 import com.example.mobileattester.ui.util.navigate
 import com.example.mobileattester.ui.viewmodel.AttestationViewModel
 import com.example.mobileattester.ui.viewmodel.AttestationViewModelImpl.Companion.FETCH_START_BUFFER
@@ -39,18 +40,6 @@ import compose.icons.tablericons.ChevronRight
 
 @Composable
 fun Elements(navController: NavController, viewModel: AttestationViewModel) {
-    val response = viewModel.elementFlowResponse.collectAsState().value
-
-    when (response.status) {
-        Status.ERROR -> ErrorIndicator(msg = response.message.toString())
-        else -> RenderElementList(navController, viewModel)
-    }
-
-}
-
-@Composable
-private fun RenderElementList(navController: NavController, viewModel: AttestationViewModel) {
-
     // Navigate to single element view, pass clicked id as argument
     fun onElementClicked(itemid: String) {
         navController.navigate(Screen.Element.route, bundleOf(Pair(ARG_ITEM_ID, itemid)))
@@ -59,7 +48,6 @@ private fun RenderElementList(navController: NavController, viewModel: Attestati
     val elementResponse = viewModel.elementFlowResponse.collectAsState().value
     val elements = elementResponse.data ?: listOf()
     val lastIndex = viewModel.elementFlowResponse.collectAsState().value.data?.lastIndex ?: 0
-
     val isRefreshing = viewModel.isRefreshing.collectAsState()
     val filters = remember { mutableStateOf(TextFieldValue()) }
     val isLoading = viewModel.isLoading.collectAsState()
@@ -116,7 +104,7 @@ private fun RenderElementList(navController: NavController, viewModel: Attestati
                     if (isLoading.value) {
                         CircularProgressIndicator(modifier = Modifier.size(32.dp),
                             color = MaterialTheme.colors.primary)
-                    } else if (!isRefreshing.value) {
+                    } else if (!isRefreshing.value && elementResponse.status != Status.ERROR) {
                         Text(text = "All elements loaded", color = DarkGrey)
                     }
                 }

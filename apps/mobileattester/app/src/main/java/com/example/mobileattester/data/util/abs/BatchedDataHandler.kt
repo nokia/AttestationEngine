@@ -1,41 +1,24 @@
-package com.example.mobileattester.data.util
+package com.example.mobileattester.data.util.abs
 
 import android.util.Log
-import com.example.mobileattester.data.model.Element
-import com.example.mobileattester.data.model.Policy
 import com.example.mobileattester.data.network.Response
 import com.example.mobileattester.data.network.retryIO
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 
-const val TIMEOUT = 10_000L
 private const val TAG = "BatchedDataHandler"
 
 // Typealiases for the functions that need to be provided for the Batched data handler.
 typealias FetchIdList<T> = suspend () -> List<T>
 typealias FetchIdData<T, U> = suspend (T) -> U
 
-
-// ------------------------------------------------------------------------------------------
-// ------------ Concrete classes to handle different types of data in batches ---------------
-// ------------------------------------------------------------------------------------------
-
-class ElementDataHandler(
-    batchSize: Int,
-    fetchIdList: FetchIdList<String>,
-    fetchDataForId: FetchIdData<String, Element>,
-) : BatchedDataHandler<String, Element>(batchSize, fetchIdList, fetchDataForId)
-
-class PolicyDataHandler(
-    batchSize: Int,
-    fetchIdList: FetchIdList<String>,
-    fetchDataForId: FetchIdData<String, Policy>,
-) : BatchedDataHandler<String, Policy>(batchSize, fetchIdList, fetchDataForId)
-
-
-// ------------------------------------------------------------------------------------------
-// --------------- Abstract class for above to handle data in batches -----------------------
-// ------------------------------------------------------------------------------------------
+/**
+ * Implement to make a class searchable by BatchedDataHandler.
+ */
+interface Searchable {
+    /** Method should return true if the parameter string matches the object in some way */
+    fun filter(s: String): Boolean
+}
 
 /**
  *  Data fetching in batches.
@@ -49,14 +32,12 @@ class PolicyDataHandler(
  *      When search is not used, we can fetch the data only for the batches that are up for render.
  *      When the user clicks on search/starts typing, start "endless" batch fetching which runs
  *      until all data is downloaded, or the user no longer uses search.
- *
- *  -   Proper error handling
  */
 abstract class BatchedDataHandler<T, U>(
     private val batchSize: Int,
     private val fetchIdList: FetchIdList<T>,
     private val fetchDataForId: FetchIdData<T, U>,
-) {
+) : NotifySubscriber {
     private val job = Job()
     private val scope = CoroutineScope(job)
 
@@ -182,36 +163,35 @@ abstract class BatchedDataHandler<T, U>(
     }
 
     /**
-     * Returns all data from downloaded batches as a list and optionally filters using keywords separated by spaces.
+     * Returns all data from downloaded batches as a list
+     * and optionally filters using keywords separated by spaces if
+     * U implements Searchable.
+     *
+     * ! If a filter is provided and U does not implement Searchable, this methods will
+     * return an empty list !
      */
     fun dataAsList(filters: String? = null): List<U> {
         val loadedBatchValues = mutableListOf<U>()
 
-
         batches.entries.forEach { entry ->
-            entry.value.forEach {
-                if (filters == null)
+            entry.value.forEach loop@{
+                filters ?: run {
                     loadedBatchValues.add(it.second)
-                else {
-                    if (it.second is Element) {
-                        if (filters.split(' ').all { filter ->
-                                when {
-                                    // TODO Abstraction
-                                    (it.second as Element).name.lowercase()
-                                        .contains(filter.lowercase()) -> true
-                                    ((it.second as Element).description?.lowercase()
-                                        ?: "").contains(filter.lowercase()) -> true
-                                    (it.second as Element).endpoint.lowercase()
-                                        .contains(filter.lowercase()) -> true
-                                    (it.second as Element).protocol.lowercase()
-                                        .contains(filter.lowercase()) -> true
-                                    (it.second as Element).types.any { tag ->
-                                        tag.lowercase().contains(filter.lowercase())
-                                    } -> true
-                                    else -> false
-                                }
-                            })
+                    return@loop
+                }
+
+                when (val value = it.second) {
+                    is Searchable -> {
+                        val matchesFilter = filters.split(' ').all { filter ->
+                            value.filter(filter.lowercase())
+                        }
+
+                        if (matchesFilter) {
                             loadedBatchValues.add(it.second)
+                        }
+                    }
+                    else -> {
+                        // Skip
                     }
                 }
             }
@@ -220,8 +200,8 @@ abstract class BatchedDataHandler<T, U>(
         return loadedBatchValues
     }
 
-    // ---- Private ----
-    // ---- Private ----
+// ---- Private ----
+// ---- Private ----
 
     private suspend fun fetchBatch(batchNumber: Int): List<Pair<T, U>> {
         // Get next chunk from the list
