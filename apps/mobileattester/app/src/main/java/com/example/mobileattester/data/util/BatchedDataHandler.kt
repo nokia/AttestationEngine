@@ -3,13 +3,11 @@ package com.example.mobileattester.data.util
 import android.util.Log
 import com.example.mobileattester.data.model.Element
 import com.example.mobileattester.data.model.Policy
-import com.example.mobileattester.data.model.Rule
 import com.example.mobileattester.data.network.Response
-import com.example.mobileattester.data.network.Status
 import com.example.mobileattester.data.network.retryIO
+import com.example.mobileattester.ui.util.parseTimestamp
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
-import java.util.concurrent.Future
 
 const val TIMEOUT = 10_000L
 private const val TAG = "BatchedDataHandler"
@@ -186,23 +184,41 @@ abstract class BatchedDataHandler<T, U>(
                     loadedBatchValues.add(it.second)
                 else {
                     if (it.second is Element) {
-                        if (filters.split(' ').all { filter ->
-                                when {
-                                    // TODO Abstraction
-                                    (it.second as Element).name.lowercase()
-                                        .contains(filter.lowercase()) -> true
-                                    ((it.second as Element).description?.lowercase()
-                                        ?: "").contains(filter.lowercase()) -> true
-                                    (it.second as Element).endpoint.lowercase()
-                                        .contains(filter.lowercase()) -> true
-                                    (it.second as Element).protocol.lowercase()
-                                        .contains(filter.lowercase()) -> true
-                                    (it.second as Element).types.any { tag ->
-                                        tag.lowercase().contains(filter.lowercase())
-                                    } -> true
-                                    else -> false
-                                }
-                            })
+                        if (filters.split(' ').filter { f -> f.isNotEmpty() && f.isNotBlank() }
+                                .all { filter ->
+                                    when {
+                                        // TODO Abstraction
+
+                                        // COMMANDS
+                                        filter.lowercase() == "!active" -> ((it.second as Element).results.firstOrNull()?.result
+                                            ?: 0) != 0
+                                        filter.first() == '!' && filter.drop(1)
+                                            .toIntOrNull() != null ->
+                                            (it.second as Element).results
+                                                .takeWhile { r ->
+                                                    (parseTimestamp(r.verifiedAt)?.timeSince()
+                                                        ?.toHours() ?: Int.MAX_VALUE) < filter.drop(
+                                                        1
+                                                    ).toInt()
+                                                }
+                                                .any { r -> r.result != 0 }
+
+                                        // PROPERTIES
+                                        (it.second as Element).name.lowercase()
+                                            .contains(filter.lowercase()) -> true
+                                        ((it.second as Element).description?.lowercase()
+                                            ?: "").contains(filter.lowercase()) -> true
+                                        (it.second as Element).endpoint.lowercase()
+                                            .contains(filter.lowercase()) -> true
+                                        (it.second as Element).protocol.lowercase()
+                                            .contains(filter.lowercase()) -> true
+                                        (it.second as Element).types.any { tag ->
+                                            tag.lowercase().contains(filter.lowercase())
+                                        } -> true
+                                        // Commands
+                                        else -> false
+                                    }
+                                })
                             loadedBatchValues.add(it.second)
                     }
                 }

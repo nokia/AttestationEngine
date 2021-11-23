@@ -33,6 +33,7 @@ import com.example.mobileattester.ui.components.common.TextWithIcon
 import com.example.mobileattester.ui.theme.*
 import com.example.mobileattester.ui.util.Screen
 import com.example.mobileattester.ui.util.navigate
+import com.example.mobileattester.ui.util.parseTimestamp
 import com.example.mobileattester.ui.viewmodel.AttestationViewModel
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
@@ -41,7 +42,6 @@ import compose.icons.tablericons.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
-import kotlin.math.roundToLong
 
 const val ARG_ITEM_ID = "item_id"
 
@@ -158,12 +158,9 @@ fun ElementResult(navController: NavController, element: Element) {
         },
     ) {
         // On more items requested fetch a batch of items by time.
-        val hourInSeconds = 3600
-        val resultSeconds =
-            element.results[latestResults.size].verifiedAt.toDoubleOrNull()!!.roundToLong()
-        val curTimeInSeconds: Long = System.currentTimeMillis() / 1000
         resultHoursShown.value =
-            curTimeInSeconds.minus(resultSeconds).div(hourInSeconds).toInt().hoursHWMYRounded()
+            parseTimestamp(element.results.getOrNull(latestResults.size)?.verifiedAt.toString())?.timeSince()
+                ?.toHours()?.hoursHWMYRounded() ?: resultHoursShown.value
     }
 }
 
@@ -242,9 +239,11 @@ fun ElementResultFull(
                     color = if (it.result == 0) Ok else Error,
                     rounded = true
                 )
-                Text(modifier = Modifier.padding(horizontal = 4.dp),
+                Text(
+                    modifier = Modifier.padding(horizontal = 4.dp),
                     text = it.ruleName,
-                    maxLines = 1)
+                    maxLines = 1
+                )
                 Text(
                     text = SimpleDateFormat(
                         "dd.MM.",
@@ -265,12 +264,21 @@ fun ElementResultFull(
                 )
             }
         } else {
-            Text(
-                modifier = Modifier
-                    .padding(24.dp),
-                text = "All results listed.",
-                textAlign = TextAlign.Center,
-            )
+            if (results.isEmpty()) {
+                Text(
+                    modifier = Modifier
+                        .padding(24.dp),
+                    text = "No results available",
+                    textAlign = TextAlign.Center,
+                )
+            } else {
+                Text(
+                    modifier = Modifier
+                        .padding(24.dp),
+                    text = "All results listed.",
+                    textAlign = TextAlign.Center,
+                )
+            }
         }
     }
 }
@@ -298,11 +306,7 @@ fun SpacerSmall() {
 
 private fun Collection<ElementResult>.latestResults(hours: Int = 24): Collection<ElementResult> {
     return this.takeWhile {
-        val hourInSeconds = 3600
-        val timeInSeconds: Long = System.currentTimeMillis() / 1000
-        val verifiedAt: Long? = it.verifiedAt.toDoubleOrNull()?.roundToLong()
-
-        (timeInSeconds.minus(verifiedAt ?: 0)) < (hourInSeconds * hours)
+        (parseTimestamp(it.verifiedAt)?.timeSince()?.toHours() ?: Int.MAX_VALUE) < hours
     }
 }
 

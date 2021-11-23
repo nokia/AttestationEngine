@@ -18,12 +18,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.os.bundleOf
 import androidx.navigation.NavController
 import com.example.mobileattester.ui.components.common.HeaderRoundedBottom
 import com.example.mobileattester.ui.components.common.LoadingIndicator
 import com.example.mobileattester.ui.theme.*
 import com.example.mobileattester.ui.util.Preferences
 import com.example.mobileattester.ui.util.Screen
+import com.example.mobileattester.ui.util.navigate
 import com.example.mobileattester.ui.util.parseBaseUrl
 import com.example.mobileattester.ui.viewmodel.AttestationViewModel
 import compose.icons.TablerIcons
@@ -202,7 +204,7 @@ fun ConfigurationButton(
 
 @Composable
 fun Content(navController: NavController? = null, viewModel: AttestationViewModel) {
-    val elementCount = viewModel.elementCount.collectAsState()
+    val elements = viewModel.filterElements()
     val refreshing = viewModel.isRefreshing.collectAsState()
 
     Row(
@@ -233,7 +235,7 @@ fun Content(navController: NavController? = null, viewModel: AttestationViewMode
             LoadingIndicator()
         } else {
             Text(
-                AnnotatedString(elementCount.value.toString()),
+                AnnotatedString(elements.size.toString()),
                 modifier = Modifier
                     .padding(5.dp, 0.dp)
                     .align(Alignment.CenterVertically)
@@ -252,10 +254,16 @@ fun Content(navController: NavController? = null, viewModel: AttestationViewMode
         textAlign = TextAlign.Center,
         fontSize = FONTSIZE_XXL
     )
+
+    val active = viewModel.filterElements("!active")
+    val old = viewModel.filterElements("!24")
+
     Spacer(modifier = Modifier.size(10.dp))
-    Alert("24h") { navController!!.navigate(Screen.Elements.route) }
+    Alert("Active", accepted = elements.size - active.size, failed = active.size)
+    { navController!!.navigate(Screen.Elements.route, bundleOf(Pair(ARG_INITIAL_SEARCH, "!active"))) }
     Spacer(modifier = Modifier.size(20.dp))
-    Alert("Past week") { navController!!.navigate(Screen.Elements.route) }
+    Alert("24H", accepted = elements.size - old.size, failed = old.size)
+    { navController!!.navigate(Screen.Elements.route, bundleOf(Pair(ARG_INITIAL_SEARCH, "!24"))) }
 }
 
 @Composable

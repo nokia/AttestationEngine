@@ -23,7 +23,7 @@ interface AttestationViewModel {
 
     /** Get element data, which has already been downloaded */
     fun getElementFromCache(itemid: String): Element?
-    fun filterElements(filters: String): List<Element>
+    fun filterElements(filters: String? = null): List<Element>
     fun getMoreElements()
     fun refreshElements()
     fun refreshElement(itemid: String)
@@ -65,7 +65,7 @@ class AttestationViewModelImpl(
         elementDataHandler.getDataForId(itemid)
 
     override fun getMoreElements() = elementDataHandler.fetchNextBatch()
-    override fun filterElements(filters: String) = elementDataHandler.dataAsList(filters)
+    override fun filterElements(filters: String?) = elementDataHandler.dataAsList(filters)
     override fun refreshElements() = elementDataHandler.refreshData(hardReset = true)
     override fun refreshElement(itemid: String) = elementDataHandler.refreshSingleValue(itemid)
 

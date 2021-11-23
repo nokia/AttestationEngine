@@ -34,6 +34,8 @@ import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import compose.icons.TablerIcons
 import compose.icons.tablericons.ChevronRight
 
+const val ARG_INITIAL_SEARCH = "initial_search"
+
 @Composable
 fun Elements(navController: NavController, viewModel: AttestationViewModel) {
     val response = viewModel.elementFlowResponse.collectAsState().value
@@ -44,6 +46,7 @@ fun Elements(navController: NavController, viewModel: AttestationViewModel) {
     }
 
 }
+
 
 @Composable
 private fun RenderElementList(navController: NavController, viewModel: AttestationViewModel) {
@@ -57,7 +60,7 @@ private fun RenderElementList(navController: NavController, viewModel: Attestati
     val lastIndex = viewModel.elementFlowResponse.collectAsState().value.data?.lastIndex ?: 0
 
     val isRefreshing = viewModel.isRefreshing.collectAsState()
-    val filters = remember { mutableStateOf(TextFieldValue()) }
+    val filters = remember { mutableStateOf(TextFieldValue(navController.currentBackStackEntry?.arguments?.get(ARG_INITIAL_SEARCH)?.toString() ?: "")) }
     val isLoading = viewModel.isLoading.collectAsState()
 
     SwipeRefresh(
