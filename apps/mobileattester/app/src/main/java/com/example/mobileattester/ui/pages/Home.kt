@@ -255,14 +255,16 @@ fun Content(navController: NavController? = null, viewModel: AttestationViewMode
         fontSize = FONTSIZE_XXL
     )
 
-    val active = viewModel.filterElements("!active")
-    val old = viewModel.filterElements("!24")
+    val attestations = viewModel.filterElements("?")
+    val active = viewModel.filterElements("!")
+    val attestations24 = viewModel.filterElements("?24")
+    val active24 = viewModel.filterElements("!24")
 
     Spacer(modifier = Modifier.size(10.dp))
-    Alert("Active", accepted = elements.size - active.size, failed = active.size)
-    { navController!!.navigate(Screen.Elements.route, bundleOf(Pair(ARG_INITIAL_SEARCH, "!active"))) }
+    Alert("Active", accepted = attestations.size - active.size, failed = active.size)
+    { navController!!.navigate(Screen.Elements.route, bundleOf(Pair(ARG_INITIAL_SEARCH, "!"))) }
     Spacer(modifier = Modifier.size(20.dp))
-    Alert("24H", accepted = elements.size - old.size, failed = old.size)
+    Alert("24H", accepted = attestations24.size - active24.size, failed = active24.size)
     { navController!!.navigate(Screen.Elements.route, bundleOf(Pair(ARG_INITIAL_SEARCH, "!24"))) }
 }
 
@@ -286,7 +288,7 @@ fun Alert(
         Alignment.CenterVertically
     ) {
         Column(modifier = Modifier.padding(10.dp)) {
-            Text(text = "Verified Attestations", color = Primary)
+            Text(text = "Attested Systems", color = Primary)
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
                     TablerIcons.ListSearch,

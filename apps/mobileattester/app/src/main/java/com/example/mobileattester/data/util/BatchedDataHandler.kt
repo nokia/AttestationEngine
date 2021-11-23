@@ -190,7 +190,7 @@ abstract class BatchedDataHandler<T, U>(
                                         // TODO Abstraction
 
                                         // COMMANDS
-                                        filter.lowercase() == "!active" -> ((it.second as Element).results.firstOrNull()?.result
+                                        filter == "!" -> ((it.second as Element).results.firstOrNull()?.result
                                             ?: 0) != 0
                                         filter.first() == '!' && filter.drop(1)
                                             .toIntOrNull() != null ->
@@ -202,6 +202,18 @@ abstract class BatchedDataHandler<T, U>(
                                                     ).toInt()
                                                 }
                                                 .any { r -> r.result != 0 }
+                                        filter == "?" -> (it.second as Element).results.isNotEmpty()
+                                        filter.first() == '?' && filter.drop(1)
+                                            .toIntOrNull() != null ->
+                                            (it.second as Element).results
+                                                .takeWhile { r ->
+                                                    (parseTimestamp(r.verifiedAt)?.timeSince()
+                                                        ?.toHours() ?: Int.MAX_VALUE) < filter.drop(
+                                                        1
+                                                    ).toInt()
+                                                }
+                                                .isNotEmpty()
+
 
                                         // PROPERTIES
                                         (it.second as Element).name.lowercase()
