@@ -258,10 +258,11 @@ fun ElementResultFull(
         }
 
         if (!allShown) {
-            TextButton(onClick = { onMoreRequested() }) {
+            TextButton(modifier = Modifier.padding(16.dp), onClick = { onMoreRequested() }) {
                 Text(
-                    text = "More results",
+                    text = "More results (+24h)",
                     textAlign = TextAlign.Center,
+                    fontSize = 17.sp
                 )
             }
         } else {
@@ -296,7 +297,7 @@ fun SpacerSmall() {
     Spacer(modifier = Modifier.size(8.dp))
 }
 
-private fun Collection<ElementResult>.latestResults(hours: Int = 24): Collection<ElementResult> {
+fun Collection<ElementResult>.latestResults(hours: Int = 24): Collection<ElementResult> {
     return this.takeWhile {
         val hourInSeconds = 3600
         val timeInSeconds: Long = System.currentTimeMillis() / 1000

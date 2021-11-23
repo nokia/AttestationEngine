@@ -52,7 +52,6 @@ fun ResultScreenProvider(
         navController.navigateUp()
     }
 
-
     // --------------------------------------------------
 
     // Check first if there is id provided in the arguments
@@ -67,7 +66,7 @@ fun ResultScreenProvider(
         return
     }
 
-// --------------------------------------------------
+    // --------------------------------------------------
 
     val res = resultFlow?.collectAsState()?.value
     when (res?.status) {
@@ -81,8 +80,7 @@ fun ResultScreenProvider(
         }
     }
 
-
-// --------------------------------------------------
+    // --------------------------------------------------
 
     FadeInWithDelay(2000) {
         Text(text = "Result data not found")

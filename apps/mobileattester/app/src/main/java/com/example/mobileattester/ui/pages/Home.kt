@@ -310,7 +310,6 @@ fun Alert(
                     TablerIcons.ListSearch,
                     contentDescription = null,
                     tint = Primary,
-                    modifier = Modifier.size(28.dp),
                 )
                 Text(
                     (accepted + failed).toString(),

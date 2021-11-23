@@ -18,15 +18,16 @@ import androidx.compose.ui.unit.dp
 import androidx.core.os.bundleOf
 import androidx.navigation.NavController
 import com.example.mobileattester.R
+import com.example.mobileattester.data.model.CODE_RESULT_OK
 import com.example.mobileattester.data.model.Element
 import com.example.mobileattester.data.network.Status
 import com.example.mobileattester.ui.components.SearchBar
 import com.example.mobileattester.ui.components.TagRow
+import com.example.mobileattester.ui.components.common.DecorText
 import com.example.mobileattester.ui.components.common.ErrorIndicator
 import com.example.mobileattester.ui.components.common.HeaderRoundedBottom
 import com.example.mobileattester.ui.components.common.LoadingIndicator
-import com.example.mobileattester.ui.theme.DarkGrey
-import com.example.mobileattester.ui.theme.DividerColor
+import com.example.mobileattester.ui.theme.*
 import com.example.mobileattester.ui.util.Screen
 import com.example.mobileattester.ui.util.navigate
 import com.example.mobileattester.ui.viewmodel.AttestationViewModel
@@ -67,50 +68,56 @@ private fun RenderElementList(navController: NavController, viewModel: Attestati
         state = rememberSwipeRefreshState(isRefreshing.value),
         onRefresh = { viewModel.refreshElements() },
     ) {
-        when (elementResponse.status) {
-            Status.ERROR -> {
-                ErrorIndicator(msg = elementResponse.message.toString())
+        LazyColumn() {
+            // Header
+            item {
+                HeaderRoundedBottom {
+                    SearchBar(filters,
+                        stringResource(id = R.string.placeholder_search_elementlist))
+                }
+                Spacer(modifier = Modifier.size(5.dp))
             }
-            Status.LOADING -> LoadingIndicator()
-            else -> {
-                LazyColumn() {
-                    // Header
-                    item {
-                        HeaderRoundedBottom {
-                            SearchBar(filters,
-                                stringResource(id = R.string.placeholder_search_elementlist))
-                        }
-                        Spacer(modifier = Modifier.size(5.dp))
+
+            item {
+                when (elementResponse.status) {
+                    Status.ERROR -> {
+                        ErrorIndicator(msg = elementResponse.message.toString())
                     }
-
-
-                    // List of the elements
-                    itemsIndexed(if (filters.value.text.isEmpty()) elements else viewModel.filterElements(
-                        filters.value.text)) { index, element ->
-                        if (index + FETCH_START_BUFFER >= lastIndex) {
-                            viewModel.getMoreElements()
-                        }
-
-                        Column(Modifier.padding(horizontal = 12.dp)) {
-                            ElementListItem(element, onElementClick = ::onElementClicked)
-                            Divider(modifier = Modifier.fillMaxWidth(), color = DividerColor)
+                    Status.LOADING -> {
+                        if (!isRefreshing.value) {
+                            LoadingIndicator()
                         }
                     }
+                    else -> {}
+                }
+            }
 
-                    // Footer
-                    item {
-                        Row(
-                            Modifier
-                                .fillMaxWidth()
-                                .padding(24.dp),
-                            horizontalArrangement = Arrangement.Center) {
-                            if (isLoading.value) {
-                                CircularProgressIndicator(modifier = Modifier.size(32.dp),
-                                    color = MaterialTheme.colors.primary)
-                            } else {
-                                Text(text = "All elements loaded", color = DarkGrey)
-                            }
-                        }
+
+            // List of the elements
+            itemsIndexed(if (filters.value.text.isEmpty()) elements else viewModel.filterElements(
+                filters.value.text)) { index, element ->
+                if (index + FETCH_START_BUFFER >= lastIndex) {
+                    viewModel.getMoreElements()
+                }
+
+                Column(Modifier.padding(horizontal = 12.dp)) {
+                    ElementListItem(element, onElementClick = ::onElementClicked)
+                    Divider(modifier = Modifier.fillMaxWidth(), color = DividerColor)
+                }
+            }
+
+            // Footer
+            item {
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(24.dp),
+                    horizontalArrangement = Arrangement.Center) {
+                    if (isLoading.value) {
+                        CircularProgressIndicator(modifier = Modifier.size(32.dp),
+                            color = MaterialTheme.colors.primary)
+                    } else if (!isRefreshing.value) {
+                        Text(text = "All elements loaded", color = DarkGrey)
                     }
                 }
             }
@@ -118,11 +125,18 @@ private fun RenderElementList(navController: NavController, viewModel: Attestati
     }
 }
 
+
 @Composable
 private fun ElementListItem(
     element: Element,
     onElementClick: (id: String) -> Unit,
 ) {
+
+    val res = element.results.latestResults(24)
+    val attestations = res.size
+    val passed = res.count { it.result == CODE_RESULT_OK }
+    val failed = attestations - passed
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -136,18 +150,25 @@ private fun ElementListItem(
         Row {
             Column {
                 Text(text = element.name, style = MaterialTheme.typography.h2)
-                Spacer(modifier = Modifier.size(10.dp))
+
+                Spacer(modifier = Modifier.size(8.dp))
                 Row {
                     TagRow(tags = element.types)
+                }
+                Row(Modifier.padding(start = 4.dp)) {
+                    DecorText("$attestations", Primary, true)
+                    Spacer(modifier = Modifier.size(10.dp))
+                    DecorText("$passed", Ok, true)
+                    Spacer(modifier = Modifier.size(10.dp))
+                    DecorText("$failed", Error, true)
                 }
             }
         }
         Icon(
             imageVector = TablerIcons.ChevronRight,
-            contentDescription = "",
+            contentDescription = null,
             tint = MaterialTheme.colors.secondary,
         )
     }
-
 }
 
