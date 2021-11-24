@@ -18,9 +18,10 @@ import androidx.compose.ui.unit.dp
 import androidx.core.os.bundleOf
 import androidx.navigation.NavController
 import com.example.mobileattester.R
-import com.example.mobileattester.data.model.CODE_RESULT_OK
 import com.example.mobileattester.data.model.Element
+import com.example.mobileattester.data.model.ElementResult.Companion.CODE_RESULT_OK
 import com.example.mobileattester.data.network.Status
+import com.example.mobileattester.data.util.abs.DataFilter
 import com.example.mobileattester.ui.components.SearchBar
 import com.example.mobileattester.ui.components.TagRow
 import com.example.mobileattester.ui.components.common.DecorText
@@ -85,7 +86,7 @@ fun Elements(navController: NavController, viewModel: AttestationViewModel) {
 
             // List of the elements
             itemsIndexed(if (filters.value.text.isEmpty()) elements else viewModel.filterElements(
-                filters.value.text)) { index, element ->
+                DataFilter(filters.value.text))) { index, element ->
                 if (index + FETCH_START_BUFFER >= lastIndex) {
                     viewModel.getMoreElements()
                 }

@@ -138,7 +138,8 @@ private fun ElementResult(navController: NavController, element: Element) {
     ) {
         // On more items requested fetch a batch of items by time.
         resultHoursShown.value =
-            parseTimestamp(element.results.getOrNull(latestResults.size)?.verifiedAt.toString())?.timeSince()
+            Timestamp.fromSecondsString(element.results.getOrNull(latestResults.size)?.verifiedAt.toString())
+                ?.timeSince()
                 ?.toHours()?.hoursHWMYRounded() ?: resultHoursShown.value
     }
 }

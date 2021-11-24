@@ -5,6 +5,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.example.mobileattester.data.model.*
+import com.example.mobileattester.data.model.ElementResult.Companion.CODE_RESULT_ERROR
+import com.example.mobileattester.data.model.ElementResult.Companion.CODE_RESULT_OK
+import com.example.mobileattester.data.model.ElementResult.Companion.CODE_RESULT_VERIFY_ERROR
 import com.example.mobileattester.ui.theme.Attention
 import com.example.mobileattester.ui.theme.Error
 import com.example.mobileattester.ui.theme.Ok

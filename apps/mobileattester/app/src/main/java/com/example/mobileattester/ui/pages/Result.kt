@@ -11,14 +11,9 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.mobileattester.data.model.CODE_RESULT_ERROR
-import com.example.mobileattester.data.model.CODE_RESULT_OK
-import com.example.mobileattester.data.model.CODE_RESULT_VERIFY_ERROR
 import com.example.mobileattester.data.model.ElementResult
 import com.example.mobileattester.data.network.Response
 import com.example.mobileattester.data.network.Status
@@ -29,13 +24,9 @@ import com.example.mobileattester.ui.components.common.LoadingFullScreen
 import com.example.mobileattester.ui.theme.*
 import com.example.mobileattester.ui.util.*
 import com.example.mobileattester.ui.viewmodel.AttestationViewModel
-import compose.icons.TablerIcons
-import compose.icons.tablericons.*
 import kotlinx.coroutines.flow.MutableStateFlow
-import java.text.DateFormat
 
 const val ARG_RESULT_ID = "arg_result_id"
-
 
 /**
  * Provides different ways to use result screen.

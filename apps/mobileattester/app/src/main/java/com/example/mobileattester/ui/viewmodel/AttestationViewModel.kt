@@ -10,7 +10,9 @@ import com.example.mobileattester.data.network.Response
 import com.example.mobileattester.data.repository.AttestationRepository
 import com.example.mobileattester.data.util.AttestationUtil
 import com.example.mobileattester.data.util.ElementDataHandler
+import com.example.mobileattester.data.util.OverviewProvider
 import com.example.mobileattester.data.util.UpdateUtil
+import com.example.mobileattester.data.util.abs.DataFilter
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 
@@ -27,7 +29,7 @@ interface AttestationViewModel {
 
     /** Get element data, which has already been downloaded */
     fun getElementFromCache(itemid: String): Element?
-    fun filterElements(filters: String? = null): List<Element>
+    fun filterElements(f: DataFilter? = null): List<Element>
     fun getMoreElements()
     fun refreshElements()
     fun refreshElement(itemid: String)
@@ -40,6 +42,7 @@ interface AttestationViewModel {
 
     fun useAttestationUtil(): AttestationUtil
     fun useUpdateUtil(): UpdateUtil
+    fun useOverviewProvider(): OverviewProvider
 }
 
 // --------- Implementation ---------
@@ -50,12 +53,11 @@ class AttestationViewModelImpl(
     private val elementDataHandler: ElementDataHandler,
     private val attestationUtil: AttestationUtil,
     private val updateUtil: UpdateUtil,
+    private val overviewProvider: OverviewProvider,
 ) : AttestationViewModel, ViewModel() {
-
     companion object {
         const val FETCH_START_BUFFER = 3
     }
-
 
     override val isRefreshing: StateFlow<Boolean> = elementDataHandler.isRefreshing
     override val isLoading: StateFlow<Boolean> = elementDataHandler.isLoading
@@ -64,13 +66,11 @@ class AttestationViewModelImpl(
         elementDataHandler.dataFlow
     override val elementCount: StateFlow<Response<Int>> = elementDataHandler.idCount
 
-
     override fun getElementFromCache(itemid: String): Element? =
         elementDataHandler.getDataForId(itemid)
 
-
     override fun getMoreElements() = elementDataHandler.fetchNextBatch()
-    override fun filterElements(filters: String?) = elementDataHandler.dataAsList(filters)
+    override fun filterElements(f: DataFilter?): List<Element> = elementDataHandler.dataAsList(f)
     override fun refreshElements() = elementDataHandler.refreshData(hardReset = true)
     override fun refreshElement(itemid: String) = elementDataHandler.refreshSingleValue(itemid)
 
@@ -96,6 +96,7 @@ class AttestationViewModelImpl(
 
     override fun useAttestationUtil(): AttestationUtil = attestationUtil
     override fun useUpdateUtil(): UpdateUtil = updateUtil
+    override fun useOverviewProvider(): OverviewProvider = overviewProvider
 }
 
 class AttestationViewModelImplFactory(
@@ -103,9 +104,14 @@ class AttestationViewModelImplFactory(
     private val elementDataHandler: ElementDataHandler,
     private val attestUtil: AttestationUtil,
     private val updateUtil: UpdateUtil,
+    private val overviewProvider: OverviewProvider,
 ) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        return AttestationViewModelImpl(repo, elementDataHandler, attestUtil, updateUtil) as T
+        return AttestationViewModelImpl(repo,
+            elementDataHandler,
+            attestUtil,
+            updateUtil,
+            overviewProvider) as T
     }
 }

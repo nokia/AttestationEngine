@@ -22,7 +22,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.os.bundleOf
 import androidx.navigation.NavController
+import com.example.mobileattester.data.model.Element
 import com.example.mobileattester.data.network.Status
+import com.example.mobileattester.data.util.OverviewProviderImpl
+import com.example.mobileattester.di.Injector
 import com.example.mobileattester.ui.components.common.ErrorIndicator
 import com.example.mobileattester.ui.components.common.HeaderRoundedBottom
 import com.example.mobileattester.ui.components.common.LoadingIndicator
@@ -54,6 +57,10 @@ fun Home(navController: NavController? = null, viewModel: AttestationViewModel) 
 
 
     Column(modifier = Modifier.verticalScroll(scrollState)) {
+
+        Button(onClick = { Injector.not() }) {
+            Text("Notify")
+        }
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -215,7 +222,6 @@ fun Content(navController: NavController? = null, viewModel: AttestationViewMode
     val elements = viewModel.filterElements()
     val refreshing = viewModel.isRefreshing.collectAsState()
 
-
     when (elementCount.value.status) {
         Status.ERROR -> {
             ErrorIndicator(msg = elementCount.value.message.toString())
@@ -276,24 +282,28 @@ fun Content(navController: NavController? = null, viewModel: AttestationViewMode
         fontSize = FONTSIZE_XXL
     )
 
-    val attestations = viewModel.filterElements("?")
-    val active = viewModel.filterElements("!")
-    val attestations24 = viewModel.filterElements("?24")
-    val active24 = viewModel.filterElements("!24")
+    val overviews: Map<String, List<Element>> =
+        viewModel.useOverviewProvider().elementsByResults.collectAsState().value
+
+    val attestations = overviews[OverviewProviderImpl.OVERVIEW_ATTESTED_ELEMENTS]?.size ?: -1
+    val attestations24 = overviews[OverviewProviderImpl.OVERVIEW_ATTESTED_ELEMENTS_24H]?.size ?: -1
+    val ok = overviews[OverviewProviderImpl.OVERVIEW_ATTESTED_ELEMENTS_OK]?.size ?: -1
+    val ok24 = overviews[OverviewProviderImpl.OVERVIEW_ATTESTED_ELEMENTS_OK_24H]?.size ?: -1
+
 
     Spacer(modifier = Modifier.size(10.dp))
-    Alert("Active", accepted = attestations.size - active.size, failed = active.size)
+    Alert("Active", attestations = attestations, ok = ok)
     { navController!!.navigate(Screen.Elements.route, bundleOf(Pair(ARG_INITIAL_SEARCH, "!"))) }
     Spacer(modifier = Modifier.size(20.dp))
-    Alert("24H", accepted = attestations24.size - active24.size, failed = active24.size)
+    Alert("24H", attestations = attestations24, ok = ok24)
     { navController!!.navigate(Screen.Elements.route, bundleOf(Pair(ARG_INITIAL_SEARCH, "!24"))) }
 }
 
 @Composable
 fun Alert(
     alertDurationInfo: String = "",
-    accepted: Int = 0,
-    failed: Int = 0,
+    attestations: Int = 0,
+    ok: Int = 0,
     onClick: () -> Unit = {},
 ) {
     Text(
@@ -318,7 +328,7 @@ fun Alert(
                     modifier = Modifier.size(28.dp),
                 )
                 Text(
-                    (accepted + failed).toString(),
+                    attestations.toString(),
                     color = Primary,
                     modifier = Modifier.padding(5.dp, 0.dp),
                     fontSize = FONTSIZE_LG,
@@ -331,7 +341,7 @@ fun Alert(
             Row {
                 Icon(TablerIcons.SquareCheck, contentDescription = null, tint = Ok)
                 Text(
-                    accepted.toString(),
+                    ok.toString(),
                     color = Ok,
                     modifier = Modifier.padding(5.dp, 0.dp),
                     fontSize = FONTSIZE_LG,
@@ -344,7 +354,7 @@ fun Alert(
             Row {
                 Icon(TablerIcons.SquareX, contentDescription = null, tint = Error)
                 Text(
-                    failed.toString(),
+                    (attestations - ok).toString(),
                     color = Error,
                     modifier = Modifier.padding(5.dp, 0.dp),
                     fontSize = FONTSIZE_LG,

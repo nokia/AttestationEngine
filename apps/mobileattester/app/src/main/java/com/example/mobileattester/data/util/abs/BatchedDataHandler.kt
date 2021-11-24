@@ -3,6 +3,8 @@ package com.example.mobileattester.data.util.abs
 import android.util.Log
 import com.example.mobileattester.data.network.Response
 import com.example.mobileattester.data.network.retryIO
+import com.example.mobileattester.ui.util.Timeframe
+import com.example.mobileattester.ui.util.Timestamp
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 
@@ -12,13 +14,6 @@ private const val TAG = "BatchedDataHandler"
 typealias FetchIdList<T> = suspend () -> List<T>
 typealias FetchIdData<T, U> = suspend (T) -> U
 
-/**
- * Implement to make a class searchable by BatchedDataHandler.
- */
-interface Searchable {
-    /** Method should return true if the parameter string matches the object */
-    fun filter(s: String): Boolean
-}
 
 /**
  *  Data fetching in batches.
@@ -37,7 +32,7 @@ abstract class BatchedDataHandler<T, U>(
     private val batchSize: Int,
     private val fetchIdList: FetchIdList<T>,
     private val fetchDataForId: FetchIdData<T, U>,
-) : NotifySubscriber {
+) : NotificationSubscriber {
     private val job = Job()
     private val scope = CoroutineScope(job)
 
@@ -170,28 +165,27 @@ abstract class BatchedDataHandler<T, U>(
      * ! If a filter is provided and U does not implement Searchable, this methods will
      * return an empty list !
      */
-    fun dataAsList(filters: String? = null): List<U> {
+    fun dataAsList(filter: DataFilter? = null): List<U> {
         val loadedBatchValues = mutableListOf<U>()
 
         batches.entries.forEach { entry ->
+            // For each key-value pair in fetched data
             entry.value.forEach loop@{
-                filters ?: run {
+                filter ?: run {
                     loadedBatchValues.add(it.second)
                     return@loop
                 }
 
                 when (val value = it.second) {
-                    is Searchable -> {
-                        val matchesFilter = filters.split(' ').all { filter ->
-                            value.filter(filter.lowercase())
-                        }
-
+                    is Filterable -> {
+                        val matchesFilter = value.filter(filter)
                         if (matchesFilter) {
                             loadedBatchValues.add(it.second)
                         }
                     }
                     else -> {
-                        // Skip
+                        // We can return here, none of the values will be Filterable
+                        return@forEach
                     }
                 }
             }

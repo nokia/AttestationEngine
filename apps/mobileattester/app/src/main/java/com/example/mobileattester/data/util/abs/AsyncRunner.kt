@@ -32,13 +32,13 @@ class AsyncRunner(
 /**
  * Implement on classes which are to be registered for notifications.
  */
-interface NotifySubscriber {
+interface NotificationSubscriber {
     /** Gets called when an operation with param data was successfully completed */
     fun <T> notify(data: T)
 }
 
 class Notifier(
-    private val subs: MutableList<WeakReference<NotifySubscriber>> = mutableListOf(),
+    private val subs: MutableList<WeakReference<NotificationSubscriber>> = mutableListOf(),
 ) {
     fun <T> notifyAll(data: T) {
         for (sub in subs) {
@@ -46,11 +46,11 @@ class Notifier(
         }
     }
 
-    fun subscribe(sub: NotifySubscriber) {
+    fun addSubscriber(sub: NotificationSubscriber) {
         subs.add(WeakReference(sub))
     }
 
-    fun unSubscribe(sub: NotifySubscriber) {
+    fun removeSubscriber(sub: NotificationSubscriber) {
         val rm = subs.find {
             sub == it.get()
         }
