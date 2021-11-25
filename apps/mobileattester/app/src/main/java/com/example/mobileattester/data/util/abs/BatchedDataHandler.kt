@@ -8,6 +8,7 @@ import com.example.mobileattester.ui.util.Timestamp
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 
+const val NOTIFY_BATCH_FETCHED = "ABatchHasBeenFetched"
 private const val TAG = "BatchedDataHandler"
 
 // Typealiases for the functions that need to be provided for the Batched data handler.
@@ -19,19 +20,12 @@ typealias FetchIdData<T, U> = suspend (T) -> U
  *  Data fetching in batches.
  *  T - Id type
  *  U - Data type
- *
- *  TODO ************************
- *  -   Functions to start and end "endless" and automatic batch fetching. Needs to be done
- *      since search is implemented on client side only.
- *
- *      When search is not used, we can fetch the data only for the batches that are up for render.
- *      When the user clicks on search/starts typing, start "endless" batch fetching which runs
- *      until all data is downloaded, or the user no longer uses search.
  */
 abstract class BatchedDataHandler<T, U>(
     private val batchSize: Int,
     private val fetchIdList: FetchIdList<T>,
     private val fetchDataForId: FetchIdData<T, U>,
+    private val notifier: Notifier? = null,
 ) : NotificationSubscriber {
     private val job = Job()
     private val scope = CoroutineScope(job)
@@ -84,6 +78,10 @@ abstract class BatchedDataHandler<T, U>(
                 dataFlow.value = Response.error(message = "Data could not be fetched: $e")
             } finally {
                 setNotLoading(batchNumber)
+
+                if (allChunksLoaded()) {
+                    notifier?.notifyAll(NOTIFY_BATCH_FETCHED)
+                }
             }
         }
     }
