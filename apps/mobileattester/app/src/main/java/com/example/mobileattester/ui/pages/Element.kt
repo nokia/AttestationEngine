@@ -114,12 +114,6 @@ private fun ElementNull() {
 private fun ElementResult(navController: NavController, element: Element) {
     val resultHoursShown = remember { mutableStateOf(24) }
     val latestResults = element.results.latestResults(resultHoursShown.value)
-    val time =
-        Timestamp.fromSecondsString(element.results.getOrNull(latestResults.size - 1)?.verifiedAt
-            ?: "")?.timeSince()
-
-    println("ResultShown: ${resultHoursShown.value}")
-    println("ts: ${time}")
 
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
         Text("Results", fontSize = 24.sp)
@@ -142,7 +136,7 @@ private fun ElementResult(navController: NavController, element: Element) {
             navController.navigate(Screen.Result.route, bundleOf(Pair(ARG_RESULT_ID, it.itemid)))
         },
     ) {
-        // On more items requested fetch a batch of items by time.
+        // Band-aid fix using old version.
         val hourInSeconds = 3600
         val resultSeconds =
             element.results[latestResults.size].verifiedAt.toDoubleOrNull()!!.roundToLong()
