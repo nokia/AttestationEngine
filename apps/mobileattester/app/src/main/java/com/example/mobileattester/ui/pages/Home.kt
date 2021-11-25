@@ -58,9 +58,6 @@ fun Home(navController: NavController? = null, viewModel: AttestationViewModel) 
 
     Column(modifier = Modifier.verticalScroll(scrollState)) {
 
-        Button(onClick = { Injector.not() }) {
-            Text("Notify")
-        }
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -231,7 +228,7 @@ fun Content(navController: NavController? = null, viewModel: AttestationViewMode
             LoadingIndicator()
             return
         }
-        else -> {}
+        else -> {Injector.not()}
     }
 
     Row(
