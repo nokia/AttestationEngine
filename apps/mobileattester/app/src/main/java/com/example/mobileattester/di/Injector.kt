@@ -93,21 +93,21 @@ object Injector {
         val day = Pair(Timestamp(yd), Timestamp(now))
 
         // Create filters for the overview stuff we are interested to see
-        val all = DataFilter("")
-        val all24 =
+        val latest = DataFilter("")
+        val latest24 =
             DataFilter("", timeFrame = day, setOf(ElementResult.FILTER_FLAG_WITHIN_TIMEFRAME))
-        val ok = DataFilter("", flags = setOf(ElementResult.FILTER_FLAG_ONLY_RESULT_OK))
-        val ok24 = DataFilter("",
+        val fail = DataFilter("", flags = setOf(ElementResult.FILTER_FLAG_RESULT_FAIL))
+        val fail24 = DataFilter("",
             flags = setOf(
                 ElementResult.FILTER_FLAG_WITHIN_TIMEFRAME,
-                ElementResult.FILTER_FLAG_ONLY_RESULT_OK,
+                ElementResult.FILTER_FLAG_RESULT_FAIL,
             ),
             timeFrame = day)
 
-        t.addFilterByResults(OverviewProviderImpl.OVERVIEW_ATTESTED_ELEMENTS, all)
-        t.addFilterByResults(OverviewProviderImpl.OVERVIEW_ATTESTED_ELEMENTS_24H, all24)
-        t.addFilterByResults(OverviewProviderImpl.OVERVIEW_ATTESTED_ELEMENTS_OK, ok)
-        t.addFilterByResults(OverviewProviderImpl.OVERVIEW_ATTESTED_ELEMENTS_OK_24H, ok24)
+        t.addFilterByResults(OverviewProviderImpl.OVERVIEW_ATTESTED_ELEMENTS, latest)
+        t.addFilterByResults(OverviewProviderImpl.OVERVIEW_ATTESTED_ELEMENTS_24H, latest24)
+        t.addFilterByResults(OverviewProviderImpl.OVERVIEW_ATTESTED_ELEMENTS_FAIL, fail)
+        t.addFilterByResults(OverviewProviderImpl.OVERVIEW_ATTESTED_ELEMENTS_FAIL_24H, fail24)
 
         return t
     }

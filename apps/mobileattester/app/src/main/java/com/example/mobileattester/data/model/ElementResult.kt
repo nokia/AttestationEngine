@@ -4,7 +4,6 @@ import com.example.mobileattester.data.util.abs.DataFilter
 import com.example.mobileattester.data.util.abs.Filterable
 import com.example.mobileattester.ui.util.Timeframe
 import com.example.mobileattester.ui.util.Timestamp
-import java.lang.Exception
 
 
 data class ElementResult(
@@ -25,41 +24,34 @@ data class ElementResult(
         const val CODE_RESULT_ERROR = 9001
         const val CODE_RESULT_VERIFY_ERROR = 9002
 
-        const val FILTER_FLAG_WITHIN_TIMEFRAME = 4356126
-        const val FILTER_FLAG_ONLY_RESULT_OK = 1531325
+        const val FILTER_FLAG_WITHIN_TIMEFRAME = CODE_RESULT_ERROR.xor(CODE_RESULT_VERIFY_ERROR) // Magic value, could be whatever
+        const val FILTER_FLAG_RESULT_FAIL = CODE_RESULT_ERROR.or(CODE_RESULT_VERIFY_ERROR) // Magic value, could be whatever
     }
 
     override fun filter(f: DataFilter): Boolean {
         val flags = f.flags ?: listOf()
-        val onlyOk = flags.contains(FILTER_FLAG_ONLY_RESULT_OK)
         val checkTime = flags.contains(FILTER_FLAG_WITHIN_TIMEFRAME)
+        val checkResultFail = flags.contains(FILTER_FLAG_WITHIN_TIMEFRAME)
 
         if (checkTime && f.timeFrame == null) {
             throw Exception("DataFilter was asked to filter by time, but timeframe was not provided.")
         }
 
-        // If filtering for only passed result
-        if (onlyOk) return handleOkResults(f, checkTime)
-
-        // Other cases
-        return handleCheckTimeResult(f, checkTime)
+        return if (checkTime && checkResultFail)
+            inTimeframe(f.timeFrame!!) && isFailed()
+        else if(checkResultFail)
+            isFailed()
+        else if(checkTime)
+            inTimeframe(f.timeFrame!!)
+        else
+            false
     }
 
-    private fun handleOkResults(f: DataFilter, checkTime: Boolean): Boolean {
-        return when (checkTime) {
-            true -> this.result == CODE_RESULT_OK && inTimeframe(f.timeFrame!!)
-            false -> this.result == CODE_RESULT_OK
-        }
+    fun isFailed(): Boolean {
+        return this.result != CODE_RESULT_OK
     }
 
-    private fun handleCheckTimeResult(f: DataFilter, checkTime: Boolean): Boolean {
-        return when (checkTime) {
-            true -> inTimeframe(f.timeFrame!!)
-            false -> true // Not using time filter
-        }
-    }
-
-    private fun inTimeframe(timeframe: Timeframe): Boolean {
+    fun inTimeframe(timeframe: Timeframe): Boolean {
         return Timestamp.fromSecondsString(this.verifiedAt)!!
             .isBetween(timeframe.first, timeframe.second)
     }

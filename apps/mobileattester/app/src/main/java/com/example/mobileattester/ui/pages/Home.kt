@@ -284,15 +284,15 @@ fun Content(navController: NavController? = null, viewModel: AttestationViewMode
 
     val attestations = overviews[OverviewProviderImpl.OVERVIEW_ATTESTED_ELEMENTS]?.size ?: -1
     val attestations24 = overviews[OverviewProviderImpl.OVERVIEW_ATTESTED_ELEMENTS_24H]?.size ?: -1
-    val ok = overviews[OverviewProviderImpl.OVERVIEW_ATTESTED_ELEMENTS_OK]?.size ?: -1
-    val ok24 = overviews[OverviewProviderImpl.OVERVIEW_ATTESTED_ELEMENTS_OK_24H]?.size ?: -1
+    val fail = overviews[OverviewProviderImpl.OVERVIEW_ATTESTED_ELEMENTS_FAIL]?.size ?: -1
+    val fail24 = overviews[OverviewProviderImpl.OVERVIEW_ATTESTED_ELEMENTS_FAIL_24H]?.size ?: -1
 
 
     Spacer(modifier = Modifier.size(10.dp))
-    Alert("Active", attestations = attestations, ok = ok)
+    Alert("Active", attestations = attestations, fail = fail)
     { navController!!.navigate(Screen.Elements.route, bundleOf(Pair(ARG_INITIAL_SEARCH, "!"))) }
     Spacer(modifier = Modifier.size(20.dp))
-    Alert("24H", attestations = attestations24, ok = ok24)
+    Alert("24H", attestations = attestations24, fail = fail24)
     { navController!!.navigate(Screen.Elements.route, bundleOf(Pair(ARG_INITIAL_SEARCH, "!24"))) }
 }
 
@@ -300,7 +300,7 @@ fun Content(navController: NavController? = null, viewModel: AttestationViewMode
 fun Alert(
     alertDurationInfo: String = "",
     attestations: Int = 0,
-    ok: Int = 0,
+    fail: Int = 0,
     onClick: () -> Unit = {},
 ) {
     Text(
@@ -338,7 +338,7 @@ fun Alert(
             Row {
                 Icon(TablerIcons.SquareCheck, contentDescription = null, tint = Ok)
                 Text(
-                    ok.toString(),
+                    (attestations - fail).toString(),
                     color = Ok,
                     modifier = Modifier.padding(5.dp, 0.dp),
                     fontSize = FONTSIZE_LG,
@@ -351,7 +351,7 @@ fun Alert(
             Row {
                 Icon(TablerIcons.SquareX, contentDescription = null, tint = Error)
                 Text(
-                    (attestations - ok).toString(),
+                    fail.toString(),
                     color = Error,
                     modifier = Modifier.padding(5.dp, 0.dp),
                     fontSize = FONTSIZE_LG,
