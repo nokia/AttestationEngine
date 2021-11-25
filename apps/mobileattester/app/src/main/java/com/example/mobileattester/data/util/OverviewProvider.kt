@@ -21,6 +21,11 @@ interface OverviewProvider : NotificationSubscriber {
     fun addFilterByResults(key: String, filter: DataFilter)
 }
 
+/**
+ * Implementation, which reads the results from fetched elements.
+ * TODO A result endpoint in the REST API, so that this would
+ *      not need to rely on downloading all the element data first
+ */
 class OverviewProviderImpl(
     private val elementDataHandler: ElementDataHandler,
 ) : OverviewProvider {
@@ -44,6 +49,7 @@ class OverviewProviderImpl(
     private fun updateOverviews() {
         job.cancelChildren(CancellationException("Relaunching updates"))
         println("OVERVIEW updating ${addedFilters.size} lists")
+
         // Update result based elements
         scope.launch {
             val temp = mutableMapOf<String, List<Element>>()

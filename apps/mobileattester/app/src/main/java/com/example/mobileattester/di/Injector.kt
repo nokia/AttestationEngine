@@ -18,22 +18,33 @@ const val TWENTY_FOUR_H_IN_MS = 86_400_000
 
 object Injector {
 
-    // Change to edit batch size
+    /**
+     * Batch size used for fetching Elements.
+     *
+     * Currently we get everything at once. This is due to
+     * not having a results-endpoint, which we could get data for overview from.
+     * If the batch size is changed, and
+     * @see OverviewProviderImpl
+     * is not changed, the overview will only show data for the elements in the
+     * batches that are downloaded. Initially only one batch is fetched, and more
+     * loaded once the user goes through the list of elements. The overview updates
+     * whenever we get more data, but is not accurate until all elements are fetched.
+     */
     private const val DEFAULT_BATCH_SIZE = Int.MAX_VALUE
-    val notifier = Notifier()
+
 
     /**
      * @param address Address to init attestation service with
      */
-
-    fun not() {
-        notifier.notifyAll("")
-    }
-
     fun provideAttestationViewModelFactory(address: String): ViewModelProvider.Factory {
         val handler: AttestationDataHandler =
             AttestationDataHandlerImpl("http://$address/")
         val attestationRepo: AttestationRepository = AttestationRepositoryImpl(handler)
+
+        /**
+         * Create a notifier for updates
+         */
+        val notifier = Notifier()
 
         /*
             Here, Initialize the BatchedDataHandlers of different types.
@@ -44,7 +55,8 @@ object Injector {
         val elementDataHandler = ElementDataHandler(
             DEFAULT_BATCH_SIZE,
             { attestationRepo.getElementIds() },
-            { attestationRepo.getElement(it) }
+            { attestationRepo.getElement(it) },
+            notifier
         )
 
         val policyDataHandler = PolicyDataHandler(
@@ -55,9 +67,7 @@ object Injector {
 
         val overviewProvider = initOverviewProvider(elementDataHandler)
 
-        /**
-         * Create a notifier for updates
-         */
+
         notifier.apply {
             addSubscriber(elementDataHandler)
             addSubscriber(overviewProvider)
