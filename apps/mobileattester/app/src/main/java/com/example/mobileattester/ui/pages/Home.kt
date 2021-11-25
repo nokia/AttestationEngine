@@ -228,7 +228,7 @@ fun Content(navController: NavController? = null, viewModel: AttestationViewMode
             LoadingIndicator()
             return
         }
-        else -> {Injector.not()}
+        else -> {}
     }
 
     Row(
