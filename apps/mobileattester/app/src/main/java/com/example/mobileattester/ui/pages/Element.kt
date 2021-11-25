@@ -29,6 +29,7 @@ import com.example.mobileattester.ui.util.*
 import com.example.mobileattester.ui.viewmodel.AttestationViewModel
 import compose.icons.TablerIcons
 import compose.icons.tablericons.*
+import kotlin.math.roundToLong
 
 
 const val ARG_ITEM_ID = "item_id"
@@ -142,8 +143,13 @@ private fun ElementResult(navController: NavController, element: Element) {
         },
     ) {
         // On more items requested fetch a batch of items by time.
+        val hourInSeconds = 3600
+        val resultSeconds =
+            element.results[latestResults.size].verifiedAt.toDoubleOrNull()!!.roundToLong()
+
+        val curTimeInSeconds: Long = System.currentTimeMillis() / 1000
         resultHoursShown.value =
-            time?.toHours()?.hoursHWMYRounded() ?: resultHoursShown.value
+            curTimeInSeconds.minus(resultSeconds).div(hourInSeconds).toInt().hoursHWMYRounded()
     }
 }
 

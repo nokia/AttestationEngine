@@ -33,9 +33,7 @@ class Timestamp(val time: Long) : Comparable<Long> {
             val l = str.toDoubleOrNull()?.roundToLong()
 
             if (l != null) {
-                val ret = Timestamp((l * 1000))
-                println("FromString: ${ret.toString()}")
-                return ret
+                return Timestamp((l * 1000))
             }
             return null
         }
