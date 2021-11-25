@@ -327,10 +327,7 @@ def getresultlatest(itemid):
     print("itemid", itemid)
     
     rs = results.getLatestResults(itemid)
-    if len(rs) == 0:
-        return jsonify(rs), 404
-    else:
-        return jsonify(rs), 200
+    return jsonify(rs), 200
 
 @a10rest.route("/result/element/latest/<itemid>/<limit>", methods=['GET'])
 def getresultlatestlimit(itemid, limit):
@@ -342,10 +339,7 @@ def getresultlatestlimit(itemid, limit):
         lim = 10
     
     rs = results.getLatestResults(itemid, lim)
-    if len(rs) == 0:
-        return jsonify(rs), 404
-    else:
-        return jsonify(rs), 200
+    return jsonify(rs), 200
 
 
 #

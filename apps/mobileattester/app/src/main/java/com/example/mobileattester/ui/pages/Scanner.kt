@@ -22,6 +22,8 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat.startActivity
 import androidx.core.os.bundleOf
 import androidx.navigation.NavController
+import com.example.mobileattester.ui.util.PermissionDeniedRequestSettings
+import com.example.mobileattester.ui.util.PermissionsRationale
 import com.example.mobileattester.ui.util.Screen
 import com.example.mobileattester.ui.util.navigate
 import com.example.mobileattester.ui.util.parseBaseUrl
@@ -49,12 +51,12 @@ fun Scanner(navController: NavController? = null) {
         PermissionRequired(
             permissionState = cameraPermissionState,
             permissionNotGrantedContent = {
-                Rationale(
-                    onRequestPermission = { cameraPermissionState.launchPermissionRequest() }
-                )
+                PermissionsRationale("Please grant the camera permission to scan QR codes.") {
+                    cameraPermissionState.launchPermissionRequest()
+                }
             },
             permissionNotAvailableContent = {
-                PermissionDenied {
+                PermissionDeniedRequestSettings("Requesting camera permission was denied. It must be granted manually from the settings") {
                     try {
                         cameraPermissionState.launchPermissionRequest()
                         val intent = Intent(
@@ -128,47 +130,6 @@ fun Scanner(navController: NavController? = null) {
                 "This device does not have a camera.",
                 modifier = Modifier.padding(16.dp)
             )
-        }
-    }
-}
-
-
-@Composable
-private fun Rationale(
-    onRequestPermission: () -> Unit
-) {
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            "Please grant the camera permission to scan QR codes.",
-            modifier = Modifier.padding(16.dp)
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        Button(onClick = onRequestPermission) {
-            Text("Grant permission")
-        }
-    }
-}
-
-@Composable
-private fun PermissionDenied(
-    onRequestPermission: () -> Unit
-) {
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(
-            "Requesting camera permission was denied. It must be granted manually from the settings",
-            modifier = Modifier.padding(16.dp)
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        Button(onClick = { onRequestPermission() }) {
-            Text("Go to settings")
         }
     }
 }

@@ -32,6 +32,7 @@ interface AttestationDataHandler {
     suspend fun getElementIds(): List<String>
     suspend fun getElement(itemid: String): Element
     suspend fun getAllTypes(): List<String>
+    suspend fun updateElement(element: Element)
 
     // --- Policies ---
     suspend fun getPolicyIds(): List<String>
@@ -56,9 +57,6 @@ interface AttestationDataHandler {
     suspend fun getClaim(itemid: String): Claim
 
 }
-
-// ---------- Implementation ------------
-// ---------- Implementation ------------
 
 class AttestationDataHandlerImpl(
     private var initialUrl: String,
@@ -90,17 +88,19 @@ class AttestationDataHandlerImpl(
 
     private fun getOkHttpClient(): OkHttpClient? {
         //Log display level
-        val level = HttpLoggingInterceptor.Level.BODY
+        val level = HttpLoggingInterceptor.Level.BASIC
         //New log interceptor
         val loggingInterceptor = HttpLoggingInterceptor { message ->
             Log.d("RETROFIT",
                 "OkHttp====Message:$message")
         }
         loggingInterceptor.level = level
+
         //Custom OKHTTP
         val httpClientBuilder = OkHttpClient.Builder()
         //OKHTTP to add interceptors loggingInterceptor
         httpClientBuilder.addInterceptor(loggingInterceptor)
+
         return httpClientBuilder.build()
     }
 
@@ -110,6 +110,7 @@ class AttestationDataHandlerImpl(
 
     override suspend fun getElement(itemid: String): Element = apiService.getElement(itemid)
     override suspend fun getAllTypes(): List<String> = apiService.getAllTypes()
+    override suspend fun updateElement(element: Element) = apiService.updateElement(element)
 
     override suspend fun getPolicyIds(): List<String> = apiService.getPolicyIds()
     override suspend fun getPolicy(itemid: String): Policy = apiService.getPolicy(itemid)

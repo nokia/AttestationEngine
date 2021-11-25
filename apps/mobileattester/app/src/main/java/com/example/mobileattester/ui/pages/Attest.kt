@@ -1,6 +1,7 @@
 package com.example.mobileattester.ui.pages
 
 import android.content.Context
+import android.widget.Space
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -15,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.mobileattester.R
@@ -23,10 +25,8 @@ import com.example.mobileattester.data.model.Policy
 import com.example.mobileattester.data.model.Rule
 import com.example.mobileattester.data.util.AttestationStatus
 import com.example.mobileattester.ui.components.anim.FadeInWithDelay
-import com.example.mobileattester.ui.components.common.DropDown
-import com.example.mobileattester.ui.components.common.ErrorIndicator
-import com.example.mobileattester.ui.components.common.LoadingFullScreen
-import com.example.mobileattester.ui.components.common.SimpleRadioGroup
+import com.example.mobileattester.ui.components.common.*
+import com.example.mobileattester.ui.theme.FONTSIZE_XXL
 import com.example.mobileattester.ui.theme.Ok
 import com.example.mobileattester.ui.util.Screen
 import com.example.mobileattester.ui.viewmodel.AttestationViewModel
@@ -49,8 +49,8 @@ sealed class AttestationType(@StringRes val resId: Int) {
         }
     }
 
-    object Attest : AttestationType(resId = R.string.attest)
     object AttestAndVerify : AttestationType(resId = R.string.attest_verify)
+    object Attest : AttestationType(resId = R.string.attest)
 }
 
 
@@ -73,24 +73,21 @@ fun Attest(navController: NavController, viewModel: AttestationViewModel) {
     }
 
     val u = viewModel.useAttestationUtil()
-    val scope = rememberCoroutineScope()
     val context = LocalContext.current
 
-//    // Reset attestation util state when navigating out of this screen
-//    DisposableEffect(navController) {
-//        val onNavigateOutListener =
-//            NavController.OnDestinationChangedListener { _, destination, _ ->
-//                if (destination.route == Screen.Element.route) {
-//                    u.reset()
-//                }
-//            }
-//
-//        navController.addOnDestinationChangedListener(onNavigateOutListener)
-//
-//        onDispose {
-//            navController.removeOnDestinationChangedListener(onNavigateOutListener)
-//        }
-//    }
+    // Reset attestation util state when navigating out of this screen
+    DisposableEffect(navController) {
+        val onNavigateOutListener =
+            NavController.OnDestinationChangedListener { _, _, _ ->
+                u.reset()
+            }
+
+        navController.addOnDestinationChangedListener(onNavigateOutListener)
+
+        onDispose {
+            navController.removeOnDestinationChangedListener(onNavigateOutListener)
+        }
+    }
 
 
     val attestationStatus = u.attestationStatus.collectAsState().value
@@ -117,7 +114,7 @@ fun Attest(navController: NavController, viewModel: AttestationViewModel) {
         u.reset()
 
         val policyId =
-            policies.find { it.name == selectedPolicy.value }?.itemid ?: kotlin.run {
+            policies.find { it.name == selectedPolicy.value }?.itemid ?: run {
                 println("PolicyId not found")
                 return
             }
@@ -137,15 +134,11 @@ fun Attest(navController: NavController, viewModel: AttestationViewModel) {
             onReset = { u.reset() },
             onRetry = { submit() },
         )
-        AttestationStatus.SUCCESS -> AttestationSuccessScreen(
-            type = AttestationType.getFromString(context, selectedType.value)!!,
-            onReset = { u.reset() },
-            onNav = {
-                if (selectedType.value == context.getString(AttestationType.Attest.resId)) {
-                    navController.navigate(Screen.Claim.route)
-                } else navController.navigate(Screen.Result.route)
-            },
-        )
+        AttestationStatus.SUCCESS -> {
+            if (selectedType.value == context.getString(AttestationType.Attest.resId)) {
+                navController.navigate(Screen.Claim.route)
+            } else navController.navigate(Screen.Result.route)
+        }
         AttestationStatus.IDLE -> AttestationConfig(
             element,
             attestationTypes,
@@ -171,56 +164,72 @@ private fun AttestationConfig(
     selectedRule: MutableState<String>,
     onSubmit: () -> Unit,
 ) {
-    Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 24.dp)) {
+    Column {
 
         // Element data
-        Text(text = element.name, style = MaterialTheme.typography.h2)
-        Text(
-            text = element.endpoint,
-            style = MaterialTheme.typography.body1,
-            modifier = Modifier.padding(vertical = 8.dp, horizontal = 2.dp)
-        )
-
-        // Attestation type
-        Spacer(modifier = Modifier.size(24.dp))
-        SimpleRadioGroup(
-            selections = attestTypes,
-            selected = selectedAttestType,
-            onSelectionChanged = { selectedAttestType.value = it },
-            vertical = false
-        )
-
-        // Policy
-        Spacer(modifier = Modifier.size(24.dp))
-        Text(text = "Select policy")
-        DropDown(
-            items = policies.map { it.name },
-            selectedValue = policies.find { it.name == selectedPolicy.value }?.name,
-            onSelectionChanged = {
-                println("it $it")
-                selectedPolicy.value = it.toString()
+        HeaderRoundedBottom {
+            Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 24.dp)) {
+                Text(
+                    text = element.name,
+                    fontSize = FONTSIZE_XXL,
+                    fontWeight = FontWeight.Bold,
+                )
+                Text(
+                    text = element.endpoint,
+                    style = MaterialTheme.typography.body1,
+                    modifier = Modifier.padding(vertical = 8.dp, horizontal = 2.dp)
+                )
             }
-        )
-
-        Spacer(modifier = Modifier.size(24.dp))
-
-        // Rule
-        if (selectedAttestType.value == stringResource(id = AttestationType.AttestAndVerify.resId)) {
-            Text(text = "Select rule")
-            DropDown(
-                items = rules.map { it.name },
-                selectedValue = selectedRule.value,
-                onSelectionChanged = {
-                    selectedRule.value = it
-                }
-            )
         }
 
-        // Submit
-        Spacer(modifier = Modifier.size(24.dp))
-        Button(
-            onClick = { onSubmit() }) {
-            Text(text = "Submit", color = Color.White)
+        // Config for attest
+        Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+            Spacer(modifier = Modifier.size(16.dp))
+
+            // Attestation type
+            SimpleRadioGroup(
+                selections = attestTypes,
+                selected = selectedAttestType,
+                onSelectionChanged = { selectedAttestType.value = it },
+                vertical = false
+            )
+
+            // Policy
+            Spacer(modifier = Modifier.size(24.dp))
+            Text(modifier = Modifier.padding(bottom = 4.dp), text = "Select policy")
+            DropDown(
+                items = policies.map { it.name },
+                selectedValue = policies.find { it.name == selectedPolicy.value }?.name,
+                onSelectionChanged = {
+                    println("it $it")
+                    selectedPolicy.value = it.toString()
+                }
+            )
+
+            Spacer(modifier = Modifier.size(24.dp))
+
+            // Rule
+            if (selectedAttestType.value == stringResource(id = AttestationType.AttestAndVerify.resId)) {
+                Text(modifier = Modifier.padding(bottom = 4.dp), text = "Select rule")
+                DropDown(
+                    items = rules.map { it.name },
+                    selectedValue = selectedRule.value,
+                    onSelectionChanged = {
+                        selectedRule.value = it
+                    }
+                )
+            }
+
+            // Submit
+            Spacer(modifier = Modifier.size(24.dp))
+            Button(
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .padding(8.dp),
+                onClick = { onSubmit() },
+            ) {
+                Text(text = "Submit", color = Color.White)
+            }
         }
     }
 }
