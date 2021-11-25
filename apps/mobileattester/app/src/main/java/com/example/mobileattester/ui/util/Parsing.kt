@@ -1,5 +1,6 @@
 package com.example.mobileattester.ui.util
 
+import java.sql.Time
 import java.text.SimpleDateFormat
 import kotlin.math.roundToLong
 
@@ -15,7 +16,8 @@ fun parseBaseUrl(baseUrl: String): String {
 
 typealias Timeframe = Pair<Timestamp, Timestamp>
 
-class Timestamp(val time: Long) : Comparable<Long> {
+class Timestamp(val time: Long) : Comparable<Long>
+{
 
     // For development
     override fun toString(): String {
@@ -24,7 +26,7 @@ class Timestamp(val time: Long) : Comparable<Long> {
         val formatter = SimpleDateFormat("dd/MM/yyyy-hh:mm:ss")
 
         // Create a calendar object that will convert the date and time value in milliseconds to date.
-        return formatter.format(time)
+        return formatter.format(time*1000)
     }
 
     companion object {
@@ -33,10 +35,12 @@ class Timestamp(val time: Long) : Comparable<Long> {
             val l = str.toDoubleOrNull()?.roundToLong()
 
             if (l != null) {
-                return Timestamp((l * 1000))
+                return Timestamp(l)
             }
             return null
         }
+
+        fun now() : Timestamp = Timestamp(System.currentTimeMillis() / 1000)
     }
 
     fun timeSince(): Timestamp {
@@ -54,4 +58,8 @@ class Timestamp(val time: Long) : Comparable<Long> {
     fun toHours(): Int = time.div(3600).toInt() // total seconds / 3600 seconds = hours
 
     override fun compareTo(other: Long): Int = time.compareTo(other = other)
+    fun minus(value: Timestamp) = Timestamp(this.time - value.time)
+    fun add(value: Timestamp) = Timestamp(this.time + value.time)
+    fun div(value: Timestamp) = Timestamp(this.time / value.time)
+    fun mul(value: Timestamp) = Timestamp(this.time * value.time)
 }
