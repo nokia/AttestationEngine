@@ -11,6 +11,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
@@ -18,14 +19,18 @@ import androidx.core.os.bundleOf
 import androidx.navigation.NavController
 import com.example.mobileattester.R
 import com.example.mobileattester.data.model.Element
+import com.example.mobileattester.data.model.ElementResult.Companion.CODE_RESULT_OK
 import com.example.mobileattester.data.network.Status
+import com.example.mobileattester.data.util.abs.DataFilter
 import com.example.mobileattester.ui.components.SearchBar
 import com.example.mobileattester.ui.components.TagRow
+import com.example.mobileattester.ui.components.common.DecorText
 import com.example.mobileattester.ui.components.common.ErrorIndicator
 import com.example.mobileattester.ui.components.common.HeaderRoundedBottom
-import com.example.mobileattester.ui.theme.DarkGrey
-import com.example.mobileattester.ui.theme.DividerColor
+import com.example.mobileattester.ui.components.common.LoadingIndicator
+import com.example.mobileattester.ui.theme.*
 import com.example.mobileattester.ui.util.Screen
+import com.example.mobileattester.ui.util.latestResults
 import com.example.mobileattester.ui.util.navigate
 import com.example.mobileattester.ui.viewmodel.AttestationViewModel
 import com.example.mobileattester.ui.viewmodel.AttestationViewModelImpl.Companion.FETCH_START_BUFFER
@@ -34,28 +39,18 @@ import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import compose.icons.TablerIcons
 import compose.icons.tablericons.ChevronRight
 
+const val ARG_INITIAL_SEARCH = "initial_search"
+
 @Composable
 fun Elements(navController: NavController, viewModel: AttestationViewModel) {
-    val response = viewModel.elementFlowResponse.collectAsState().value
-
-    when (response.status) {
-        Status.ERROR -> ErrorIndicator(msg = response.message.toString())
-        else -> RenderElementList(navController, viewModel)
-    }
-
-}
-
-@Composable
-private fun RenderElementList(navController: NavController, viewModel: AttestationViewModel) {
-
     // Navigate to single element view, pass clicked id as argument
     fun onElementClicked(itemid: String) {
         navController.navigate(Screen.Element.route, bundleOf(Pair(ARG_ITEM_ID, itemid)))
     }
 
-    val elements = viewModel.elementFlowResponse.collectAsState().value.data ?: listOf()
+    val elementResponse = viewModel.elementFlowResponse.collectAsState().value
+    val elements = elementResponse.data ?: listOf()
     val lastIndex = viewModel.elementFlowResponse.collectAsState().value.data?.lastIndex ?: 0
-
     val isRefreshing = viewModel.isRefreshing.collectAsState()
     val filters = remember { mutableStateOf(TextFieldValue()) }
     val isLoading = viewModel.isLoading.collectAsState()
@@ -68,14 +63,30 @@ private fun RenderElementList(navController: NavController, viewModel: Attestati
             // Header
             item {
                 HeaderRoundedBottom {
-                    SearchBar(filters, stringResource(id = R.string.placeholder_search_elementlist))
+                    SearchBar(filters,
+                        stringResource(id = R.string.placeholder_search_elementlist))
                 }
                 Spacer(modifier = Modifier.size(5.dp))
             }
 
+            item {
+                when (elementResponse.status) {
+                    Status.ERROR -> {
+                        ErrorIndicator(msg = elementResponse.message.toString())
+                    }
+                    Status.LOADING -> {
+                        if (!isRefreshing.value) {
+                            LoadingIndicator()
+                        }
+                    }
+                    else -> {}
+                }
+            }
+
+
             // List of the elements
             itemsIndexed(if (filters.value.text.isEmpty()) elements else viewModel.filterElements(
-                filters.value.text)) { index, element ->
+                DataFilter(filters.value.text))) { index, element ->
                 if (index + FETCH_START_BUFFER >= lastIndex) {
                     viewModel.getMoreElements()
                 }
@@ -96,7 +107,7 @@ private fun RenderElementList(navController: NavController, viewModel: Attestati
                     if (isLoading.value) {
                         CircularProgressIndicator(modifier = Modifier.size(32.dp),
                             color = MaterialTheme.colors.primary)
-                    } else {
+                    } else if (!isRefreshing.value && elementResponse.status != Status.ERROR) {
                         Text(text = "All elements loaded", color = DarkGrey)
                     }
                 }
@@ -105,11 +116,18 @@ private fun RenderElementList(navController: NavController, viewModel: Attestati
     }
 }
 
+
 @Composable
 private fun ElementListItem(
     element: Element,
     onElementClick: (id: String) -> Unit,
 ) {
+
+    val res = element.results.latestResults(24)
+    val attestations = res.size
+    val passed = res.count { it.result == CODE_RESULT_OK }
+    val failed = attestations - passed
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -123,18 +141,25 @@ private fun ElementListItem(
         Row {
             Column {
                 Text(text = element.name, style = MaterialTheme.typography.h2)
-                Spacer(modifier = Modifier.size(10.dp))
+
+                Spacer(modifier = Modifier.size(8.dp))
                 Row {
                     TagRow(tags = element.types)
+                }
+                Row(Modifier.padding(start = 4.dp)) {
+                    DecorText("$attestations", Primary, true)
+                    Spacer(modifier = Modifier.size(10.dp))
+                    DecorText("$passed", Ok, true)
+                    Spacer(modifier = Modifier.size(10.dp))
+                    DecorText("$failed", Error, true)
                 }
             }
         }
         Icon(
             imageVector = TablerIcons.ChevronRight,
-            contentDescription = "",
+            contentDescription = null,
             tint = MaterialTheme.colors.secondary,
         )
     }
-
 }
 

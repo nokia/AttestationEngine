@@ -57,6 +57,7 @@ sealed class Screen(val route: String, @StringRes val stringResId: Int) {
     object Attest : Screen("attest", R.string.nav_attest)
     object Claim : Screen("claim", R.string.nav_claim)
     object Result : Screen("result", R.string.nav_result)
+    object Map : Screen("map", R.string.nav_map)
 }
 
 @ExperimentalPermissionsApi
@@ -102,7 +103,10 @@ object NavUtils {
                 composable(Screen.Scanner.route) {
                     showTopBar.value = false; Scanner(navController)
                 } // Experimental Permissions
-                composable(Screen.More.route) { showTopBar.value = true; More(navController) }
+                composable(Screen.More.route) {
+                    showTopBar.value = true; MapWrapper(navController,
+                    viewModel)
+                }
                 composable(Screen.Element.route) {
                     showTopBar.value = true; Element(navController, viewModel)
                 }
@@ -113,12 +117,14 @@ object NavUtils {
                     showTopBar.value = true; Claim(navController, viewModel.useAttestationUtil())
                 }
                 composable(Screen.Result.route) {
-                    showTopBar.value =
-                        true; ResultScreenProvider(
+                    showTopBar.value = false; ResultScreenProvider(
                     navController = navController,
                     viewModel = viewModel,
                     resultFlow = viewModel.useAttestationUtil().result,
                 )
+                }
+                composable(Screen.Map.route) {
+                    showTopBar.value = true; MapWrapper(navController, viewModel)
                 }
             }
         }

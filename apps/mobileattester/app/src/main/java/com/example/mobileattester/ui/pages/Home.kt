@@ -20,11 +20,19 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.os.bundleOf
 import androidx.navigation.NavController
+import com.example.mobileattester.data.model.Element
+import com.example.mobileattester.data.network.Status
+import com.example.mobileattester.data.util.OverviewProviderImpl
+import com.example.mobileattester.di.Injector
+import com.example.mobileattester.ui.components.common.ErrorIndicator
+import com.example.mobileattester.ui.components.common.HeaderRoundedBottom
 import com.example.mobileattester.ui.components.common.LoadingIndicator
 import com.example.mobileattester.ui.theme.*
 import com.example.mobileattester.ui.util.Preferences
 import com.example.mobileattester.ui.util.Screen
+import com.example.mobileattester.ui.util.navigate
 import com.example.mobileattester.ui.util.parseBaseUrl
 import com.example.mobileattester.ui.viewmodel.AttestationViewModel
 import compose.icons.TablerIcons
@@ -48,24 +56,19 @@ fun Home(navController: NavController? = null, viewModel: AttestationViewModel) 
     val scrollState = ScrollState(0)
 
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Primary)
-            .border(0.dp, Color.Transparent)
-            .verticalScroll(scrollState),
-    ) {
-        // Top Bar
+    Column(modifier = Modifier.verticalScroll(scrollState)) {
+
         Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(10.dp)
-                .border(0.dp, Color.Transparent),
+                .fillMaxSize()
+                .background(Primary)
+                .border(0.dp, Color.Transparent)
         ) {
 
+            // Top Bar
             Text(
                 text = "Current Configuration",
-                modifier = Modifier.padding(0.dp, 15.dp, 0.dp, 5.dp),
+                modifier = Modifier.padding(10.dp, 15.dp, 10.dp, 5.dp),
                 fontSize = FONTSIZE_XXL,
                 color = Color.White
             )
@@ -137,7 +140,9 @@ fun Home(navController: NavController? = null, viewModel: AttestationViewModel) 
                         }
                     })
             }
+            HeaderRoundedBottom()
         }
+
         // Content
         Column(
             modifier = Modifier
@@ -211,7 +216,20 @@ fun ConfigurationButton(
 @Composable
 fun Content(navController: NavController? = null, viewModel: AttestationViewModel) {
     val elementCount = viewModel.elementCount.collectAsState()
+    val elements = viewModel.filterElements()
     val refreshing = viewModel.isRefreshing.collectAsState()
+
+    when (elementCount.value.status) {
+        Status.ERROR -> {
+            ErrorIndicator(msg = elementCount.value.message.toString())
+            return
+        }
+        Status.LOADING -> {
+            LoadingIndicator()
+            return
+        }
+        else -> {Injector.not()}
+    }
 
     Row(
         modifier = Modifier
@@ -241,7 +259,7 @@ fun Content(navController: NavController? = null, viewModel: AttestationViewMode
             LoadingIndicator()
         } else {
             Text(
-                AnnotatedString(elementCount.value.toString()),
+                AnnotatedString(elements.size.toString()),
                 modifier = Modifier
                     .padding(5.dp, 0.dp)
                     .align(Alignment.CenterVertically)
@@ -260,19 +278,29 @@ fun Content(navController: NavController? = null, viewModel: AttestationViewMode
         textAlign = TextAlign.Center,
         fontSize = FONTSIZE_XXL
     )
-    Spacer(modifier = Modifier.size(10.dp))
-    Alert("24h") { navController!!.navigate(Screen.Elements.route) }
-    Spacer(modifier = Modifier.size(20.dp))
-    Alert("Past week") { navController!!.navigate(Screen.Elements.route) }
 
-    Spacer(modifier = Modifier.size(200.dp)) // TODO: Change layout to be similar to Elements page
+    val overviews: Map<String, List<Element>> =
+        viewModel.useOverviewProvider().elementsByResults.collectAsState().value
+
+    val attestations = overviews[OverviewProviderImpl.OVERVIEW_ATTESTED_ELEMENTS]?.size ?: -1
+    val attestations24 = overviews[OverviewProviderImpl.OVERVIEW_ATTESTED_ELEMENTS_24H]?.size ?: -1
+    val ok = overviews[OverviewProviderImpl.OVERVIEW_ATTESTED_ELEMENTS_OK]?.size ?: -1
+    val ok24 = overviews[OverviewProviderImpl.OVERVIEW_ATTESTED_ELEMENTS_OK_24H]?.size ?: -1
+
+
+    Spacer(modifier = Modifier.size(10.dp))
+    Alert("Active", attestations = attestations, ok = ok)
+    { navController!!.navigate(Screen.Elements.route, bundleOf(Pair(ARG_INITIAL_SEARCH, "!"))) }
+    Spacer(modifier = Modifier.size(20.dp))
+    Alert("24H", attestations = attestations24, ok = ok24)
+    { navController!!.navigate(Screen.Elements.route, bundleOf(Pair(ARG_INITIAL_SEARCH, "!24"))) }
 }
 
 @Composable
 fun Alert(
     alertDurationInfo: String = "",
-    accepted: Int = 0,
-    failed: Int = 0,
+    attestations: Int = 0,
+    ok: Int = 0,
     onClick: () -> Unit = {},
 ) {
     Text(
@@ -288,7 +316,7 @@ fun Alert(
         Alignment.CenterVertically
     ) {
         Column(modifier = Modifier.padding(10.dp)) {
-            Text(text = "Verified Attestations", color = Primary)
+            Text(text = "Attested Systems", color = Primary)
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
                     TablerIcons.ListSearch,
@@ -297,7 +325,7 @@ fun Alert(
                     modifier = Modifier.size(28.dp),
                 )
                 Text(
-                    (accepted + failed).toString(),
+                    attestations.toString(),
                     color = Primary,
                     modifier = Modifier.padding(5.dp, 0.dp),
                     fontSize = FONTSIZE_LG,
@@ -310,7 +338,7 @@ fun Alert(
             Row {
                 Icon(TablerIcons.SquareCheck, contentDescription = null, tint = Ok)
                 Text(
-                    accepted.toString(),
+                    ok.toString(),
                     color = Ok,
                     modifier = Modifier.padding(5.dp, 0.dp),
                     fontSize = FONTSIZE_LG,
@@ -323,7 +351,7 @@ fun Alert(
             Row {
                 Icon(TablerIcons.SquareX, contentDescription = null, tint = Error)
                 Text(
-                    failed.toString(),
+                    (attestations - ok).toString(),
                     color = Error,
                     modifier = Modifier.padding(5.dp, 0.dp),
                     fontSize = FONTSIZE_LG,

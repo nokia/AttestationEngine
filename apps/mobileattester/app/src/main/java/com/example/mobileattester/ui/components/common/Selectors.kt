@@ -32,10 +32,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
-import com.example.mobileattester.ui.theme.DarkGrey
-import com.example.mobileattester.ui.theme.ELEVATION_SM
-import com.example.mobileattester.ui.theme.LightGrey
-import com.example.mobileattester.ui.theme.Primary
+import com.example.mobileattester.ui.theme.*
 import compose.icons.TablerIcons
 import compose.icons.tablericons.ChevronDown
 import compose.icons.tablericons.ChevronUp
@@ -55,15 +52,24 @@ fun SimpleRadioGroup(
     @Composable
     fun CreateButtons() {
         selections.forEach {
+            val color = if (it == selected.value) Primary else PrimaryDark
+
             Row(
-                Modifier.padding(8.dp)
+                Modifier
+                    .clickable {
+                        onSelectionChanged(it)
+                    }
+                    .padding(8.dp)
             ) {
-                RadioButton(selected = it == selected.value, onClick = { onSelectionChanged(it) })
+                RadioButton(
+                    selected = it == selected.value,
+                    onClick = { onSelectionChanged(it) },
+                )
                 Text(
                     text = it,
                     modifier = Modifier
-                        .clickable(onClick = { onSelectionChanged(it) })
-                        .padding(start = 4.dp)
+                        .padding(start = 4.dp),
+                    color = color,
                 )
                 Spacer(modifier = Modifier.size(4.dp))
             }
@@ -136,7 +142,9 @@ fun <T> DropDown(
                             if (value == selectedValue) MaterialTheme.colors.primary
                             else MaterialTheme.colors.secondary
 
-                        Text(modifier = Modifier.padding(vertical = 4.dp), text = value.toString(), color = color)
+                        Text(modifier = Modifier.padding(vertical = 4.dp),
+                            text = value.toString(),
+                            color = color)
                     }
                 }
             }

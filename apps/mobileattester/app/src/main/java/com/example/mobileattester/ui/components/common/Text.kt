@@ -68,7 +68,7 @@ fun TextWithIcon(
 }
 
 @Composable
-fun DecorText(txt: String, color: Color) {
+fun DecorText(txt: String, color: Color, bold: Boolean = false) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Column() {
             Box(modifier = Modifier.size(5.dp))
@@ -83,6 +83,7 @@ fun DecorText(txt: String, color: Color) {
             modifier = Modifier.padding(top = 4.dp, start = 4.dp),
             text = txt,
             color = color,
+            fontWeight = if (!bold) FontWeight.Normal else FontWeight.Bold
         )
     }
 }
