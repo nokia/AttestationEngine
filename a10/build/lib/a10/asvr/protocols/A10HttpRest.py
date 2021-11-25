@@ -18,29 +18,53 @@ class A10HttpRest(a10.asvr.protocols.A10ProtocolBase.A10ProtocolBase):
         super().__init__(endpoint, policyintent, policyparameters, additionalparameters)
 
     def exec(self):
-        print("Calling protocol A10HTTPREST ", self.endpoint, self.policyintent, self.policyparameters,
-              self.additionalparameters)
-        print("      + ---------------Types ", type(self.endpoint), type(self.policyintent),
-              type(self.policyparameters), type(self.additionalparameters))
+        print(
+            "Calling protocol A10HTTPREST ",
+            self.endpoint,
+            self.policyintent,
+            self.policyparameters,
+            self.additionalparameters,
+        )
+        print(
+            "      + ---------------Types ",
+            type(self.endpoint),
+            type(self.policyintent),
+            type(self.policyparameters),
+            type(self.additionalparameters),
+        )
 
         elementURL = self.endpoint + "/" + self.policyintent
-        callbody = {'policyparameters': self.policyparameters, 'callparameters': self.additionalparameters}
+        callbody = {
+            "policyparameters": self.policyparameters,
+            "callparameters": self.additionalparameters,
+        }
         jsondata = json.dumps(callbody, ensure_ascii=False)
 
         # note, we use POST because the body contains data, which is not part of the GET standard
         try:
-            r = requests.post(url=elementURL, json=jsondata, headers={
-                'Content-type': 'application/json', 'Accept': 'text/plain'}, timeout=20)
+            r = requests.post(
+                url=elementURL,
+                json=jsondata,
+                headers={"Content-type": "application/json", "Accept": "text/plain"},
+                timeout=20,
+            )
         except requests.exceptions.ConnectionError as e:
-            return a10.structures.returncode.ReturnCode( a10.structures.constants.PROTOCOLNETWORKFAILURE, {"message": "Network failure "+str(e)} )
+            return a10.structures.returncode.ReturnCode(
+                a10.structures.constants.PROTOCOLNETWORKFAILURE,
+                {"message": "Network failure " + str(e)},
+            )
 
         # This is already in JSON so ok
-        #print("RETURNING ",r,r.text,r.status_code)
+        # print("RETURNING ",r,r.text,r.status_code)
 
         # r.text is JSON, so we need to convert (load) it into a python dictionary if htings went well
         if r.status_code == 200:
-            return a10.structures.returncode.ReturnCode( a10.structures.constants.PROTOCOLSUCCESS, json.loads(r.text) )
-               
+            return a10.structures.returncode.ReturnCode(
+                a10.structures.constants.PROTOCOLSUCCESS, json.loads(r.text)
+            )
+
         else:
-            return a10.structures.returncode.ReturnCode( a10.structures.constants.PROTOCOLEXECUTIONFAILURE, {"message": "http failure",
-                                                                  "return code": r.status_code} )
+            return a10.structures.returncode.ReturnCode(
+                a10.structures.constants.PROTOCOLEXECUTIONFAILURE,
+                {"message": "http failure", "return code": r.status_code},
+            )
