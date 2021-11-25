@@ -5,6 +5,7 @@
 import a10.structures.constants
 import a10.structures.returncode
 
+
 class A10ProtocolBase:
     NAME = "A10BaseProtocol"
 
@@ -14,6 +15,8 @@ class A10ProtocolBase:
         self.policyparameters = policyparameters
         self.additionalparameters = additionalparameters
 
-    def exec(self):        
-    	return a10.structures.returncode.ReturnCode( a10.structures.constants.SUCCESS, {"message": "a10protocolBase test return from exec() call"})
-
+    def exec(self):
+        return a10.structures.returncode.ReturnCode(
+            a10.structures.constants.SUCCESS,
+            {"message": "a10protocolBase test return from exec() call"},
+        )

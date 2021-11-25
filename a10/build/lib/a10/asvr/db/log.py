@@ -3,11 +3,17 @@
 # SPDX-License-Identifier: BSD-3-Clause
 
 import logging
-import a10.asvr.db.configuration 
+import a10.asvr.db.configuration
 
 
-logging.basicConfig(filename=a10.asvr.db.configuration.LOGFILE,level=logging.DEBUG,format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
+logging.basicConfig(
+    filename=a10.asvr.db.configuration.LOGFILE,
+    level=logging.DEBUG,
+    format="%(asctime)s %(message)s",
+    datefmt="%m/%d/%Y %I:%M:%S %p",
+)
 
-def writelog(t,ch,op,data):
-	payload = t+","+ch+","+op + "," + str(data)
-	logging.info(payload)
+
+def writelog(t, ch, op, data):
+    payload = t + "," + ch + "," + op + "," + str(data)
+    logging.info(payload)

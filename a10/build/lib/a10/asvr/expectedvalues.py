@@ -9,7 +9,6 @@ import a10.asvr.db.core
 import a10.asvr.db.announce
 
 
-
 def addExpectedValue(e):
     """Adds an expected value structure
 
@@ -19,13 +18,15 @@ def addExpectedValue(e):
     """
 
     i = a10.structures.identity.generateID()
-    e['itemid'] = i
+    e["itemid"] = i
     r = a10.asvr.db.core.addExpectedValue(e)
-    if r==True:
-        a10.asvr.db.announce.announceItemManagement("add",{"type":"ev","itemid":i})        
-        return a10.structures.returncode.ReturnCode( a10.structures.constants.SUCCESS, i )
+    if r == True:
+        a10.asvr.db.announce.announceItemManagement("add", {"type": "ev", "itemid": i})
+        return a10.structures.returncode.ReturnCode(a10.structures.constants.SUCCESS, i)
     else:
-        return a10.structures.returncode.ReturnCode( a10.structures.constants.ADDITEMFAIL, "ExpectedValue not added to database" )
+        return a10.structures.returncode.ReturnCode(
+            a10.structures.constants.ADDITEMFAIL, "ExpectedValue not added to database"
+        )
 
 
 def getExpectedValue(i):
@@ -38,9 +39,11 @@ def getExpectedValue(i):
 
     e = a10.asvr.db.core.getExpectedValue(i)
     if e == None:
-        return a10.structures.returncode.ReturnCode( a10.structures.constants.ITEMDOESNOTEXIST, i )
+        return a10.structures.returncode.ReturnCode(
+            a10.structures.constants.ITEMDOESNOTEXIST, i
+        )
     else:
-        return a10.structures.returncode.ReturnCode( a10.structures.constants.SUCCESS, e  )
+        return a10.structures.returncode.ReturnCode(a10.structures.constants.SUCCESS, e)
 
 
 def getExpectedValuesFull():
@@ -49,7 +52,7 @@ def getExpectedValuesFull():
     :return: list of expected values
     :rtype: list dict
     """
-       
+
     evs = a10.asvr.db.core.getExpectedValuesFull()
     return evs
 
@@ -60,10 +63,11 @@ def getExpectedValuesForElement(e):
     :param itemid i: the itemID of the element
     :return: the expectedvalue
     :rtype: ReturnCode
-    """    
+    """
 
     evs = a10.asvr.db.core.getExpectedValuesForElement(e)
     return evs
+
 
 def getExpectedValuesForPolicy(p):
     """Returns all the expected values in the database which refer to a given policy itemID
@@ -71,14 +75,13 @@ def getExpectedValuesForPolicy(p):
     :param itemid i: the itemID of the policy
     :return:  the expectedvalue
     :rtype: ReturncCode
-    """    
+    """
 
     evs = a10.asvr.db.core.getExpectedValuesForPolicy(p)
     return evs
 
 
-
-def getExpectedValueForElementAndPolicy(e,p):
+def getExpectedValueForElementAndPolicy(e, p):
     """Returns an expected value structure
 
     :param itemid e: the itemID of the element
@@ -87,15 +90,16 @@ def getExpectedValueForElementAndPolicy(e,p):
     :rtype: ReturnCode
     """
 
-    ev = a10.asvr.db.core.getExpectedValueForElementAndPolicy(e,p)
+    ev = a10.asvr.db.core.getExpectedValueForElementAndPolicy(e, p)
     if ev == None:
-        m = str({"elementID":e,"policyID":p})
-        return a10.structures.returncode.ReturnCode( a10.structures.constants.ITEMDOESNOTEXIST, m )
+        m = str({"elementID": e, "policyID": p})
+        return a10.structures.returncode.ReturnCode(
+            a10.structures.constants.ITEMDOESNOTEXIST, m
+        )
     else:
-        return a10.structures.returncode.ReturnCode( a10.structures.constants.SUCCESS, ev  )
-
-
-
+        return a10.structures.returncode.ReturnCode(
+            a10.structures.constants.SUCCESS, ev
+        )
 
 
 def deleteExpectedValue(i):
@@ -108,11 +112,17 @@ def deleteExpectedValue(i):
 
     r = a10.asvr.db.core.deleteExpectedValue(i)
 
-    if (r == True):
-        a10.asvr.db.announce.announceItemManagement("delete",{"type":"ev","itemid":i})                
-        return a10.structures.returncode.ReturnCode( a10.structures.constants.SUCCESS, "Successfully deleted policy" )
+    if r == True:
+        a10.asvr.db.announce.announceItemManagement(
+            "delete", {"type": "ev", "itemid": i}
+        )
+        return a10.structures.returncode.ReturnCode(
+            a10.structures.constants.SUCCESS, "Successfully deleted policy"
+        )
     else:
-        return a10.structures.returncode.ReturnCode( a10.structures.constants.DELETEITEMFAIL,"Deletion failed.")
+        return a10.structures.returncode.ReturnCode(
+            a10.structures.constants.DELETEITEMFAIL, "Deletion failed."
+        )
 
 
 def updateExpectedValue(i):
@@ -124,10 +134,14 @@ def updateExpectedValue(i):
     """
     r = a10.asvr.db.core.updateExpectedValue(i)
 
-    if (r == True):
-        a10.asvr.db.announce.announceItemManagement("update",{"type":"ev","itemid":i})                
-        return a10.structures.returncode.ReturnCode( a10.structures.constants.SUCCESS, "ExpectedValue updated" )
+    if r == True:
+        a10.asvr.db.announce.announceItemManagement(
+            "update", {"type": "ev", "itemid": i}
+        )
+        return a10.structures.returncode.ReturnCode(
+            a10.structures.constants.SUCCESS, "ExpectedValue updated"
+        )
     else:
-        return a10.structures.returncode.ReturnCode( a10.structures.constants.UPDATEITEMFAIL, "Element not modified" )  
-
-        
+        return a10.structures.returncode.ReturnCode(
+            a10.structures.constants.UPDATEITEMFAIL, "Element not modified"
+        )

@@ -57,6 +57,7 @@ fun Home(navController: NavController? = null, viewModel: AttestationViewModel) 
 
 
     Column(modifier = Modifier.verticalScroll(scrollState)) {
+
         Column(
             modifier = Modifier
                 .fillMaxSize()

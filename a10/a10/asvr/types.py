@@ -14,10 +14,10 @@ import a10.asvr.elements
 def getTypes():
     """Gets a list of all currently used types 
 
-	:return: set of types
-	:rtype: Set
+    :return: set of types
+    :rtype: Set
 
-	"""
+    """
 
     ts = []
     es = a10.asvr.elements.getElementsFull()
