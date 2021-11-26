@@ -6,7 +6,7 @@ import a10.structures.timestamps
 
 
 class Claim:
-    def __init__(self, e_struct, p_struct, treq, trec, payload, aps):
+    def __init__(self, e_struct, p_struct, treq, trec, payload, aps, td):
         self.s = {}
         self.s["header"] = {}
 
@@ -15,6 +15,7 @@ class Claim:
         self.s["header"]["as_received"] = trec
         self.s["header"]["as_requested"] = treq
         self.s["header"]["additionalparameters"] = aps
+        self.s["header"]["transientdata"]= td 
         self.s["payload"] = payload
 
     def asDict(self):

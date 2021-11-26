@@ -1,7 +1,7 @@
 #!/usr/bin/python3
-# Copyright 2021 Nokia
-# Licensed under the BSD 3-Clause License.
-# SPDX-License-Identifier: BSD-3-Clause
+#Copyright 2021 Nokia
+#Licensed under the BSD 3-Clause Clear License.
+#SPDX-License-Identifier: BSD-3-Clear
 
 
 import sys
@@ -29,7 +29,7 @@ r = requests.post(enrollmentserver + "/enrol/credentialcheck", json=initialreque
 # print("Credential Check ",r, r.text )
 
 if r.status_code != 200:
-    print("Call to credential check on enrollment server failed ", r.text, r.json())
+    print("Call to credential check on enrolment server failed ", r.text, r.json())
     sys.exit(1)
 
 # print("Continuing")

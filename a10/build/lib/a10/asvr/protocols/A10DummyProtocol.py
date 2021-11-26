@@ -10,8 +10,8 @@ import a10.structures.returncode
 class A10DummyProtocol(a10.asvr.protocols.A10ProtocolBase.A10ProtocolBase):
     NAME = "A10DUMMYPROTOCOL"
 
-    def __init__(self, endpoint, policyintent, policyparameters, additionalparameters):
-        super().__init__(endpoint, policyintent, policyparameters, additionalparameters)
+    def __init__(self, endpoint, policyintent, policyparameters, callparameters):
+        super().__init__(endpoint, policyintent, policyparameters, callparameters)
 
     def exec(self):
         # print("Calling protocol A10HTTPREST ", self.endpoint, self.policyintent, self.policyparameters,
@@ -22,7 +22,7 @@ class A10DummyProtocol(a10.asvr.protocols.A10ProtocolBase.A10ProtocolBase):
         elementURL = self.endpoint + "/" + self.policyintent
         callbody = {
             "policyparameters": self.policyparameters,
-            "callparameters": self.additionalparameters,
+            "callparameters": self.callparameters,
         }
 
         return_data = {
@@ -30,7 +30,7 @@ class A10DummyProtocol(a10.asvr.protocols.A10ProtocolBase.A10ProtocolBase):
             "endpoint": self.endpoint,
             "policyintent": self.policyintent,
             "policyparameters": self.policyparameters,
-            "additionalparameters": self.additionalparameters,
+            "callparameters": self.callparameters,
         }
 
         return a10.structures.returncode.ReturnCode(
