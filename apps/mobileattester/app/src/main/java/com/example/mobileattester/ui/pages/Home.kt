@@ -1,8 +1,6 @@
 package com.example.mobileattester.ui.pages
 
-import android.net.InetAddresses
-import android.os.Build
-import android.util.Patterns
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -25,7 +23,6 @@ import androidx.navigation.NavController
 import com.example.mobileattester.data.model.Element
 import com.example.mobileattester.data.network.Status
 import com.example.mobileattester.data.util.OverviewProviderImpl
-import com.example.mobileattester.di.Injector
 import com.example.mobileattester.ui.components.common.ErrorIndicator
 import com.example.mobileattester.ui.components.common.HeaderRoundedBottom
 import com.example.mobileattester.ui.components.common.LoadingIndicator
@@ -44,7 +41,9 @@ import kotlinx.coroutines.launch
 fun Home(navController: NavController? = null, viewModel: AttestationViewModel) {
     val context = LocalContext.current
     val currentUrl = viewModel.currentUrl.collectAsState()
-    val currentEngine = parseBaseUrl(currentUrl.value)
+    Log.e("CurrentUrl",currentUrl.value)
+    val currentEngine = parseBaseUrl(currentUrl.value) ?: Preferences.defaultConfig.first()
+    Log.e("CurrentEngine",currentEngine)
 
     val preferences = Preferences(LocalContext.current)
     val list = preferences.engines.collectAsState(initial = sortedSetOf<String>())
@@ -112,29 +111,32 @@ fun Home(navController: NavController? = null, viewModel: AttestationViewModel) 
                     icon = TablerIcons.Plus,
                     editable = true,
                     onIconClick = { str ->
-                        val port = str.takeLastWhile { it != ':' }
-                        val validPort = port.toUShortOrNull() != null
+                        val config = parseBaseUrl(str)
 
-                        val address = str.dropLast(port.length + 1)
+                        if (config != null) {
+                            if(list.value.contains(config))
+                            {
+                                Toast.makeText(
+                                    context,
+                                    "Config already exists",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                            else {
+                                list.value.add(config)
 
-                        val validAddress = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                            InetAddresses.isNumericAddress(address) // Todo: DNS address resolution
-                        } else Patterns.IP_ADDRESS.matcher(address).matches()
+                                scope.launch {
+                                    preferences.saveEngines(list.value)
 
-                        if (validAddress && validPort) {
-                            list.value.add(str)
-
-                            scope.launch {
-                                preferences.saveEngines(list.value)
-
-                                // Refresh
-                                showAllConfigurations = false
-                                showAllConfigurations = true
+                                    // Refresh
+                                    showAllConfigurations = false
+                                    showAllConfigurations = true
+                                }
                             }
                         } else {
                             Toast.makeText(
                                 context,
-                                "${if (!validAddress) "Address" else "Port"} is invalid",
+                                "Input is invalid",
                                 Toast.LENGTH_SHORT
                             ).show()
                         }
@@ -228,7 +230,8 @@ fun Content(navController: NavController? = null, viewModel: AttestationViewMode
             LoadingIndicator()
             return
         }
-        else -> {}
+        else -> {
+        }
     }
 
     Row(
