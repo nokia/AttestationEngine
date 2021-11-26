@@ -7,6 +7,7 @@ import json
 import datetime
 import tempfile
 import base64
+import subprocess
 from tpm import tpm
 from claims import claimstructure
 
@@ -107,6 +108,9 @@ def returnTPMSATTEST():
 def returnMAKEACTIVATECREDENTIAL():
     tpmdevice = tpm.TPM()
 
+    c = claimstructure.Claim()
+    c.addHeaderItem("ta_received", str(datetime.datetime.now(datetime.timezone.utc)))
+
     # This is how it works
 
     # 1. take the policy and extract the PCRs
@@ -132,7 +136,7 @@ def returnMAKEACTIVATECREDENTIAL():
         print("EK Missing , using  default of 0x810100ee")
             
 
-    print("I have ",ekpub,akname,ak_to_use,ek_to_use)
+    #print("I have ",ekpub,akname,ak_to_use,ek_to_use)
 
 #
 # Do the activatecredential stuff here
@@ -147,10 +151,11 @@ def returnMAKEACTIVATECREDENTIAL():
 
     ocredf = tempfile.NamedTemporaryFile(delete=False)
 
-# This should be rewritten using the proper python libraries
+# This should (WILL!!!) be rewritten using the proper python libraries
 # but as you can see there is absolutely no error checking here
 # if any of these fail then the whole thing fails...hard!
 # Of course that is hardly ever going to happen in production....hahahahhaha
+
     out=None
 
     try:
@@ -176,25 +181,27 @@ def returnMAKEACTIVATECREDENTIAL():
 
         cmd = "tpm2_flushcontext " + sfile.name
         out = subprocess.run(cmd.split())
-    except:
-        print("Failed to run a tpm command ", cmd)
-        return jsonify({"msg":"error running TPM command "+cmd}),500
+    except Exception as e:
+        print("Failed to run a tpm command ", cmd, e)
+        return jsonify({"msg":"error running TPM command: "+cmd+", error was "+str(e)}),500
 
     sfile.close()
     incredf.close()
 
-    ocredf.seek(0)
-    revealedsecret = ocredf.read().decode("utf-8")
-    print("REVEALED SECRET IS ", revealedsecret)
+    try:
+        ocredf.seek(0)
+        revealedsecret = ocredf.read().decode("utf-8")
+        print("REVEALED SECRET IS ", revealedsecret)
+     except Exception as e:
+        print("Failed to read secret from activatecredential: ", cmd, e)
+        return jsonify({"msg":"error running TPM command "+cmd+", error was "+str(e)}),500   
+
     ocredf.close()
 
 
+    c.addPayloadItem("secret", revealedsecret)
+    c.addHeaderItem("ta_processed", str(datetime.datetime.now(datetime.timezone.utc)))
 
-
-
-    c = claimstructure.Claim()
-    c.addHeaderItem("ta_received", str(datetime.datetime.now(datetime.timezone.utc)))
-    c.addPayloadItem("secret", thesecret)
     c.sign()
     rc = c.getClaim()
 
