@@ -1,6 +1,6 @@
-# Copyright 2021 Nokia
-# Licensed under the BSD 3-Clause License.
-# SPDX-License-Identifier: BSD-3-Clause
+#Copyright 2021 Nokia
+#Licensed under the BSD 3-Clause Clear License.
+#SPDX-License-Identifier: BSD-3-Clear
 
 import a10.structures.constants
 import a10.structures.returncode
@@ -123,7 +123,7 @@ class TPM2FirmwareVersion(baserule.BaseRule):
         if trusted == True:
             return self.returnMessage(
                 a10.structures.constants.VERIFYSUCCEED,
-                "attested value == known good value",
+                "Correct firmware version",
                 [],
             )
         else:
@@ -187,7 +187,7 @@ class TPM2QuoteType(baserule.BaseRule):
             )
         else:
             return self.returnMessage(
-                a10.structures.constants.VERIFYFAIL, "Incorred TPMS_ATTEST type", []
+                a10.structures.constants.VERIFYFAIL, "Incorrect TPMS_ATTEST type", []
             )
 
 
@@ -354,4 +354,27 @@ class TPM2QuoteStandardVerify(baserule.BaseRule):
         else:
             return self.returnMessage(
                 a10.structures.constants.VERIFYFAIL, msg, subresults
+            )
+
+
+#
+# Make Activate Credential Rules
+#
+
+
+
+class TPM2CredentialVerify(baserule.BaseRule):
+    NAME = "tpm2rules/TPM2CredentialVerify"
+    DESCRIPTION = "Check the credentials returned from an element according to the make/activate credential process"
+
+    def __init__(self, cid, ps):
+        super().__init__(cid, ps)
+
+    def apply(self):
+
+        msg="Nothing done yet. TODO"
+        subresults = []
+
+        return self.returnMessage(
+                a10.structures.constants.VERIFYSUCCEED, msg, subresults
             )

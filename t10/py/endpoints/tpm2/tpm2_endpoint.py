@@ -1,10 +1,12 @@
-# Copyright 2021 Nokia
-# Licensed under the BSD 3-Clause License.
-# SPDX-License-Identifier: BSD-3-Clause
+#Copyright 2021 Nokia
+#Licensed under the BSD 3-Clause Clear License.
+#SPDX-License-Identifier: BSD-3-Clear
 
 from flask import Blueprint, request, jsonify
 import json
 import datetime
+import tempfile
+import base64
 from tpm import tpm
 from claims import claimstructure
 
@@ -25,6 +27,9 @@ def returnPCRREAD():
     rc = c.getClaim()
 
     return jsonify(rc), 200
+
+
+
 
 
 @tpm2_endpoint.route("/quote", methods=["POST"])
@@ -90,5 +95,108 @@ def returnTPMSATTEST():
     # In the case of success we return a claim and HTTP 200
     # In the case of failure we return a message and something that isn't HTTP
     # 20x
+
+    return jsonify(rc), 200
+
+
+
+
+
+
+@tpm2_endpoint.route("/credentialcheck", methods=["POST"])
+def returnMAKEACTIVATECREDENTIAL():
+    tpmdevice = tpm.TPM()
+
+    # This is how it works
+
+    # 1. take the policy and extract the PCRs
+    # print("Now in TA")
+    # print(request.json)
+    body = json.loads(request.json)
+    print("\n*********************\nCredential Check\nReceived body is", body)    
+
+    ekpub = body["callparameters"]["ekpub"]
+    akname = body["callparameters"]["akname"]
+    credential = body["callparameters"]["credential"]
+
+    ak_to_use = "0x810100aa"
+    try:
+        ak_to_use = body["ak"]
+    except KeyError:
+        print("AK Missing , using  default of 0x810100aa")
+
+    ek_to_use = "0x810100ee"
+    try:
+        ek_to_use = body["ek"]
+    except KeyError:
+        print("EK Missing , using  default of 0x810100ee")
+            
+
+    print("I have ",ekpub,akname,ak_to_use,ek_to_use)
+
+#
+# Do the activatecredential stuff here
+#
+
+
+    sfile = tempfile.NamedTemporaryFile(delete=False)
+
+    incredf = tempfile.NamedTemporaryFile(delete=False)
+    incredf.write(bytes(base64.b64decode(credential)))
+    incredf.seek(0)
+
+    ocredf = tempfile.NamedTemporaryFile(delete=False)
+
+# This should be rewritten using the proper python libraries
+# but as you can see there is absolutely no error checking here
+# if any of these fail then the whole thing fails...hard!
+# Of course that is hardly ever going to happen in production....hahahahhaha
+    out=None
+
+    try:
+        cmd = "tpm2_startauthsession --policy-session -S " + sfile.name
+        out = subprocess.run(cmd.split())
+
+        cmd = "tpm2_policysecret -S " + sfile.name + " -c e"
+        out = subprocess.run(cmd.split())
+
+        cmd = (
+            "tpm2_activatecredential -c "
+            + ak_to_use
+            + " -C "
+            + ek_to_use
+            + " -i "
+            + incredf.name
+            + " -o "
+            + ocredf.name
+            + " -P session:"
+            + sfile.name
+        )
+        out = subprocess.run(cmd.split())
+
+        cmd = "tpm2_flushcontext " + sfile.name
+        out = subprocess.run(cmd.split())
+    except:
+        print("Failed to run a tpm command ", cmd)
+        return jsonify({"msg":"error running TPM command "+cmd}),500
+
+    sfile.close()
+    incredf.close()
+
+    ocredf.seek(0)
+    revealedsecret = ocredf.read().decode("utf-8")
+    print("REVEALED SECRET IS ", revealedsecret)
+    ocredf.close()
+
+
+
+
+
+    c = claimstructure.Claim()
+    c.addHeaderItem("ta_received", str(datetime.datetime.now(datetime.timezone.utc)))
+    c.addPayloadItem("secret", thesecret)
+    c.sign()
+    rc = c.getClaim()
+
 
     return jsonify(rc), 200

@@ -1,7 +1,7 @@
 #!/usr/bin/python3
-# Copyright 2021 Nokia
-# Licensed under the BSD 3-Clause License.
-# SPDX-License-Identifier: BSD-3-Clause
+#Copyright 2021 Nokia
+#Licensed under the BSD 3-Clause Clear License.
+#SPDX-License-Identifier: BSD-3-Clear
 
 
 import sys
@@ -26,7 +26,6 @@ asurl = sys.argv[9]
 ekhandle = sys.argv[10]
 akhandle = sys.argv[11]
 uefieventlog = sys.argv[12]
-
 akpem = open(sys.argv[13], "r")
 akyaml = open(sys.argv[14], "r")
 ekpem = open(sys.argv[15], "r")
@@ -39,14 +38,15 @@ ekpemdata = ekpem.read()
 ekyamldata = ekyaml.read()
 
 
-an = yaml.load(akyamldata, Loader=yaml.Loader)
-en = yaml.load(ekyamldata, Loader=yaml.Loader)
-
-
 akpem.close()
 akyaml.close()
 ekpem.close()
 ekyaml.close()
+
+
+an = yaml.load(akyamldata, Loader=yaml.Loader)
+en = yaml.load(ekyamldata, Loader=yaml.Loader)
+
 
 
 j = {

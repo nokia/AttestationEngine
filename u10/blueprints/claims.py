@@ -40,6 +40,8 @@ def claim(item_id):
     c = a10.asvr.claims.getClaim(item_id).msg()
     pp = json.dumps(c, sort_keys=True, indent=4)
 
+    #print("PP",pp)
+
     c["receivedUTC"] = formatting.futc(c["header"]["as_received"])
     c["requestedUTC"] = formatting.futc(c["header"]["as_requested"])
     c["timedifference"] = round(
