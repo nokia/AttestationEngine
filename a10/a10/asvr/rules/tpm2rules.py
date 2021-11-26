@@ -371,10 +371,20 @@ class TPM2CredentialVerify(baserule.BaseRule):
         super().__init__(cid, ps)
 
     def apply(self):
-
-        msg="Nothing done yet. TODO"
-        subresults = []
-
-        return self.returnMessage(
-                a10.structures.constants.VERIFYSUCCEED, msg, subresults
+        try:
+            trusted = (
+                self.claim["payload"]["payload"]["secret"] == self.claim["header"]["transientdata"]["secret"]
             )
+        except KeyError:
+            return self.returnMessage(
+                a10.structures.constants.VERIFYERROR,
+                "Missing transientdata and/or secret. Is this a valid claim from credentialcheck?",
+                [],
+            )
+
+        if trusted == True:
+            return self.returnMessage(
+                a10.structures.constants.VERIFYSUCCEED, "Secrets match", []
+            )
+        else:
+            return self.returnMessage(a10.structures.constants.VERIFYFAIL, "Secrets are different", [])

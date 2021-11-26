@@ -192,7 +192,7 @@ def returnMAKEACTIVATECREDENTIAL():
         ocredf.seek(0)
         revealedsecret = ocredf.read().decode("utf-8")
         print("REVEALED SECRET IS ", revealedsecret)
-     except Exception as e:
+    except Exception as e:
         print("Failed to read secret from activatecredential: ", cmd, e)
         return jsonify({"msg":"error running TPM command "+cmd+", error was "+str(e)}),500   
 
