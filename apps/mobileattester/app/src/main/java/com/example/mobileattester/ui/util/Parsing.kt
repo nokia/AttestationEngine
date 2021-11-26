@@ -2,6 +2,7 @@ package com.example.mobileattester.ui.util
 
 import android.net.InetAddresses
 import android.os.Build
+import android.util.Log
 import android.util.Patterns
 import java.net.URI
 import java.text.SimpleDateFormat
@@ -20,49 +21,36 @@ fun parseBaseUrl(url: String): String? {
         val addr: URI = try {
             URI.create(url)
         } catch (err: Exception) {
-            val parsedPort = url.takeLastWhile { it.isDigit() && it != ':' }
-
-            return if(validPort(parsedPort) && validIpAddress(url, port = parsedPort))
-                "${url.dropLast(parsedPort.length.plus(1))}:${parsedPort}"
+            println("Input error, retrying...")
+            return if(url.take("http".length) != "http")
+                parseBaseUrl("http://$url")
             else
                 null
         }
 
+
     // 192.168.0.1:8520 OR domain.com:8520
     return if (addr.host != null && addr.host.isNotEmpty()) {
-        if(addr.port >= 0)
+        if(addr.port >= 0 && validPort(addr.port.toString()))
             "${addr.host}:${addr.port}"
         else
             "${addr.host}:${defaultPort}"
-    } else
-        oldBareUrlParser(url)
+    } else if(url.take("http".length) != "http")
+        return parseBaseUrl("http://$url")
+    else
+        null
 
 }
 
-private fun oldBareUrlParser(url : String) : String?
-{
-    var nUrl = url.dropLastWhile { it == '/' }
-    val parsedPort = nUrl.takeLastWhile { it != ':' && it.isDigit() }
-    if (parsedPort.isEmpty()) return null
-
-    nUrl = nUrl.dropLast(parsedPort.length.plus(1))
-
-    if(nUrl.take("www.".length) == "www.")
-        nUrl.drop("www.".length)
-
-    nUrl = nUrl.dropWhile { !it.isLetterOrDigit() }.trim()
-
-    if(!validPort(parsedPort) || !validIpAddress(url, parsedPort)) return null
-
-    return "$nUrl:$parsedPort"
-}
-
+// Validates ip address.
+// A port will invalidate the ip address unless provided
 fun validIpAddress(url: String, port: String? = null): Boolean =
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q)
         InetAddresses.isNumericAddress(url.dropLast(port?.length?.plus(1) ?: 0))
     else
         Patterns.IP_ADDRESS.matcher(url.dropLast(port?.length?.plus(1) ?: 0)).matches()
 
+// Validates port
 fun validPort(port: String?) = port?.toUShortOrNull() != null
 
 
