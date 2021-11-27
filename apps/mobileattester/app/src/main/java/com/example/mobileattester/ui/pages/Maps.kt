@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.preference.PreferenceManager.getDefaultSharedPreferences
 import android.provider.Settings
 import android.view.MotionEvent
 import androidx.appcompat.content.res.AppCompatResources
@@ -13,7 +14,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
-import androidx.preference.PreferenceManager.getDefaultSharedPreferences
 import com.example.mobileattester.R
 import com.example.mobileattester.ui.util.PermissionDeniedRequestSettings
 import com.example.mobileattester.ui.util.PermissionsRationale
@@ -112,8 +112,8 @@ private fun initializeMap(context: Context, navController: NavController) {
             addServerMarker(it, context).also { it.title = markerNames?.get(i) ?: "" }
         }
     else {
-        val serverMarker = addServerMarker(GeoPoint(map.mapCenter),context)
-        serverMarker.setOnMarkerClickListener { _, _ ->  false}
+        val serverMarker = addServerMarker(GeoPoint(map.mapCenter), context)
+        serverMarker.setOnMarkerClickListener { _, _ -> false }
         map.setOnTouchListener { _, e ->
             run {
                 if (e.action == MotionEvent.ACTION_MOVE)

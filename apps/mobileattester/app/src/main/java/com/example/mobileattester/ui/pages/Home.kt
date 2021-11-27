@@ -101,7 +101,6 @@ fun Home(navController: NavController? = null, viewModel: AttestationViewModel) 
                                 showAllConfigurations = false
                                 showAllConfigurations = true
                             }
-
                         },
                     )
                 }
