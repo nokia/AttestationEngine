@@ -1,8 +1,6 @@
 package com.example.mobileattester.ui.pages
 
-import android.net.InetAddresses
-import android.os.Build
-import android.util.Patterns
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -25,7 +23,6 @@ import androidx.navigation.NavController
 import com.example.mobileattester.data.model.Element
 import com.example.mobileattester.data.network.Status
 import com.example.mobileattester.data.util.OverviewProviderImpl
-import com.example.mobileattester.di.Injector
 import com.example.mobileattester.ui.components.common.ErrorIndicator
 import com.example.mobileattester.ui.components.common.HeaderRoundedBottom
 import com.example.mobileattester.ui.components.common.LoadingIndicator
@@ -44,7 +41,9 @@ import kotlinx.coroutines.launch
 fun Home(navController: NavController? = null, viewModel: AttestationViewModel) {
     val context = LocalContext.current
     val currentUrl = viewModel.currentUrl.collectAsState()
-    val currentEngine = parseBaseUrl(currentUrl.value)
+    Log.e("CurrentUrl",currentUrl.value)
+    val currentEngine = parseBaseUrl(currentUrl.value) ?: Preferences.defaultConfig.first()
+    Log.e("CurrentEngine",currentEngine)
 
     val preferences = Preferences(LocalContext.current)
     val list = preferences.engines.collectAsState(initial = sortedSetOf<String>())
@@ -111,29 +110,32 @@ fun Home(navController: NavController? = null, viewModel: AttestationViewModel) 
                     icon = TablerIcons.Plus,
                     editable = true,
                     onIconClick = { str ->
-                        val port = str.takeLastWhile { it != ':' }
-                        val validPort = port.toUShortOrNull() != null
+                        val config = parseBaseUrl(str)
 
-                        val address = str.dropLast(port.length + 1)
+                        if (config != null) {
+                            if(list.value.contains(config))
+                            {
+                                Toast.makeText(
+                                    context,
+                                    "Config already exists",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                            else {
+                                list.value.add(config)
 
-                        val validAddress = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                            InetAddresses.isNumericAddress(address) // Todo: DNS address resolution
-                        } else Patterns.IP_ADDRESS.matcher(address).matches()
+                                scope.launch {
+                                    preferences.saveEngines(list.value)
 
-                        if (validAddress && validPort) {
-                            list.value.add(str)
-
-                            scope.launch {
-                                preferences.saveEngines(list.value)
-
-                                // Refresh
-                                showAllConfigurations = false
-                                showAllConfigurations = true
+                                    // Refresh
+                                    showAllConfigurations = false
+                                    showAllConfigurations = true
+                                }
                             }
                         } else {
                             Toast.makeText(
                                 context,
-                                "${if (!validAddress) "Address" else "Port"} is invalid",
+                                "Input is invalid",
                                 Toast.LENGTH_SHORT
                             ).show()
                         }
@@ -227,7 +229,8 @@ fun Content(navController: NavController? = null, viewModel: AttestationViewMode
             LoadingIndicator()
             return
         }
-        else -> {}
+        else -> {
+        }
     }
 
     Row(
@@ -283,15 +286,15 @@ fun Content(navController: NavController? = null, viewModel: AttestationViewMode
 
     val attestations = overviews[OverviewProviderImpl.OVERVIEW_ATTESTED_ELEMENTS]?.size ?: -1
     val attestations24 = overviews[OverviewProviderImpl.OVERVIEW_ATTESTED_ELEMENTS_24H]?.size ?: -1
-    val ok = overviews[OverviewProviderImpl.OVERVIEW_ATTESTED_ELEMENTS_OK]?.size ?: -1
-    val ok24 = overviews[OverviewProviderImpl.OVERVIEW_ATTESTED_ELEMENTS_OK_24H]?.size ?: -1
+    val fail = overviews[OverviewProviderImpl.OVERVIEW_ATTESTED_ELEMENTS_FAIL]?.size ?: -1
+    val fail24 = overviews[OverviewProviderImpl.OVERVIEW_ATTESTED_ELEMENTS_FAIL_24H]?.size ?: -1
 
 
     Spacer(modifier = Modifier.size(10.dp))
-    Alert("Active", attestations = attestations, ok = ok)
+    Alert("Active", attestations = attestations, fail = fail)
     { navController!!.navigate(Screen.Elements.route, bundleOf(Pair(ARG_INITIAL_SEARCH, "!"))) }
     Spacer(modifier = Modifier.size(20.dp))
-    Alert("24H", attestations = attestations24, ok = ok24)
+    Alert("24H", attestations = attestations24, fail = fail24)
     { navController!!.navigate(Screen.Elements.route, bundleOf(Pair(ARG_INITIAL_SEARCH, "!24"))) }
 }
 
@@ -299,7 +302,7 @@ fun Content(navController: NavController? = null, viewModel: AttestationViewMode
 fun Alert(
     alertDurationInfo: String = "",
     attestations: Int = 0,
-    ok: Int = 0,
+    fail: Int = 0,
     onClick: () -> Unit = {},
 ) {
     Text(
@@ -337,7 +340,7 @@ fun Alert(
             Row {
                 Icon(TablerIcons.SquareCheck, contentDescription = null, tint = Ok)
                 Text(
-                    ok.toString(),
+                    (attestations - fail).toString(),
                     color = Ok,
                     modifier = Modifier.padding(5.dp, 0.dp),
                     fontSize = FONTSIZE_LG,
@@ -350,7 +353,7 @@ fun Alert(
             Row {
                 Icon(TablerIcons.SquareX, contentDescription = null, tint = Error)
                 Text(
-                    (attestations - ok).toString(),
+                    fail.toString(),
                     color = Error,
                     modifier = Modifier.padding(5.dp, 0.dp),
                     fontSize = FONTSIZE_LG,

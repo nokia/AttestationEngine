@@ -4,8 +4,13 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.*
-import androidx.compose.runtime.*
+import androidx.compose.material.Divider
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
+import androidx.compose.material.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
@@ -28,8 +33,9 @@ import com.example.mobileattester.ui.theme.*
 import com.example.mobileattester.ui.util.*
 import com.example.mobileattester.ui.viewmodel.AttestationViewModel
 import compose.icons.TablerIcons
-import compose.icons.tablericons.*
-import kotlin.math.roundToLong
+import compose.icons.tablericons.Checkbox
+import compose.icons.tablericons.CurrentLocation
+import compose.icons.tablericons.ListCheck
 
 
 const val ARG_ITEM_ID = "item_id"
@@ -129,22 +135,28 @@ private fun ElementResult(navController: NavController, element: Element) {
 
     Spacer(Modifier.size(24.dp))
 
+    val onMoreResultsRequested: () -> Unit =
+        {
+            val result = element.results.drop(latestResults.size).find {
+                Timestamp.fromSecondsString(it.verifiedAt)!!
+                    .timeSince()
+                    .toHours() > resultHoursShown.value
+            }
+
+            val resultTimestamp = Timestamp.fromSecondsString(result!!.verifiedAt)!!
+
+            resultHoursShown.value = resultTimestamp.timeSince().toHours().hoursHWMYRounded()
+
+        }
+
+
     ElementResultFull(
         latestResults,
         latestResults.size == element.results.size,
         onResultClicked = {
             navController.navigate(Screen.Result.route, bundleOf(Pair(ARG_RESULT_ID, it.itemid)))
-        },
-    ) {
-        // Band-aid fix using old version.
-        val hourInSeconds = 3600
-        val resultSeconds =
-            element.results[latestResults.size].verifiedAt.toDoubleOrNull()!!.roundToLong()
-
-        val curTimeInSeconds: Long = System.currentTimeMillis() / 1000
-        resultHoursShown.value =
-            curTimeInSeconds.minus(resultSeconds).div(hourInSeconds).toInt().hoursHWMYRounded()
-    }
+        }, onMoreRequested = onMoreResultsRequested
+    )
 }
 
 @Composable
