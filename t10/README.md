@@ -5,9 +5,9 @@ This is the code for the *reference* trust agent. It basically supports EVERY AP
 
 ## What's here
 
-   * In the `py` directory is the Python3 POC TA.
-   * In the `go` directory is the GoLang POC TA.
-   * In the `provisioning` directory are various provisioning scripts, eg: tpm2 elements, notpm elements etc
+   * In the `py` directory is the Python3 POC TA.   <--- don't use this
+   * In the `nut10` directory is the better Python3 POC TA   <--- USE THIS   
+   * In the `go` directory is the GoLang POC TA.   
    * In the `systemd` directory are the templates for the systemd services and the start and stop scripts
    
  
@@ -19,10 +19,23 @@ Before starting this, it might be easier to manually create `/opt/ta` and change
 
 Also, edit ta.serivce and check the requiremnts on the Wants sections for abrmd machines and PiFakeBoot machines.
 
+You will also need to check the port number in `ta_config.cfg` - this should be 8530. This file is used by python flask.
+
+Finally create `/etc/t10.conf`. There is an example `t10.conf` file in the nut10 directory. The main thing you need to do is provide a comma separated list of attestation servers that the t10 will contact on startup via the a10rest API. For example:
+
+```bash
+[Asvr]
+    Asvrs=http://127.0.0.1:8520,http://127.0.0.1:8520
+```
+
+Typically there is only one server, but you may have more:
+
+Once you've put t10.conf in /etc/ you can install the nut10 trust agent like so:
+
 ```bash
 systemctl stop ta.service
 mkdir /opt/ta
-cp -r py/* /opt/ta
+cp -r nut10/* /opt/ta
 cp systemd/ta.service /etc/systemd/system
 cp systemd/ta.start /opt/ta
 cp systemd/ta.stop /opt/ta
