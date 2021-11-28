@@ -25,8 +25,8 @@ class MainActivity : ComponentActivity() {
          */
 
         viewModel = ViewModelProvider(this,
-            Injector.provideAttestationViewModelFactory(Preferences.defaultConfig.first())).get(
-            AttestationViewModelImpl::class.java)
+            Injector.provideAttestationViewModelFactory(Preferences.defaultConfig.first(),
+                applicationContext))[AttestationViewModelImpl::class.java]
 
         setContent {
             MobileAttesterTheme {

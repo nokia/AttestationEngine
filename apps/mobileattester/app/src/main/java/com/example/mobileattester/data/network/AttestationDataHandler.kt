@@ -72,7 +72,10 @@ class AttestationDataHandlerImpl(
     }
 
     private fun buildService() {
-        val gson = GsonBuilder().setLenient().create()
+        val gson =
+            GsonBuilder()
+                .setLenient()
+                .create()
 
         apiService = Retrofit.Builder().baseUrl(initialUrl).client(getOkHttpClient())
             .addConverterFactory(GsonConverterFactory.create(gson)).build()

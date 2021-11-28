@@ -8,13 +8,11 @@ import com.example.mobileattester.data.model.ElementResult
 import com.example.mobileattester.data.model.emptyElement
 import com.example.mobileattester.data.network.Response
 import com.example.mobileattester.data.repository.AttestationRepository
-import com.example.mobileattester.data.util.AttestationUtil
-import com.example.mobileattester.data.util.ElementDataHandler
-import com.example.mobileattester.data.util.OverviewProvider
-import com.example.mobileattester.data.util.UpdateUtil
+import com.example.mobileattester.data.util.*
 import com.example.mobileattester.data.util.abs.DataFilter
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
+import kotlin.reflect.jvm.internal.impl.incremental.components.LocationInfo
 
 interface AttestationViewModel {
     val isRefreshing: StateFlow<Boolean>
@@ -40,20 +38,22 @@ interface AttestationViewModel {
     /** Switch the base url used for the engine */
     fun switchBaseUrl(url: String)
 
+    // Use the different classes directly to avoid cluttering in this vm
     fun useAttestationUtil(): AttestationUtil
     fun useUpdateUtil(): UpdateUtil
     fun useOverviewProvider(): OverviewProvider
+    fun useMapManager(): MapManager
 }
 
 // --------- Implementation ---------
 
-// Repo should be replaced with handlers / create a facade for everything?
 class AttestationViewModelImpl(
     private val repo: AttestationRepository,
     private val elementDataHandler: ElementDataHandler,
     private val attestationUtil: AttestationUtil,
     private val updateUtil: UpdateUtil,
     private val overviewProvider: OverviewProvider,
+    private val mapManager: MapManager,
 ) : AttestationViewModel, ViewModel() {
     companion object {
         const val FETCH_START_BUFFER = 3
@@ -97,6 +97,7 @@ class AttestationViewModelImpl(
     override fun useAttestationUtil(): AttestationUtil = attestationUtil
     override fun useUpdateUtil(): UpdateUtil = updateUtil
     override fun useOverviewProvider(): OverviewProvider = overviewProvider
+    override fun useMapManager(): MapManager = mapManager
 }
 
 class AttestationViewModelImplFactory(
@@ -105,6 +106,7 @@ class AttestationViewModelImplFactory(
     private val attestUtil: AttestationUtil,
     private val updateUtil: UpdateUtil,
     private val overviewProvider: OverviewProvider,
+    private val mapManager: MapManager,
 ) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
@@ -112,6 +114,7 @@ class AttestationViewModelImplFactory(
             elementDataHandler,
             attestUtil,
             updateUtil,
-            overviewProvider) as T
+            overviewProvider,
+            mapManager) as T
     }
 }

@@ -59,7 +59,8 @@ fun Element(navController: NavController, viewModel: AttestationViewModel) {
     }
 
     fun onLocationClick() {
-        viewModel.useUpdateUtil().updateElement(element)
+        navController.navigate(Screen.Map.route,
+            bundleOf(Pair(ARG_MAP_SINGLE_ELEMENT_ID, element.itemid)))
     }
 
     // Content
@@ -85,15 +86,13 @@ fun Element(navController: NavController, viewModel: AttestationViewModel) {
             Spacer(modifier = Modifier.size(26.dp))
             ElementActions(onAttestClick = ::onAttestClick, onLocationClick = ::onLocationClick)
             Spacer(modifier = Modifier.size(26.dp))
-            Text(
-                text = element.description ?: "",
-                color = DarkGrey,
-            )
+            Text(text = element.description ?: "", color = DarkGrey)
+            Spacer(modifier = Modifier.size(26.dp))
+            Text(text = element.location?.toString() ?: "No location set", color = DarkGrey)
             Spacer(modifier = Modifier.size(26.dp))
             Divider(color = LightGrey, thickness = 1.dp)
             Spacer(modifier = Modifier.size(26.dp))
             ElementResult(navController, element)
-
         }
     }
 }

@@ -5,7 +5,7 @@ import kotlinx.coroutines.delay
 import java.io.IOException
 
 enum class Status {
-    SUCCESS, ERROR, LOADING
+    SUCCESS, ERROR, LOADING, IDLE
 }
 
 
@@ -18,6 +18,9 @@ data class Response<out T>(val status: Status, val data: T? = null, val message:
 
         fun <T> loading(data: T? = null): Response<T> =
             Response(status = Status.LOADING, data = data)
+
+        fun <T> idle(): Response<T> =
+            Response(status = Status.IDLE)
     }
 }
 

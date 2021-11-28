@@ -1,6 +1,8 @@
 package com.example.mobileattester.di
 
+import android.content.Context
 import androidx.lifecycle.ViewModelProvider
+import com.example.mobileattester.data.location.LocationHandler
 import com.example.mobileattester.data.model.ElementResult
 import com.example.mobileattester.data.network.AttestationDataHandler
 import com.example.mobileattester.data.network.AttestationDataHandlerImpl
@@ -36,7 +38,10 @@ object Injector {
     /**
      * @param address Address to init attestation service with
      */
-    fun provideAttestationViewModelFactory(address: String): ViewModelProvider.Factory {
+    fun provideAttestationViewModelFactory(
+        address: String,
+        ctx: Context,
+    ): ViewModelProvider.Factory {
         val handler: AttestationDataHandler =
             AttestationDataHandlerImpl("http://$address/")
         val attestationRepo: AttestationRepository = AttestationRepositoryImpl(handler)
@@ -82,12 +87,20 @@ object Injector {
         val fnRunner = AsyncRunner(notifier)
         val updateUtil = UpdateUtil(fnRunner, handler)
 
+        // Location
+        val locationHandler = LocationHandler(ctx)
+        val locationEditor = ElementLocationEditor(locationHandler)
+        locationHandler.requestCurrentLocation()
+
+        val mapManager = MapManager(locationEditor)
+
         return AttestationViewModelImplFactory(
             attestationRepo,
             elementDataHandler,
             attestUtil,
             updateUtil,
-            overviewProvider
+            overviewProvider,
+            mapManager
         )
     }
 
@@ -112,7 +125,8 @@ object Injector {
                 ElementResult.FILTER_FLAG_WITHIN_TIMEFRAME,
                 ElementResult.FILTER_FLAG_RESULT_FAIL,
             ),
-            timeFrame = day)
+            timeFrame = day
+        )
 
         t.addFilterByResults(OverviewProviderImpl.OVERVIEW_ATTESTED_ELEMENTS, latest)
         t.addFilterByResults(OverviewProviderImpl.OVERVIEW_ATTESTED_ELEMENTS_24H, latest24)

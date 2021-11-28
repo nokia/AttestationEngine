@@ -7,7 +7,6 @@ import kotlin.Exception
 /**
  * Class to run async functions in, notifies subscribers if the provided
  * function was successfully completed.
- * TODO errors
  */
 class AsyncRunner(
     private val notifier: Notifier,
@@ -15,15 +14,21 @@ class AsyncRunner(
     private val job = Job()
     private val scope = CoroutineScope(job)
 
-    fun <T> run(data: T, update: suspend (data: T) -> Boolean) {
+    /**
+     * Run a function in the scope this class has created.
+     * @param function Function to run. Should return true if the operation was successful. Notifies
+     * if true is returned.
+     */
+    fun <T> run(data: T, function: suspend (data: T) -> Boolean, onException: (Exception) -> Unit) {
         scope.launch {
             try {
-                val ok = update(data)
+                val ok = function(data)
                 if (ok) {
                     notifier.notifyAll(data)
                 }
             } catch (e: Exception) {
                 println("Error running function $e")
+                onException(e)
             }
         }
     }
