@@ -1,9 +1,14 @@
 package com.example.mobileattester.data.model
 
+import android.location.Location
 import com.example.mobileattester.data.util.abs.DataFilter
 import com.example.mobileattester.data.util.abs.Filterable
-import com.example.mobileattester.ui.util.Timestamp
+import com.google.gson.*
 import com.google.gson.annotations.SerializedName
+import java.lang.reflect.Type
+
+import com.google.gson.JsonObject
+import org.osmdroid.util.GeoPoint
 
 
 /**
@@ -17,11 +22,36 @@ data class Element(
     @SerializedName("type") val types: List<String>,
     val protocol: String,
     val description: String?,
+    val location: List<String>?,
     @Transient var results: List<ElementResult>,
 ) : Filterable {
 
     override fun filter(f: DataFilter): Boolean {
         return matchFields(f.keywords)
+    }
+
+    fun geoPoint(): GeoPoint? {
+        val lat = location?.get(0)
+        val long = location?.get(1)
+
+        if (lat == null || long == null) {
+            return null
+        }
+
+        return GeoPoint(lat.toDouble(), long.toDouble())
+    }
+
+    fun cloneWithNewLocation(location: Location): Element {
+        return Element(
+            itemid,
+            name,
+            endpoint,
+            types,
+            protocol,
+            description,
+            listOf(location.latitude.toString(), location.longitude.toString()),
+            results
+        )
     }
 
     /**
@@ -41,6 +71,6 @@ data class Element(
 
 fun emptyElement(): Element {
     return Element(
-        "", "", "", listOf(), "", "", listOf()
+        "", "", "", listOf(), "", "", listOf(), listOf()
     )
 }

@@ -36,7 +36,6 @@ class OverviewProviderImpl(
 
     override fun addFilterByResults(key: String, filter: DataFilter) {
         addedFilters[key] = filter
-        //updateOverviews()
     }
 
     override fun <T> notify(data: T) {
@@ -58,21 +57,30 @@ class OverviewProviderImpl(
                 val filtered = mutableListOf<Element>()
 
                 for (element in elements) {
-                    if (key == OVERVIEW_ATTESTED_ELEMENTS) {
-                        element.results.isNotEmpty() && filtered.add(element)
-                    } else if (key == OVERVIEW_ATTESTED_ELEMENTS_FAIL)
-                            (element.results.firstOrNull()?.result ?: 0) != 0 && filtered.add(element)
-                    else if (key == OVERVIEW_ATTESTED_ELEMENTS_24H) {
-                        element.results.filter {
-                            Timestamp.fromSecondsString(it.verifiedAt)!!.timeSince().toHours() < 24
-                        }.isNotEmpty() && filtered.add(element)
-                    }
-
-                    else if (key == OVERVIEW_ATTESTED_ELEMENTS_FAIL_24H) {
-                        element.results.filter {
-                            println(Timestamp.fromSecondsString(it.verifiedAt)!!.timeSince().toHours())
-                            Timestamp.fromSecondsString(it.verifiedAt)!!.timeSince().toHours() < 24
-                        }.any { it.result != 0 }.also { if(it){ println("FAIL: "+element.name)}} && filtered.add(element)
+                    when (key) {
+                        OVERVIEW_ATTESTED_ELEMENTS -> {
+                            element.results.isNotEmpty() && filtered.add(element)
+                        }
+                        OVERVIEW_ATTESTED_ELEMENTS_FAIL -> (element.results.firstOrNull()?.result
+                            ?: 0) != 0 && filtered.add(element)
+                        OVERVIEW_ATTESTED_ELEMENTS_24H -> {
+                            element.results.filter {
+                                Timestamp.fromSecondsString(it.verifiedAt)!!.timeSince()
+                                    .toHours() < 24
+                            }.isNotEmpty() && filtered.add(element)
+                        }
+                        OVERVIEW_ATTESTED_ELEMENTS_FAIL_24H -> {
+                            element.results.filter {
+                                println(Timestamp.fromSecondsString(it.verifiedAt)!!.timeSince()
+                                    .toHours())
+                                Timestamp.fromSecondsString(it.verifiedAt)!!.timeSince()
+                                    .toHours() < 24
+                            }.any { it.result != 0 }.also {
+                                if (it) {
+                                    println("FAIL: " + element.name)
+                                }
+                            } && filtered.add(element)
+                        }
                     }
 
                 }

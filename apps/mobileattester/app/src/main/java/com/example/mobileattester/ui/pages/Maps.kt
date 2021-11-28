@@ -1,20 +1,27 @@
 package com.example.mobileattester.ui.pages
 
 import android.Manifest
-import android.annotation.SuppressLint
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.preference.PreferenceManager.getDefaultSharedPreferences
 import android.provider.Settings
-import android.view.MotionEvent
-import androidx.appcompat.content.res.AppCompatResources
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material.Button
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
-import com.example.mobileattester.R
+import com.example.mobileattester.data.network.Status
+import com.example.mobileattester.data.util.MapMode
+import com.example.mobileattester.ui.components.common.LoadingIndicator
 import com.example.mobileattester.ui.util.PermissionDeniedRequestSettings
 import com.example.mobileattester.ui.util.PermissionsRationale
 import com.example.mobileattester.ui.util.Screen
@@ -23,14 +30,10 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionsRequired
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import org.osmdroid.config.Configuration.getInstance
-import org.osmdroid.tileprovider.tilesource.TileSourceFactory
-import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
-import org.osmdroid.views.overlay.Marker
 
-const val ARG_MARKER_POSITIONS =
-    "marker_positions" // listOf<GeoPoint>(), will get new GeoPoint if null or not given
-const val ARG_MARKER_NAMES = "marker_names" // listOf<String>()
+/**  */
+const val ARG_MAP_SINGLE_ELEMENT_ID = "argMapSingleElement"
 
 private val LOCATION_PERMISSIONS = listOf(
     Manifest.permission.ACCESS_FINE_LOCATION,
@@ -38,17 +41,22 @@ private val LOCATION_PERMISSIONS = listOf(
     Manifest.permission.WRITE_EXTERNAL_STORAGE
 )
 
-private lateinit var map: MapView
-
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun MapWrapper(
     navController: NavController,
     viewModel: AttestationViewModel,
 ) {
-
     val context = LocalContext.current
     val permissionState = rememberMultiplePermissionsState(permissions = LOCATION_PERMISSIONS)
+    val elementId = navController.currentBackStackEntry?.arguments?.getString(
+        ARG_MAP_SINGLE_ELEMENT_ID)
+    val element = viewModel.getElementFromCache(elementId ?: "")
+    val map = remember {
+        MapView(context).also {
+            setup(navController, viewModel, it)
+        }
+    }
 
     // Required by OsmDroid
     getInstance().load(context, getDefaultSharedPreferences(context))
@@ -72,54 +80,115 @@ fun MapWrapper(
                 }
             }
         }) {
-        AndroidView(factory = {
-            MapView(it).also { m -> map = m; initializeMap(context, navController) }
-        })
+        Box(contentAlignment = Alignment.BottomStart) {
+            AndroidView(
+                factory = {
+                    map
+                },
+            )
+            AdditionalUI(
+                viewModel = viewModel,
+                onEditLocation = {
+                    println("onEditLocation")
+                    if (element != null) {
+                        println("onEditLocation: Not Null")
+                        viewModel.useMapManager().useEditLocation(map, element)
+                    }
+                },
+                onSaveNewLocation = {
+                    println("onSaveNewLocation")
+                    val editedLocation = viewModel.useMapManager().getEditedLocation()
+                    if (editedLocation != null) {
+                        println("onSaveNewLocation: Not null")
+                        val e = element?.cloneWithNewLocation(editedLocation) ?: return@AdditionalUI
+                        println("onSaveNewLocation: Sending update")
+                        viewModel.useUpdateUtil().updateElement(e)
+                    }
+                },
+            )
+            OperationStatusIndication(viewModel = viewModel)
+        }
+    }
+}
+
+@Composable
+private fun OperationStatusIndication(
+    viewModel: AttestationViewModel,
+) {
+    val elementUpdateResponse = viewModel.useUpdateUtil().elementUpdateFlow.collectAsState().value
+
+    @Composable
+    fun Wrapper(content: @Composable() () -> Unit) {
+        Column(modifier = Modifier.fillMaxSize()) {
+            content()
+        }
     }
 
-}
-
-private fun addServerMarker(pos: GeoPoint, ctx: Context): Marker {
-    // Position
-    val marker = Marker(map)
-    marker.icon = AppCompatResources.getDrawable(ctx, R.drawable.ic_baseline_server)
-    marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
-    marker.position = pos
-    map.overlays.add(marker)
-    return marker
-}
-
-@SuppressLint("ClickableViewAccessibility")
-private fun initializeMap(context: Context, navController: NavController) {
-    // Load ideal tilemap for showing simple building layouts.
-    map.setTileSource(TileSourceFactory.WIKIMEDIA)
-    map.isTilesScaledToDpi = true
-    map.setMultiTouchControls(true)
-    map.controller.setZoom(3.0)
-
-    val markerPositions =
-        navController.currentBackStackEntry?.arguments?.getParcelableArrayList<GeoPoint>(
-            ARG_MARKER_POSITIONS
-        )
-
-    val markerNames =
-        navController.currentBackStackEntry?.arguments?.getStringArrayList(
-            ARG_MARKER_NAMES
-        )
-
-    if (markerPositions != null)
-        markerPositions.forEachIndexed { i, it ->
-            addServerMarker(it, context).also { it.title = markerNames?.get(i) ?: "" }
+    when (elementUpdateResponse.status) {
+        Status.IDLE -> {}
+        Status.ERROR -> Wrapper {
+            Text(text = "Error updating element")
         }
-    else {
-        val serverMarker = addServerMarker(GeoPoint(map.mapCenter), context)
-        serverMarker.setOnMarkerClickListener { _, _ -> false }
-        map.setOnTouchListener { _, e ->
-            run {
-                if (e.action == MotionEvent.ACTION_MOVE)
-                    serverMarker.position = GeoPoint(map.mapCenter)
-                false
+        Status.LOADING -> Wrapper {
+            LoadingIndicator()
+        }
+        Status.SUCCESS -> Wrapper {
+            Text("Element location successfully updated")
+        }
+    }
+}
+
+// Provides buttons etc. for the map based on what it requires 
+@Composable
+private fun AdditionalUI(
+    viewModel: AttestationViewModel,
+    onEditLocation: () -> Unit,
+    onSaveNewLocation: () -> Unit,
+) {
+
+    when (viewModel.useMapManager().mapMode.collectAsState().value) {
+        MapMode.SINGLE_ELEMENT -> {
+            Column() {
+                Button(onClick = onEditLocation) {
+                    Text(text = "Edit element location")
+                }
             }
+//            Button(onClick = { viewModel.useMapManager().clearMarkers() }) {
+//                Text(text = "CLEAR")
+//            }
         }
+        MapMode.EDIT_LOCATION -> {
+            Column() {
+                Button(onClick = onSaveNewLocation) {
+                    Text(text = "Save new location")
+                }
+                Button(onClick = { viewModel.useMapManager().centerToDevice() }) {
+                    Text(text = "Center to your location")
+                }
+            }
+//            Button(onClick = { viewModel.useMapManager().clearMarkers() }) {
+//                Text(text = "CLEAR")
+//            }
+        }
+        MapMode.ALL_ELEMENTS -> {
+            Text(text = "Displaying all elements")
+        }
+    }
+}
+
+// Logic to choose different functionality for the map based on need
+private fun setup(
+    navController: NavController,
+    viewModel: AttestationViewModel,
+    mapView: MapView,
+) {
+    val elementId = navController.currentBackStackEntry?.arguments?.getString(
+        ARG_MAP_SINGLE_ELEMENT_ID) ?: return
+    val element = viewModel.getElementFromCache(elementId) ?: return
+
+    val hasLocation = viewModel.useMapManager().displayElement(mapView, element)
+
+    if (!hasLocation) {
+        viewModel.useMapManager().useEditLocation(mapView, element)
     }
 }
