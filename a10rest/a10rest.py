@@ -399,6 +399,23 @@ def getRules():
         )
     return jsonify(rsl), 200
 
+
+
+
+
+#
+# MESSAGES
+#
+
+
+@a10rest.route("/msg", methods=["POST"])
+def receiveMessage():
+    content = request.json
+    print("msg content",content)
+    msg=content['msg']
+    
+    print("Message Received ",msg)
+    return "rcvd",200
 #
 # Main
 #

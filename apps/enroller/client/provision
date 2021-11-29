@@ -1,7 +1,7 @@
 #!/bin/sh
-# Copyright 2021 Nokia
-# Licensed under the BSD 3-Clause License.
-# SPDX-License-Identifier: BSD-3-Clause
+#Copyright 2021 Nokia
+#Licensed under the BSD 3-Clause Clear License.
+#SPDX-License-Identifier: BSD-3-Clear
 #
 #
 #  We assume python yaml libraries and curl are installed
@@ -10,6 +10,9 @@
 #
 #
 #This is what we need to generate
+# This shows a tpm2 structure with TWO !! TPMs... :-)
+# And a UEFI entry
+# 
 # {
 #     "description": "The Ubuntu VM",
 #     "endpoint": "http://192.168.1.82:8530",
@@ -36,7 +39,7 @@
 #         }
 #     },
 #     "type": [
-#         "tpm2.0",
+#         "tpm2",
 #         "ibmtpmsim"
 #     ],
 #     "uefi": {
@@ -46,7 +49,7 @@
 #
 
 
-echo "Provisioning Script: JSON Element Description Generation"
+echo "\e[32mProvisioning Script: JSON Element Description Generation\e[0m"
 
 #
 #Calculated defaults (note the _C in the name)
@@ -64,7 +67,7 @@ LOCATION_C="60.22309,24.75877"
 TYPES_C="x86,tpm2,uefi,arm,pi"
 
 #Element Identification Details
-echo "\nSetting up the basic element identification details"
+echo "\e[46mSetting up the basic element identification details\e[0m"
 
 
 read -p "Short  Name [$HOSTNAME_C]: " NAME
@@ -103,8 +106,8 @@ ASURL=${ASURL:-$ASURL_C}
 EKHANDLE_C=0x810100ee
 AKHANDLE_C=0x810100aa
 
-echo "\nSetting up keys - the EK will be removed after these operations"
-echo "Generation will fail if keys already exist at the given handles"
+echo "\e[46mSetting up keys - the EK will be removed after these operations\e[0m"
+echo "\e[46mGeneration will fail if keys already exist at the given handles\e[0m"
 
 read -p "Enter EK handle location [$EKHANDLE_C]: " EKHANDLE
 EKHANDLE=${EKHANDLE:-$EKHANDLE_C}
@@ -120,15 +123,15 @@ AKHANDLE=${AKHANDLE:-$AKHANDLE_C}
 
 UEFIEVENTLOG_C=/sys/kernel/security/tpm0/binary_bios_measurements
 
-echo "\nIf the UEFI eventlog is available accept the default (or modify the location)"
-echo "If this is not a UEFI machine then delete the default answer and leave blank"
+echo "\e[35mIf the UEFI eventlog is available accept the default (or modify the location)\e[0m"
+echo "\e[35mIf this is not a UEFI machine then delete the default answer and leave blank\e[0m"
 
 read -p "Enter UEFI eventlog location [$UEFIEVENTLOG_C]: " UEFIEVENTLOG
 UEFIEVENTLOG=${UEFIEVENTLOG:-$UEFIEVENTLOG_C}
 
 
 
-echo "\n\nThis is what I have"
+echo "\n\e[32mThis is what I have\e[0m"
 
 echo $NAME
 echo $DESCRIPTION
@@ -147,24 +150,32 @@ read -p "Does everything look good?  Ctrl-C exits, Enter continues" x
 # Provisioning the keys in the TPM
 #
 
-echo "Continuing with setup"
-
-echo "Cleaning up any temporary files - this will generate errors if these files do not exist - this is good!"
-rm /tmp/ek.name
-rm /tmp/ek.pem
-rm /tmp/ak.name
-rm /tmp/ak.pem
-rm /tmp/ak.ctx
-
+echo "\e[32mContinuing with setup\e[0m"
 
 
 echo "Removing any existing keys from $EKHANDLE and $AKHANDLE"
 tpm2_evictcontrol -Q -c $EKHANDLE
 tpm2_evictcontrol -Q -c $AKHANDLE
+echo "Clearing temporary objects from TPM"
+tpm2_flushcontext -Q -t
+tpm2_flushcontext -Q -s
+tpm2_flushcontext -Q -l
 
+echo "Persistent handles - should be empty:"
 tpm2_getcap handles-persistent
-
+echo "Transient handles - should be empty:"
+tpm2_getcap handles-transient
+echo "Session handles - should be empty:"
+tpm2_getcap handles-loaded-session
 read -p "TPM Cleared?  Ctrl-C exits, Enter continues" x
+
+
+
+
+echo "Generating temporary directory"
+TMPDIR=/tmp/
+mydir=$(mktemp -d "${TMPDIR:-$mydir/}$(basename $0).XXXXXXXXXXXX")
+echo $mydir
 
 
 
@@ -172,32 +183,53 @@ echo "Generating EK"
 tpm2_createek -Q -c $EKHANDLE -G rsa
 
 echo "Generating AK"
-tpm2_createak -Q -C $EKHANDLE -c /tmp/ak.ctx -G rsa -g sha256 -s rsassa -u /tmp/ak.pub -n /tmp/ak.name
-tpm2_evictcontrol -c /tmp/ak.ctx $AKHANDLE
+tpm2_createak -Q -C $EKHANDLE -c $mydir/ak.ctx -G rsa -g sha256 -s rsassa -u $mydir/ak.pub 
+tpm2_evictcontrol -Q -c $mydir/ak.ctx $AKHANDLE
 
 echo "Generating PEM and data files"
-tpm2_readpublic -c $EKHANDLE > /tmp/ek.yaml 
-tpm2_readpublic -c $AKHANDLE > /tmp/ak.yaml 
-tpm2_readpublic -c $EKHANDLE -o /tmp/ek.pem -f pem 
-tpm2_readpublic -c $AKHANDLE -o /tmp/ak.pem -f pem 
+#NB: these must not be "quiet -Q otherwise there's no output"
+tpm2_readpublic -c $EKHANDLE > $mydir/ek.yaml 
+tpm2_readpublic -c $AKHANDLE > $mydir/ak.yaml 
+#These can be quiet because there's an explicit output file
+tpm2_readpublic -Q -c $EKHANDLE -o $mydir/ek.pem -f pem 
+tpm2_readpublic -Q -c $AKHANDLE -o $mydir/ak.pem -f pem 
 
-echo "Handles installed"
+echo "Listing temporary files in " $mydir
+ls -l $mydir 
+
+echo "Clearing temporary objects from TPM"
+tpm2_flushcontext -Q -t
+tpm2_flushcontext -Q -s
+tpm2_flushcontext -Q -l
+
+echo "Persistent handles - should contain AK and EK:"
 tpm2_getcap handles-persistent
+echo "Transient handles - should be empty:"
+tpm2_getcap handles-transient
+echo "Session handles - should (might) be empty:"
+tpm2_getcap handles-loaded-session
 
-echo "YAML FILE"
-cat /tmp/ak.yaml
-read -p "TPM Check Things #1?  Ctrl-C exits, Enter continues" x
 
-echo "READPUBLIC"
-tpm2_readpublic -c $AKHANDLE
 read -p "TPM Check Things #2?  Ctrl-C exits, Enter continues" x
 
 
+#
+# This was for debugging
+#
+
+#echo "YAML FILE"
+#cat $mydir/ak.yaml
+#read -p "TPM Check Things #1?  Ctrl-C exits, Enter continues" x
+
+#echo "READPUBLIC"
+#tpm2_readpublic -c $AKHANDLE
+#echo "yaml"
+#cat $mydir/ak.yaml
+#read -p "TPM Check Things #2?  Ctrl-C exits, Enter continues" x
+
 
 echo "Constructing JSON object"
-echo $AKHANDLE
-
-python3 constructTPM2JSONobject.py $NAME "$DESCRIPTION" $LOCATION $TYPES $HOSTNAME $PROTOCOL $IPADDRESS $PORT $ASURL $EKHANDLE $AKHANDLE $UEFIEVENTLOG /tmp/ak.pem /tmp/ak.yaml /tmp/ek.pem /tmp/ek.yaml
+python3 constructTPM2JSONobject.py $NAME "$DESCRIPTION" $LOCATION $TYPES $HOSTNAME $PROTOCOL $IPADDRESS $PORT $ASURL $EKHANDLE $AKHANDLE $UEFIEVENTLOG $mydir/ak.pem $mydir/ak.yaml $mydir/ek.pem $mydir/ek.yaml
 
 
 echo "This is the start of the object*********************"
@@ -206,8 +238,9 @@ echo "This is the end of the object*********************"
 
 read -p "Does everything look good?  Ctrl-C exits, Enter continues" x
 
-
+#
 #Enrollment
+#
 echo "\nSetting up the basic element identification details"
 
 ENROLLMENT_C="http://192.168.1.82:8521"

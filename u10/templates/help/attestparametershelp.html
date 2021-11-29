@@ -20,6 +20,20 @@
                 <td>0x810100AA</td>
                 <td>The handle of the key to sign the quote.</td>
             </tr>
+            <tr>
+                <td>tpm2/credentialcheck</td>
+                <td>ekpub</td>
+                <td>Yes</td>
+                <td></td>
+                <td>The public part of the EK in PEM format</td>
+            </tr>    
+            <tr>
+                <td>tpm2/credentialcheck</td>
+                <td>akname</td>
+                <td>Yes</td>
+                <td></td>
+                <td>The AK name</td>
+            </tr>                     
         </table>
         <hr />
         <h3>Rule Parameters</h3>
@@ -45,6 +59,7 @@
                     <td></td>
                     <td>The name of the bank to check: eg: "bank":"sha1" <br>Typical values: sha1, sha256, sha384, sha512 - will return error if bank does not exist</td>
                 </tr>
+
                 <tr>
                     <td>container.ImageVerification</td>
                     <td>rules</td>

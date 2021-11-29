@@ -1,6 +1,6 @@
-# Copyright 2021 Nokia
-# Licensed under the BSD 3-Clause License.
-# SPDX-License-Identifier: BSD-3-Clause
+#Copyright 2021 Nokia
+#Licensed under the BSD 3-Clause Clear License.
+#SPDX-License-Identifier: BSD-3-Clear
 
 
 import a10.structures.constants
@@ -104,13 +104,18 @@ def resolvePolicyIntent(element, policy, additionalparameters):
     #
 
     exec_result = handler_instance.exec()
+    print("EXEC RESULT IS ",exec_result)
 
     if exec_result.rc() != a10.structures.constants.PROTOCOLSUCCESS:
         return exec_result  # this is a ResultCode already
 
     # Into this variable is where we write the finalised JSON result
+    # Remeber this is a 2-tuple
     # actually it is a python dict and we convert afterwards
-    resultStructure = exec_result.msg()
+
+    resultStructure = exec_result.msg()[0]
+    returnedtransientdata = exec_result.msg()[1]
+
     receivedTime = a10.structures.timestamps.now()
     theClaim = a10.structures.claim.Claim(
         element,
@@ -119,6 +124,7 @@ def resolvePolicyIntent(element, policy, additionalparameters):
         receivedTime,
         resultStructure,
         additionalparameters,
+        returnedtransientdata
     )
 
     # If we get here then everything has gone well - we got something. If the network failed then we still get a claim
