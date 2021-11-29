@@ -84,6 +84,11 @@ Page loaded at <b>{{ ltutc }}</b> ( {{ lt }} ). Showing <b>{{ lrs }}</b> of <b>{
                   <a href=/hashes>{{ l.data.type }}</a> 
                  {% elif l.op == "ta_startup" %}
                   <i class="fa fa-flag" style="font-size:20px;color:green"></i> Element <a href=/element/{{ l.data.elementid }}>{{ l.data.elementid}}</a>
+                 {% elif l.op == "ta_reannounce" %}
+                  <i class="fa fa-flag-o" style="font-size:20px;color:darkgreen"></i> Element <a href=/element/{{ l.data.elementid }}>{{ l.data.elementid}}</a>
+                 {% elif l.op == "ta_stop" %}
+                  <i class="fa fa-flag-checkered" style="font-size:20px;color:black"></i> Element <a href=/element/{{ l.data.elementid }}>{{ l.data.elementid}}</a>
+
                 {% else %}
                  Unknown type: {{ l.data }}
                 {% endif %}
