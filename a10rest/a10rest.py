@@ -15,6 +15,7 @@ from a10.asvr import (
     types,
 )
 from a10.structures import constants
+from a10.asvr.db import announce
 from bson.objectid import ObjectId
 from flask import Flask, request, send_from_directory, jsonify
 from flask.json import JSONEncoder
@@ -412,8 +413,13 @@ def getRules():
 def receiveMessage():
     content = request.json
     print("msg content",content)
-    msg=content['msg']
+
+    msg=content.get('msg',"mising message")
+    ope=content.get('op',"-")
+    eid=content.get('itemid',"missing element ID")
     
+    a10.asvr.db.announce.announceMessage(ope,{ 'msg':msg, 'elementid':eid })
+
     print("Message Received ",msg)
     return "rcvd",200
 #
