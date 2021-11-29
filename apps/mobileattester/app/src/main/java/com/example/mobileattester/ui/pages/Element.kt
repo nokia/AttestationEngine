@@ -37,17 +37,15 @@ import compose.icons.tablericons.Checkbox
 import compose.icons.tablericons.CurrentLocation
 import compose.icons.tablericons.ListCheck
 
-
 const val ARG_ITEM_ID = "item_id"
 
 @Composable
 fun Element(navController: NavController, viewModel: AttestationViewModel) {
     val clickedElementId =
-        navController.currentBackStackEntry?.arguments?.getString(ARG_ITEM_ID)
-            ?: run {
-                Text(text = "Data for the item id could not be found.")
-                return
-            }
+        navController.currentBackStackEntry?.arguments?.getString(ARG_ITEM_ID) ?: run {
+            Text(text = "Data for the item id could not be found.")
+            return
+        }
 
     val element = viewModel.getElementFromCache(clickedElementId) ?: run {
         ElementNull()
@@ -73,11 +71,9 @@ fun Element(navController: NavController, viewModel: AttestationViewModel) {
                     fontSize = FONTSIZE_XXL,
                     fontWeight = FontWeight.Bold,
                 )
-                Text(
-                    text = element.endpoint,
+                Text(text = element.endpoint,
                     style = MaterialTheme.typography.body1,
-                    modifier = Modifier.padding(vertical = 8.dp, horizontal = 2.dp)
-                )
+                    modifier = Modifier.padding(vertical = 8.dp, horizontal = 2.dp))
             }
         }
         // Content
@@ -90,7 +86,7 @@ fun Element(navController: NavController, viewModel: AttestationViewModel) {
             Spacer(modifier = Modifier.size(26.dp))
             Text(text = element.location?.toString() ?: "No location set", color = DarkGrey)
             Spacer(modifier = Modifier.size(26.dp))
-            Divider(color = LightGrey, thickness = 1.dp)
+            Divider(color = DividerColor, thickness = 1.dp)
             Spacer(modifier = Modifier.size(26.dp))
             ElementResult(navController, element)
         }
@@ -100,20 +96,15 @@ fun Element(navController: NavController, viewModel: AttestationViewModel) {
 @Composable
 private fun ElementNull() {
     FadeInWithDelay(1000) {
-        Column(
-            modifier = Modifier.fillMaxSize(),
+        Column(modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                "This element was not found, please ensure that the server contains this element",
-                modifier = Modifier.padding(16.dp)
-            )
+            horizontalAlignment = Alignment.CenterHorizontally) {
+            Text("This element was not found, please ensure that the server contains this element",
+                modifier = Modifier.padding(16.dp))
             Spacer(modifier = Modifier.height(8.dp))
         }
     }
 }
-
 
 @Composable
 private fun ElementResult(navController: NavController, element: Element) {
@@ -122,11 +113,9 @@ private fun ElementResult(navController: NavController, element: Element) {
 
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
         Text("Results", fontSize = 24.sp)
-        TextWithIcon(
-            text = resultHoursShown.value.shownHoursToString(),
+        TextWithIcon(text = resultHoursShown.value.shownHoursToString(),
             icon = TablerIcons.ListCheck,
-            color = PrimaryDark
-        )
+            color = PrimaryDark)
     }
     Spacer(Modifier.size(32.dp))
 
@@ -134,28 +123,22 @@ private fun ElementResult(navController: NavController, element: Element) {
 
     Spacer(Modifier.size(24.dp))
 
-    val onMoreResultsRequested: () -> Unit =
-        {
-            val result = element.results.drop(latestResults.size).find {
-                Timestamp.fromSecondsString(it.verifiedAt)!!
-                    .timeSince()
-                    .toHours() > resultHoursShown.value
-            }
-
-            val resultTimestamp = Timestamp.fromSecondsString(result!!.verifiedAt)!!
-
-            resultHoursShown.value = resultTimestamp.timeSince().toHours().hoursHWMYRounded()
-
+    val onMoreResultsRequested: () -> Unit = {
+        val result = element.results.drop(latestResults.size).find {
+            Timestamp.fromSecondsString(it.verifiedAt)!!.timeSince()
+                .toHours() > resultHoursShown.value
         }
 
+        val resultTimestamp = Timestamp.fromSecondsString(result!!.verifiedAt)!!
 
-    ElementResultFull(
-        latestResults,
-        latestResults.size == element.results.size,
-        onResultClicked = {
-            navController.navigate(Screen.Result.route, bundleOf(Pair(ARG_RESULT_ID, it.itemid)))
-        }, onMoreRequested = onMoreResultsRequested
-    )
+        resultHoursShown.value = resultTimestamp.timeSince().toHours().hoursHWMYRounded()
+
+    }
+
+
+    ElementResultFull(latestResults, latestResults.size == element.results.size, onResultClicked = {
+        navController.navigate(Screen.Result.route, bundleOf(Pair(ARG_RESULT_ID, it.itemid)))
+    }, onMoreRequested = onMoreResultsRequested)
 }
 
 @Composable
@@ -166,21 +149,18 @@ private fun ElementResultSummary(results: Collection<ElementResult>) {
     @Composable
     fun LocalComp(num: Int, text: String, color: Color) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            OutlinedIconButton(
-                text = num.toString(),
+            OutlinedIconButton(text = num.toString(),
                 rounded = true,
                 width = 20.dp,
                 height = 20.dp,
                 color = color,
-                filled = true
-            ) // TODO: Use AspectRatio
+                filled = true) // TODO: Use AspectRatio
             DecorText(txt = text, color = color)
         }
     }
 
     Row(
-        modifier = Modifier
-            .fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceEvenly,
     ) {
         LocalComp(num = results.size, text = "Attest.", Primary)
@@ -196,12 +176,9 @@ private fun ElementResultFull(
     onResultClicked: (ElementResult) -> Unit,
     onMoreRequested: () -> Unit,
 ) {
-    Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
+    Column(horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween,
-        modifier = Modifier
-            .fillMaxWidth()
-    ) {
+        modifier = Modifier.fillMaxWidth()) {
         results.forEach {
             Row(
                 modifier = Modifier
@@ -210,14 +187,12 @@ private fun ElementResultFull(
                     .padding(vertical = 6.dp),
                 verticalAlignment = CenterVertically,
             ) {
-                OutlinedIconButton(
-                    icon = getResultIcon(it),
+                OutlinedIconButton(icon = getResultIcon(it),
                     width = 24.dp,
                     height = 24.dp,
                     border = null,
                     color = getCodeColor(it.result),
-                    rounded = true
-                )
+                    rounded = true)
                 Text(
                     modifier = Modifier.padding(horizontal = 4.dp),
                     text = it.ruleName,
@@ -242,15 +217,13 @@ private fun ElementResultFull(
         } else {
             if (results.isEmpty()) {
                 Text(
-                    modifier = Modifier
-                        .padding(24.dp),
+                    modifier = Modifier.padding(24.dp),
                     text = "No results available",
                     textAlign = TextAlign.Center,
                 )
             } else {
                 Text(
-                    modifier = Modifier
-                        .padding(24.dp),
+                    modifier = Modifier.padding(24.dp),
                     text = "All results listed.",
                     textAlign = TextAlign.Center,
                 )

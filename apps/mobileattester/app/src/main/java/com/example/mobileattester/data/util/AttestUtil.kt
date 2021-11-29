@@ -1,8 +1,13 @@
 package com.example.mobileattester.data.util
 
 import android.util.Log
-import com.example.mobileattester.data.model.*
-import com.example.mobileattester.data.network.*
+import com.example.mobileattester.data.model.Claim
+import com.example.mobileattester.data.model.ElementResult
+import com.example.mobileattester.data.model.Policy
+import com.example.mobileattester.data.model.Rule
+import com.example.mobileattester.data.network.AttestationDataHandler
+import com.example.mobileattester.data.network.Response
+import com.example.mobileattester.data.network.retryIO
 import com.example.mobileattester.data.util.abs.Notifier
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -35,7 +40,6 @@ interface AttestationUtil {
     /** Last result from attestation */
     val result: MutableStateFlow<Response<ElementResult>?>
 
-
     /**
      * Attest an element.
      * If rule is provided, also sends a verification request for the received claim.
@@ -47,6 +51,8 @@ interface AttestationUtil {
      * @param hardReset set to true to clear everything + fetch rules/policies again.
      */
     fun reset(hardReset: Boolean = false)
+
+    fun getPolicyFromCache(policyId: String): Policy?
 }
 
 // ------------------------------------------
@@ -63,8 +69,7 @@ class AttestUtil(
     private val scope = CoroutineScope(job)
     private val _stat = MutableStateFlow(AttestationStatus.IDLE)
 
-    override val policyFlow: MutableStateFlow<Response<List<Policy>>> =
-        policyDataHandler.dataFlow
+    override val policyFlow: MutableStateFlow<Response<List<Policy>>> = policyDataHandler.dataFlow
 
     override val ruleFlow: MutableStateFlow<Response<List<Rule>>> =
         MutableStateFlow(Response.loading())
@@ -113,6 +118,9 @@ class AttestUtil(
         }
     }
 
+    override fun getPolicyFromCache(policyId: String): Policy? {
+        return policyFlow.value.data?.find { it.itemid == policyId }
+    }
 
     // ----------------------- Private ---------------------------
     // ----------------------- Private ---------------------------

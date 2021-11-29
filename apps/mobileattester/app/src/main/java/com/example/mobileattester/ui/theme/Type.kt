@@ -6,6 +6,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
+val FONTSIZE_XS = 12.sp
 val FONTSIZE_SM = 14.sp
 val FONTSIZE_MD = 16.sp
 val FONTSIZE_LG = 18.sp

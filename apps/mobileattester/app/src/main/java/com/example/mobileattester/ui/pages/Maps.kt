@@ -36,11 +36,9 @@ import org.osmdroid.views.MapView
 /**  */
 const val ARG_MAP_SINGLE_ELEMENT_ID = "argMapSingleElement"
 
-private val LOCATION_PERMISSIONS = listOf(
-    Manifest.permission.ACCESS_FINE_LOCATION,
+private val LOCATION_PERMISSIONS = listOf(Manifest.permission.ACCESS_FINE_LOCATION,
     Manifest.permission.READ_EXTERNAL_STORAGE,
-    Manifest.permission.WRITE_EXTERNAL_STORAGE
-)
+    Manifest.permission.WRITE_EXTERNAL_STORAGE)
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
@@ -50,9 +48,8 @@ fun MapWrapper(
 ) {
     val context = LocalContext.current
     val permissionState = rememberMultiplePermissionsState(permissions = LOCATION_PERMISSIONS)
-    val elementId = navController.currentBackStackEntry?.arguments?.getString(
-        ARG_MAP_SINGLE_ELEMENT_ID
-    )
+    val elementId =
+        navController.currentBackStackEntry?.arguments?.getString(ARG_MAP_SINGLE_ELEMENT_ID)
     val element = viewModel.getElementFromCache(elementId ?: "")
 
     val map = remember {
@@ -64,25 +61,21 @@ fun MapWrapper(
     // Required by OsmDroid
     getInstance().load(context, getDefaultSharedPreferences(context))
 
-    PermissionsRequired(multiplePermissionsState = permissionState,
-        permissionsNotGrantedContent = {
-            PermissionsRationale("Please grant location and storage permissions to access the map.")
-            { permissionState.launchMultiplePermissionRequest() }
-        },
-        permissionsNotAvailableContent = {
-            PermissionDeniedRequestSettings(text = "Requested permissions were denied. Missing permissions must be granted manually from settings.") {
-                try {
-                    permissionState.revokedPermissions.first().launchPermissionRequest()
-                    val intent = Intent(
-                        Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-                        Uri.parse("package:" + context.packageName)
-                    )
-                    ContextCompat.startActivity(context, intent, null)
-                } catch (err: Error) {
-                    navController.navigate(Screen.Home.route)
-                }
+    PermissionsRequired(multiplePermissionsState = permissionState, permissionsNotGrantedContent = {
+        PermissionsRationale("Please grant location and storage permissions to access the map.") { permissionState.launchMultiplePermissionRequest() }
+    }, permissionsNotAvailableContent = {
+        PermissionDeniedRequestSettings(text = "Requested permissions were denied. Missing permissions must be granted manually from settings.") {
+            try {
+                permissionState.revokedPermissions.first().launchPermissionRequest()
+                val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                    Uri.parse("package:" + context.packageName))
+                ContextCompat.startActivity(context, intent, null)
+            } catch (err: Error) {
+                navController.navigate(Screen.Home.route)
             }
-        }) {
+        }
+    }) {
+        // Map content
         Box(contentAlignment = Alignment.BottomStart) {
             val currentLocation = viewModel.useMapManager().getCurrentLocation().collectAsState()
             AndroidView(
@@ -94,20 +87,15 @@ fun MapWrapper(
                 viewModel = viewModel,
                 location = currentLocation.value,
                 onEditLocation = {
-                    println("onEditLocation")
                     if (element != null) {
-                        println("onEditLocation: Not Null")
                         viewModel.useMapManager().useEditLocation(map, element)
                     }
                 },
                 onSaveNewLocation = {
-                    println("onSaveNewLocation")
                     val editedLocation = viewModel.useMapManager().getEditedLocation()
                     if (editedLocation.value != null) {
-                        println("onSaveNewLocation: Not null")
-                        val e =
-                            element?.cloneWithNewLocation(editedLocation.value!!) ?: return@AdditionalUI
-                        println("onSaveNewLocation: Sending update")
+                        val e = element?.cloneWithNewLocation(editedLocation.value!!)
+                            ?: return@AdditionalUI
                         viewModel.useUpdateUtil().updateElement(e)
                     }
                 },
@@ -160,9 +148,6 @@ private fun AdditionalUI(
                     Text(text = "Edit element location")
                 }
             }
-//            Button(onClick = { viewModel.useMapManager().clearMarkers() }) {
-//                Text(text = "CLEAR")
-//            }
         }
         MapMode.EDIT_LOCATION -> {
             Column() {
@@ -175,9 +160,6 @@ private fun AdditionalUI(
                     }
                 }
             }
-//            Button(onClick = { viewModel.useMapManager().clearMarkers() }) {
-//                Text(text = "CLEAR")
-//            }
         }
         MapMode.ALL_ELEMENTS -> {
             Text(text = "Displaying all elements")
@@ -191,9 +173,9 @@ private fun setup(
     viewModel: AttestationViewModel,
     mapView: MapView,
 ) {
-    val elementId = navController.currentBackStackEntry?.arguments?.getString(
-        ARG_MAP_SINGLE_ELEMENT_ID
-    ) ?: return
+    val elementId =
+        navController.currentBackStackEntry?.arguments?.getString(ARG_MAP_SINGLE_ELEMENT_ID)
+            ?: return
     val element = viewModel.getElementFromCache(elementId) ?: return
 
     val hasLocation = viewModel.useMapManager().displayElement(mapView, element)

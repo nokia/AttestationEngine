@@ -1,8 +1,6 @@
 package com.example.mobileattester.ui.pages
 
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Icon
@@ -12,7 +10,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -21,11 +18,9 @@ import com.example.mobileattester.ui.components.anim.FadeInWithDelay
 import com.example.mobileattester.ui.components.common.HeaderRoundedBottom
 import com.example.mobileattester.ui.theme.FONTSIZE_XXL
 import com.example.mobileattester.ui.theme.White
-import com.example.mobileattester.ui.util.getResultIcon
 import compose.icons.TablerIcons
 import compose.icons.tablericons.InfoSquare
 import org.json.JSONObject
-
 
 @Composable
 fun Claim(
@@ -44,8 +39,7 @@ fun Claim(
     FadeInWithDelay(50) {
         Column(Modifier
             .fillMaxWidth()
-            .verticalScroll(rememberScrollState()))
-        {
+            .verticalScroll(rememberScrollState())) {
             HeaderRoundedBottom {
                 Row(
                     modifier = Modifier

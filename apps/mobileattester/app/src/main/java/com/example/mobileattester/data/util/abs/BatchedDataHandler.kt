@@ -3,8 +3,6 @@ package com.example.mobileattester.data.util.abs
 import android.util.Log
 import com.example.mobileattester.data.network.Response
 import com.example.mobileattester.data.network.retryIO
-import com.example.mobileattester.ui.util.Timeframe
-import com.example.mobileattester.ui.util.Timestamp
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 
@@ -14,7 +12,6 @@ private const val TAG = "BatchedDataHandler"
 // Typealiases for the functions that need to be provided for the Batched data handler.
 typealias FetchIdList<T> = suspend () -> List<T>
 typealias FetchIdData<T, U> = suspend (T) -> U
-
 
 /**
  *  Data fetching in batches.
@@ -71,8 +68,10 @@ abstract class BatchedDataHandler<T, U>(
 
         scope.launch {
             try {
-                batches[batchNumber] = fetchBatch(batchNumber)
-                dataFlow.value = Response.success(dataAsList())
+                retryIO {
+                    batches[batchNumber] = fetchBatch(batchNumber)
+                    dataFlow.value = Response.success(dataAsList())
+                }
             } catch (e: Exception) {
                 Log.d(TAG, "failed to fetch next batch[$batchNumber]: $e")
                 dataFlow.value = Response.error(message = "Data could not be fetched: $e")

@@ -11,8 +11,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.core.os.bundleOf
@@ -63,8 +63,7 @@ fun Elements(navController: NavController, viewModel: AttestationViewModel) {
             // Header
             item {
                 HeaderRoundedBottom {
-                    SearchBar(filters,
-                        stringResource(id = R.string.placeholder_search_elementlist))
+                    SearchBar(filters, stringResource(id = R.string.placeholder_search_elementlist))
                 }
                 Spacer(modifier = Modifier.size(5.dp))
             }
@@ -79,10 +78,10 @@ fun Elements(navController: NavController, viewModel: AttestationViewModel) {
                             LoadingIndicator()
                         }
                     }
-                    else -> {}
+                    else -> {
+                    }
                 }
             }
-
 
             // List of the elements
             itemsIndexed(if (filters.value.text.isEmpty()) elements else viewModel.filterElements(
@@ -99,10 +98,9 @@ fun Elements(navController: NavController, viewModel: AttestationViewModel) {
 
             // Footer
             item {
-                Row(
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(24.dp),
+                Row(Modifier
+                    .fillMaxWidth()
+                    .padding(24.dp),
                     horizontalArrangement = Arrangement.Center) {
                     if (isLoading.value) {
                         CircularProgressIndicator(modifier = Modifier.size(32.dp),
@@ -115,7 +113,6 @@ fun Elements(navController: NavController, viewModel: AttestationViewModel) {
         }
     }
 }
-
 
 @Composable
 private fun ElementListItem(
@@ -146,12 +143,22 @@ private fun ElementListItem(
                 Row {
                     TagRow(tags = element.types)
                 }
-                Row(Modifier.padding(start = 4.dp)) {
-                    DecorText("$attestations", Primary, true)
-                    Spacer(modifier = Modifier.size(10.dp))
-                    DecorText("$passed", Ok, true)
-                    Spacer(modifier = Modifier.size(10.dp))
-                    DecorText("$failed", Error, true)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Row(Modifier.padding(start = 4.dp)) {
+                        DecorText("$attestations", Primary, true)
+                        Spacer(modifier = Modifier.size(10.dp))
+                        DecorText("$passed", Ok, true)
+                        Spacer(modifier = Modifier.size(10.dp))
+                        DecorText("$failed", Error, true)
+                    }
+                    Spacer(modifier = Modifier.size(4.dp))
+                    Text(
+                        modifier = Modifier.padding(top = 4.dp, start = 4.dp),
+                        text = "(24h)",
+                        color = LightGrey,
+                        fontWeight = FontWeight.Normal,
+                        fontSize = FONTSIZE_XS,
+                    )
                 }
             }
         }

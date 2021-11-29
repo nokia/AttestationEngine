@@ -1,17 +1,22 @@
 package com.example.mobileattester.ui.pages
 
-import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.*
+import androidx.compose.material.Button
+import androidx.compose.material.Divider
+import androidx.compose.material.Icon
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.mobileattester.data.model.ElementResult
@@ -22,8 +27,16 @@ import com.example.mobileattester.ui.components.common.ErrorIndicator
 import com.example.mobileattester.ui.components.common.HeaderRoundedBottom
 import com.example.mobileattester.ui.components.common.LoadingFullScreen
 import com.example.mobileattester.ui.theme.*
-import com.example.mobileattester.ui.util.*
+import com.example.mobileattester.ui.util.DatePattern
+import com.example.mobileattester.ui.util.getCodeColor
+import com.example.mobileattester.ui.util.getResultIcon
+import com.example.mobileattester.ui.util.getTimeFormatted
 import com.example.mobileattester.ui.viewmodel.AttestationViewModel
+import compose.icons.TablerIcons
+import compose.icons.tablericons.ChevronRight
+import compose.icons.tablericons.DeviceDesktop
+import compose.icons.tablericons.Id
+import compose.icons.tablericons.QuestionMark
 import kotlinx.coroutines.flow.MutableStateFlow
 
 const val ARG_RESULT_ID = "arg_result_id"
@@ -48,7 +61,7 @@ fun ResultScreenProvider(
     // Check first if there is id provided in the arguments
     navController.currentBackStackEntry?.arguments?.getString(ARG_RESULT_ID)?.let { id ->
         viewModel.findElementResult(id)?.let {
-            Result(result = it) {
+            Result(result = it, viewModel) {
                 // Clear the arg on navigate out
                 navController.currentBackStackEntry?.arguments?.remove(ARG_RESULT_ID)
                 navBack()
@@ -65,7 +78,7 @@ fun ResultScreenProvider(
         Status.ERROR -> ErrorIndicator(msg = "Error loading result")
         Status.SUCCESS -> {
             FadeInWithDelay(50) {
-                Result(res.data!!, ::navBack)
+                Result(res.data!!, viewModel, ::navBack)
             }
             return
         }
@@ -78,21 +91,23 @@ fun ResultScreenProvider(
     }
 }
 
-
 @Composable
 fun Result(
     result: ElementResult,
+    viewModel: AttestationViewModel,
     onNavigateUp: () -> Unit,
 ) {
-    println("Result render")
-    FadeInWithDelay(50) {
+    val element = viewModel.getElementFromCache(result.elementID)
+    val policy = viewModel.useAttestationUtil().getPolicyFromCache(result.policyID)
+    val color = getCodeColor(result.result)
 
+    FadeInWithDelay(50) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .verticalScroll(rememberScrollState()),
         ) {
-            HeaderRoundedBottom(getCodeColor(result.result)) {
+            HeaderRoundedBottom(color) {
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -116,21 +131,54 @@ fun Result(
             }
             Column(Modifier.padding(horizontal = 16.dp)) {
                 Spacer(modifier = Modifier.size(8.dp))
-                TextVertSpace(txt = "Result: ${result.result}")
-                TextVertSpace(txt = "Message: ${result.ruleName}")
-                TextVertSpace(txt = "Message: ${result.message}")
-                TextVertSpace(txt = "Verified at: ${
-                    getTimeFormatted(result.verifiedAt,
-                        DatePattern.DateTime)
-                }")
-                Divider(
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 16.dp, horizontal = 16.dp),
-                )
-                TextVertSpace(txt = "ElementId: ${result.elementID}")
-                TextVertSpace(txt = "PolicyId: ${result.policyID}")
-                TextVertSpace(txt = "ClaimId: ${result.claimID}")
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                ) {
+                    Column(horizontalAlignment = Alignment.Start) {
+                        Text(text = "Result ${result.result}",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = FONTSIZE_XXL,
+                            color = color)
+                    }
+                    Column(horizontalAlignment = Alignment.End) {
+                        Text(
+                            text = getTimeFormatted(result.verifiedAt, DatePattern.DateWithYear),
+                            fontWeight = FontWeight.Bold,
+                            fontSize = FONTSIZE_XXL,
+                            color = getCodeColor(result.result),
+                        )
+                        Text(
+                            modifier = Modifier.padding(end = 4.dp),
+                            text = getTimeFormatted(result.verifiedAt, DatePattern.TimeOnly),
+                            color = LightGrey,
+                            fontSize = FONTSIZE_LG,
+                        )
+                    }
+                }
+
+                TextSmallH(text = result.message, header = "msg", c = color)
+
+                Div()
+
+                TextSmallH(text = element?.name ?: "ERROR",
+                    header = "elmnt.",
+                    icon = TablerIcons.DeviceDesktop,
+                    c = color) {}
+                TextSmallH(text = policy?.name ?: "ERROR",
+                    header = "policy",
+                    icon = TablerIcons.QuestionMark,
+                    c = color) {}
+                TextSmallH(text = result.claimID,
+                    header = "claim",
+                    icon = TablerIcons.Id,
+                    truncate = true,
+                    c = color) {}
+
+                Div()
+                Text(text = "Other stuff here")
+
                 Button(
                     modifier = Modifier
                         .align(CenterHorizontally)
@@ -144,9 +192,77 @@ fun Result(
     }
 }
 
+@Composable
+fun Div() {
+    Divider(
+        Modifier
+            .fillMaxWidth()
+            .padding(vertical = 16.dp),
+        color = DividerColor,
+    )
+}
 
 @Composable
-fun TextVertSpace(txt: String) {
-    Text(modifier = Modifier.padding(vertical = 6.dp), text = txt)
+private fun TextSmallH(
+    text: String,
+    header: String,
+    truncate: Boolean = false,
+    c: Color? = null,
+    icon: ImageVector? = null,
+    onClick: (() -> Unit)? = null,
+
+    ) {
+
+    @Composable
+    fun content() {
+        Column() {
+            Text(
+                modifier = Modifier.padding(bottom = 3.dp),
+                text = header,
+                fontSize = FONTSIZE_XS,
+                color = c ?: LightGrey,
+            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                if (icon != null) {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = null,
+                        tint = PrimaryDark,
+                    )
+                }
+                Text(
+                    text = text,
+                    Modifier.padding(start = if (icon == null) 0.dp else 8.dp),
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = if (truncate) 1 else 10000,
+                )
+            }
+        }
+    }
+
+    when (onClick) {
+        null -> Column(modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp)) {
+            content()
+        }
+        else -> Column(modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() }
+            .padding(vertical = 8.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.Bottom,
+            ) {
+                content()
+                Icon(
+                    imageVector = TablerIcons.ChevronRight,
+                    contentDescription = null,
+                    tint = PrimaryDark,
+                )
+            }
+        }
+    }
 }
 
