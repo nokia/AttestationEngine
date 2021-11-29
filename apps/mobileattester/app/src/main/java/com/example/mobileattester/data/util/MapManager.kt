@@ -65,12 +65,12 @@ class MapManager(
         } else {
             println("@@ Using device location ${locationEditor.deviceLocation.value}")
             locationEditor.deviceLocation.value
-        } ?: return null
+        } ?: geoToLoc(GeoPoint(map.mapCenter.latitude, map.mapCenter.longitude))
 
         locationEditor.setLocation(locToEdit)
 
-        val lat = locationEditor.currentLocation.value?.latitude ?: return null
-        val long = locationEditor.currentLocation.value?.longitude ?: return null
+        val lat = locationEditor.currentLocation.value?.latitude ?:  map.mapCenter.latitude
+        val long = locationEditor.currentLocation.value?.longitude ?: map.mapCenter.longitude
         val geoPoint = GeoPoint(lat, long)
 
         addMarker(geoPoint, map.context, "New element position").apply {
@@ -79,7 +79,8 @@ class MapManager(
         return locationEditor.currentLocation
     }
 
-    fun getEditedLocation(): Location? = locationEditor.currentLocation.value
+    fun getEditedLocation() = locationEditor.currentLocation
+    fun getCurrentLocation() = locationEditor.deviceLocation
 
     fun centerToDevice(): GeoPoint? {
         val lat = locationEditor.deviceLocation.value?.latitude ?: return null

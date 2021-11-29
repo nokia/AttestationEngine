@@ -2,6 +2,7 @@ package com.example.mobileattester.ui.pages
 
 import android.Manifest
 import android.content.Intent
+import android.location.Location
 import android.net.Uri
 import android.preference.PreferenceManager.getDefaultSharedPreferences
 import android.provider.Settings
@@ -83,6 +84,7 @@ fun MapWrapper(
             }
         }) {
         Box(contentAlignment = Alignment.BottomStart) {
+            val currentLocation = viewModel.useMapManager().getCurrentLocation().collectAsState()
             AndroidView(
                 factory = {
                     map
@@ -90,6 +92,7 @@ fun MapWrapper(
             )
             AdditionalUI(
                 viewModel = viewModel,
+                location = currentLocation.value,
                 onEditLocation = {
                     println("onEditLocation")
                     if (element != null) {
@@ -100,10 +103,10 @@ fun MapWrapper(
                 onSaveNewLocation = {
                     println("onSaveNewLocation")
                     val editedLocation = viewModel.useMapManager().getEditedLocation()
-                    if (editedLocation != null) {
+                    if (editedLocation.value != null) {
                         println("onSaveNewLocation: Not null")
                         val e =
-                            element?.cloneWithNewLocation(editedLocation) ?: return@AdditionalUI
+                            element?.cloneWithNewLocation(editedLocation.value!!) ?: return@AdditionalUI
                         println("onSaveNewLocation: Sending update")
                         viewModel.useUpdateUtil().updateElement(e)
                     }
@@ -146,11 +149,10 @@ private fun OperationStatusIndication(
 @Composable
 private fun AdditionalUI(
     viewModel: AttestationViewModel,
+    location: Location?,
     onEditLocation: () -> Unit,
     onSaveNewLocation: () -> Unit,
 ) {
-    val location = viewModel.useMapManager().getEditedLocation()
-
     when (viewModel.useMapManager().mapMode.collectAsState().value) {
         MapMode.SINGLE_ELEMENT -> {
             Column() {
