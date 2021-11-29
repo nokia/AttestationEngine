@@ -13,12 +13,17 @@ Claim: <a href=/claim/{{ cla.itemid }}>{{ cla.itemid }}</a>
 
 <hr />
 <div>
-  
-    
-    <h5>Pretty Print<h5>
-    Here be the pretty printed version
-    
-    
-    
+   <table class="table table-striped .table-sm">
+        <tbody>
+            <tr><td><b>Size / Size Encoded<b></td> <td>{{ cla.payload.payload.size }}&nbsp;/&nbsp;{{ cla.payload.payload.sizeencoded }} bytes </td></tr>
+            <tr><td><b>Encoding<b></td> <td>        {{ cla.payload.payload.encoding }} </td></tr>            
+        </tbody>
+        </table>
+ </div>
+ 
+ Decoded event log goes here
+
+
+
    
 {% endblock %}

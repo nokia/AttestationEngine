@@ -47,7 +47,7 @@ def announceStartUp():
 
     for url in ASVRS:
         try:
-            r = requests.post(url+"/msg",{'msg':'ta_startup'})
+            r = requests.post(url+"/msg",json = {'msg':'ta_startup'})
             ASVRS_RESP.append( 
                { "url":url, "status":r.status_code }
             )
