@@ -14,7 +14,6 @@ import com.example.mobileattester.data.util.abs.DataFilter
 import com.example.mobileattester.data.util.abs.Notifier
 import com.example.mobileattester.ui.util.Timestamp
 import com.example.mobileattester.ui.viewmodel.AttestationViewModelImplFactory
-import java.util.*
 
 const val TWENTY_FOUR_H_IN_MS = 86_400_000
 
@@ -90,7 +89,7 @@ object Injector {
         // Location
         val locationHandler = LocationHandler(ctx)
         val locationEditor = ElementLocationEditor(locationHandler)
-        locationHandler.requestCurrentLocation()
+        locationHandler.startLocationUpdates()
 
         val mapManager = MapManager(locationEditor)
 

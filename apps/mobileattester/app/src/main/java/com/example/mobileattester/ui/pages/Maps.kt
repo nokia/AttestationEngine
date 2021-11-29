@@ -50,8 +50,10 @@ fun MapWrapper(
     val context = LocalContext.current
     val permissionState = rememberMultiplePermissionsState(permissions = LOCATION_PERMISSIONS)
     val elementId = navController.currentBackStackEntry?.arguments?.getString(
-        ARG_MAP_SINGLE_ELEMENT_ID)
+        ARG_MAP_SINGLE_ELEMENT_ID
+    )
     val element = viewModel.getElementFromCache(elementId ?: "")
+
     val map = remember {
         MapView(context).also {
             setup(navController, viewModel, it)
@@ -100,7 +102,8 @@ fun MapWrapper(
                     val editedLocation = viewModel.useMapManager().getEditedLocation()
                     if (editedLocation != null) {
                         println("onSaveNewLocation: Not null")
-                        val e = element?.cloneWithNewLocation(editedLocation) ?: return@AdditionalUI
+                        val e =
+                            element?.cloneWithNewLocation(editedLocation) ?: return@AdditionalUI
                         println("onSaveNewLocation: Sending update")
                         viewModel.useUpdateUtil().updateElement(e)
                     }
@@ -125,7 +128,8 @@ private fun OperationStatusIndication(
     }
 
     when (elementUpdateResponse.status) {
-        Status.IDLE -> {}
+        Status.IDLE -> {
+        }
         Status.ERROR -> Wrapper {
             Text(text = "Error updating element")
         }
@@ -145,6 +149,7 @@ private fun AdditionalUI(
     onEditLocation: () -> Unit,
     onSaveNewLocation: () -> Unit,
 ) {
+    val location = viewModel.useMapManager().getEditedLocation()
 
     when (viewModel.useMapManager().mapMode.collectAsState().value) {
         MapMode.SINGLE_ELEMENT -> {
@@ -162,8 +167,10 @@ private fun AdditionalUI(
                 Button(onClick = onSaveNewLocation) {
                     Text(text = "Save new location")
                 }
-                Button(onClick = { viewModel.useMapManager().centerToDevice() }) {
-                    Text(text = "Center to your location")
+                if (location != null) {
+                    Button(onClick = { viewModel.useMapManager().centerToDevice() }) {
+                        Text(text = "Center to your location")
+                    }
                 }
             }
 //            Button(onClick = { viewModel.useMapManager().clearMarkers() }) {
@@ -183,7 +190,8 @@ private fun setup(
     mapView: MapView,
 ) {
     val elementId = navController.currentBackStackEntry?.arguments?.getString(
-        ARG_MAP_SINGLE_ELEMENT_ID) ?: return
+        ARG_MAP_SINGLE_ELEMENT_ID
+    ) ?: return
     val element = viewModel.getElementFromCache(elementId) ?: return
 
     val hasLocation = viewModel.useMapManager().displayElement(mapView, element)

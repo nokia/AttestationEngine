@@ -30,7 +30,7 @@ class MapManager(
     val mapMode: MutableStateFlow<MapMode?> = MutableStateFlow(null)
 
     init {
-        locationEditor.requestLocationUpdate()
+        locationEditor.requestLocationUpdates()
     }
 
     /**
@@ -79,9 +79,7 @@ class MapManager(
         return locationEditor.currentLocation
     }
 
-    fun getEditedLocation(): Location? {
-        return locationEditor.currentLocation.value
-    }
+    fun getEditedLocation(): Location? = locationEditor.currentLocation.value
 
     fun centerToDevice(): GeoPoint? {
         val lat = locationEditor.deviceLocation.value?.latitude ?: return null
@@ -135,8 +133,8 @@ class MapManager(
 
     private fun geoToLoc(geoPoint: GeoPoint): Location {
         val location = Location("")
-        val latitude: Double = geoPoint.latitudeE6 / 1E6
-        val longitude: Double = geoPoint.longitudeE6 / 1E6
+        val latitude: Double = geoPoint.latitude
+        val longitude: Double = geoPoint.longitude
 
         location.latitude = latitude
         location.longitude = longitude

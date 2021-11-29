@@ -24,7 +24,7 @@ interface LocationEditor {
     fun resetLocation()
 
     /** Request a location update which runs once */
-    fun requestLocationUpdate()
+    fun requestLocationUpdates()
 
     fun toggleEditState()
 
@@ -62,8 +62,8 @@ class ElementLocationEditor(
         editableLocation.value = _deviceLocation.value
     }
 
-    override fun requestLocationUpdate() {
-        locationHandler.requestCurrentLocation()
+    override fun requestLocationUpdates() {
+        locationHandler.startLocationUpdates()
     }
 
     override fun toggleEditState() {

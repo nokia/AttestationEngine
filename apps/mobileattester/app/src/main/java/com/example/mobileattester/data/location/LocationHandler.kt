@@ -4,8 +4,8 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Context.LOCATION_SERVICE
 import android.location.Location
-import android.location.LocationListener
 import android.location.LocationManager
+import androidx.core.location.LocationListenerCompat
 import com.example.mobileattester.ui.util.locationProvider
 
 // Time passed to trigger a location update (seconds)
@@ -27,7 +27,7 @@ interface LocationUpdateListener {
  */
 class LocationHandler(
     val ctx: Context,
-) : LocationListener {
+) : LocationListenerCompat {
 
     // Class which acts as a delegate for the location updates
     private var locationUpdateListener: LocationUpdateListener? = null
@@ -43,36 +43,15 @@ class LocationHandler(
         println("@@ Registered listener")
         this.locationUpdateListener = listener
     }
-
-    override fun onProviderDisabled(provider: String) {
-    }
-    override fun onProviderEnabled(provider: String) {
-    }
-
     @SuppressLint("MissingPermission")
-    fun startLocationUpdates(context: Context) {
-        //somewhere e.g. in "start tracking" button click listener
-        locationManager.requestLocationUpdates(
-            LocationManager.GPS_PROVIDER,
-            LOCATION_UPDATE_FREQ,
-            LOCATION_DISTANCE_FREQ,
-            this
-        )
-    }
-
-    @SuppressLint("MissingPermission")
-    fun requestCurrentLocation() {
-        println("@@ Request single location")
-        if (locationProvider(ctx)!! != null)
+    fun startLocationUpdates() {
+        println("@@ Request location")
+        if (locationProvider(ctx) != null) // Location supported by machine
             locationManager.requestLocationUpdates(locationProvider(ctx)!!, 1000, 15f, this)
-        else
-        {
-            // Location not supported by machine
-        }
 
     }
 
     fun stopLocationUpdates() {
-        locationManager?.removeUpdates(this)
+        locationManager.removeUpdates(this)
     }
 }
