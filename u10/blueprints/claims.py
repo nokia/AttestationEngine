@@ -56,3 +56,57 @@ def claim(item_id):
         r["verifiedAtUTC"] = formatting.futc(r["verifiedAt"])
 
     return render_template("claim.html", cla=c, pp=pp, rs=rs)
+    
+    
+@claims_blueprint.route("/claim/prettyprint/pcrs/<item_id>", methods=["GET"])
+def claimprettyprintPCRs(item_id):
+    c = a10.asvr.claims.getClaim(item_id).msg()
+ 
+
+    if c.get("payload").get("payload").get("pcrs")==None:
+       return render_template("claimprettyprint/incorrecttype.html", cla=c, msg="Claim does not appear to be a UEFI Eventlog")        
+    else:
+       pcrs=c.get("payload").get("payload").get("pcrs")
+       
+       #pcrs_sha1 = sorted(pcrs.get("sha1").items())
+       #pcrs_sha1 = pcrs.get("sha1")
+       #print("sha1=",pcrs_sha1)
+       
+       pcrlist = {}
+       
+       for p in ['sha1','sha256','sha384','sha512']:
+          if pcrs.get(p)!=None:
+          	ps = sorted( {int(k) : v for k, v in pcrs.get(p).items()}.items() )
+          	pcrlist[p]=ps
+       
+     
+       
+       return render_template("claimprettyprint/pcrs.html", cla=c,pcrlist=pcrlist)  
+    
+    
+    
+    
+    
+@claims_blueprint.route("/claim/prettyprint/quote/<item_id>", methods=["GET"])
+def claimprettyprintQuote(item_id):
+    c = a10.asvr.claims.getClaim(item_id).msg()
+
+    	
+    if c.get("payload").get("payload").get("quote")==None:
+       return render_template("claimprettyprint/incorrecttype.html", cla=c, msg="Claim does not appear to be a UEFI Eventlog")        
+    else:
+       return render_template("claimprettyprint/quote.html", cla=c)  
+    
+    
+    
+    
+    
+@claims_blueprint.route("/claim/prettyprint/uefieventlog/<item_id>", methods=["GET"])
+def claimprettyprintUEFIEventLog(item_id):
+    c = a10.asvr.claims.getClaim(item_id).msg()
+
+    
+    if c.get("payload").get("payload").get("eventlog")==None:
+       return render_template("claimprettyprint/incorrecttype.html", cla=c, msg="Claim does not appear to be a UEFI Eventlog")        
+    else:
+       return render_template("claimprettyprint/uefieventlog.html", cla=c)        

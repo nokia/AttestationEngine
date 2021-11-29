@@ -1,0 +1,19 @@
+<!--
+ Copyright 2021 Nokia
+ Licensed under the BSD 3-Clause License.
+ SPDX-License-Identifier: BSD-3-Clause
+-->
+
+{% extends "base.html" %}
+{% block content %}
+<h2>Claim: Incorrect Type for Pretty Print</h2>
+
+<hr />
+<div>
+
+<b>
+The <a href=/claim/{{ cla.itemid }}>claim's payload</a> is incorrect: {{ msg }}
+</b>
+    
+</div>
+{% endblock %}
