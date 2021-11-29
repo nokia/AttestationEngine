@@ -19,9 +19,12 @@ def returnEVENTLOGRREAD():
     
     try:
         f = open("/sys/kernel/security/tpm0/binary_bios_measurements","rb")
-        eventlog = base64.b85encode(f.read())   #Smaller size then b64 !
-        c.addPayloadItem("encoding", "base85")
-        c.addPayloadItem("eventlog", eventlog)
+        eventlog = f.read()
+        eventlog_enc = base64.b85encode(eventlog).decode("utf-8")   
+        c.addPayloadItem("encoding", "base85/utf-8")
+        c.addPayloadItem("eventlog", eventlog_enc)
+        c.addPayloadItem("size",len(eventlog))
+        c.addPayloadItem("sizeencoded",len(eventlog_enc))
         f.close()
     except Exception as e:
         c.addPayloadItem("error", str(e))
@@ -29,5 +32,7 @@ def returnEVENTLOGRREAD():
     c.addHeaderItem("ta_complete", str(datetime.datetime.now(datetime.timezone.utc)))
     
     rc = c.getClaim()
+
+    print("\nRC",type(eventlog_enc))
 
     return jsonify(rc), 200
