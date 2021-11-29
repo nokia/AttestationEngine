@@ -6,15 +6,7 @@ import android.content.Context.LOCATION_SERVICE
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
-import android.location.LocationRequest
-import android.os.CancellationSignal
-import android.os.Looper
-import androidx.core.content.ContextCompat
-import androidx.core.content.ContextCompat.getSystemService
-import androidx.lifecycle.MutableLiveData
-import kotlinx.coroutines.flow.MutableStateFlow
-import java.util.concurrent.Executor
-import java.util.function.Consumer
+import com.example.mobileattester.ui.util.locationProvider
 
 // Time passed to trigger a location update (seconds)
 const val LOCATION_UPDATE_FREQ = 0L
@@ -34,7 +26,7 @@ interface LocationUpdateListener {
  * Note: Does not check any permissions.
  */
 class LocationHandler(
-    ctx: Context,
+    val ctx: Context,
 ) : LocationListener {
 
     // Class which acts as a delegate for the location updates
@@ -52,6 +44,11 @@ class LocationHandler(
         this.locationUpdateListener = listener
     }
 
+    override fun onProviderDisabled(provider: String) {
+    }
+    override fun onProviderEnabled(provider: String) {
+    }
+
     @SuppressLint("MissingPermission")
     fun startLocationUpdates(context: Context) {
         //somewhere e.g. in "start tracking" button click listener
@@ -66,9 +63,13 @@ class LocationHandler(
     @SuppressLint("MissingPermission")
     fun requestCurrentLocation() {
         println("@@ Request single location")
-        locationManager.requestSingleUpdate(
-            LocationManager.GPS_PROVIDER, this, Looper.getMainLooper()
-        )
+        if (locationProvider(ctx)!! != null)
+            locationManager.requestLocationUpdates(locationProvider(ctx)!!, 1000, 15f, this)
+        else
+        {
+            // Location not supported by machine
+        }
+
     }
 
     fun stopLocationUpdates() {
