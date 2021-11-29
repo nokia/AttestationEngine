@@ -1,6 +1,6 @@
-# Copyright 2021 Nokia
-# Licensed under the BSD 3-Clause License.
-# SPDX-License-Identifier: BSD-3-Clause
+#Copyright 2021 Nokia
+#Licensed under the BSD 3-Clause Clear License.
+#SPDX-License-Identifier: BSD-3-Clear
 
 # from a10.asvr.protocols import A10HttpRest, A10ContainerImage, A10ArduinoUSB
 # from a10.asvr.protocols import A10DummyProtocol
@@ -44,6 +44,10 @@ RULEREGISTER = {
     a10.asvr.rules.tpm2rules.TPM2QuoteStandardVerify.NAME: (
         a10.asvr.rules.tpm2rules.TPM2QuoteStandardVerify,
         a10.asvr.rules.tpm2rules.TPM2QuoteStandardVerify.DESCRIPTION,
+    ),
+    a10.asvr.rules.tpm2rules.TPM2CredentialVerify.NAME: (
+        a10.asvr.rules.tpm2rules.TPM2CredentialVerify,
+        a10.asvr.rules.tpm2rules.TPM2CredentialVerify.DESCRIPTION,
     ),
     a10.asvr.rules.uefi.ValidUEFIEventLog.NAME: (
         a10.asvr.rules.uefi.ValidUEFIEventLog,

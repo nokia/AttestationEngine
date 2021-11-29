@@ -49,7 +49,7 @@ class A10Container(A10ProtocolBase):
 
         call_body = {
             "policyparameters": self.policyparameters,
-            "callparameters": self.additionalparameters,
+            "callparameters": self.callparameters,
         }
         json_data = json.dumps(call_body, ensure_ascii=False)
 

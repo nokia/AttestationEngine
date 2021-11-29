@@ -23,7 +23,7 @@ def getTypes():
     es = a10.asvr.elements.getElementsFull()
 
     for e in es:
-        print("type=", e["type"])
+        print("type=", e["type"],type(e["type"]))
         # ugly - we keep everything as a flat list
         for t in e["type"]:
             ts.append(t)

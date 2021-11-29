@@ -7,6 +7,14 @@
 {% extends "base.html" %}
 {% block content %}
 <h2>Claim</h2>
+
+<span>
+<b>Pretty Printers</b>: 
+<a href=/claim/prettyprint/pcrs/{{ cla.itemid }} target="_blank" rel="noopener noreferrer"><button type="button" class="btn btn-primary btn-sm">PCRs</button></a>
+<a href=/claim/prettyprint/quote/{{ cla.itemid }} target="_blank" rel="noopener noreferrer"><button type="button" class="btn btn-primary btn-sm">Quote</button></a>
+<a href=/claim/prettyprint/uefieventlog/{{ cla.itemid }} target="_blank" rel="noopener noreferrer"><button type="button" class="btn btn-primary btn-sm">UEFI EventLog</button></a>
+</span>
+
 <hr />
 <div>
     <h5>Information</h5>

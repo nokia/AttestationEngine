@@ -3,19 +3,19 @@
       "http://10.144.176.154:8510"
    ],
    "description": "to lazy to write this",
-   "endpoint": "http://10.144.176.154:8530",
-   "hostname": "covid19",
+   "endpoint": "http://192.168.1.82:8530",
+   "hostname": "ubuntu",
    "location": "60.22309,24.75877",
-   "name": "covid19_2",
+   "name": "ubuntu",
    "protocol": "A10HTTPREST",
    "tpm2": {
       "tpm0": {
          "akhandle": "0x810100aa",
-         "akname": "000b64c2b88cb65a52f15c119825077ece43a56d857ccbafdf6b668dfcea000e3fb6",
-         "akpem": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAlB8PpK0qIzI4UaEjoEVM\nu0RHqMz1rvMNsjuJ0bPxKf6muxmxefBeA2u3CTPuLLsbOFt+zYS85NK30PJlUxLa\nKD10durPs4a6EVGV/NKrV7yTSBC7KoGZFXilmA7YLN8M8k/wil7Kya5VUdbV2VrJ\nk2BpguCBkA+lFil0Zsd4v0tei/52wWPHto640ISYVcG4UDeF+Ej3BAMBYLESfdIT\n2ErW1YzhjMjJ+zD3e7g/hR7caB246BSFZ/xPEAk00eJxcvqqPRl8uiO0n3qR0hLr\n9dFIAHr9/jjyFQO1PA9jhLWSe3Gl5bStcr/6JcS/vlx+GjjhGivzV3wskcdY8ENP\nZQIDAQAB\n-----END PUBLIC KEY-----\n",
+         "akname": "000bf019371ac85a58e4ce46aa4ea9e52f3612d3015cbed953a87591d0698e6b6e47",
+         "akpem": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAs1sbtN5wAvOGrczh9u7d\nkY/j2OKgNrQck6nYtSrLgLV7QBfRCZYnz1ciL/JfLA8Mo28JVU3y1cTOgPhgGO0U\nqLJXeuOW47BxmtFTwW/Fz2OhknwjO7KHe/14WsN1XaPnccdjZTJoVm3mrZMtg9nJ\nWRruGowMyU+p9Z+Thw3JKhXh85nrQKIcj6PfgXqkrM8ENYgNpZReOOEvJmCH/Tjz\nJ0/kvdht1e4ckYU1HUh6vX+XvLl96ThHvQc+5Sk9OFQx9Vmg3qmO13dYZm0CBGt3\nRn2EYjYNfEQs0cNJWb7r2r3WPg6np2jbqvZhg2Tx/96x1EJhzpB1pGme1lWU7glp\nNwIDAQAB\n-----END PUBLIC KEY-----\n",
          "ekhandle": "0x810100ee",
-         "ekname": "000b4a3d09eed2ea64768abe43528b118bc28df6a24365c6a2f1a81cee9180aa0a3c",
-         "ekpem": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAht0Z9CUlL6DCubuUXKGH\n0mBedrTQn3N9Ne5yJ106YjLpCrf9bGvq2KQBsbg8tumcKqAzi5xDnWaZea6zYQch\nOz6U4hzJw38G4KLABHbWJF0QgUPESCM2JfB7UyN3TIH2Ss2xojJnE0YO33McCEj6\n7Py4MYY2aj2VQ9b/Zya59ZYu7TAHgsLb7bQDV1S7YFLj33dg6DQFeQzXDZmgoPgz\nGsK59XT2aOSoeybhjcN0acGz+MSkGy2BBIpr7jdWRSqfE16ITjK2Bt2R6jqPyX1P\n8wFfuSw8bVc7vNKURDk6lymv3VPPVdp1kG3EOHQb733n21YSul2J1gZQOPbZcwgT\nKwIDAQAB\n-----END PUBLIC KEY-----\n"
+         "ekname": "000bde0fab6bdbe5b2032c11aceb9a676555842dc1eef292965c6f33dc47a5e9cf21",
+         "ekpem": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEArtFXyVd6mH0CKDtew2Q9\nGVekErHUEfpqe+rE2qLwhV7vnRkX1U9PoYA4ITgNVzEnw36e+zsjh00nQfNm4KNV\nI2Dfr6aBckQ4pzrwjxogZuEMhzDhUqnw7PnzAusQ02A7JrAmAX0+3+YE1OpQbP8O\nzw+pct7WbxGQtJJVQ5tIlpdpJOi6nQu7pJq+M+m4fYTIzddywaGbXxu1WHSPWQoW\nUGDUPsP8sQOm/c+c0sA7CfVe/vvXVHTO3sDgu6FvEvr4A6CPlDQX3f6tppr+YUJB\nuZgx7T5Xvdk0nSS/jrLjhtt0OdsNfOAGmuJAmERWIS945X1eyI1U33eNPJRXhFNc\nywIDAQAB\n-----END PUBLIC KEY-----\n"
       }
    },
    "type": [
