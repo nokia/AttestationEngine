@@ -1,6 +1,6 @@
 # Copyright 2021 Nokia
-# Licensed under the BSD 3-Clause License.
-# SPDX-License-Identifier: BSD-3-Clause
+# Licensed under the BSD 3-Clause Clear License.
+# SPDX-License-Identifier: BSD-3-Clear
 
 import threading
 import time
@@ -34,6 +34,13 @@ def announceResult(op, data):
     a10.asvr.db.core.writeLogEntry(t, "R", op, data)
     a10.asvr.db.mqtt.publish("AS/R", t, op, data)
 
+
+def announceMessage(op, data):
+    t = a10.structures.timestamps.now()
+    a10.asvr.db.log.writelog(t, "MSG", op, data)
+    a10.asvr.db.core.writeLogEntry(t, "MSG", op, data)
+    a10.asvr.db.mqtt.publish("AS/MSG", t, op, data)
+    print("message received ",op,data)
 
 def getLatestLogEntries(n=250):
     """ Returns the latest log entries 
