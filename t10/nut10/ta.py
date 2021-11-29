@@ -12,7 +12,7 @@ import configparser
 import sys
 import os
 
-VERSION = "0.3.nu"
+VERSION = "0.3.1.nu"
 ASVRS = []
 ASVRS_RESP = []
 
@@ -34,22 +34,34 @@ def getconfiguration(path):
 
     config = configparser.ConfigParser()
     
+    # the config for the list of asvrs is
+    # elementID , AS URL ; ... repeat
+
     try:
         config.read(path)
-        ASVRS = config["Asvr"]["asvrs"].split(",")  # this will return a list
+        es = config["Asvr"]["asvrs"].split(";")  # this will return a list of comma separated elementID and AE urls
+        for e in es:
+            a = e.split(",")
+            ASVRS.append((a[0],a[1]))
     except Exception as e:
         print("T10 configuration file error ",e," write reading ",path,". Exiting.")
         exit(1)
 
 
-def announceStartUp():
+def announce(m):
     global ASVRS_RESP
 
-    for url in ASVRS:
+
+    ASVRS_RESP = []
+
+    for a in ASVRS:
+        eid = a[0]
+        url = a[1]
+        print("messaging",m,"to",url,"as",eid)
         try:
-            r = requests.post(url+"/msg",json = {'msg':'ta_startup','itemid':'123','op':'ta_startup'})
+            r = requests.post(url+"/msg",json = {'msg':'','elementid':eid,'op':m})
             ASVRS_RESP.append( 
-               { "url":url, "status":r.status_code }
+               { "url":url, "status":r.status_code, "response":r.text}
             )
         except Exception as e:
             ASVRS_RESP.append( 
@@ -75,11 +87,22 @@ def status_homepage():
 
     return jsonify(rc), 200
 
+@ta.route("/ta/reannounce", methods=["GET"])
+def ta_reannounce():
+    announce("ta_reannounce")
+    return "reannouce", 200
+
+@ta.route("/ta/kill", methods=["GET"])
+def ta_kill():
+    announce("ta_stop")
+    sys.exit(0)
+    return "killed", 200
+
 
 def main(cert, key, config_filename="ta_config.cfg"):
     listroutes()
     getconfiguration("/etc/t10.conf")
-    announceStartUp()
+    announce("ta_startup")
 
     ta.config.from_pyfile(config_filename)
     if cert and key:

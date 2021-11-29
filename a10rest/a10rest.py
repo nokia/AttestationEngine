@@ -416,7 +416,7 @@ def receiveMessage():
 
     msg=content.get('msg',"mising message")
     ope=content.get('op',"-")
-    eid=content.get('itemid',"missing element ID")
+    eid=content.get('elementid',"missing element ID")
     
     a10.asvr.db.announce.announceMessage(ope,{ 'msg':msg, 'elementid':eid })
 
