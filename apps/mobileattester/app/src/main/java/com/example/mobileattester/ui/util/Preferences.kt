@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
@@ -21,6 +22,7 @@ class Preferences(
     companion object {
         private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(CONFIG)
         private val enginesKey = stringSetPreferencesKey("addresses")
+        private val currentEnginesKey = stringPreferencesKey("address")
 
         val defaultConfig = mutableSetOf("0.0.0.0:8520")
     }
@@ -39,6 +41,23 @@ class Preferences(
     suspend fun saveEngines(engines: SortedSet<String>) {
         context.dataStore.edit { preferences ->
             preferences[enginesKey] = engines
+        }
+    }
+
+    // Access current engine
+    val engine: Flow<String> by lazy {
+        context.dataStore.data.map { preferences ->
+            if (preferences[currentEnginesKey] == null || preferences[currentEnginesKey]!!.isEmpty()) {
+                defaultConfig.first()
+            } else {
+                preferences[currentEnginesKey]!!
+            }
+        }
+    }
+
+    suspend fun saveEngine(engine: String) {
+        context.dataStore.edit { preferences ->
+            preferences[currentEnginesKey] = engine
         }
     }
 }

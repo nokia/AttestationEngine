@@ -1,6 +1,5 @@
 package com.example.mobileattester.ui.pages
 
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
@@ -34,29 +33,38 @@ import com.example.mobileattester.ui.util.parseBaseUrl
 import com.example.mobileattester.ui.viewmodel.AttestationViewModel
 import compose.icons.TablerIcons
 import compose.icons.tablericons.*
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 
 @Composable
 fun Home(navController: NavController? = null, viewModel: AttestationViewModel) {
+    val compose = currentRecomposeScope
     val context = LocalContext.current
-    val currentUrl = viewModel.currentUrl.collectAsState()
-    Log.e("CurrentUrl",currentUrl.value)
-    val currentEngine = parseBaseUrl(currentUrl.value) ?: Preferences.defaultConfig.first()
-    Log.e("CurrentEngine",currentEngine)
-
-    val preferences = Preferences(LocalContext.current)
-    val list = preferences.engines.collectAsState(initial = sortedSetOf<String>())
-
-    if (list.value.isNotEmpty() && !list.value.contains(currentEngine)) viewModel.switchBaseUrl("http://${list.value.first()}/")
-
-    var showAllConfigurations by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
-    val scrollState = ScrollState(0)
+    val preferences = Preferences(LocalContext.current)
+
+    /** DATA */
+    val currentUrl = viewModel.currentUrl.collectAsState()
+
+    // History of engines
+    val enginesList = preferences.engines.collectAsState(initial = sortedSetOf<String>())
+
+    // Check preferences for the last used engine
+    // Launch only once when the page has been created
+    LaunchedEffect(scope) {
+        preferences.engine.collect {
+            // Switch engine from preference if not the same
+            if(currentUrl.value != "http://${it}/")
+                viewModel.switchBaseUrl("http://${it}/")
+        }
+    }
 
 
-    Column(modifier = Modifier.verticalScroll(scrollState)) {
 
+    /** UI */
+    Column(modifier = Modifier.verticalScroll(ScrollState(0))) {
+        var showAllConfigurations by remember { mutableStateOf(false) }
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -73,7 +81,7 @@ fun Home(navController: NavController? = null, viewModel: AttestationViewModel) 
             )
 
             // Current Engine
-            ConfigurationButton(text = currentEngine,
+            ConfigurationButton(text = parseBaseUrl(currentUrl.value)!!,
                 name = "Engine",
                 icon = TablerIcons.AdjustmentsHorizontal,
                 onClick = {
@@ -81,24 +89,27 @@ fun Home(navController: NavController? = null, viewModel: AttestationViewModel) 
                 })
 
             if (showAllConfigurations) {
-                (list.value.filter { it != currentEngine }).forEach { engineAddress ->
+                (enginesList.value.filter { "http://${it}/" != currentUrl.value }).forEach { engineAddress ->
                     ConfigurationButton(
                         text = engineAddress,
                         onClick = {
+                            scope.launch {
+                                preferences.saveEngine(it)
+                            }
+
                             viewModel.switchBaseUrl("http://${it}/")
 
-                            // Refresh
+                            // Close window on select
                             showAllConfigurations = false
                         },
                         onIconClick = {
-                            list.value.remove(it)
+                            enginesList.value.remove(it)
 
                             scope.launch {
-                                preferences.saveEngines(list.value.toSortedSet())
+                                preferences.saveEngines(enginesList.value.toSortedSet())
 
                                 // Refresh
-                                showAllConfigurations = false
-                                showAllConfigurations = true
+                                compose.invalidate()
                             }
                         },
                     )
@@ -113,7 +124,7 @@ fun Home(navController: NavController? = null, viewModel: AttestationViewModel) 
                         val config = parseBaseUrl(str)
 
                         if (config != null) {
-                            if(list.value.contains(config))
+                            if(enginesList.value.contains(config))
                             {
                                 Toast.makeText(
                                     context,
@@ -122,14 +133,13 @@ fun Home(navController: NavController? = null, viewModel: AttestationViewModel) 
                                 ).show()
                             }
                             else {
-                                list.value.add(config)
+                                enginesList.value.add(config)
 
                                 scope.launch {
-                                    preferences.saveEngines(list.value)
+                                    preferences.saveEngines(enginesList.value)
 
                                     // Refresh
-                                    showAllConfigurations = false
-                                    showAllConfigurations = true
+                                    compose.invalidate()
                                 }
                             }
                         } else {
