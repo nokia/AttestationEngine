@@ -4,6 +4,7 @@ import android.widget.Toast
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -208,6 +209,9 @@ fun ConfigurationButton(
                     label = { Text(text) },
                     onValueChange = { input = it; onTextChange(input) },
                     singleLine = true,
+                    keyboardActions = KeyboardActions(
+                        onDone = { onIconClick(input) }
+                    ),
                     colors = TextFieldDefaults.outlinedTextFieldColors(
                         unfocusedLabelColor = Color.White, // TODO: MaterialTheme.colors.primary
                         focusedLabelColor = Color.White,
