@@ -2,26 +2,35 @@ package com.example.mobileattester.ui.pages
 
 import android.Manifest
 import android.content.Intent
+import android.location.Location
 import android.net.Uri
 import android.preference.PreferenceManager.getDefaultSharedPreferences
 import android.provider.Settings
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
+import com.example.mobileattester.data.model.Element
+import com.example.mobileattester.data.network.Response
 import com.example.mobileattester.data.network.Status
 import com.example.mobileattester.data.util.MapMode
+import com.example.mobileattester.ui.components.anim.FadeInWithDelay
+import com.example.mobileattester.ui.components.common.Fab
 import com.example.mobileattester.ui.components.common.LoadingIndicator
-import com.example.mobileattester.ui.theme.Primary
-import com.example.mobileattester.ui.theme.White
+import com.example.mobileattester.ui.theme.*
 import com.example.mobileattester.ui.util.PermissionDeniedRequestSettings
 import com.example.mobileattester.ui.util.PermissionsRationale
 import com.example.mobileattester.ui.util.Screen
@@ -30,7 +39,10 @@ import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionsRequired
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import compose.icons.TablerIcons
+import compose.icons.tablericons.AlertCircle
 import compose.icons.tablericons.ArrowsMaximize
+import compose.icons.tablericons.Check
+import compose.icons.tablericons.CurrentLocation
 import org.osmdroid.config.Configuration.getInstance
 import org.osmdroid.views.MapView
 
@@ -52,15 +64,28 @@ fun MapWrapper(
     val elementId =
         navController.currentBackStackEntry?.arguments?.getString(ARG_MAP_SINGLE_ELEMENT_ID)
     val element = viewModel.getElementFromCache(elementId ?: "")
-
+    val mapMode = viewModel.useMapManager().mapMode.collectAsState()
+    val elementUpdateResponse = viewModel.useUpdateUtil().elementUpdateFlow.collectAsState()
+    val deviceLocation = viewModel.useMapManager().getCurrentLocation().collectAsState()
+    val updateSent = remember {
+        mutableStateOf(false)
+    }
     val map = remember {
         MapView(context).also {
             setup(navController, viewModel, it)
         }
     }
 
-    // Required by OsmDroid
-    getInstance().load(context, getDefaultSharedPreferences(context))
+    LaunchedEffect(Unit) {
+        // Required by OsmDroid
+        getInstance().load(context, getDefaultSharedPreferences(context))
+    }
+
+    DisposableEffect(LocalLifecycleOwner.current) {
+        onDispose {
+            viewModel.useMapManager().resetMapState()
+        }
+    }
 
     PermissionsRequired(multiplePermissionsState = permissionState, permissionsNotGrantedContent = {
         PermissionsRationale("Please grant location and storage permissions to access the map.") { permissionState.launchMultiplePermissionRequest() }
@@ -76,99 +101,164 @@ fun MapWrapper(
             }
         }
     }) {
+        if (element == null) {
+            FadeInWithDelay(1500) {
+                Text(text = "Element data null.")
+            }
+            return@PermissionsRequired
+        }
+
+        fun saveNewLocationRequest() {
+            val editedLocation = viewModel.useMapManager().getEditedLocation()
+            if (editedLocation.value != null) {
+                viewModel.useMapManager().lockInteractions()
+                val e = element.cloneWithNewLocation(editedLocation.value!!)
+                viewModel.useUpdateUtil().updateElement(e)
+                updateSent.value = true
+            }
+        }
+
         // Map content
         Box(contentAlignment = Alignment.BottomStart) {
-            AndroidView(
-                factory = {
-                    map
-                },
-            )
-            AdditionalUI(
-                viewModel = viewModel,
-                onEditLocation = {
-                    if (element != null) {
+
+            AndroidView(factory = { map })
+
+            when (updateSent.value) {
+                false -> AdditionalUI(
+                    mapMode = mapMode.value,
+                    deviceLocation = deviceLocation.value,
+                    element = element,
+                    elementUpdateResponse = elementUpdateResponse,
+                    onEditLocation = {
                         viewModel.useMapManager().useEditLocation(map, element)
+                    },
+                    onSaveNewLocation = { saveNewLocationRequest() },
+                    onCancelEdit = {
+                        viewModel.useMapManager().displayElement(map, element)
+                    },
+                    onCenter = {
+                        viewModel.useMapManager().centerToDevice()
                     }
-                },
-                onSaveNewLocation = {
-                    val editedLocation = viewModel.useMapManager().getEditedLocation()
-                    if (editedLocation.value != null) {
-                        val e = element?.cloneWithNewLocation(editedLocation.value!!)
-                            ?: return@AdditionalUI
-                        viewModel.useUpdateUtil().updateElement(e)
-                    }
-                },
-            )
-            OperationStatusIndication(viewModel = viewModel)
+                )
+                true -> OperationStatusIndication(elementUpdateResponse,
+                    onRetry = { saveNewLocationRequest() },
+                    onClose = { navController.navigateUp() }
+                )
+            }
         }
     }
 }
 
 @Composable
 private fun OperationStatusIndication(
-    viewModel: AttestationViewModel,
+    elementUpdateResponse: State<Response<String>>,
+    onRetry: () -> Unit,
+    onClose: () -> Unit,
 ) {
-    val elementUpdateResponse = viewModel.useUpdateUtil().elementUpdateFlow.collectAsState().value
-
-    @Composable
-    fun Wrapper(content: @Composable() () -> Unit) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            content()
-        }
-    }
-
-    when (elementUpdateResponse.status) {
-        Status.IDLE -> {
-        }
-        Status.ERROR -> Wrapper {
-            Text(text = "Error updating element")
-        }
-        Status.LOADING -> Wrapper {
-            LoadingIndicator()
-        }
-        Status.SUCCESS -> Wrapper {
-            Text("Element location successfully updated")
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .fillMaxHeight(),
+        contentAlignment = Alignment.TopCenter
+    ) {
+        when (elementUpdateResponse.value.status) {
+            Status.IDLE -> {}
+            Status.ERROR -> PopUp(
+                icon = TablerIcons.AlertCircle,
+                text = "Error updating element.",
+                btnText = "Retry",
+                color = Error,
+                onClick = onRetry
+            )
+            Status.LOADING -> {
+                Box(modifier = Modifier.padding(24.dp)) {
+                    LoadingIndicator()
+                }
+            }
+            Status.SUCCESS -> PopUp(
+                icon = TablerIcons.Check,
+                text = "Location set successfully!",
+                btnText = "Close map",
+                color = Ok,
+                onClick = onClose
+            )
         }
     }
 }
 
-// Provides buttons etc. for the map based on what it requires 
+// Provides buttons etc. for the map based on what it requires
 @Composable
 private fun AdditionalUI(
-    viewModel: AttestationViewModel,
+    mapMode: MapMode?,
+    deviceLocation: Location?,
+    element: Element,
+    elementUpdateResponse: State<Response<String>>,
     onEditLocation: () -> Unit,
     onSaveNewLocation: () -> Unit,
+    onCancelEdit: () -> Unit,
+    onCenter: () -> Unit,
 ) {
-    val location = viewModel.useMapManager().getCurrentLocation().collectAsState()
+    DisplayUpdateError(elementUpdateResponse)
 
-    when (viewModel.useMapManager().mapMode.collectAsState().value) {
-        MapMode.SINGLE_ELEMENT -> {
-            IconButton(onClick = onEditLocation) {
-                Surface(color = Primary) {
-                    Icon(TablerIcons.ArrowsMaximize,
-                        null,
-                        tint = White,
-                        modifier = Modifier.rotate(45.0f))
+    when (mapMode) {
+        MapMode.SINGLE_ELEMENT -> Fab(
+            icon = TablerIcons.ArrowsMaximize,
+            onClick = onEditLocation,
+            color = White,
+        )
+        MapMode.EDIT_LOCATION ->
+            Column(
+                Modifier
+                    .fillMaxHeight()
+                    .fillMaxWidth(),
+                verticalArrangement = Arrangement.SpaceBetween
+            ) {
+                Surface(
+                    color = Primary,
+                    shape = RoundedCornerShape(bottomEnd = 6.dp),
+                    elevation = ELEVATION_XS
+                ) {
+                    Text(
+                        modifier = Modifier.padding(10.dp, 6.dp),
+                        text = "Setting location: ${element.name}",
+                        color = White
+                    )
                 }
-            }
-        }
-        MapMode.EDIT_LOCATION -> {
-            Column() {
-                Button(onClick = onSaveNewLocation) {
-                    Text(text = "Save new location")
-                }
-                if (location.value != null) {
-                    Button(onClick = { viewModel.useMapManager().centerToDevice() }) {
-                        Text(text = "Center to your location")
+                Column {
+                    if (deviceLocation != null) {
+                        Fab(icon = TablerIcons.CurrentLocation,
+                            color = White,
+                            onClick = onCenter)
+                    }
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(12.dp, 18.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                    ) {
+                        OutlinedButton(
+                            onClick = onCancelEdit,
+                            border = BorderStroke(1.dp, Primary),
+                        ) {
+                            Text(text = "Cancel")
+                        }
+                        Button(onClick = onSaveNewLocation) {
+                            Text(text = "Save")
+                        }
                     }
                 }
             }
-        }
-        MapMode.ALL_ELEMENTS -> {
-            Text(text = "Displaying all elements")
-        }
+        MapMode.ALL_ELEMENTS -> Text(text = "Displaying all elements")
     }
 }
+
+@Composable
+private fun DisplayUpdateError(
+    response: State<Response<String>>,
+) {
+
+}
+
 
 // Logic to choose different functionality for the map based on need
 private fun setup(
@@ -185,5 +275,49 @@ private fun setup(
 
     if (!hasLocation) {
         viewModel.useMapManager().useEditLocation(mapView, element)
+    }
+}
+
+
+@Composable
+private fun PopUp(
+    icon: ImageVector,
+    text: String,
+    btnText: String,
+    color: Color,
+    onClick: () -> Unit,
+) {
+    FadeInWithDelay(0) {
+        Surface(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
+            color = color,
+            elevation = ELEVATION_SM,
+            shape = ROUNDED_MD,
+        ) {
+            Row(
+                modifier = Modifier.padding(12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        icon,
+                        null,
+                        tint = White,
+                        modifier = Modifier.size(32.dp),
+                    )
+                    Text(
+                        modifier = Modifier.padding(horizontal = 8.dp),
+                        text = text,
+                        color = White
+                    )
+                }
+                TextButton(onClick = onClick) {
+                    Text(text = btnText, color = White, textDecoration = TextDecoration.Underline)
+                }
+            }
+        }
     }
 }

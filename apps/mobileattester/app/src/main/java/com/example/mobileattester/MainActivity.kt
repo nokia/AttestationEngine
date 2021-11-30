@@ -3,6 +3,8 @@ package com.example.mobileattester
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.app.ActivityCompat
 import androidx.lifecycle.ViewModelProvider
 import com.example.mobileattester.di.Injector
 import com.example.mobileattester.ui.theme.MobileAttesterTheme
@@ -17,6 +19,7 @@ class MainActivity : ComponentActivity() {
 
     @ExperimentalPermissionsApi
     override fun onCreate(savedInstanceState: Bundle?) {
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         super.onCreate(savedInstanceState)
 
         /**

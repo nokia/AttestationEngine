@@ -18,6 +18,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.mobileattester.ui.theme.FONTSIZE_XL
 
 /**
  * TODO More usable version
@@ -54,7 +55,7 @@ fun TextWithIcon(
         verticalAlignment = Alignment.CenterVertically,
     ) {
         if (!text.isNullOrEmpty()) Text(
-            AnnotatedString(text, SpanStyle(fontSize = 24.sp)),
+            AnnotatedString(text, SpanStyle(fontSize = FONTSIZE_XL)),
             color = color,
         )
         Spacer(modifier = Modifier.size(8.dp))

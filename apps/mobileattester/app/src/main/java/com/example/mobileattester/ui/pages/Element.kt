@@ -1,26 +1,31 @@
 package com.example.mobileattester.ui.pages
 
+import android.annotation.SuppressLint
+import androidx.appcompat.content.res.AppCompatResources
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Divider
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Text
-import androidx.compose.material.TextButton
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.CenterEnd
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.os.bundleOf
 import androidx.navigation.NavController
+import com.example.mobileattester.R
 import com.example.mobileattester.data.model.Element
 import com.example.mobileattester.data.model.ElementResult
 import com.example.mobileattester.ui.components.TagRow
@@ -34,20 +39,19 @@ import com.example.mobileattester.ui.util.*
 import com.example.mobileattester.ui.viewmodel.AttestationViewModel
 import compose.icons.TablerIcons
 import compose.icons.tablericons.Checkbox
+import compose.icons.tablericons.ChevronRight
 import compose.icons.tablericons.CurrentLocation
 import compose.icons.tablericons.ListCheck
+import org.osmdroid.tileprovider.tilesource.TileSourceFactory
+import org.osmdroid.views.MapView
+import org.osmdroid.views.overlay.Marker
 
 const val ARG_ITEM_ID = "item_id"
 
 @Composable
 fun Element(navController: NavController, viewModel: AttestationViewModel) {
-    val clickedElementId =
-        navController.currentBackStackEntry?.arguments?.getString(ARG_ITEM_ID) ?: run {
-            Text(text = "Data for the item id could not be found.")
-            return
-        }
-
-    val element = viewModel.getElementFromCache(clickedElementId) ?: run {
+    val clickedElementId = navController.currentBackStackEntry?.arguments?.getString(ARG_ITEM_ID)
+    val element = viewModel.getElementFromCache(clickedElementId ?: "") ?: run {
         ElementNull()
         return
     }
@@ -84,14 +88,66 @@ fun Element(navController: NavController, viewModel: AttestationViewModel) {
             Spacer(modifier = Modifier.size(26.dp))
             Text(text = element.description ?: "", color = DarkGrey)
             Spacer(modifier = Modifier.size(26.dp))
-            Text(text = element.location?.toString() ?: "No location set", color = DarkGrey)
-            Spacer(modifier = Modifier.size(26.dp))
+            Divider(color = DividerColor, thickness = 1.dp)
+            ElementMap(element = element) {
+                println("ON LOCATION CLICKED")
+                onLocationClick()
+            }
             Divider(color = DividerColor, thickness = 1.dp)
             Spacer(modifier = Modifier.size(26.dp))
             ElementResult(navController, element)
         }
     }
 }
+
+@SuppressLint("ClickableViewAccessibility")
+@Composable
+private fun ElementMap(element: Element, onClicked: () -> Unit) {
+    val loc = element.geoPoint() ?: return
+    val ctx = LocalContext.current
+
+    Text(modifier = Modifier.padding(top = 16.dp, bottom = 24.dp), text = "Location", fontSize = FONTSIZE_XL)
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(180.dp)
+            .clip(ROUNDED_SM),
+        contentAlignment = CenterEnd
+    ) {
+        AndroidView(
+            factory = {
+                MapView(it).apply {
+                    setTileSource(TileSourceFactory.WIKIMEDIA)
+                    isTilesScaledToDpi = true
+                    controller.setZoom(18.0)
+                    this.controller.setCenter(loc)
+                    setBuiltInZoomControls(false)
+                    setOnTouchListener { v, _ -> true }
+                    val marker = Marker(this).apply {
+                        icon =
+                            AppCompatResources.getDrawable(ctx,
+                                R.drawable.ic_baseline_location_on_32)
+                                .apply {
+                                    this?.setTint(ctx.getColor(R.color.primary))
+                                }
+                        position = loc
+                        setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
+                    }
+                    this.overlays?.add(marker)
+                }
+            },
+            modifier = Modifier
+                .clip(ROUNDED_SM),
+        )
+        Icon(
+            imageVector = TablerIcons.ChevronRight,
+            modifier = Modifier.size(32.dp),
+            contentDescription = null,
+        )
+    }
+
+}
+
 
 @Composable
 private fun ElementNull() {
@@ -112,10 +168,8 @@ private fun ElementResult(navController: NavController, element: Element) {
     val latestResults = element.results.latestResults(resultHoursShown.value)
 
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-        Text("Results", fontSize = 24.sp)
-        TextWithIcon(text = resultHoursShown.value.shownHoursToString(),
-            icon = TablerIcons.ListCheck,
-            color = PrimaryDark)
+        Text("Results", fontSize = FONTSIZE_XL)
+        Text(resultHoursShown.value.shownHoursToString(), fontSize = FONTSIZE_XL)
     }
     Spacer(Modifier.size(32.dp))
 

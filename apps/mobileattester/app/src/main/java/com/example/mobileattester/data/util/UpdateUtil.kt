@@ -1,10 +1,10 @@
 package com.example.mobileattester.data.util
 
-import androidx.compose.runtime.MutableState
 import com.example.mobileattester.data.model.Element
 import com.example.mobileattester.data.network.AttestationDataHandler
 import com.example.mobileattester.data.network.Response
 import com.example.mobileattester.data.util.abs.AsyncRunner
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 
 /**
@@ -24,6 +24,7 @@ class UpdateUtil(
             function = {
                 elementUpdateFlow.value = Response.loading()
                 val res = adh.updateElement(it)
+                delay(1000)
                 println("UpdateElement res: $res")
                 // Todo Check whether the response is id or not
                 elementUpdateFlow.value = Response.success("Success")

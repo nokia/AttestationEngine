@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.location.Location
 import android.view.MotionEvent
+import android.view.View
 import androidx.appcompat.content.res.AppCompatResources
 import com.example.mobileattester.R
 import com.example.mobileattester.data.model.Element
@@ -27,6 +28,12 @@ class MapManager(
     private val locationEditor: LocationEditor,
 ) {
     private var mapView: WeakReference<MapView>? = null
+    private var mapListener: WeakReference<View.OnTouchListener>? = null
+    private val _map: () -> MapView?
+        get() = {
+            mapView?.get()
+        }
+
     val mapMode: MutableStateFlow<MapMode?> = MutableStateFlow(null)
 
     init {
@@ -55,7 +62,7 @@ class MapManager(
      * and device location could not be found.
      */
     @SuppressLint("ClickableViewAccessibility")
-    fun useEditLocation(map: MapView, element: Element): StateFlow<Location?>? {
+    fun useEditLocation(map: MapView, element: Element): StateFlow<Location?> {
         initializeMap(map, MapMode.EDIT_LOCATION)
         clearMarkers()
 
@@ -69,14 +76,24 @@ class MapManager(
 
         locationEditor.setLocation(locToEdit)
 
-        val lat = locationEditor.currentLocation.value?.latitude ?:  map.mapCenter.latitude
-        val long = locationEditor.currentLocation.value?.longitude ?: map.mapCenter.longitude
-        val geoPoint = GeoPoint(lat, long)
+        val gp = GeoPoint(locToEdit.latitude, locToEdit.longitude)
 
-        addMarker(geoPoint, map.context, "New element position").apply {
+        addMarker(gp, map.context, "New element position").apply {
             setMarkerFollowScreen(this)
         }
+
+        _map()?.controller?.setCenter(gp)
         return locationEditor.currentLocation
+    }
+
+    fun resetMapState() {
+        mapView = null
+        mapMode.value = null
+    }
+
+    @SuppressLint("ClickableViewAccessibility")
+    fun lockInteractions() {
+        mapView?.get()?.setOnTouchListener { _, _ -> false }
     }
 
     fun getEditedLocation() = locationEditor.currentLocation
@@ -86,13 +103,13 @@ class MapManager(
         val lat = locationEditor.deviceLocation.value?.latitude ?: return null
         val long = locationEditor.deviceLocation.value?.longitude ?: return null
         val geoPoint = GeoPoint(lat, long)
-        mapView?.get()?.controller?.setCenter(geoPoint)
+        _map()?.controller?.setCenter(geoPoint)
 
         // In the case we are centering when in edit mode
         if (this.mapMode.value == MapMode.EDIT_LOCATION) {
             locationEditor.setLocation(geoToLoc(geoPoint))
             clearMarkers()
-            val m = mapView?.get()?.context?.let { addMarker(geoPoint, it, "New element position") }
+            val m = _map()?.context?.let { addMarker(geoPoint, it, "New element position") }
             m?.let { setMarkerFollowScreen(it) }
         }
 
@@ -104,21 +121,24 @@ class MapManager(
 
     @SuppressLint("ClickableViewAccessibility")
     private fun setMarkerFollowScreen(marker: Marker) {
-        mapView?.get()?.setOnTouchListener { _, e ->
-            run {
-                if (e.action == MotionEvent.ACTION_MOVE) {
-                    val c = mapView?.get()?.mapCenter ?: return@run false
+        val l = object : View.OnTouchListener {
+            override fun onTouch(v: View?, e: MotionEvent?): Boolean {
+                if (e?.action == MotionEvent.ACTION_MOVE) {
+                    val c = _map()?.mapCenter ?: return false
                     locationEditor.setLocation(geoToLoc(c as GeoPoint))
                     marker.position = GeoPoint(c)
                 }
-                false
+                return false
             }
         }
+
+        mapListener = WeakReference(l)
+        _map()?.setOnTouchListener(l)
     }
 
     private fun initializeMap(map: MapView, type: MapMode) {
         mapView = WeakReference(map)
-        mapView?.get()?.apply {
+        _map()?.apply {
             setTileSource(TileSourceFactory.WIKIMEDIA)
             isTilesScaledToDpi = true
             setMultiTouchControls(true)
@@ -129,7 +149,7 @@ class MapManager(
     }
 
     private fun clearMarkers() {
-        mapView?.get()?.overlayManager?.clear()
+        _map()?.overlayManager?.clear()
     }
 
     private fun geoToLoc(geoPoint: GeoPoint): Location {
@@ -144,7 +164,7 @@ class MapManager(
 
     private fun addMarker(pos: GeoPoint?, ctx: Context, txt: String): Marker {
         // Position
-        val marker = Marker(mapView?.get())
+        val marker = Marker(_map())
         marker.icon =
             AppCompatResources.getDrawable(ctx, R.drawable.ic_baseline_location_on_32).apply {
                 this?.setTint(ctx.getColor(R.color.primary))
@@ -152,7 +172,7 @@ class MapManager(
         marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
         marker.title = txt
         pos?.let { marker.position = it }
-        mapView?.get()?.overlays?.add(marker)
+        _map()?.overlays?.add(marker)
         return marker
     }
 }
