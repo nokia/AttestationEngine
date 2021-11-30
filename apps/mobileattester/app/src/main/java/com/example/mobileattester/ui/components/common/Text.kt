@@ -29,20 +29,16 @@ fun TextWithIconClickable(
     color: Color = MaterialTheme.colors.primary,
     onClick: () -> Unit,
 ) {
-    Row(
-        Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 24.dp, vertical = 8.dp)
-            .clickable {
-                onClick()
-            },
+    Row(Modifier
+        .fillMaxWidth()
+        .padding(horizontal = 24.dp, vertical = 8.dp)
+        .clickable {
+            onClick()
+        },
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center
-    ) {
-        Text(
-            AnnotatedString(text, SpanStyle(fontSize = 16.sp, fontWeight = FontWeight.Bold)),
-            color = color
-        )
+        horizontalArrangement = Arrangement.Center) {
+        Text(AnnotatedString(text, SpanStyle(fontSize = 16.sp, fontWeight = FontWeight.Bold)),
+            color = color)
         Icon(icon, contentDescription = "")
     }
 }
@@ -57,11 +53,10 @@ fun TextWithIcon(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        if (!text.isNullOrEmpty())
-            Text(
-                AnnotatedString(text, SpanStyle(fontSize = 24.sp)),
-                color = color,
-            )
+        if (!text.isNullOrEmpty()) Text(
+            AnnotatedString(text, SpanStyle(fontSize = 24.sp)),
+            color = color,
+        )
         Spacer(modifier = Modifier.size(8.dp))
         Icon(icon, contentDescription = "", tint = color)
     }
@@ -72,18 +67,14 @@ fun DecorText(txt: String, color: Color, bold: Boolean = false) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Column() {
             Box(modifier = Modifier.size(5.dp))
-            Box(
-                modifier = Modifier
-                    .size(8.dp)
-                    .clip(CircleShape)
-                    .background(color)
-            )
+            Box(modifier = Modifier
+                .size(8.dp)
+                .clip(CircleShape)
+                .background(color))
         }
-        Text(
-            modifier = Modifier.padding(top = 4.dp, start = 4.dp),
+        Text(modifier = Modifier.padding(top = 4.dp, start = 4.dp),
             text = txt,
             color = color,
-            fontWeight = if (!bold) FontWeight.Normal else FontWeight.Bold
-        )
+            fontWeight = if (!bold) FontWeight.Normal else FontWeight.Bold)
     }
 }

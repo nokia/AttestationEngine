@@ -2,20 +2,17 @@ package com.example.mobileattester.ui.pages
 
 import android.Manifest
 import android.content.Intent
-import android.location.Location
 import android.net.Uri
 import android.preference.PreferenceManager.getDefaultSharedPreferences
 import android.provider.Settings
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.Button
-import androidx.compose.material.Text
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
@@ -23,6 +20,8 @@ import androidx.navigation.NavController
 import com.example.mobileattester.data.network.Status
 import com.example.mobileattester.data.util.MapMode
 import com.example.mobileattester.ui.components.common.LoadingIndicator
+import com.example.mobileattester.ui.theme.Primary
+import com.example.mobileattester.ui.theme.White
 import com.example.mobileattester.ui.util.PermissionDeniedRequestSettings
 import com.example.mobileattester.ui.util.PermissionsRationale
 import com.example.mobileattester.ui.util.Screen
@@ -30,6 +29,8 @@ import com.example.mobileattester.ui.viewmodel.AttestationViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionsRequired
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
+import compose.icons.TablerIcons
+import compose.icons.tablericons.ArrowsMaximize
 import org.osmdroid.config.Configuration.getInstance
 import org.osmdroid.views.MapView
 
@@ -77,7 +78,6 @@ fun MapWrapper(
     }) {
         // Map content
         Box(contentAlignment = Alignment.BottomStart) {
-            val currentLocation = viewModel.useMapManager().getCurrentLocation().collectAsState()
             AndroidView(
                 factory = {
                     map
@@ -85,7 +85,6 @@ fun MapWrapper(
             )
             AdditionalUI(
                 viewModel = viewModel,
-                location = currentLocation.value,
                 onEditLocation = {
                     if (element != null) {
                         viewModel.useMapManager().useEditLocation(map, element)
@@ -137,15 +136,19 @@ private fun OperationStatusIndication(
 @Composable
 private fun AdditionalUI(
     viewModel: AttestationViewModel,
-    location: Location?,
     onEditLocation: () -> Unit,
     onSaveNewLocation: () -> Unit,
 ) {
+    val location = viewModel.useMapManager().getCurrentLocation().collectAsState()
+
     when (viewModel.useMapManager().mapMode.collectAsState().value) {
         MapMode.SINGLE_ELEMENT -> {
-            Column() {
-                Button(onClick = onEditLocation) {
-                    Text(text = "Edit element location")
+            IconButton(onClick = onEditLocation) {
+                Surface(color = Primary) {
+                    Icon(TablerIcons.ArrowsMaximize,
+                        null,
+                        tint = White,
+                        modifier = Modifier.rotate(45.0f))
                 }
             }
         }
@@ -154,7 +157,7 @@ private fun AdditionalUI(
                 Button(onClick = onSaveNewLocation) {
                     Text(text = "Save new location")
                 }
-                if (location != null) {
+                if (location.value != null) {
                     Button(onClick = { viewModel.useMapManager().centerToDevice() }) {
                         Text(text = "Center to your location")
                     }

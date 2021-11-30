@@ -22,6 +22,7 @@ import androidx.navigation.NavController
 import com.example.mobileattester.data.model.Element
 import com.example.mobileattester.data.network.Status
 import com.example.mobileattester.data.util.OverviewProviderImpl
+import com.example.mobileattester.ui.components.common.DecorText
 import com.example.mobileattester.ui.components.common.ErrorIndicator
 import com.example.mobileattester.ui.components.common.HeaderRoundedBottom
 import com.example.mobileattester.ui.components.common.LoadingIndicator
@@ -57,11 +58,9 @@ fun Home(navController: NavController? = null, viewModel: AttestationViewModel) 
         Column(modifier = Modifier
             .fillMaxSize()
             .background(Primary)
-            .border(0.dp, Color.Transparent)) {
-
-            // Top Bar
+            .border(0.dp, Color.Transparent)) { // Top Bar
             Text(text = "Current Configuration",
-                modifier = Modifier.padding(10.dp, 15.dp, 10.dp, 5.dp),
+                modifier = Modifier.padding(14.dp, 24.dp, 24.dp, 4.dp),
                 fontSize = FONTSIZE_XXL,
                 color = Color.White)
 
@@ -247,22 +246,26 @@ fun Content(navController: NavController? = null, viewModel: AttestationViewMode
         }
     }
 
+    Divider(Modifier
+        .fillMaxWidth()
+        .padding(8.dp, 8.dp), color = DividerColor)
 
     Text(text = "Attestation Overview",
         modifier = Modifier
             .fillMaxWidth()
-            .padding(0.dp, 15.dp, 0.dp, 5.dp),
+            .padding(16.dp, 12.dp),
         textAlign = TextAlign.Center,
-        fontSize = FONTSIZE_XXL)
+        fontSize = FONTSIZE_XL)
 
-
-    Spacer(modifier = Modifier.size(10.dp))
-    Alert("Active", attestations = attestations, fail = fail) {
-        navController!!.navigate(Screen.Elements.route)
-    }
-    Spacer(modifier = Modifier.size(20.dp))
-    Alert("24H", attestations = attestations24, fail = fail24) {
-        navController!!.navigate(Screen.Elements.route)
+    Column(Modifier.padding(horizontal = 2.dp)) {
+        Spacer(modifier = Modifier.size(10.dp))
+        Alert("Active", attestations = attestations, fail = fail) {
+            navController!!.navigate(Screen.Elements.route)
+        }
+        Spacer(modifier = Modifier.size(20.dp))
+        Alert("24H", attestations = attestations24, fail = fail24) {
+            navController!!.navigate(Screen.Elements.route)
+        }
     }
 }
 
@@ -273,13 +276,16 @@ fun Alert(
     fail: Int = 0,
     onClick: () -> Unit = {},
 ) {
-    Text(text = alertDurationInfo, modifier = Modifier.padding(10.dp, 5.dp), fontSize = FONTSIZE_XL)
+    Row(Modifier.padding(start = 10.dp)) {
+
+        DecorText(txt = alertDurationInfo, color = PrimaryDark)
+    }
     Row(modifier = Modifier
         .fillMaxWidth()
         .clickable { onClick() },
         Arrangement.SpaceBetween,
         Alignment.CenterVertically) {
-        Column(modifier = Modifier.padding(10.dp)) {
+        Column(modifier = Modifier.padding(10.dp, 0.dp)) {
             Text(text = "Attested Systems", color = Primary)
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
