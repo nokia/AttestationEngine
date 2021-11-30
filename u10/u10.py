@@ -1,10 +1,10 @@
-# Copyright 2021 Nokia
-# Licensed under the BSD 3-Clause License.
-# SPDX-License-Identifier: BSD-3-Clause
+#Copyright 2021 Nokia
+#Licensed under the BSD 3-Clause Clear License.
+#SPDX-License-Identifier: BSD-3-Clear
 
 import secrets
 
-from flask import Flask
+from flask import Flask,render_template
 from blueprints.edit import edit_blueprint
 from blueprints.home import home_blueprint
 from blueprints.elements import elements_blueprint
@@ -50,34 +50,56 @@ u10.register_blueprint(ping_blueprint)
 #    return dict(resolveTheHash='Shw Mae!')
 
 #
+# Handle errors, censorship and cups to tea
+#
+
+@u10.errorhandler(404)
+def not_found(e):
+    return render_template("home/404.html")
+
+#
+# These are useless but a bit of humour doesn't hurt
+#
+
+@u10.errorhandler(451)
+def censored(e):
+    return render_template("home/451.html")    
+
+
+@u10.errorhandler(418)
+def teapot(e):
+    return render_template("home/418.html")    
+
+#
 # Use this for development
 #
-def main(cert, key, config_filename="u10.conf"):
-    u10.config.from_pyfile(config_filename)
-    if cert and key:
-        u10.run(
-            debug=u10.config["FLASKDEBUG"],
-            threaded=u10.config["FLASKTHREADED"],
-            host=u10.config["DEFAULTHOST"],
-            port=u10.config["DEFAULTPORT"],
-            ssl_context=(cert, key),
-        )
-    else:
-        print("running")
-        u10.run(
-            debug=u10.config["FLASKDEBUG"],
-            threaded=u10.config["FLASKTHREADED"],
-            host=u10.config["DEFAULTHOST"],
-            port=u10.config["DEFAULTPORT"],
-        )
+
+#def main(cert, key, config_filename="u10.conf"):
+#    u10.config.from_pyfile(config_filename)
+#    if cert and key:
+#        u10.run(
+#            debug=u10.config["FLASKDEBUG"],
+#            threaded=u10.config["FLASKTHREADED"],
+#            host=u10.config["DEFAULTHOST"],
+#            port=u10.config["DEFAULTPORT"],
+#            ssl_context=(cert, key),
+#        )
+#    else:
+#        print("running")
+#        u10.run(
+#            debug=u10.config["FLASKDEBUG"],
+#            threaded=u10.config["FLASKTHREADED"],
+#            host=u10.config["DEFAULTHOST"],
+#            port=u10.config["DEFAULTPORT"],
+#        )
 
 
 #
 # Use this in production
 #
-# def main(cert, key):
-#    from waitress import serve
-#    serve(u10, host="0.0.0.0", port=8540)
+def main(cert, key):
+   from waitress import serve
+   serve(u10, host="0.0.0.0", port=8540)
 
 
 if __name__ == "__main__":
