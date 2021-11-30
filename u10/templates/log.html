@@ -1,7 +1,7 @@
 <!--
- Copyright 2021 Nokia
- Licensed under the BSD 3-Clause License.
- SPDX-License-Identifier: BSD-3-Clause
+#Copyright 2021 Nokia
+#Licensed under the BSD 3-Clause Clear License.
+#SPDX-License-Identifier: BSD-3-Clear
 -->
 
 {% extends "base.html" %}
@@ -85,9 +85,9 @@ Page loaded at <b>{{ ltutc }}</b> ( {{ lt }} ). Showing <b>{{ lrs }}</b> of <b>{
                  {% elif l.op == "ta_startup" %}
                   <i class="fa fa-flag" style="font-size:20px;color:green"></i> Element <a href=/element/{{ l.data.elementid }}>{{ l.data.elementid}}</a>
                  {% elif l.op == "ta_reannounce" %}
-                  <i class="fa fa-flag-o" style="font-size:20px;color:darkgreen"></i> Element <a href=/element/{{ l.data.elementid }}>{{ l.data.elementid}}</a>
-                 {% elif l.op == "ta_stop" %}
-                  <i class="fa fa-flag-checkered" style="font-size:20px;color:black"></i> Element <a href=/element/{{ l.data.elementid }}>{{ l.data.elementid}}</a>
+                  <i class="fa fa-flag-o" style="font-size:20px;color:green"></i> Element <a href=/element/{{ l.data.elementid }}>{{ l.data.elementid}}</a>
+                 {% elif l.op == "ta_signal" %}
+                  <i class="fa fa-flag-checkered" style="font-size:20px;color:black"></i> Element <a href=/element/{{ l.data.elementid }}>{{ l.data.elementid}}</a>, message: {{ l.data.msg }}
 
                 {% else %}
                  Unknown type: {{ l.data }}

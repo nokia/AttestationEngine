@@ -11,10 +11,16 @@ import requests
 import configparser
 import sys
 import os
+import signal
 
 VERSION = "0.3.1.nu"
 ASVRS = []
 ASVRS_RESP = []
+
+USESIGNALS = "no"
+if len(sys.argv)>1:
+    if sys.argv[1]=="-s":
+        USESIGNALS = "yes"
 
 ta = Flask(__name__)
 
@@ -48,7 +54,7 @@ def getconfiguration(path):
         exit(1)
 
 
-def announce(m):
+def announce(m,msg="-"):
     global ASVRS_RESP
 
 
@@ -59,7 +65,7 @@ def announce(m):
         url = a[1]
         print("messaging",m,"to",url,"as",eid)
         try:
-            r = requests.post(url+"/msg",json = {'msg':'','elementid':eid,'op':m})
+            r = requests.post(url+"/msg",json = {'msg':msg,'elementid':eid,'op':m})
             ASVRS_RESP.append( 
                { "url":url, "status":r.status_code, "response":r.text}
             )
@@ -82,7 +88,8 @@ def status_homepage():
         "os": os.name,
         "pid": os.getpid(),
         "asvrs": ASVRS,
-        "asvrresponses" : ASVRS_RESP
+        "asvrresponses" : ASVRS_RESP,
+        "usesignals" : USESIGNALS
     }
 
     return jsonify(rc), 200
@@ -92,11 +99,9 @@ def ta_reannounce():
     announce("ta_reannounce")
     return "reannouce", 200
 
-@ta.route("/ta/kill", methods=["GET"])
-def ta_kill():
-    announce("ta_stop")
-    sys.exit(0)
-    return "killed", 200
+def receiveSignal(signalNumber, frame):
+    print('Received:', signalNumber)
+    announce("ta_signal",msg=str(signalNumber))
 
 
 def main(cert, key, config_filename="ta_config.cfg"):
@@ -124,4 +129,18 @@ def main(cert, key, config_filename="ta_config.cfg"):
 
 if __name__ == "__main__":
     print("TA Starting")
+    #trap certain signals, all except SIGTERM (-9) which can't be caught
+    if USESIGNALS=="yes":
+        signal.signal(signal.SIGHUP,receiveSignal)
+        signal.signal(signal.SIGQUIT,receiveSignal)
+        signal.signal(signal.SIGINT,receiveSignal)
+        signal.signal(signal.SIGABRT,receiveSignal)
+        signal.signal(signal.SIGALRM,receiveSignal)
+        signal.signal(signal.SIGTERM,receiveSignal)
+        signal.signal(signal.SIGBREAK,receiveSignal)
+
+    #GO!
     main("", "")
+    #if we can ever get here
+    announce("ta_stop")
+
