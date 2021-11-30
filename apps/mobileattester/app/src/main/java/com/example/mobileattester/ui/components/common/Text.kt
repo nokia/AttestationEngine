@@ -49,7 +49,7 @@ fun TextWithIconClickable(
 
 @Composable
 fun TextWithIcon(
-    icon: ImageVector,
+    icon: ImageVector?,
     text: String? = null,
     color: Color = MaterialTheme.colors.primary,
 ) {
@@ -63,7 +63,7 @@ fun TextWithIcon(
                 color = color,
             )
         Spacer(modifier = Modifier.size(8.dp))
-        Icon(icon, contentDescription = "", tint = color)
+        if(icon != null) Icon(icon, contentDescription = "", tint = color)
     }
 }
 

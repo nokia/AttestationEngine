@@ -35,7 +35,6 @@ import com.example.mobileattester.ui.viewmodel.AttestationViewModel
 import compose.icons.TablerIcons
 import compose.icons.tablericons.Checkbox
 import compose.icons.tablericons.CurrentLocation
-import compose.icons.tablericons.ListCheck
 
 
 const val ARG_ITEM_ID = "item_id"
@@ -124,7 +123,7 @@ private fun ElementResult(navController: NavController, element: Element) {
         Text("Results", fontSize = 24.sp)
         TextWithIcon(
             text = resultHoursShown.value.shownHoursToString(),
-            icon = TablerIcons.ListCheck,
+            icon = null,
             color = PrimaryDark
         )
     }
@@ -235,7 +234,7 @@ private fun ElementResultFull(
         if (!allShown) {
             TextButton(modifier = Modifier.padding(16.dp), onClick = { onMoreRequested() }) {
                 Text(
-                    text = "More results (+24h)",
+                    text = "More results",
                     textAlign = TextAlign.Center,
                 )
             }
