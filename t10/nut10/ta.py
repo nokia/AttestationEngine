@@ -74,7 +74,9 @@ def announce(m,msg="-"):
                { "url":url, "exception":str(e) }
             )
         
-
+@ta.errorhandler(404)
+def not_found(e):
+  return "no",404
 
 @ta.route("/", methods=["GET"])
 def status_homepage():
