@@ -1,12 +1,13 @@
 package com.example.mobileattester.ui.pages
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.*
+import androidx.compose.material.Button
+import androidx.compose.material.Divider
+import androidx.compose.material.Icon
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
@@ -21,8 +22,12 @@ import com.example.mobileattester.ui.components.anim.FadeInWithDelay
 import com.example.mobileattester.ui.components.common.ErrorIndicator
 import com.example.mobileattester.ui.components.common.HeaderRoundedBottom
 import com.example.mobileattester.ui.components.common.LoadingFullScreen
-import com.example.mobileattester.ui.theme.*
-import com.example.mobileattester.ui.util.*
+import com.example.mobileattester.ui.theme.FONTSIZE_XXL
+import com.example.mobileattester.ui.theme.White
+import com.example.mobileattester.ui.util.DatePattern
+import com.example.mobileattester.ui.util.getCodeColor
+import com.example.mobileattester.ui.util.getResultIcon
+import com.example.mobileattester.ui.util.getTimeFormatted
 import com.example.mobileattester.ui.viewmodel.AttestationViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 
@@ -40,7 +45,7 @@ fun ResultScreenProvider(
     resultFlow: MutableStateFlow<Response<ElementResult>?>? = null,
 ) {
     fun navBack() {
-        navController.navigateUp()
+        navController.popBackStack()
     }
 
     // --------------------------------------------------
@@ -49,8 +54,6 @@ fun ResultScreenProvider(
     navController.currentBackStackEntry?.arguments?.getString(ARG_RESULT_ID)?.let { id ->
         viewModel.findElementResult(id)?.let {
             Result(result = it) {
-                // Clear the arg on navigate out
-                navController.currentBackStackEntry?.arguments?.remove(ARG_RESULT_ID)
                 navBack()
             }
         } ?: Text(text = "Element result was null")
@@ -69,6 +72,7 @@ fun ResultScreenProvider(
             }
             return
         }
+        else -> {}
     }
 
     // --------------------------------------------------

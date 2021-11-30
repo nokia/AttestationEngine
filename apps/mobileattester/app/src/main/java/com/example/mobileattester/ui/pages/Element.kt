@@ -113,11 +113,15 @@ private fun ElementNull() {
     }
 }
 
-
 @Composable
 private fun ElementResult(navController: NavController, element: Element) {
-    val resultHoursShown = remember { mutableStateOf(24) }
+    val resultHoursShown = remember { mutableStateOf(
+        navController.currentBackStackEntry?.arguments?.getInt("result_hours_shown", 24) ?: 24
+    )}
     val latestResults = element.results.latestResults(resultHoursShown.value)
+
+
+
 
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
         Text("Results", fontSize = 24.sp)
@@ -148,10 +152,12 @@ private fun ElementResult(navController: NavController, element: Element) {
         }
 
 
+
     ElementResultFull(
         latestResults,
         latestResults.size == element.results.size,
         onResultClicked = {
+            navController.currentBackStackEntry?.arguments?.putInt("result_hours_shown",resultHoursShown.value)
             navController.navigate(Screen.Result.route, bundleOf(Pair(ARG_RESULT_ID, it.itemid)))
         }, onMoreRequested = onMoreResultsRequested
     )
