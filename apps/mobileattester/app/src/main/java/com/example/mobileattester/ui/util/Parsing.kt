@@ -2,7 +2,6 @@ package com.example.mobileattester.ui.util
 
 import android.net.InetAddresses
 import android.os.Build
-import android.util.Log
 import android.util.Patterns
 import java.net.URI
 import java.text.SimpleDateFormat
@@ -14,14 +13,15 @@ private val defaultPort =
     Preferences.defaultConfig.first().takeLastWhile { it.isDigit() }.ifEmpty { "8520" }.toUInt()
 
 // Removes https & other excess from the url
+// addMissing will provide sensible defaults if url has missing data
 // baseUrl: http://192.168.0.1:4050/
 // result: 192.168.0.1:4050
-fun parseBaseUrl(url: String): String? {
+
+fun parseBaseUrl(url: String, addMissing: Boolean = true): String? {
 
         val addr: URI = try {
             URI.create(url)
         } catch (err: Exception) {
-            println("Input error, retrying...")
             return if(url.take("http".length) != "http")
                 parseBaseUrl("http://$url")
             else
@@ -33,8 +33,9 @@ fun parseBaseUrl(url: String): String? {
     return if (addr.host != null && addr.host.isNotEmpty()) {
         if(addr.port >= 0 && validPort(addr.port.toString()))
             "${addr.host}:${addr.port}"
-        else
+        else if(addMissing)
             "${addr.host}:${defaultPort}"
+        else addr.host
     } else if(url.take("http".length) != "http")
         return parseBaseUrl("http://$url")
     else

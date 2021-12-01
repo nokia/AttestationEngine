@@ -101,7 +101,7 @@ object NavUtils {
                     showTopBar.value = true; Elements(navController, viewModel)
                 }
                 composable(Screen.Scanner.route) {
-                    showTopBar.value = false; Scanner(navController)
+                    showTopBar.value = false; Scanner(navController, viewModel)
                 } // Experimental Permissions
                 composable(Screen.More.route) {
                     showTopBar.value = true; MapWrapper(navController,
