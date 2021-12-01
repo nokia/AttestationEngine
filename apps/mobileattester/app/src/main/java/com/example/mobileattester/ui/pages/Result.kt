@@ -46,7 +46,7 @@ fun ResultScreenProvider(
     resultFlow: MutableStateFlow<Response<ElementResult>?>? = null,
 ) {
     fun navBack() {
-        navController.navigateUp()
+        navController.popBackStack()
     }
 
     // --------------------------------------------------
@@ -75,6 +75,7 @@ fun ResultScreenProvider(
             }
             return
         }
+        else -> {}
     }
 
     // --------------------------------------------------
