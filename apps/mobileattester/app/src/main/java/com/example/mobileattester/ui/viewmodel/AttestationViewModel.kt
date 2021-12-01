@@ -2,17 +2,14 @@ package com.example.mobileattester.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewModelScope
 import com.example.mobileattester.data.model.Element
 import com.example.mobileattester.data.model.ElementResult
-import com.example.mobileattester.data.model.emptyElement
+import com.example.mobileattester.data.model.Policy
 import com.example.mobileattester.data.network.Response
 import com.example.mobileattester.data.repository.AttestationRepository
 import com.example.mobileattester.data.util.*
 import com.example.mobileattester.data.util.abs.DataFilter
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.*
-import kotlin.reflect.jvm.internal.impl.incremental.components.LocationInfo
+import kotlinx.coroutines.flow.StateFlow
 
 interface AttestationViewModel {
     val isRefreshing: StateFlow<Boolean>
@@ -34,6 +31,8 @@ interface AttestationViewModel {
 
     /** Returns ElementResult if it exists in downloaded data */
     fun findElementResult(resultId: String): ElementResult?
+
+    fun getPolicyFromCache(policyId: String): Policy?
 
     /** Switch the base url used for the engine */
     fun switchBaseUrl(url: String)
@@ -86,6 +85,9 @@ class AttestationViewModelImpl(
 
         return null
     }
+
+    override fun getPolicyFromCache(policyId: String): Policy? =
+        attestationUtil.getPolicyFromCache(policyId)
 
     override fun switchBaseUrl(url: String) {
         println("SwitchedBaseUrl")

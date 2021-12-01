@@ -4,7 +4,7 @@ import com.example.mobileattester.data.util.abs.DataFilter
 import com.example.mobileattester.data.util.abs.Filterable
 import com.example.mobileattester.ui.util.Timeframe
 import com.example.mobileattester.ui.util.Timestamp
-
+import com.google.gson.JsonElement
 
 data class ElementResult(
     // missing "additional: []"
@@ -17,6 +17,7 @@ data class ElementResult(
     val result: Int,
     val ruleName: String,
     val verifiedAt: String,
+    val raw: JsonElement,
 ) : Filterable {
 
     companion object {
@@ -24,8 +25,10 @@ data class ElementResult(
         const val CODE_RESULT_ERROR = 9001
         const val CODE_RESULT_VERIFY_ERROR = 9002
 
-        const val FILTER_FLAG_WITHIN_TIMEFRAME = CODE_RESULT_ERROR.xor(CODE_RESULT_VERIFY_ERROR) // Magic value, could be whatever
-        const val FILTER_FLAG_RESULT_FAIL = CODE_RESULT_ERROR.or(CODE_RESULT_VERIFY_ERROR) // Magic value, could be whatever
+        const val FILTER_FLAG_WITHIN_TIMEFRAME =
+            CODE_RESULT_ERROR.xor(CODE_RESULT_VERIFY_ERROR) // Magic value, could be whatever
+        const val FILTER_FLAG_RESULT_FAIL =
+            CODE_RESULT_ERROR.or(CODE_RESULT_VERIFY_ERROR) // Magic value, could be whatever
     }
 
     override fun filter(f: DataFilter): Boolean {
@@ -37,14 +40,10 @@ data class ElementResult(
             throw Exception("DataFilter was asked to filter by time, but timeframe was not provided.")
         }
 
-        return if (checkTime && checkResultFail)
-            inTimeframe(f.timeFrame!!) && isFailed()
-        else if(checkResultFail)
-            isFailed()
-        else if(checkTime)
-            inTimeframe(f.timeFrame!!)
-        else
-            false
+        return if (checkTime && checkResultFail) inTimeframe(f.timeFrame!!) && isFailed()
+        else if (checkResultFail) isFailed()
+        else if (checkTime) inTimeframe(f.timeFrame!!)
+        else false
     }
 
     fun isFailed(): Boolean {

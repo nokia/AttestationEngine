@@ -6,10 +6,8 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.Settings
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -92,7 +90,7 @@ fun Scanner(navController: NavController? = null, viewModel: AttestationViewMode
                                 this@outer.cameraSettings.isAutoFocusEnabled = false
                                 navController!!.navigate(
                                     Screen.Element.route,
-                                    bundleOf(Pair(ARG_ITEM_ID, qr.text))
+                                    bundleOf(Pair(ARG_ELEMENT_ID, qr.text))
                                 )
                             } else if (qr.text.startsWith("http")) {
                                 val parsedId = parseBaseUrl(qr.text, false)
@@ -101,7 +99,7 @@ fun Scanner(navController: NavController? = null, viewModel: AttestationViewMode
                                     this@outer.cameraSettings.isAutoFocusEnabled = false
                                     navController!!.navigate(
                                         Screen.Element.route,
-                                        bundleOf(Pair(ARG_ITEM_ID, parsedId))
+                                        bundleOf(Pair(ARG_ELEMENT_ID, parsedId))
                                     )
                                 }
                             }

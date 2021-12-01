@@ -1,17 +1,17 @@
 package com.example.mobileattester.data.network
 
 import android.util.Log
-import com.example.mobileattester.data.model.*
+import com.example.mobileattester.data.model.Element
+import com.example.mobileattester.data.model.ElementResult
+import com.example.mobileattester.data.model.Policy
+import com.example.mobileattester.data.model.Rule
+import com.example.mobileattester.data.model.ExpectedValue
 import com.google.gson.GsonBuilder
-import com.google.gson.JsonElement
 import com.google.gson.JsonObject
 import kotlinx.coroutines.flow.MutableStateFlow
-import org.json.JSONArray
-import org.json.JSONObject
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import okhttp3.OkHttpClient
-
 import okhttp3.logging.HttpLoggingInterceptor
 
 
@@ -54,8 +54,7 @@ interface AttestationDataHandler {
     suspend fun getRules(): List<Rule>
 
     // --- Claims ---
-    suspend fun getClaim(itemid: String): Claim
-
+    suspend fun getClaim(itemid: String): com.example.mobileattester.data.model.Claim
 }
 
 class AttestationDataHandlerImpl(
@@ -148,6 +147,6 @@ class AttestationDataHandlerImpl(
     }
 
     override suspend fun getRules(): List<Rule> = apiService.getRules()
-    override suspend fun getClaim(itemid: String): Claim = apiService.getClaim(itemid)
-
+    override suspend fun getClaim(itemid: String): com.example.mobileattester.data.model.Claim =
+        apiService.getClaim(itemid)
 }

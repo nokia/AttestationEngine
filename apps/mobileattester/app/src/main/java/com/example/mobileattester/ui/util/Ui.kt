@@ -12,10 +12,8 @@ import com.example.mobileattester.ui.theme.Attention
 import com.example.mobileattester.ui.theme.Error
 import com.example.mobileattester.ui.theme.Ok
 import compose.icons.TablerIcons
-import compose.icons.tablericons.Check
-import compose.icons.tablericons.CircleX
-import compose.icons.tablericons.QuestionMark
-import compose.icons.tablericons.X
+import compose.icons.tablericons.*
+import org.json.JSONObject
 
 fun Modifier.`if`(
     condition: Boolean,
@@ -40,8 +38,9 @@ fun getCodeColor(code: Int): Color {
 fun getResultIcon(result: ElementResult): ImageVector {
     return when (result.result) {
         CODE_RESULT_OK -> TablerIcons.Check
-        CODE_RESULT_VERIFY_ERROR -> TablerIcons.CircleX
-        CODE_RESULT_ERROR -> TablerIcons.X
+        CODE_RESULT_VERIFY_ERROR -> TablerIcons.SquareX
+        CODE_RESULT_ERROR -> TablerIcons.SquareX
         else -> TablerIcons.QuestionMark
     }
 }
+

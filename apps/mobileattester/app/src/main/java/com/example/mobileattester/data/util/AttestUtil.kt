@@ -1,8 +1,14 @@
 package com.example.mobileattester.data.util
 
 import android.util.Log
-import com.example.mobileattester.data.model.*
-import com.example.mobileattester.data.network.*
+import com.example.mobileattester.data.model.Claim
+import com.example.mobileattester.data.model.ElementResult
+import com.example.mobileattester.data.model.Policy
+import com.example.mobileattester.data.model.Rule
+import com.example.mobileattester.data.network.AttestationDataHandler
+import com.example.mobileattester.data.network.Response
+import com.example.mobileattester.data.network.Status
+import com.example.mobileattester.data.network.retryIO
 import com.example.mobileattester.data.util.abs.Notifier
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -27,14 +33,15 @@ interface AttestationUtil {
     /** Contains the rules */
     val ruleFlow: MutableStateFlow<Response<List<Rule>>>
 
+    val claimFlow: MutableStateFlow<Response<List<Claim>>>
+
     val attestationStatus: MutableStateFlow<AttestationStatus>
 
     /** Last successfully created claim */
-    val claim: MutableStateFlow<Response<Claim>?>
+    val latestClaim: MutableStateFlow<Response<Claim>?>
 
     /** Last result from attestation */
-    val result: MutableStateFlow<Response<ElementResult>?>
-
+    val latestResult: MutableStateFlow<Response<ElementResult>?>
 
     /**
      * Attest an element.
@@ -47,6 +54,10 @@ interface AttestationUtil {
      * @param hardReset set to true to clear everything + fetch rules/policies again.
      */
     fun reset(hardReset: Boolean = false)
+
+    fun getPolicyFromCache(policyId: String): Policy?
+
+    fun fetchClaim(claimId: String)
 }
 
 // ------------------------------------------
@@ -63,15 +74,16 @@ class AttestUtil(
     private val scope = CoroutineScope(job)
     private val _stat = MutableStateFlow(AttestationStatus.IDLE)
 
-    override val policyFlow: MutableStateFlow<Response<List<Policy>>> =
-        policyDataHandler.dataFlow
+    override val policyFlow: MutableStateFlow<Response<List<Policy>>> = policyDataHandler.dataFlow
 
     override val ruleFlow: MutableStateFlow<Response<List<Rule>>> =
         MutableStateFlow(Response.loading())
+    override val claimFlow: MutableStateFlow<Response<List<Claim>>> =
+        MutableStateFlow(Response.loading())
 
     override val attestationStatus: MutableStateFlow<AttestationStatus> = _stat
-    override val claim: MutableStateFlow<Response<Claim>?> = MutableStateFlow(null)
-    override val result: MutableStateFlow<Response<ElementResult>?> = MutableStateFlow(null)
+    override val latestClaim: MutableStateFlow<Response<Claim>?> = MutableStateFlow(null)
+    override val latestResult: MutableStateFlow<Response<ElementResult>?> = MutableStateFlow(null)
 
     init {
         fetchRules()
@@ -106,13 +118,32 @@ class AttestUtil(
         setStatus(AttestationStatus.IDLE)
 
         if (hardReset) {
-            claim.value = null
-            result.value = null
+            latestClaim.value = null
+            latestResult.value = null
             fetchRules()
             policyDataHandler.refreshData(true)
         }
     }
 
+    override fun getPolicyFromCache(policyId: String): Policy? {
+        return policyFlow.value.data?.find { it.itemid == policyId }
+    }
+
+    override fun fetchClaim(claimId: String) {
+        val isFetched = claimFlow.value.data?.find {
+            it.itemid == claimId
+        }
+
+
+        scope.launch {
+            try {
+                val c = dataHandler.getClaim(claimId)
+                updateClaimCache(c)
+            } catch (e: Exception) {
+                // TODO
+            }
+        }
+    }
 
     // ----------------------- Private ---------------------------
     // ----------------------- Private ---------------------------
@@ -122,16 +153,17 @@ class AttestUtil(
 
         try {
             val c = dataHandler.getClaim(claimId)
-            claim.value = Response.success(c)
+            updateClaimCache(c)
+            latestClaim.value = Response.success(c)
         } catch (e: Exception) {
-            claim.value = Response.error(message = "Error attesting element $e")
+            latestClaim.value = Response.error(message = "Error attesting element $e")
         }
     }
 
     private suspend fun attestVerify(eid: String, pid: String, rule: String) {
         val claimId = dataHandler.attestElement(eid, pid)
         val resId = dataHandler.verifyClaim(claimId, rule)
-        result.value = Response.success(dataHandler.getResult(resId))
+        latestResult.value = Response.success(dataHandler.getResult(resId))
     }
 
     private fun fetchRules() {
@@ -140,6 +172,7 @@ class AttestUtil(
                 retryIO {
                     ruleFlow.value = Response.success(data = dataHandler.getRules())
                 }
+                if (ruleFlow.value.status == Status.ERROR) fetchRules()
             } catch (e: Exception) {
                 Log.d(TAG, "Error: $e: ")
                 ruleFlow.value = Response.error(message = "Could not get rules.")
@@ -149,5 +182,11 @@ class AttestUtil(
 
     private fun setStatus(status: AttestationStatus) {
         _stat.value = status
+    }
+
+    private fun updateClaimCache(claim: Claim) {
+        val exc = claimFlow.value.data?.toMutableList() ?: mutableListOf()
+        exc.add(claim)
+        claimFlow.value = Response.success(exc)
     }
 }
