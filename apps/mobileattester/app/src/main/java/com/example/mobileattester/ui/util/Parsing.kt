@@ -18,24 +18,24 @@ private val defaultPort =
 // result: 192.168.0.1:4050
 fun parseBaseUrl(url: String): String? {
 
-        val addr: URI = try {
-            URI.create(url)
-        } catch (err: Exception) {
-            println("Input error, retrying...")
-            return if(url.take("http".length) != "http")
-                parseBaseUrl("http://$url")
-            else
-                null
-        }
+    val addr: URI = try {
+        URI.create(url)
+    } catch (err: Exception) {
+        println("Input error, retrying...")
+        return if (url.take("http".length) != "http")
+            parseBaseUrl("http://$url")
+        else
+            null
+    }
 
 
     // 192.168.0.1:8520 OR domain.com:8520
     return if (addr.host != null && addr.host.isNotEmpty()) {
-        if(addr.port >= 0 && validPort(addr.port.toString()))
+        if (addr.port >= 0 && validPort(addr.port.toString()))
             "${addr.host}:${addr.port}"
         else
             "${addr.host}:${defaultPort}"
-    } else if(url.take("http".length) != "http")
+    } else if (url.take("http".length) != "http")
         return parseBaseUrl("http://$url")
     else
         null
@@ -103,3 +103,4 @@ class Timestamp(val time: Long) : Comparable<Long> {
     fun div(value: Timestamp) = Timestamp(this.time / value.time)
     fun mul(value: Timestamp) = Timestamp(this.time * value.time)
 }
+

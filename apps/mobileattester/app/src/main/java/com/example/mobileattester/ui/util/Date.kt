@@ -8,6 +8,7 @@ sealed class DatePattern(val str: String) {
     object DateOnly : DatePattern(str = "dd.MM.")
     object DateWithYear : DatePattern(str = "dd.MM.yy")
     object TimeOnly : DatePattern(str = "hh:mm:ss")
+    object DateTimeMs : DatePattern(str = "hh:mm:ss.SSS")
 }
 
 fun getTimeFormatted(timeStr: String, pattern: DatePattern): String {

@@ -76,11 +76,6 @@ fun MapWrapper(
         }
     }
 
-    LaunchedEffect(Unit) {
-        // Required by OsmDroid
-        getInstance().load(context, getDefaultSharedPreferences(context))
-    }
-
     DisposableEffect(LocalLifecycleOwner.current) {
         onDispose {
             viewModel.useMapManager().resetMapState()

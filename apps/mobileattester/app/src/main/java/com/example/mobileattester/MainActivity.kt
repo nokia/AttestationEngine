@@ -1,6 +1,7 @@
 package com.example.mobileattester
 
 import android.os.Bundle
+import android.preference.PreferenceManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatDelegate
@@ -13,6 +14,7 @@ import com.example.mobileattester.ui.util.Preferences
 import com.example.mobileattester.ui.viewmodel.AttestationViewModel
 import com.example.mobileattester.ui.viewmodel.AttestationViewModelImpl
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import org.osmdroid.config.Configuration
 
 class MainActivity : ComponentActivity() {
     private lateinit var viewModel: AttestationViewModel
@@ -22,14 +24,14 @@ class MainActivity : ComponentActivity() {
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         super.onCreate(savedInstanceState)
 
-        /**
-         * APPLICATION CURRENTLY CRASHES AFTER A WHILE IF AN INVALID ADDRESS IS PROVIDED
-         * TO RETROFIT SERVICE.
-         */
 
         viewModel = ViewModelProvider(this,
             Injector.provideAttestationViewModelFactory(Preferences.defaultConfig.first(),
                 applicationContext))[AttestationViewModelImpl::class.java]
+
+        Configuration.getInstance()
+            .load(applicationContext,
+                PreferenceManager.getDefaultSharedPreferences(applicationContext))
 
         setContent {
             MobileAttesterTheme {

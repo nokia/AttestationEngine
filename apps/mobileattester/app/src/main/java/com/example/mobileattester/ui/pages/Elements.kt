@@ -45,7 +45,7 @@ const val ARG_INITIAL_SEARCH = "initial_search"
 fun Elements(navController: NavController, viewModel: AttestationViewModel) {
     // Navigate to single element view, pass clicked id as argument
     fun onElementClicked(itemid: String) {
-        navController.navigate(Screen.Element.route, bundleOf(Pair(ARG_ITEM_ID, itemid)))
+        navController.navigate(Screen.Element.route, bundleOf(Pair(ARG_ELEMENT_ID, itemid)))
     }
 
     val elementResponse = viewModel.elementFlowResponse.collectAsState().value

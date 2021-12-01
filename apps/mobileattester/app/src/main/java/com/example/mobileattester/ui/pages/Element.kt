@@ -2,7 +2,6 @@ package com.example.mobileattester.ui.pages
 
 import android.annotation.SuppressLint
 import androidx.appcompat.content.res.AppCompatResources
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -21,7 +20,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.os.bundleOf
 import androidx.navigation.NavController
@@ -33,7 +31,6 @@ import com.example.mobileattester.ui.components.anim.FadeInWithDelay
 import com.example.mobileattester.ui.components.common.DecorText
 import com.example.mobileattester.ui.components.common.HeaderRoundedBottom
 import com.example.mobileattester.ui.components.common.OutlinedIconButton
-import com.example.mobileattester.ui.components.common.TextWithIcon
 import com.example.mobileattester.ui.theme.*
 import com.example.mobileattester.ui.util.*
 import com.example.mobileattester.ui.viewmodel.AttestationViewModel
@@ -41,23 +38,22 @@ import compose.icons.TablerIcons
 import compose.icons.tablericons.Checkbox
 import compose.icons.tablericons.ChevronRight
 import compose.icons.tablericons.CurrentLocation
-import compose.icons.tablericons.ListCheck
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
 
-const val ARG_ITEM_ID = "item_id"
+const val ARG_ELEMENT_ID = "item_id"
 
 @Composable
 fun Element(navController: NavController, viewModel: AttestationViewModel) {
-    val clickedElementId = navController.currentBackStackEntry?.arguments?.getString(ARG_ITEM_ID)
+    val clickedElementId = navController.currentBackStackEntry?.arguments?.getString(ARG_ELEMENT_ID)
     val element = viewModel.getElementFromCache(clickedElementId ?: "") ?: run {
         ElementNull()
         return
     }
 
     fun onAttestClick() {
-        navController.navigate(Screen.Attest.route, bundleOf(Pair(ARG_ITEM_ID, element.itemid)))
+        navController.navigate(Screen.Attest.route, bundleOf(Pair(ARG_ELEMENT_ID, element.itemid)))
     }
 
     fun onLocationClick() {
@@ -102,11 +98,13 @@ fun Element(navController: NavController, viewModel: AttestationViewModel) {
 
 @SuppressLint("ClickableViewAccessibility")
 @Composable
-private fun ElementMap(element: Element, onClicked: () -> Unit) {
+private fun ElementMap(element: Element, onClick: () -> Unit) {
     val loc = element.geoPoint() ?: return
     val ctx = LocalContext.current
 
-    Text(modifier = Modifier.padding(top = 16.dp, bottom = 24.dp), text = "Location", fontSize = FONTSIZE_XL)
+    Text(modifier = Modifier.padding(top = 16.dp, bottom = 24.dp),
+        text = "Location",
+        fontSize = FONTSIZE_XL)
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -144,6 +142,9 @@ private fun ElementMap(element: Element, onClicked: () -> Unit) {
             modifier = Modifier.size(32.dp),
             contentDescription = null,
         )
+        Box(modifier = Modifier
+            .clickable { onClick() }
+            .fillMaxSize()) {}
     }
 
 }

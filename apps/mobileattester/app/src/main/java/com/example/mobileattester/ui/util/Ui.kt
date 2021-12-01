@@ -13,6 +13,7 @@ import com.example.mobileattester.ui.theme.Error
 import com.example.mobileattester.ui.theme.Ok
 import compose.icons.TablerIcons
 import compose.icons.tablericons.*
+import org.json.JSONObject
 
 fun Modifier.`if`(
     condition: Boolean,
@@ -42,3 +43,4 @@ fun getResultIcon(result: ElementResult): ImageVector {
         else -> TablerIcons.QuestionMark
     }
 }
+

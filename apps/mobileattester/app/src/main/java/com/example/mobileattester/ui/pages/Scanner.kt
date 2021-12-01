@@ -7,7 +7,6 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.Settings
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -91,7 +90,7 @@ fun Scanner(navController: NavController? = null) {
 
                             navController!!.navigate(
                                 Screen.Element.route,
-                                bundleOf(Pair(ARG_ITEM_ID, result.toString().let {
+                                bundleOf(Pair(ARG_ELEMENT_ID, result.toString().let {
                                     if (it.startsWith("http")) {
                                         println("Found Link: $it")
                                         parseBaseUrl(it)
