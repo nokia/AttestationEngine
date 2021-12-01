@@ -231,7 +231,6 @@ fun ConfigurationButton(
 @Composable
 fun Content(navController: NavController? = null, viewModel: AttestationViewModel) {
     val elementCount = viewModel.elementCount.collectAsState()
-    val elements = viewModel.filterElements()
     val refreshing = viewModel.isRefreshing.collectAsState()
 
     when (elementCount.value.status) {
@@ -275,7 +274,7 @@ fun Content(navController: NavController? = null, viewModel: AttestationViewMode
             LoadingIndicator()
         } else {
             Text(
-                AnnotatedString(elements.size.toString()),
+                AnnotatedString(elementCount.value.data.toString()),
                 modifier = Modifier
                     .padding(5.dp, 0.dp)
                     .align(Alignment.CenterVertically)
