@@ -90,7 +90,7 @@ fun Scanner(navController: NavController? = null, viewModel: AttestationViewMode
                                 this@outer.cameraSettings.isAutoFocusEnabled = false
                                 navController!!.navigate(
                                     Screen.Element.route,
-                                    bundleOf(Pair(ARG_ITEM_ID, qr.text))
+                                    bundleOf(Pair(ARG_ELEMENT_ID, qr.text))
                                 )
                             } else if (qr.text.startsWith("http")) {
                                 val parsedId = parseBaseUrl(qr.text, false)
@@ -99,7 +99,7 @@ fun Scanner(navController: NavController? = null, viewModel: AttestationViewMode
                                     this@outer.cameraSettings.isAutoFocusEnabled = false
                                     navController!!.navigate(
                                         Screen.Element.route,
-                                        bundleOf(Pair(ARG_ITEM_ID, parsedId))
+                                        bundleOf(Pair(ARG_ELEMENT_ID, parsedId))
                                     )
                                 }
                             }
