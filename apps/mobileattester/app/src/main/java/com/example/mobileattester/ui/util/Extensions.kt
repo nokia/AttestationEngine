@@ -43,5 +43,5 @@ fun Int.hoursHWMYRounded(): Int {
 }
 
 fun JsonObject.formatted(): String {
-    return JSONObject(this.toString()).toString(2)
+    return JSONObject(this.toString()).toString(4)
 }

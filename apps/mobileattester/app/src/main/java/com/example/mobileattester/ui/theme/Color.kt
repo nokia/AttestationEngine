@@ -16,5 +16,6 @@ val Attention = Color(0xFFA36A00)
 val Error = Color(0xFFB00020)
 
 val DividerColor = Color(0xFFE4E4E4)
+val DividerColorLight = Color(0xFFF5F2F2)
 val LightGrey = Color(0xFF898989)
 val DarkGrey = Color(0xFF5F5F5F)

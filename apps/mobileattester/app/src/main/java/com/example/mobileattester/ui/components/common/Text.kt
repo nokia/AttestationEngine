@@ -23,6 +23,7 @@ import com.example.mobileattester.ui.theme.FONTSIZE_XL
 import com.example.mobileattester.ui.theme.FONTSIZE_XS
 import com.example.mobileattester.ui.theme.LightGrey
 import com.example.mobileattester.ui.theme.PrimaryDark
+import com.example.mobileattester.ui.util.`if`
 import compose.icons.TablerIcons
 import compose.icons.tablericons.ChevronRight
 
@@ -65,7 +66,7 @@ fun TextWithIcon(
             color = color,
         )
         Spacer(modifier = Modifier.size(8.dp))
-        if(icon != null) Icon(icon, contentDescription = "", tint = color)
+        if (icon != null) Icon(icon, contentDescription = "", tint = color)
     }
 }
 
@@ -85,7 +86,6 @@ fun DecorText(txt: String, color: Color, bold: Boolean = false) {
             fontWeight = if (!bold) FontWeight.Normal else FontWeight.Bold)
     }
 }
-
 
 @Composable
 fun TextWithSmallHeader(
@@ -115,10 +115,13 @@ fun TextWithSmallHeader(
                 }
                 Text(
                     text = text,
-                    Modifier.padding(start = if (icon == null) 0.dp else 8.dp),
+                    Modifier
+                        .`if`(truncate) { Modifier.fillMaxWidth(0.9f) }
+                        .padding(start = if (icon == null) 0.dp else 8.dp),
                     overflow = TextOverflow.Ellipsis,
                     maxLines = if (truncate) 1 else 10000,
-                )
+
+                    )
             }
         }
     }
