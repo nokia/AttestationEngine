@@ -130,10 +130,13 @@ class AttestUtil(
     }
 
     override fun fetchClaim(claimId: String) {
-        val isFetched = claimFlow.value.data?.find {
+        val inCache = claimFlow.value.data?.find {
             it.itemid == claimId
         }
 
+        if (inCache != null) {
+            return
+        }
 
         scope.launch {
             try {
