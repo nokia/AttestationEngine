@@ -162,22 +162,39 @@ abstract class BatchedDataHandler<T, U>(
      * ! If a filter is provided and U does not implement Searchable, this methods will
      * return an empty list !
      */
-    fun dataAsList(filter: DataFilter? = null): List<U> {
+    fun dataAsList(filterAll: DataFilter? = null, filterAny: DataFilter? = null): List<U> {
         val loadedBatchValues = mutableListOf<U>()
 
         batches.entries.forEach { entry ->
             // For each key-value pair in fetched data
             entry.value.forEach loop@{
-                filter ?: run {
+                if(filterAll == null && filterAny == null)  {
                     loadedBatchValues.add(it.second)
                     return@loop
                 }
 
                 when (val value = it.second) {
                     is Filterable -> {
-                        val matchesFilter = value.filter(filter)
-                        if (matchesFilter) {
-                            loadedBatchValues.add(it.second)
+                        var filtered : U? = null
+
+                        if(filterAll != null) {
+                            val matchesFilter = value.filter(filterAll)
+                            if (matchesFilter)
+                                filtered = it.second
+                        }
+
+                        if(filterAny != null) {
+                            val matchesFilter = value.filterAny(filterAny)
+                            if (matchesFilter) {
+                                if(filterAll == null)
+                                    filtered = it.second
+                            }
+                            else
+                                filtered = null
+                        }
+
+                        if(filtered != null) {
+                            loadedBatchValues.add(filtered)
                         }
                     }
                     else -> {
@@ -190,7 +207,6 @@ abstract class BatchedDataHandler<T, U>(
 
         return loadedBatchValues
     }
-
 // ---- Private ----
 // ---- Private ----
 
@@ -264,3 +280,4 @@ abstract class BatchedDataHandler<T, U>(
         batchesLoading.value.remove(batchNumber)
     }
 }
+

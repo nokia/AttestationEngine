@@ -18,6 +18,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.os.bundleOf
 import androidx.navigation.NavController
 import com.example.mobileattester.data.model.Element
 import com.example.mobileattester.data.network.Status
@@ -28,6 +29,7 @@ import com.example.mobileattester.ui.components.common.LoadingIndicator
 import com.example.mobileattester.ui.theme.*
 import com.example.mobileattester.ui.util.Preferences
 import com.example.mobileattester.ui.util.Screen
+import com.example.mobileattester.ui.util.navigate
 import com.example.mobileattester.ui.util.parseBaseUrl
 import com.example.mobileattester.ui.viewmodel.AttestationViewModel
 import compose.icons.TablerIcons
@@ -219,10 +221,10 @@ fun Content(navController: NavController? = null, viewModel: AttestationViewMode
     val overviews: Map<String, List<Element>> =
         viewModel.useOverviewProvider().elementsByResults.collectAsState().value
 
-    val attestations = overviews[OverviewProviderImpl.OVERVIEW_ATTESTED_ELEMENTS]?.size ?: -1
-    val attestations24 = overviews[OverviewProviderImpl.OVERVIEW_ATTESTED_ELEMENTS_24H]?.size ?: -1
-    val fail = overviews[OverviewProviderImpl.OVERVIEW_ATTESTED_ELEMENTS_FAIL]?.size ?: -1
-    val fail24 = overviews[OverviewProviderImpl.OVERVIEW_ATTESTED_ELEMENTS_FAIL_24H]?.size ?: -1
+    val attestations = overviews[OverviewProviderImpl.OVERVIEW_ATTESTED_ELEMENTS]
+    val attestations24 = overviews[OverviewProviderImpl.OVERVIEW_ATTESTED_ELEMENTS_24H]
+    val fail = overviews[OverviewProviderImpl.OVERVIEW_ATTESTED_ELEMENTS_FAIL]
+    val fail24 = overviews[OverviewProviderImpl.OVERVIEW_ATTESTED_ELEMENTS_FAIL_24H]
 
     when (elementCount.value.status) {
         Status.ERROR -> {
@@ -282,12 +284,12 @@ fun Content(navController: NavController? = null, viewModel: AttestationViewMode
 
     Column(Modifier.padding(horizontal = 2.dp)) {
         Spacer(modifier = Modifier.size(10.dp))
-        Alert("Active", attestations = attestations, fail = fail) {
-            navController!!.navigate(Screen.Elements.route)
+        Alert("Active", attestations = attestations?.size ?: -1, fail = fail?.size ?: -1) {
+            navController!!.navigate(Screen.Elements.route, bundleOf(Pair(ARG_BASE_FILTERS, fail?.joinToString(separator = " ") { it.itemid })))
         }
         Spacer(modifier = Modifier.size(20.dp))
-        Alert("24H", attestations = attestations24, fail = fail24) {
-            navController!!.navigate(Screen.Elements.route)
+        Alert("24H", attestations = attestations24?.size ?: -1, fail = fail24?.size ?: -1) {
+            navController!!.navigate(Screen.Elements.route, bundleOf(Pair(ARG_BASE_FILTERS, fail24?.joinToString(separator = " ") { it.itemid })))
         }
     }
 }
