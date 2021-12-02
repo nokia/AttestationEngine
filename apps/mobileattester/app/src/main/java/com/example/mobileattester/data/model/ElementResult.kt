@@ -46,6 +46,21 @@ data class ElementResult(
         else false
     }
 
+    override fun filterAny(f: DataFilter): Boolean {
+        val flags = f.flags ?: listOf()
+        val checkTime = flags.contains(FILTER_FLAG_WITHIN_TIMEFRAME)
+        val checkResultFail = flags.contains(FILTER_FLAG_WITHIN_TIMEFRAME)
+
+        if (checkTime && f.timeFrame == null) {
+            throw Exception("DataFilter was asked to filter by time, but timeframe was not provided.")
+        }
+
+        return if (checkTime || checkResultFail) inTimeframe(f.timeFrame!!) || isFailed()
+        else if (checkResultFail) isFailed()
+        else if (checkTime) inTimeframe(f.timeFrame!!)
+        else false
+    }
+
     fun isFailed(): Boolean {
         return this.result != CODE_RESULT_OK
     }

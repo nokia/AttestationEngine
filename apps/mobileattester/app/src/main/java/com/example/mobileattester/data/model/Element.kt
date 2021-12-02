@@ -3,11 +3,7 @@ package com.example.mobileattester.data.model
 import android.location.Location
 import com.example.mobileattester.data.util.abs.DataFilter
 import com.example.mobileattester.data.util.abs.Filterable
-import com.google.gson.*
 import com.google.gson.annotations.SerializedName
-import java.lang.reflect.Type
-
-import com.google.gson.JsonObject
 import org.osmdroid.util.GeoPoint
 
 
@@ -28,6 +24,10 @@ data class Element(
 
     override fun filter(f: DataFilter): Boolean {
         return matchFields(f.keywords)
+    }
+
+    override fun filterAny(f: DataFilter): Boolean {
+        return matchFieldsAny(f.keywords)
     }
 
     fun geoPoint(): GeoPoint? {
@@ -65,8 +65,26 @@ data class Element(
                     || types.find { it.lowercase().contains(s) } != null
                     || protocol.lowercase().contains(s)
                     || description?.lowercase()?.contains(s) == true
+                    || itemid.lowercase().contains(s)
         }
     }
+
+    /**
+     * Returns true if any of the strings in the list
+     * are matched in one of the searched fields of this instance.
+     */
+    private fun matchFieldsAny(l: List<String>): Boolean {
+        return l.any { s ->
+            (name.lowercase().contains(s)
+                    || endpoint.lowercase().contains(s)
+                    || types.find { it.lowercase().contains(s) } != null
+                    || protocol.lowercase().contains(s)
+                    || description?.lowercase()?.contains(s) == true)
+                    || itemid.lowercase().contains(s)
+        }
+    }
+
+
 }
 
 fun emptyElement(): Element {

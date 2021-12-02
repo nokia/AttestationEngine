@@ -9,6 +9,7 @@ import com.example.mobileattester.ui.util.Timeframe
  */
 interface Filterable {
     fun filter(f: DataFilter): Boolean
+    fun filterAny(f: DataFilter): Boolean
 }
 
 private const val TAG = "DataFilter"
