@@ -22,7 +22,6 @@ import androidx.navigation.NavController
 import com.example.mobileattester.data.model.Element
 import com.example.mobileattester.data.network.Status
 import com.example.mobileattester.data.util.OverviewProviderImpl
-import com.example.mobileattester.ui.components.common.DecorText
 import com.example.mobileattester.ui.components.common.ErrorIndicator
 import com.example.mobileattester.ui.components.common.HeaderRoundedBottom
 import com.example.mobileattester.ui.components.common.LoadingIndicator
@@ -215,7 +214,6 @@ fun ConfigurationButton(
 @Composable
 fun Content(navController: NavController? = null, viewModel: AttestationViewModel) {
     val elementCount = viewModel.elementCount.collectAsState()
-    val elements = viewModel.filterElements()
     val isRefreshing = viewModel.isRefreshing.collectAsState()
 
     val overviews: Map<String, List<Element>> =
@@ -303,7 +301,7 @@ fun Alert(
 ) {
     Row(Modifier.padding(start = 10.dp)) {
 
-        DecorText(txt = alertDurationInfo, color = PrimaryDark)
+        Text(text = alertDurationInfo, color = PrimaryDark)
     }
     Row(modifier = Modifier
         .fillMaxWidth()
