@@ -631,6 +631,29 @@ def getResults():
     e = collection.find({}, {"_id": False, "itemid": True})
     return list(e)
 
+def getResultsSince(t):
+	""" Returns results since t timestamp
+
+	:param str t: timestamp
+	:return: list of element ids, result numbers and timestamps from Monogo
+	:rtype: list dict or None
+	"""
+
+	## TODO: Make this work. Current mongodb (3.6) does not support casting verifiedAt string for comparison
+
+	collection = asdb["results"]
+	e = collection.find(
+	{
+		'$expr': 
+		{
+			'$gt': 
+			[
+				'$verifiedAt',
+				str(t)
+			]
+		}
+	}, {'_id': False, 'itemid':True, 'result':True, 'verifiedAt': True })
+	return list(e)
 
 def getResultsFull(n):
     """ Returns an element with the given itemid
