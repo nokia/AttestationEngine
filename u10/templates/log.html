@@ -1,15 +1,41 @@
 <!--
- Copyright 2021 Nokia
- Licensed under the BSD 3-Clause License.
- SPDX-License-Identifier: BSD-3-Clause
+#Copyright 2021 Nokia
+#Licensed under the BSD 3-Clause Clear License.
+#SPDX-License-Identifier: BSD-3-Clear
 -->
 
 {% extends "base.html" %}
 {% block content %}
+
+<div class="progress">
+  <div class="progress-bar-striped" role="progressbar" aria-valuemin="0" aria-valuemax={{ ref }} style="width: 100%;">
+  </div>
+</div>
+
+<script>
+    var refreshcounter = {{ ref }}
+
+    function autoRefreshPage() {
+        window.location = window.location.href;
+    }
+
+    function refreshTick() {
+        refreshcounter = refreshcounter - 100
+        if refreshcounter < 0
+        { refreshcounter = {{ ref }};
+           autoRefreshPage() } 
+        $('.progress-bar').css('width', refreshcounter);   
+    }
+
+    setInterval('refreshTick()', 100 );
+</script>
+
+
+
 <hr />
 <input class="form-control" id="logsearch" type="text" placeholder="Search...">
 <br/>
-Page loaded at <b>{{ ltutc }}</b> ( {{ lt }} ). Showing <b>{{ lrs }}</b> of <b>{{ lc }}</b> entries.
+Page loaded at <b>{{ ltutc }}</b> ( {{ lt }} ). Showing <b>{{ lrs }}</b> of <b>{{ lc }}</b> entries. Reload every {{ref}} ms.
 <br />
 <table class="table table-condensed table-hover .table-striped">
     <thead>
@@ -56,6 +82,13 @@ Page loaded at <b>{{ ltutc }}</b> ( {{ lt }} ). Showing <b>{{ lrs }}</b> of <b>{
                   <a href=/ev/{{ l.data.itemid }}>{{ l.data.type }}</a>
                 {% elif l.data.type == "hash" %}
                   <a href=/hashes>{{ l.data.type }}</a> 
+                 {% elif l.op == "ta_startup" %}
+                  <i class="fa fa-flag" style="font-size:20px;color:green"></i> Element <a href=/element/{{ l.data.elementid }}>{{ l.data.elementid}}</a>
+                 {% elif l.op == "ta_reannounce" %}
+                  <i class="fa fa-flag-o" style="font-size:20px;color:green"></i> Element <a href=/element/{{ l.data.elementid }}>{{ l.data.elementid}}</a>
+                 {% elif l.op == "ta_signal" %}
+                  <i class="fa fa-flag-checkered" style="font-size:20px;color:black"></i> Element <a href=/element/{{ l.data.elementid }}>{{ l.data.elementid}}</a>, message: {{ l.data.msg }}
+
                 {% else %}
                  Unknown type: {{ l.data }}
                 {% endif %}
