@@ -5,13 +5,11 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.AnnotatedString
@@ -21,9 +19,12 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.mobileattester.ui.theme.ELEVATION_SM
+import com.example.mobileattester.ui.theme.Primary
 import com.example.mobileattester.ui.theme.ROUNDED_MD
 import com.example.mobileattester.ui.theme.White
 import com.example.mobileattester.ui.util.`if`
+import compose.icons.TablerIcons
+import compose.icons.tablericons.ArrowsMaximize
 
 @Composable
 fun OutlinedIconButton(
@@ -68,5 +69,26 @@ fun OutlinedIconButton(
                     color = if (filled) Color.White else color)
         }
 
+    }
+}
+
+@Composable
+fun Fab(
+    icon: ImageVector,
+    modifier: Modifier = Modifier,
+    color: Color = Primary,
+    onClick: () -> Unit,
+) {
+    FloatingActionButton(
+        onClick = onClick,
+        backgroundColor = color,
+        modifier = Modifier.padding(12.dp)
+    ) {
+        Icon(
+            icon,
+            null,
+            modifier = modifier,
+            tint = if (color == White) Primary else White
+        )
     }
 }

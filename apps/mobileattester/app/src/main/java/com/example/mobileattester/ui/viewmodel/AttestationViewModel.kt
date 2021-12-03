@@ -2,19 +2,14 @@ package com.example.mobileattester.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewModelScope
 import com.example.mobileattester.data.model.Element
 import com.example.mobileattester.data.model.ElementResult
-import com.example.mobileattester.data.model.emptyElement
+import com.example.mobileattester.data.model.Policy
 import com.example.mobileattester.data.network.Response
 import com.example.mobileattester.data.repository.AttestationRepository
-import com.example.mobileattester.data.util.AttestationUtil
-import com.example.mobileattester.data.util.ElementDataHandler
-import com.example.mobileattester.data.util.OverviewProvider
-import com.example.mobileattester.data.util.UpdateUtil
+import com.example.mobileattester.data.util.*
 import com.example.mobileattester.data.util.abs.DataFilter
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.StateFlow
 
 interface AttestationViewModel {
     val isRefreshing: StateFlow<Boolean>
@@ -29,7 +24,7 @@ interface AttestationViewModel {
 
     /** Get element data, which has already been downloaded */
     fun getElementFromCache(itemid: String): Element?
-    fun filterElements(f: DataFilter? = null): List<Element>
+    fun filterElements(all: DataFilter? = null, any: DataFilter? = null): List<Element>
     fun getMoreElements()
     fun refreshElements()
     fun refreshElement(itemid: String)
@@ -37,23 +32,27 @@ interface AttestationViewModel {
     /** Returns ElementResult if it exists in downloaded data */
     fun findElementResult(resultId: String): ElementResult?
 
+    fun getPolicyFromCache(policyId: String): Policy?
+
     /** Switch the base url used for the engine */
     fun switchBaseUrl(url: String)
 
+    // Use the different classes directly to avoid cluttering in this vm
     fun useAttestationUtil(): AttestationUtil
     fun useUpdateUtil(): UpdateUtil
     fun useOverviewProvider(): OverviewProvider
+    fun useMapManager(): MapManager
 }
 
 // --------- Implementation ---------
 
-// Repo should be replaced with handlers / create a facade for everything?
 class AttestationViewModelImpl(
     private val repo: AttestationRepository,
     private val elementDataHandler: ElementDataHandler,
     private val attestationUtil: AttestationUtil,
     private val updateUtil: UpdateUtil,
     private val overviewProvider: OverviewProvider,
+    private val mapManager: MapManager,
 ) : AttestationViewModel, ViewModel() {
     companion object {
         const val FETCH_START_BUFFER = 3
@@ -70,7 +69,8 @@ class AttestationViewModelImpl(
         elementDataHandler.getDataForId(itemid)
 
     override fun getMoreElements() = elementDataHandler.fetchNextBatch()
-    override fun filterElements(f: DataFilter?): List<Element> = elementDataHandler.dataAsList(f)
+    override fun filterElements(all: DataFilter?, any: DataFilter?): List<Element> = elementDataHandler.dataAsList(all, any)
+
     override fun refreshElements() = elementDataHandler.refreshData(hardReset = true)
     override fun refreshElement(itemid: String) = elementDataHandler.refreshSingleValue(itemid)
 
@@ -87,6 +87,9 @@ class AttestationViewModelImpl(
         return null
     }
 
+    override fun getPolicyFromCache(policyId: String): Policy? =
+        attestationUtil.getPolicyFromCache(policyId)
+
     override fun switchBaseUrl(url: String) {
         println("SwitchedBaseUrl")
         repo.rebuildService(url)
@@ -97,6 +100,7 @@ class AttestationViewModelImpl(
     override fun useAttestationUtil(): AttestationUtil = attestationUtil
     override fun useUpdateUtil(): UpdateUtil = updateUtil
     override fun useOverviewProvider(): OverviewProvider = overviewProvider
+    override fun useMapManager(): MapManager = mapManager
 }
 
 class AttestationViewModelImplFactory(
@@ -105,6 +109,7 @@ class AttestationViewModelImplFactory(
     private val attestUtil: AttestationUtil,
     private val updateUtil: UpdateUtil,
     private val overviewProvider: OverviewProvider,
+    private val mapManager: MapManager,
 ) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
@@ -112,6 +117,7 @@ class AttestationViewModelImplFactory(
             elementDataHandler,
             attestUtil,
             updateUtil,
-            overviewProvider) as T
+            overviewProvider,
+            mapManager) as T
     }
 }

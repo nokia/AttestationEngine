@@ -1,12 +1,10 @@
 package com.example.mobileattester.ui.pages
 
-import android.net.InetAddresses
-import android.os.Build
-import android.util.Patterns
 import android.widget.Toast
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -25,7 +23,6 @@ import androidx.navigation.NavController
 import com.example.mobileattester.data.model.Element
 import com.example.mobileattester.data.network.Status
 import com.example.mobileattester.data.util.OverviewProviderImpl
-import com.example.mobileattester.di.Injector
 import com.example.mobileattester.ui.components.common.ErrorIndicator
 import com.example.mobileattester.ui.components.common.HeaderRoundedBottom
 import com.example.mobileattester.ui.components.common.LoadingIndicator
@@ -37,27 +34,37 @@ import com.example.mobileattester.ui.util.parseBaseUrl
 import com.example.mobileattester.ui.viewmodel.AttestationViewModel
 import compose.icons.TablerIcons
 import compose.icons.tablericons.*
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-
 
 @Composable
 fun Home(navController: NavController? = null, viewModel: AttestationViewModel) {
+    val compose = currentRecomposeScope
     val context = LocalContext.current
-    val currentUrl = viewModel.currentUrl.collectAsState()
-    val currentEngine = parseBaseUrl(currentUrl.value)
-
-    val preferences = Preferences(LocalContext.current)
-    val list = preferences.engines.collectAsState(initial = sortedSetOf<String>())
-
-    if (list.value.isNotEmpty() && !list.value.contains(currentEngine)) viewModel.switchBaseUrl("http://${list.value.first()}/")
-
-    var showAllConfigurations by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
-    val scrollState = ScrollState(0)
+    val preferences = Preferences(LocalContext.current)
+
+    /** DATA */
+    val currentUrl = viewModel.currentUrl.collectAsState()
+
+    // History of engines
+    val enginesList = preferences.engines.collectAsState(initial = sortedSetOf<String>())
+
+    // Check preferences for the last used engine
+    // Launch only once when the page has been created
+    LaunchedEffect(scope) {
+        preferences.engine.collect {
+            // Switch engine from preference if not the same
+            if(currentUrl.value != "http://${it}/")
+                viewModel.switchBaseUrl("http://${it}/")
+        }
+    }
 
 
-    Column(modifier = Modifier.verticalScroll(scrollState)) {
 
+    /** UI */
+    Column(modifier = Modifier.verticalScroll(ScrollState(0))) {
+        var showAllConfigurations by remember { mutableStateOf(false) }
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -70,11 +77,10 @@ fun Home(navController: NavController? = null, viewModel: AttestationViewModel) 
                 text = "Current Configuration",
                 modifier = Modifier.padding(10.dp, 15.dp, 10.dp, 5.dp),
                 fontSize = FONTSIZE_XXL,
-                color = Color.White
-            )
+                color = Color.White)
 
             // Current Engine
-            ConfigurationButton(text = currentEngine,
+            ConfigurationButton(text = parseBaseUrl(currentUrl.value)!!,
                 name = "Engine",
                 icon = TablerIcons.AdjustmentsHorizontal,
                 onClick = {
@@ -82,26 +88,28 @@ fun Home(navController: NavController? = null, viewModel: AttestationViewModel) 
                 })
 
             if (showAllConfigurations) {
-                (list.value.filter { it != currentEngine }).forEach { engineAddress ->
+                (enginesList.value.filter { "http://${it}/" != currentUrl.value }).forEach { engineAddress ->
                     ConfigurationButton(
                         text = engineAddress,
                         onClick = {
+                            scope.launch {
+                                preferences.saveEngine(it)
+                            }
+
                             viewModel.switchBaseUrl("http://${it}/")
 
-                            // Refresh
+                            // Close window on select
                             showAllConfigurations = false
                         },
                         onIconClick = {
-                            list.value.remove(it)
+                            enginesList.value.remove(it)
 
                             scope.launch {
-                                preferences.saveEngines(list.value.toSortedSet())
+                                preferences.saveEngines(enginesList.value.toSortedSet())
 
                                 // Refresh
-                                showAllConfigurations = false
-                                showAllConfigurations = true
+                                compose.invalidate()
                             }
-
                         },
                     )
                 }
@@ -112,31 +120,29 @@ fun Home(navController: NavController? = null, viewModel: AttestationViewModel) 
                     icon = TablerIcons.Plus,
                     editable = true,
                     onIconClick = { str ->
-                        val port = str.takeLastWhile { it != ':' }
-                        val validPort = port.toUShortOrNull() != null
+                        val config = parseBaseUrl(str)
 
-                        val address = str.dropLast(port.length + 1)
+                        if (config != null) {
+                            if(enginesList.value.contains(config))
+                            {
+                                Toast.makeText(
+                                    context,
+                                    "Config already exists",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                            else {
+                                enginesList.value.add(config)
 
-                        val validAddress = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                            InetAddresses.isNumericAddress(address) // Todo: DNS address resolution
-                        } else Patterns.IP_ADDRESS.matcher(address).matches()
+                                scope.launch {
+                                    preferences.saveEngines(enginesList.value)
 
-                        if (validAddress && validPort) {
-                            list.value.add(str)
-
-                            scope.launch {
-                                preferences.saveEngines(list.value)
-
-                                // Refresh
-                                showAllConfigurations = false
-                                showAllConfigurations = true
+                                    // Refresh
+                                    compose.invalidate()
+                                }
                             }
                         } else {
-                            Toast.makeText(
-                                context,
-                                "${if (!validAddress) "Address" else "Port"} is invalid",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                            Toast.makeText(context, "Input is invalid", Toast.LENGTH_SHORT).show()
                         }
                     })
             }
@@ -144,17 +150,14 @@ fun Home(navController: NavController? = null, viewModel: AttestationViewModel) 
         }
 
         // Content
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .clip(RoundedCornerShape(5, 5, 0, 0))
-                .background(Color.White)
-        ) {
+        Column(modifier = Modifier
+            .fillMaxSize()
+            .clip(RoundedCornerShape(5, 5, 0, 0))
+            .background(Color.White)) {
             Column(Modifier.padding(4.dp)) {
                 Content(navController, viewModel)
             }
         }
-
 
     }
 }
@@ -169,17 +172,13 @@ fun ConfigurationButton(
     onTextChange: (String) -> Unit = {},
     onIconClick: (String) -> Unit = {},
 ) {
-    Button(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(0.dp, 5.dp),
+    Button(modifier = Modifier
+        .fillMaxWidth()
+        .padding(0.dp, 5.dp),
         onClick = { onClick(text) },
-        colors = ButtonDefaults.buttonColors(
-            backgroundColor = Color.Transparent,
-            contentColor = Color.White
-        ),
-        elevation = null
-    ) {
+        colors = ButtonDefaults.buttonColors(backgroundColor = Color.Transparent,
+            contentColor = Color.White),
+        elevation = null) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -192,18 +191,19 @@ fun ConfigurationButton(
                 if (!editable) {
                     Text(name)
                     Text(text)
-                } else OutlinedTextField(
-                    value = input,
+                } else OutlinedTextField(value = input,
                     label = { Text(text) },
                     onValueChange = { input = it; onTextChange(input) },
                     singleLine = true,
+                    keyboardActions = KeyboardActions(
+                        onDone = { onIconClick(input) }
+                    ),
                     colors = TextFieldDefaults.outlinedTextFieldColors(
                         unfocusedLabelColor = Color.White, // TODO: MaterialTheme.colors.primary
                         focusedLabelColor = Color.White,
                         unfocusedBorderColor = Color.White,
                         focusedBorderColor = Color.White,
-                    )
-                )
+                    ))
             }
 
             IconButton(onClick = { if (!editable) onIconClick(text) else onIconClick(input) }) {
@@ -216,8 +216,15 @@ fun ConfigurationButton(
 @Composable
 fun Content(navController: NavController? = null, viewModel: AttestationViewModel) {
     val elementCount = viewModel.elementCount.collectAsState()
-    val elements = viewModel.filterElements()
-    val refreshing = viewModel.isRefreshing.collectAsState()
+    val isRefreshing = viewModel.isRefreshing.collectAsState()
+
+    val overviews: Map<String, List<Element>> =
+        viewModel.useOverviewProvider().elementsByResults.collectAsState().value
+
+    val attestations = overviews[OverviewProviderImpl.OVERVIEW_ATTESTED_ELEMENTS]
+    val attestations24 = overviews[OverviewProviderImpl.OVERVIEW_ATTESTED_ELEMENTS_24H]
+    val fail = overviews[OverviewProviderImpl.OVERVIEW_ATTESTED_ELEMENTS_FAIL]
+    val fail24 = overviews[OverviewProviderImpl.OVERVIEW_ATTESTED_ELEMENTS_FAIL_24H]
 
     when (elementCount.value.status) {
         Status.ERROR -> {
@@ -228,94 +235,82 @@ fun Content(navController: NavController? = null, viewModel: AttestationViewMode
             LoadingIndicator()
             return
         }
-        else -> {Injector.not()}
+        else -> {
+        }
     }
 
-    Row(
-        modifier = Modifier
-            .padding(15.dp)
-            .fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween
-    ) {
+    Row(modifier = Modifier
+        .padding(15.dp)
+        .fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween) {
         Row() {
-            Icon(
-                TablerIcons.DeviceDesktop,
+            Icon(TablerIcons.DeviceDesktop,
                 contentDescription = null,
                 modifier = Modifier
                     .padding(5.dp, 0.dp)
                     .align(Alignment.CenterVertically)
-                    .size(25.dp)
-            )
-            Text(
-                "System Devices",
+                    .size(25.dp))
+            Text("System Devices",
                 modifier = Modifier
                     .padding(5.dp, 0.dp)
                     .align(Alignment.CenterVertically),
-                fontSize = 18.sp
-            )
+                fontSize = 18.sp)
         }
 
-        if (refreshing.value) {
+        if (isRefreshing.value) {
             LoadingIndicator()
         } else {
             Text(
-                AnnotatedString(elements.size.toString()),
+                AnnotatedString(elementCount.value.data.toString()),
                 modifier = Modifier
                     .padding(5.dp, 0.dp)
                     .align(Alignment.CenterVertically)
                     .fillMaxWidth(),
                 textAlign = TextAlign.End,
-                fontSize = 24.sp
-            )
+                fontSize = 24.sp)
         }
     }
 
-    Text(
-        text = "Attestation Overview",
+    Divider(Modifier
+        .fillMaxWidth()
+        .padding(8.dp, 8.dp), color = DividerColor)
+
+    Text(text = "Attestation Overview",
         modifier = Modifier
             .fillMaxWidth()
-            .padding(0.dp, 15.dp, 0.dp, 5.dp),
+            .padding(16.dp, 12.dp),
         textAlign = TextAlign.Center,
-        fontSize = FONTSIZE_XXL
-    )
+        fontSize = FONTSIZE_XL)
 
-    val overviews: Map<String, List<Element>> =
-        viewModel.useOverviewProvider().elementsByResults.collectAsState().value
-
-    val attestations = overviews[OverviewProviderImpl.OVERVIEW_ATTESTED_ELEMENTS]?.size ?: -1
-    val attestations24 = overviews[OverviewProviderImpl.OVERVIEW_ATTESTED_ELEMENTS_24H]?.size ?: -1
-    val ok = overviews[OverviewProviderImpl.OVERVIEW_ATTESTED_ELEMENTS_OK]?.size ?: -1
-    val ok24 = overviews[OverviewProviderImpl.OVERVIEW_ATTESTED_ELEMENTS_OK_24H]?.size ?: -1
-
-
-    Spacer(modifier = Modifier.size(10.dp))
-    Alert("Active", attestations = attestations, ok = ok)
-    { navController!!.navigate(Screen.Elements.route, bundleOf(Pair(ARG_INITIAL_SEARCH, "!"))) }
-    Spacer(modifier = Modifier.size(20.dp))
-    Alert("24H", attestations = attestations24, ok = ok24)
-    { navController!!.navigate(Screen.Elements.route, bundleOf(Pair(ARG_INITIAL_SEARCH, "!24"))) }
+    Column(Modifier.padding(horizontal = 2.dp)) {
+        Spacer(modifier = Modifier.size(10.dp))
+        Alert("Active", attestations = attestations?.size ?: -1, fail = fail?.size ?: -1) {
+            navController!!.navigate(Screen.Elements.route, bundleOf(Pair(ARG_BASE_FILTERS, fail?.joinToString(separator = " ") { it.itemid })))
+        }
+        Spacer(modifier = Modifier.size(20.dp))
+        Alert("24H", attestations = attestations24?.size ?: -1, fail = fail24?.size ?: -1) {
+            navController!!.navigate(Screen.Elements.route, bundleOf(Pair(ARG_BASE_FILTERS, fail24?.joinToString(separator = " ") { it.itemid })))
+        }
+    }
 }
 
 @Composable
 fun Alert(
     alertDurationInfo: String = "",
     attestations: Int = 0,
-    ok: Int = 0,
+    fail: Int = 0,
     onClick: () -> Unit = {},
 ) {
-    Text(
-        text = alertDurationInfo,
-        modifier = Modifier.padding(10.dp, 5.dp),
-        fontSize = FONTSIZE_XL
-    )
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick() },
+    Row(Modifier.padding(start = 10.dp)) {
+
+        Text(text = alertDurationInfo, color = PrimaryDark)
+    }
+    Row(modifier = Modifier
+        .fillMaxWidth()
+        .clickable { onClick() },
         Arrangement.SpaceBetween,
-        Alignment.CenterVertically
-    ) {
-        Column(modifier = Modifier.padding(10.dp)) {
+        Alignment.CenterVertically) {
+        Column(modifier = Modifier.padding(10.dp, 0.dp)) {
             Text(text = "Attested Systems", color = Primary)
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
@@ -324,46 +319,38 @@ fun Alert(
                     tint = Primary,
                     modifier = Modifier.size(28.dp),
                 )
-                Text(
-                    attestations.toString(),
+                Text(attestations.toString(),
                     color = Primary,
                     modifier = Modifier.padding(5.dp, 0.dp),
                     fontSize = FONTSIZE_LG,
-                    fontWeight = FontWeight.SemiBold
-                )
+                    fontWeight = FontWeight.SemiBold)
             }
         }
         Column(modifier = Modifier.padding(10.dp)) {
             Text(text = "Accepted", color = Ok)
             Row {
                 Icon(TablerIcons.SquareCheck, contentDescription = null, tint = Ok)
-                Text(
-                    ok.toString(),
+                Text((attestations - fail).toString(),
                     color = Ok,
                     modifier = Modifier.padding(5.dp, 0.dp),
                     fontSize = FONTSIZE_LG,
-                    fontWeight = FontWeight.SemiBold
-                )
+                    fontWeight = FontWeight.SemiBold)
             }
         }
         Column(modifier = Modifier.padding(10.dp)) {
             Text(text = "Failed", color = Error)
             Row {
                 Icon(TablerIcons.SquareX, contentDescription = null, tint = Error)
-                Text(
-                    (attestations - ok).toString(),
+                Text(fail.toString(),
                     color = Error,
                     modifier = Modifier.padding(5.dp, 0.dp),
                     fontSize = FONTSIZE_LG,
-                    fontWeight = FontWeight.SemiBold
-                )
+                    fontWeight = FontWeight.SemiBold)
             }
         }
-        Column(
-            modifier = Modifier
-                .padding(10.dp)
-                .align(Alignment.CenterVertically)
-        ) {
+        Column(modifier = Modifier
+            .padding(10.dp)
+            .align(Alignment.CenterVertically)) {
             Icon(TablerIcons.ChevronRight, contentDescription = null)
         }
     }

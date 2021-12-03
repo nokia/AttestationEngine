@@ -3,35 +3,26 @@ package com.example.mobileattester.data.util.abs
 import android.util.Log
 import com.example.mobileattester.data.network.Response
 import com.example.mobileattester.data.network.retryIO
-import com.example.mobileattester.ui.util.Timeframe
-import com.example.mobileattester.ui.util.Timestamp
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 
+const val NOTIFY_BATCH_FETCHED = "ABatchHasBeenFetched"
 private const val TAG = "BatchedDataHandler"
 
 // Typealiases for the functions that need to be provided for the Batched data handler.
 typealias FetchIdList<T> = suspend () -> List<T>
 typealias FetchIdData<T, U> = suspend (T) -> U
 
-
 /**
  *  Data fetching in batches.
  *  T - Id type
  *  U - Data type
- *
- *  TODO ************************
- *  -   Functions to start and end "endless" and automatic batch fetching. Needs to be done
- *      since search is implemented on client side only.
- *
- *      When search is not used, we can fetch the data only for the batches that are up for render.
- *      When the user clicks on search/starts typing, start "endless" batch fetching which runs
- *      until all data is downloaded, or the user no longer uses search.
  */
 abstract class BatchedDataHandler<T, U>(
     private val batchSize: Int,
     private val fetchIdList: FetchIdList<T>,
     private val fetchDataForId: FetchIdData<T, U>,
+    private val notifier: Notifier? = null,
 ) : NotificationSubscriber {
     private val job = Job()
     private val scope = CoroutineScope(job)
@@ -77,13 +68,19 @@ abstract class BatchedDataHandler<T, U>(
 
         scope.launch {
             try {
-                batches[batchNumber] = fetchBatch(batchNumber)
-                dataFlow.value = Response.success(dataAsList())
+                retryIO {
+                    batches[batchNumber] = fetchBatch(batchNumber)
+                    dataFlow.value = Response.success(dataAsList())
+                }
             } catch (e: Exception) {
                 Log.d(TAG, "failed to fetch next batch[$batchNumber]: $e")
                 dataFlow.value = Response.error(message = "Data could not be fetched: $e")
             } finally {
                 setNotLoading(batchNumber)
+
+                if (allChunksLoaded()) {
+                    notifier?.notifyAll(NOTIFY_BATCH_FETCHED)
+                }
             }
         }
     }
@@ -165,22 +162,39 @@ abstract class BatchedDataHandler<T, U>(
      * ! If a filter is provided and U does not implement Searchable, this methods will
      * return an empty list !
      */
-    fun dataAsList(filter: DataFilter? = null): List<U> {
+    fun dataAsList(filterAll: DataFilter? = null, filterAny: DataFilter? = null): List<U> {
         val loadedBatchValues = mutableListOf<U>()
 
         batches.entries.forEach { entry ->
             // For each key-value pair in fetched data
             entry.value.forEach loop@{
-                filter ?: run {
+                if(filterAll == null && filterAny == null)  {
                     loadedBatchValues.add(it.second)
                     return@loop
                 }
 
                 when (val value = it.second) {
                     is Filterable -> {
-                        val matchesFilter = value.filter(filter)
-                        if (matchesFilter) {
-                            loadedBatchValues.add(it.second)
+                        var filtered : U? = null
+
+                        if(filterAll != null) {
+                            val matchesFilter = value.filter(filterAll)
+                            if (matchesFilter)
+                                filtered = it.second
+                        }
+
+                        if(filterAny != null) {
+                            val matchesFilter = value.filterAny(filterAny)
+                            if (matchesFilter) {
+                                if(filterAll == null)
+                                    filtered = it.second
+                            }
+                            else
+                                filtered = null
+                        }
+
+                        if(filtered != null) {
+                            loadedBatchValues.add(filtered)
                         }
                     }
                     else -> {
@@ -193,7 +207,6 @@ abstract class BatchedDataHandler<T, U>(
 
         return loadedBatchValues
     }
-
 // ---- Private ----
 // ---- Private ----
 
@@ -267,3 +280,4 @@ abstract class BatchedDataHandler<T, U>(
         batchesLoading.value.remove(batchNumber)
     }
 }
+

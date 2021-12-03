@@ -1,6 +1,8 @@
 package com.example.mobileattester.ui.util
 
 import com.example.mobileattester.data.model.ElementResult
+import com.google.gson.JsonObject
+import org.json.JSONObject
 import kotlin.math.roundToLong
 
 fun Collection<ElementResult>.latestResults(hours: Int = 24): Collection<ElementResult> {
@@ -38,4 +40,8 @@ fun Int.hoursHWMYRounded(): Int {
     }
 
     return this + mul - (this % mul).also { if (it == 0) return this }
+}
+
+fun JsonObject.formatted(): String {
+    return JSONObject(this.toString()).toString(4)
 }

@@ -70,6 +70,22 @@ fun PermissionsRationale(
     }
 }
 
+@Composable
+fun Rationale(
+    text: String,
+) {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text,
+            modifier = Modifier.padding(16.dp)
+        )
+    }
+}
+
 
 @Composable
 fun PermissionDeniedRequestSettings(

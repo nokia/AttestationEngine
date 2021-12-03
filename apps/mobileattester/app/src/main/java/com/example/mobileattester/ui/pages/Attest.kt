@@ -1,9 +1,7 @@
 package com.example.mobileattester.ui.pages
 
 import android.content.Context
-import android.widget.Space
 import androidx.annotation.StringRes
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Button
@@ -32,7 +30,6 @@ import com.example.mobileattester.ui.util.Screen
 import com.example.mobileattester.ui.viewmodel.AttestationViewModel
 import compose.icons.TablerIcons
 import compose.icons.tablericons.Checks
-import kotlinx.coroutines.launch
 
 sealed class AttestationType(@StringRes val resId: Int) {
     companion object {
@@ -63,7 +60,7 @@ sealed class AttestationType(@StringRes val resId: Int) {
 @Composable
 fun Attest(navController: NavController, viewModel: AttestationViewModel) {
     val clickedElementId =
-        navController.currentBackStackEntry?.arguments?.get(ARG_ITEM_ID).toString()
+        navController.currentBackStackEntry?.arguments?.get(ARG_ELEMENT_ID).toString()
     val element = viewModel.getElementFromCache(clickedElementId) ?: run {
         FadeInWithDelay(1500) {
             Text(text = "Error getting element data for id: $clickedElementId")

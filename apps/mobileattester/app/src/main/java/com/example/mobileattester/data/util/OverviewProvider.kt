@@ -1,7 +1,6 @@
 package com.example.mobileattester.data.util
 
 import com.example.mobileattester.data.model.Element
-import com.example.mobileattester.data.model.ElementResult
 import com.example.mobileattester.data.util.abs.DataFilter
 import com.example.mobileattester.data.util.abs.NotificationSubscriber
 import com.example.mobileattester.ui.util.Timestamp
@@ -9,7 +8,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import java.util.concurrent.CancellationException
 
@@ -21,6 +19,11 @@ interface OverviewProvider : NotificationSubscriber {
     fun addFilterByResults(key: String, filter: DataFilter)
 }
 
+/**
+ * Implementation, which reads the results from fetched elements.
+ * TODO A result endpoint in the REST API, so that this would
+ *      not need to rely on downloading all the element data first
+ */
 class OverviewProviderImpl(
     private val elementDataHandler: ElementDataHandler,
 ) : OverviewProvider {
@@ -33,7 +36,6 @@ class OverviewProviderImpl(
 
     override fun addFilterByResults(key: String, filter: DataFilter) {
         addedFilters[key] = filter
-        //updateOverviews()
     }
 
     override fun <T> notify(data: T) {
@@ -44,6 +46,7 @@ class OverviewProviderImpl(
     private fun updateOverviews() {
         job.cancelChildren(CancellationException("Relaunching updates"))
         println("OVERVIEW updating ${addedFilters.size} lists")
+
         // Update result based elements
         scope.launch {
             val temp = mutableMapOf<String, List<Element>>()
@@ -54,13 +57,32 @@ class OverviewProviderImpl(
                 val filtered = mutableListOf<Element>()
 
                 for (element in elements) {
-                    val matchingResult = element.results.find {
-                        it.filter(filter)
+                    when (key) {
+                        OVERVIEW_ATTESTED_ELEMENTS -> {
+                            element.results.isNotEmpty() && filtered.add(element)
+                        }
+                        OVERVIEW_ATTESTED_ELEMENTS_FAIL -> (element.results.firstOrNull()?.result
+                            ?: 0) != 0 && filtered.add(element)
+                        OVERVIEW_ATTESTED_ELEMENTS_24H -> {
+                            element.results.filter {
+                                Timestamp.fromSecondsString(it.verifiedAt)!!.timeSince()
+                                    .toHours() < 24
+                            }.isNotEmpty() && filtered.add(element)
+                        }
+                        OVERVIEW_ATTESTED_ELEMENTS_FAIL_24H -> {
+                            element.results.filter {
+                                println(Timestamp.fromSecondsString(it.verifiedAt)!!.timeSince()
+                                    .toHours())
+                                Timestamp.fromSecondsString(it.verifiedAt)!!.timeSince()
+                                    .toHours() < 24
+                            }.any { it.result != 0 }.also {
+                                if (it) {
+                                    println("FAIL: " + element.name)
+                                }
+                            } && filtered.add(element)
+                        }
                     }
 
-                    if (matchingResult != null) {
-                        filtered.add(element)
-                    }
                 }
                 temp[key] = filtered
             }
@@ -77,8 +99,8 @@ class OverviewProviderImpl(
 
     companion object {
         const val OVERVIEW_ATTESTED_ELEMENTS = "ove_attested"
-        const val OVERVIEW_ATTESTED_ELEMENTS_OK = "ove_attested_ok"
+        const val OVERVIEW_ATTESTED_ELEMENTS_FAIL = "ove_attested_fail"
         const val OVERVIEW_ATTESTED_ELEMENTS_24H = "ove_attested_24"
-        const val OVERVIEW_ATTESTED_ELEMENTS_OK_24H = "ove_attested_ok_24"
+        const val OVERVIEW_ATTESTED_ELEMENTS_FAIL_24H = "ove_attested_fail_24"
     }
 }

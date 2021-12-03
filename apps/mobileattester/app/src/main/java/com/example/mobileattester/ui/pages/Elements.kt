@@ -11,8 +11,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.core.os.bundleOf
@@ -39,17 +39,19 @@ import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import compose.icons.TablerIcons
 import compose.icons.tablericons.ChevronRight
 
-const val ARG_INITIAL_SEARCH = "initial_search"
+const val ARG_BASE_FILTERS = "base_filters"
 
 @Composable
 fun Elements(navController: NavController, viewModel: AttestationViewModel) {
+    val basefilters =
+        navController.currentBackStackEntry?.arguments?.getString(ARG_BASE_FILTERS, "")
+
     // Navigate to single element view, pass clicked id as argument
     fun onElementClicked(itemid: String) {
-        navController.navigate(Screen.Element.route, bundleOf(Pair(ARG_ITEM_ID, itemid)))
+        navController.navigate(Screen.Element.route, bundleOf(Pair(ARG_ELEMENT_ID, itemid)))
     }
 
     val elementResponse = viewModel.elementFlowResponse.collectAsState().value
-    val elements = elementResponse.data ?: listOf()
     val lastIndex = viewModel.elementFlowResponse.collectAsState().value.data?.lastIndex ?: 0
     val isRefreshing = viewModel.isRefreshing.collectAsState()
     val filters = remember { mutableStateOf(TextFieldValue()) }
@@ -63,8 +65,10 @@ fun Elements(navController: NavController, viewModel: AttestationViewModel) {
             // Header
             item {
                 HeaderRoundedBottom {
-                    SearchBar(filters,
-                        stringResource(id = R.string.placeholder_search_elementlist))
+                    SearchBar(
+                        filters,
+                        stringResource(id = R.string.placeholder_search_elementlist)
+                    )
                 }
                 Spacer(modifier = Modifier.size(5.dp))
             }
@@ -79,14 +83,20 @@ fun Elements(navController: NavController, viewModel: AttestationViewModel) {
                             LoadingIndicator()
                         }
                     }
-                    else -> {}
+                    else -> {
+                    }
                 }
             }
 
 
             // List of the elements
-            itemsIndexed(if (filters.value.text.isEmpty()) elements else viewModel.filterElements(
-                DataFilter(filters.value.text))) { index, element ->
+            itemsIndexed(
+                viewModel
+                    .filterElements(
+                        DataFilter(filters.value.text),
+                        DataFilter(basefilters.toString())
+                    )
+            ) { index, element ->
                 if (index + FETCH_START_BUFFER >= lastIndex) {
                     viewModel.getMoreElements()
                 }
@@ -103,19 +113,22 @@ fun Elements(navController: NavController, viewModel: AttestationViewModel) {
                     Modifier
                         .fillMaxWidth()
                         .padding(24.dp),
-                    horizontalArrangement = Arrangement.Center) {
+                    horizontalArrangement = Arrangement.Center
+                ) {
                     if (isLoading.value) {
-                        CircularProgressIndicator(modifier = Modifier.size(32.dp),
-                            color = MaterialTheme.colors.primary)
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(32.dp),
+                            color = MaterialTheme.colors.primary
+                        )
                     } else if (!isRefreshing.value && elementResponse.status != Status.ERROR) {
                         Text(text = "All elements loaded", color = DarkGrey)
                     }
                 }
             }
         }
+
     }
 }
-
 
 @Composable
 private fun ElementListItem(
@@ -146,12 +159,22 @@ private fun ElementListItem(
                 Row {
                     TagRow(tags = element.types)
                 }
-                Row(Modifier.padding(start = 4.dp)) {
-                    DecorText("$attestations", Primary, true)
-                    Spacer(modifier = Modifier.size(10.dp))
-                    DecorText("$passed", Ok, true)
-                    Spacer(modifier = Modifier.size(10.dp))
-                    DecorText("$failed", Error, true)
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Row(Modifier.padding(start = 4.dp)) {
+                        DecorText("$attestations", Primary, true)
+                        Spacer(modifier = Modifier.size(10.dp))
+                        DecorText("$passed", Ok, true)
+                        Spacer(modifier = Modifier.size(10.dp))
+                        DecorText("$failed", Error, true)
+                    }
+                    Spacer(modifier = Modifier.size(4.dp))
+                    Text(
+                        modifier = Modifier.padding(top = 4.dp, start = 4.dp),
+                        text = "(24h)",
+                        color = LightGrey,
+                        fontWeight = FontWeight.Normal,
+                        fontSize = FONTSIZE_XS,
+                    )
                 }
             }
         }
