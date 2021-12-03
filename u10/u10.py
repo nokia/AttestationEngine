@@ -21,7 +21,6 @@ from blueprints.log import log_blueprint
 from blueprints.ping import ping_blueprint
 from blueprints.qrcodes import qrcodes_blueprint
 
-
 u10 = Flask(__name__)
 
 secret = secrets.token_urlsafe(64)
@@ -66,7 +65,6 @@ def not_found(e):
 @u10.errorhandler(451)
 def censored(e):
     return render_template("home/451.html")    
-
 
 @u10.errorhandler(418)
 def teapot(e):
