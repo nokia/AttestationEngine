@@ -1,7 +1,6 @@
 package com.example.mobileattester.data.network
 
 import com.example.mobileattester.data.model.*
-import org.json.JSONObject
 import retrofit2.http.*
 
 /**
@@ -64,10 +63,10 @@ interface AttestationDataService {
     suspend fun getResult(@Path("itemid") itemid: String): ElementResult
 
 
-    @GET("result/element/latest/{itemid}/{limit}")
+    @GET("results/element/latest/{itemid}")
     suspend fun getElementResults(
         @Path("itemid") itemid: String,
-        @Path("limit") limit: Int,
+        @Query("limit") limit: Int,
     ): List<ElementResult>
 
 
