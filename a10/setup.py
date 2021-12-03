@@ -1,6 +1,6 @@
-# Copyright 2021 Nokia
-# Licensed under the BSD 3-Clause License.
-# SPDX-License-Identifier: BSD-3-Clause
+#Copyright 2021 Nokia
+#Licensed under the BSD 3-Clause Clear License.
+#SPDX-License-Identifier: BSD-3-Clear
 
 import setuptools
 
@@ -9,7 +9,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="a10",
-    version="2021.11.26",
+    version="2021.11.29",
     author="Ian Oliver",
     author_email="ian.oliver@nokia-bell-labs.com",
     description="Attestation Services Engine and Libraries",

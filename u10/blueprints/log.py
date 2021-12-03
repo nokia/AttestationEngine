@@ -26,11 +26,19 @@ log_blueprint.secret_key = secret
 @log_blueprint.route("/log", methods=["GET"])
 def getlog():
     lrs = 250  # default number of latest results if nothing else is specified
+    ref = 15000 # refresh interval, 15000 = 15s.  Can range between 5s and 300s
 
     if "lrs" in request.args:
         lrs = int(request.args["lrs"])
         if lrs < 1:
             lrs = 1
+
+    if "ref" in request.args:
+        ref = int(request.args["ref"])
+        if ref < 5000:
+            ref = 5000
+        if ref > 300000:
+            ref = 300000
 
     ls = a10.asvr.db.announce.getLatestLogEntries(lrs)
     for l in ls:
@@ -42,5 +50,5 @@ def getlog():
         lrs = lc
 
     return render_template(
-        "log.html", ls=ls, lrs=lrs, lc=lc, lt=ts, ltutc=formatting.futc(ts)
+        "log.html", ls=ls, lrs=lrs, lc=lc, lt=ts, ltutc=formatting.futc(ts),ref=ref
     )

@@ -11,10 +11,16 @@ import requests
 import configparser
 import sys
 import os
+import signal
 
-VERSION = "0.3.nu"
+VERSION = "0.3.1.nu"
 ASVRS = []
 ASVRS_RESP = []
+
+USESIGNALS = "no"
+if len(sys.argv)>1:
+    if sys.argv[1]=="-s":
+        USESIGNALS = "yes"
 
 ta = Flask(__name__)
 
@@ -34,29 +40,43 @@ def getconfiguration(path):
 
     config = configparser.ConfigParser()
     
+    # the config for the list of asvrs is
+    # elementID , AS URL ; ... repeat
+
     try:
         config.read(path)
-        ASVRS = config["Asvr"]["asvrs"].split(",")  # this will return a list
+        es = config["Asvr"]["asvrs"].split(";")  # this will return a list of comma separated elementID and AE urls
+        for e in es:
+            a = e.split(",")
+            ASVRS.append((a[0],a[1]))
     except Exception as e:
         print("T10 configuration file error ",e," write reading ",path,". Exiting.")
         exit(1)
 
 
-def announceStartUp():
+def announce(m,msg="-"):
     global ASVRS_RESP
 
-    for url in ASVRS:
+
+    ASVRS_RESP = []
+
+    for a in ASVRS:
+        eid = a[0]
+        url = a[1]
+        print("messaging",m,"to",url,"as",eid)
         try:
-            r = requests.post(url+"/msg",json = {'msg':'ta_startup'})
+            r = requests.post(url+"/msg",json = {'msg':msg,'elementid':eid,'op':m})
             ASVRS_RESP.append( 
-               { "url":url, "status":r.status_code }
+               { "url":url, "status":r.status_code, "response":r.text}
             )
         except Exception as e:
             ASVRS_RESP.append( 
                { "url":url, "exception":str(e) }
             )
         
-
+@ta.errorhandler(404)
+def not_found(e):
+  return "no",404
 
 @ta.route("/", methods=["GET"])
 def status_homepage():
@@ -70,16 +90,26 @@ def status_homepage():
         "os": os.name,
         "pid": os.getpid(),
         "asvrs": ASVRS,
-        "asvrresponses" : ASVRS_RESP
+        "asvrresponses" : ASVRS_RESP,
+        "usesignals" : USESIGNALS
     }
 
     return jsonify(rc), 200
+
+@ta.route("/ta/reannounce", methods=["GET"])
+def ta_reannounce():
+    announce("ta_reannounce")
+    return "reannouce", 200
+
+def receiveSignal(signalNumber, frame):
+    print('Received:', signalNumber)
+    announce("ta_signal",msg=str(signalNumber))
 
 
 def main(cert, key, config_filename="ta_config.cfg"):
     listroutes()
     getconfiguration("/etc/t10.conf")
-    announceStartUp()
+    announce("ta_startup")
 
     ta.config.from_pyfile(config_filename)
     if cert and key:
@@ -101,4 +131,18 @@ def main(cert, key, config_filename="ta_config.cfg"):
 
 if __name__ == "__main__":
     print("TA Starting")
+    #trap certain signals, all except SIGTERM (-9) which can't be caught
+    if USESIGNALS=="yes":
+        signal.signal(signal.SIGHUP,receiveSignal)
+        signal.signal(signal.SIGQUIT,receiveSignal)
+        signal.signal(signal.SIGINT,receiveSignal)
+        signal.signal(signal.SIGABRT,receiveSignal)
+        signal.signal(signal.SIGALRM,receiveSignal)
+        signal.signal(signal.SIGTERM,receiveSignal)
+        signal.signal(signal.SIGBREAK,receiveSignal)
+
+    #GO!
     main("", "")
+    #if we can ever get here
+    announce("ta_stop")
+
