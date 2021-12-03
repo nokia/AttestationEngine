@@ -19,6 +19,7 @@ from blueprints.hashes import hashes_blueprint
 from blueprints.elementanalytics import elementanalytics_blueprint
 from blueprints.log import log_blueprint
 from blueprints.ping import ping_blueprint
+from blueprints.qrcodes import qrcodes_blueprint
 
 
 u10 = Flask(__name__)
@@ -40,6 +41,7 @@ u10.register_blueprint(hashes_blueprint)
 u10.register_blueprint(elementanalytics_blueprint)
 u10.register_blueprint(log_blueprint)
 u10.register_blueprint(ping_blueprint)
+u10.register_blueprint(qrcodes_blueprint)
 
 # This function is unused but I'll leave it here for documentation and future purposes
 # You can call this function from a template, eg: {{ resolveTheHash }} - use the name in the returned dict
@@ -74,32 +76,32 @@ def teapot(e):
 # Use this for development
 #
 
-#def main(cert, key, config_filename="u10.conf"):
-#    u10.config.from_pyfile(config_filename)
-#    if cert and key:
-#        u10.run(
-#            debug=u10.config["FLASKDEBUG"],
-#            threaded=u10.config["FLASKTHREADED"],
-#            host=u10.config["DEFAULTHOST"],
-#            port=u10.config["DEFAULTPORT"],
-#            ssl_context=(cert, key),
-#        )
-#    else:
-#        print("running")
-#        u10.run(
-#            debug=u10.config["FLASKDEBUG"],
-#            threaded=u10.config["FLASKTHREADED"],
-#            host=u10.config["DEFAULTHOST"],
-#            port=u10.config["DEFAULTPORT"],
-#        )
+def main(cert, key, config_filename="u10.conf"):
+    u10.config.from_pyfile(config_filename)
+    if cert and key:
+        u10.run(
+            debug=u10.config["FLASKDEBUG"],
+            threaded=u10.config["FLASKTHREADED"],
+            host=u10.config["DEFAULTHOST"],
+            port=u10.config["DEFAULTPORT"],
+            ssl_context=(cert, key),
+        )
+    else:
+        print("running")
+        u10.run(
+            debug=u10.config["FLASKDEBUG"],
+            threaded=u10.config["FLASKTHREADED"],
+            host=u10.config["DEFAULTHOST"],
+            port=u10.config["DEFAULTPORT"],
+        )
 
 
 #
 # Use this in production
 #
-def main(cert, key):
-   from waitress import serve
-   serve(u10, host="0.0.0.0", port=8540)
+#def main(cert, key):
+#   from waitress import serve
+#   serve(u10, host="0.0.0.0", port=8540)
 
 
 if __name__ == "__main__":
