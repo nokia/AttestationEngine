@@ -1,0 +1,30 @@
+
+<!--
+Copyright 2021 Nokia
+Licensed under the BSD 3-Clause Clear License.
+SPDX-License-Identifier: BSD-3-Clear
+-->
+
+{% extends "base.html" %}
+
+{% block content %}
+
+<h3>Element QR Codes in Printable Format</h3>
+
+
+
+        {% for e in es %}
+          
+          <div>
+           <img src=https://chart.googleapis.com/chart?cht=qr&chs=100x100&choe=UTF8&chld=M&chl={{ e.itemid }}>
+            <b>{{ e.name }}</b>
+            {{ e.endpoint }}
+         </div>
+        
+        {% endfor %}
+
+
+        
+
+
+{% endblock %}
