@@ -107,7 +107,7 @@ object NavUtils {
                 composable(Screen.Home.route) { Home(navController, viewModel) }
                 composable(Screen.Elements.route) { Elements(navController, viewModel) }
                 composable(Screen.Scanner.route) { Scanner(navController, viewModel) }
-                composable(Screen.More.route) { MapWrapper(navController, viewModel) }
+                composable(Screen.More.route) { More(navController, viewModel) }
                 composable(Screen.Element.route) { Element(navController, viewModel) }
                 composable(Screen.Attest.route) { Attest(navController, viewModel) }
                 composable(Screen.Map.route) { MapWrapper(navController, viewModel) }

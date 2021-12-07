@@ -75,6 +75,8 @@ dependencies {
 
     // OsmDroid
     implementation 'org.osmdroid:osmdroid-android:6.1.11'
+    // Extra features for OSMDroid
+    implementation 'com.github.mkergall:osmbonuspack:6.7.0'
 
     // Lifecycle
     implementation 'androidx.lifecycle:lifecycle-common:2.4.0'
@@ -93,6 +95,7 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.6'
     implementation 'com.squareup.retrofit2:converter-gson:2.5.0'
     implementation 'com.squareup.okhttp3:logging-interceptor:3.12.0'
+    implementation 'com.squareup.retrofit2:converter-scalars:2.5.0'
 
     // Home
     implementation("androidx.datastore:datastore-preferences:1.0.0")

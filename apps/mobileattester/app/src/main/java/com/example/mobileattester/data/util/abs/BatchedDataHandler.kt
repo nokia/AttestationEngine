@@ -62,6 +62,25 @@ abstract class BatchedDataHandler<T, U>(
     }
 
     /**
+     * Call to start a loop that fetches batches continuously.
+     */
+    fun startFetchLoop() {
+        scope.launch {
+            while (!allChunksLoaded()) {
+                val batchNumber = (batches.keys.maxOrNull() ?: -1) + 1
+                val isLoading = batchesLoading.value.contains(batchNumber)
+                if (!isLoading) {
+                    handleFetch(batchNumber)
+                }
+            }
+        }
+    }
+
+    fun stopFetchLoop() {
+        job.cancelChildren(CancellationException("Fetch loop stopped"))
+    }
+
+    /**
      * Call to start fetch for the next batch.
      */
     fun fetchNextBatch() {
@@ -71,25 +90,8 @@ abstract class BatchedDataHandler<T, U>(
             return
         }
 
-        setLoading(batchNumber)
-
         scope.launch {
-            try {
-                retryIO {
-                    batches[batchNumber] = fetchBatch(batchNumber)
-                    dataFlow.value = Response.success(dataAsList())
-                }
-            } catch (e: Exception) {
-                Log.d(TAG, "failed to fetch next batch[$batchNumber]: $e")
-                dataFlow.value =
-                    Response.error(message = "Error: ${e.message}", data = dataAsList())
-            } finally {
-                setNotLoading(batchNumber)
-
-                if (allChunksLoaded()) {
-                    notifier?.notifyAll(NOTIFY_BATCH_FETCHED)
-                }
-            }
+            handleFetch(batchNumber)
         }
     }
 
@@ -210,8 +212,27 @@ abstract class BatchedDataHandler<T, U>(
 
         return loadedBatchValues
     }
-// ---- Private ----
-// ---- Private ----
+
+    // ---- Private ----
+    // ---- Private ----
+
+    private suspend fun handleFetch(batchNumber: Int) {
+        setLoading(batchNumber)
+        try {
+            retryIO {
+                batches[batchNumber] = fetchBatch(batchNumber)
+                dataFlow.value = Response.success(dataAsList())
+            }
+        } catch (e: Exception) {
+            Log.d(TAG, "failed to fetch next batch[$batchNumber]: $e")
+            dataFlow.value = Response.error(message = "Error: ${e.message}", data = dataAsList())
+        } finally {
+            setNotLoading(batchNumber)
+            if (allChunksLoaded()) {
+                notifier?.notifyAll(NOTIFY_BATCH_FETCHED)
+            }
+        }
+    }
 
     private suspend fun fetchBatch(batchNumber: Int): List<Pair<T, U>> {
         // Get next chunk from the list

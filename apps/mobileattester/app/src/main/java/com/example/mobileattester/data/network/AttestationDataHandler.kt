@@ -1,19 +1,15 @@
 package com.example.mobileattester.data.network
 
 import android.util.Log
-import com.example.mobileattester.data.model.Element
-import com.example.mobileattester.data.model.ElementResult
-import com.example.mobileattester.data.model.Policy
-import com.example.mobileattester.data.model.Rule
-import com.example.mobileattester.data.model.ExpectedValue
+import com.example.mobileattester.data.model.*
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonObject
 import kotlinx.coroutines.flow.MutableStateFlow
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
-
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.converter.scalars.ScalarsConverterFactory
 
 /**
  * Middleman for REST-api service and X.
@@ -32,7 +28,7 @@ interface AttestationDataHandler {
     suspend fun getElementIds(): List<String>
     suspend fun getElement(itemid: String): Element
     suspend fun getAllTypes(): List<String>
-    suspend fun updateElement(element: Element)
+    suspend fun updateElement(element: Element): String
 
     // --- Policies ---
     suspend fun getPolicyIds(): List<String>
@@ -71,12 +67,10 @@ class AttestationDataHandlerImpl(
     }
 
     private fun buildService() {
-        val gson =
-            GsonBuilder()
-                .setLenient()
-                .create()
+        val gson = GsonBuilder().setLenient().create()
 
         apiService = Retrofit.Builder().baseUrl(initialUrl).client(getOkHttpClient())
+            .addConverterFactory(ScalarsConverterFactory.create()) //important
             .addConverterFactory(GsonConverterFactory.create(gson)).build()
             .create(AttestationDataService::class.java)
     }
@@ -93,8 +87,7 @@ class AttestationDataHandlerImpl(
         val level = HttpLoggingInterceptor.Level.BASIC
         //New log interceptor
         val loggingInterceptor = HttpLoggingInterceptor { message ->
-            Log.d("RETROFIT",
-                "OkHttp====Message:$message")
+            Log.d("RETROFIT", "OkHttp====Message:$message")
         }
         loggingInterceptor.level = level
 
@@ -131,18 +124,12 @@ class AttestationDataHandlerImpl(
         apiService.getElementResults(itemid, limit)
 
     override suspend fun attestElement(eid: String, pid: String): String {
-        val params = AttestationParams(
-            eid = eid,
-            pid = pid
-        )
+        val params = AttestationParams(eid = eid, pid = pid)
         return apiService.attestElement(params)
     }
 
     override suspend fun verifyClaim(cid: String, rul: String): String {
-        val params = VerifyParams(
-            cid,
-            listOf(rul, JsonObject())
-        )
+        val params = VerifyParams(cid, listOf(rul, JsonObject()))
         return apiService.verifyClaim(params)
     }
 

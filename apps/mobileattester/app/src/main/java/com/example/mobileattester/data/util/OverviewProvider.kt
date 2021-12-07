@@ -71,8 +71,6 @@ class OverviewProviderImpl(
                         }
                         OVERVIEW_ATTESTED_ELEMENTS_FAIL_24H -> {
                             element.results.filter {
-                                println(Timestamp.fromSecondsString(it.verifiedAt)!!.timeSince()
-                                    .toHours())
                                 Timestamp.fromSecondsString(it.verifiedAt)!!.timeSince()
                                     .toHours() < 24
                             }.any { it.result != 0 }.also {
