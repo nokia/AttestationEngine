@@ -46,9 +46,15 @@ const val ARG_ELEMENT_ID = "item_id"
 
 @Composable
 fun Element(navController: NavController, viewModel: AttestationViewModel) {
-    val clickedElementId = navController.currentBackStackEntry?.arguments?.getString(ARG_ELEMENT_ID)
-    val element = viewModel.getElementFromCache(clickedElementId ?: "") ?: run {
-        ElementNull()
+    val clickedElementId = remember {
+        navController.currentBackStackEntry?.arguments?.getString(ARG_ELEMENT_ID)
+    }
+    val element = remember {
+        viewModel.getElementFromCache(clickedElementId ?: "")
+    }
+
+    if (element == null) {
+        Text(text = "Element null.")
         return
     }
 
@@ -85,10 +91,7 @@ fun Element(navController: NavController, viewModel: AttestationViewModel) {
             Text(text = element.description ?: "", color = DarkGrey)
             Spacer(modifier = Modifier.size(26.dp))
             Divider(color = DividerColor, thickness = 1.dp)
-            ElementMap(element = element) {
-                println("ON LOCATION CLICKED")
-                onLocationClick()
-            }
+            ElementMap(element = element) { onLocationClick() }
             Divider(color = DividerColor, thickness = 1.dp)
             Spacer(modifier = Modifier.size(26.dp))
             ElementResult(navController, element)
@@ -105,13 +108,11 @@ private fun ElementMap(element: Element, onClick: () -> Unit) {
     Text(modifier = Modifier.padding(top = 16.dp, bottom = 24.dp),
         text = "Location",
         fontSize = FONTSIZE_XL)
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(180.dp)
-            .clip(ROUNDED_SM),
-        contentAlignment = CenterEnd
-    ) {
+    Box(modifier = Modifier
+        .fillMaxWidth()
+        .height(180.dp)
+        .clip(ROUNDED_SM),
+        contentAlignment = CenterEnd) {
         AndroidView(
             factory = {
                 MapView(it).apply {
@@ -122,20 +123,17 @@ private fun ElementMap(element: Element, onClick: () -> Unit) {
                     setBuiltInZoomControls(false)
                     setOnTouchListener { v, _ -> true }
                     val marker = Marker(this).apply {
-                        icon =
-                            AppCompatResources.getDrawable(ctx,
-                                R.drawable.ic_baseline_location_on_32)
-                                .apply {
-                                    this?.setTint(ctx.getColor(R.color.primary))
-                                }
+                        icon = AppCompatResources.getDrawable(ctx,
+                            R.drawable.ic_baseline_location_on_32).apply {
+                            this?.setTint(ctx.getColor(R.color.primary))
+                        }
                         position = loc
                         setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
                     }
                     this.overlays?.add(marker)
                 }
             },
-            modifier = Modifier
-                .clip(ROUNDED_SM),
+            modifier = Modifier.clip(ROUNDED_SM),
         )
         Icon(
             imageVector = TablerIcons.ChevronRight,
@@ -148,7 +146,6 @@ private fun ElementMap(element: Element, onClick: () -> Unit) {
     }
 
 }
-
 
 @Composable
 private fun ElementNull() {
@@ -165,13 +162,11 @@ private fun ElementNull() {
 
 @Composable
 private fun ElementResult(navController: NavController, element: Element) {
-    val resultHoursShown = remember { mutableStateOf(
-        navController.currentBackStackEntry?.arguments?.getInt("result_hours_shown", 24) ?: 24
-    )}
+    val resultHoursShown = remember {
+        mutableStateOf(navController.currentBackStackEntry?.arguments?.getInt("result_hours_shown",
+            24) ?: 24)
+    }
     val latestResults = element.results.latestResults(resultHoursShown.value)
-
-
-
 
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
         Text("Results", fontSize = FONTSIZE_XL)
@@ -192,19 +187,13 @@ private fun ElementResult(navController: NavController, element: Element) {
         val resultTimestamp = Timestamp.fromSecondsString(result!!.verifiedAt)!!
 
         resultHoursShown.value = resultTimestamp.timeSince().toHours().hoursHWMYRounded()
-
     }
 
-
-
-    ElementResultFull(
-        latestResults,
-        latestResults.size == element.results.size,
-        onResultClicked = {
-            navController.currentBackStackEntry?.arguments?.putInt("result_hours_shown",resultHoursShown.value)
-            navController.navigate(Screen.Result.route, bundleOf(Pair(ARG_RESULT_ID, it.itemid)))
-        }, onMoreRequested = onMoreResultsRequested
-    )
+    ElementResultFull(latestResults, latestResults.size == element.results.size, onResultClicked = {
+        navController.currentBackStackEntry?.arguments?.putInt("result_hours_shown",
+            resultHoursShown.value)
+        navController.navigate(Screen.Result.route, bundleOf(Pair(ARG_RESULT_ID, it.itemid)))
+    }, onMoreRequested = onMoreResultsRequested)
 }
 
 @Composable

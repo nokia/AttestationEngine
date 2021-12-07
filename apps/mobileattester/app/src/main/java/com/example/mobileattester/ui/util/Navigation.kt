@@ -1,6 +1,5 @@
 package com.example.mobileattester.ui.util
 
-import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.annotation.StringRes
@@ -8,11 +7,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -28,6 +25,8 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.mobileattester.R
 import com.example.mobileattester.ui.pages.*
+import com.example.mobileattester.ui.theme.Primary
+import com.example.mobileattester.ui.theme.Secondary
 import com.example.mobileattester.ui.viewmodel.AttestationViewModelImpl
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import compose.icons.TablerIcons
@@ -61,12 +60,11 @@ sealed class Screen(val route: String, @StringRes val stringResId: Int) {
     object Policy : Screen("policy", R.string.nav_policy)
 }
 
-@ExperimentalPermissionsApi
 object NavUtils {
     /**
      * Top nav destinations for the application (Bottom nav locations)
      */
-    private val bottomNavDestinations = listOf<Screen>(
+    private val bottomNavDestinations = listOf(
         Screen.Home,
         Screen.Elements,
         Screen.Scanner,
@@ -76,6 +74,7 @@ object NavUtils {
     /**
      * Provides a navigator for the application
      */
+    @ExperimentalPermissionsApi
     @Composable
     fun Navigator() {
         val navController = rememberNavController()
@@ -83,52 +82,45 @@ object NavUtils {
         val viewModel: AttestationViewModelImpl =
             viewModel(viewModelStoreOwner = LocalContext.current as ComponentActivity)
 
+        // When navigating to a new screen, show/hide top bar as required
+        DisposableEffect(LocalContext.current) {
+            val listener = NavController.OnDestinationChangedListener { _, d, _ ->
+                Screen.getScreenFromRoute(d.route ?: "")?.let {
+                    showTopBar.value = showsTopBar(it)
+                }
+            }
+            navController.addOnDestinationChangedListener(listener)
+            onDispose {
+                navController.removeOnDestinationChangedListener(listener)
+            }
+        }
+
         Scaffold(
             topBar = { if (showTopBar.value) TopBar(navController) },
-            bottomBar = {
-                BottomBar(navController)
-            },
+            bottomBar = { BottomBar(navController) },
         ) { innerPadding ->
             NavHost(
-                navController,
+                modifier = Modifier.padding(innerPadding),
+                navController = navController,
                 startDestination = Screen.Home.route,
-                Modifier.padding(innerPadding)
             ) {
-                // Add new nav destinations here after Screen for it is created
-                composable(Screen.Home.route) {
-                    showTopBar.value = true; Home(navController, viewModel)
-                }
-                composable(Screen.Elements.route) {
-                    showTopBar.value = true; Elements(navController, viewModel)
-                }
-                composable(Screen.Scanner.route) {
-                    showTopBar.value = false; Scanner(navController, viewModel)
-                } // Experimental Permissions
-                composable(Screen.More.route) {
-                    showTopBar.value = true; MapWrapper(navController,
-                    viewModel)
-                }
-                composable(Screen.Element.route) {
-                    showTopBar.value = true; Element(navController, viewModel)
-                }
-                composable(Screen.Attest.route) {
-                    showTopBar.value = true; Attest(navController, viewModel)
-                }
+                composable(Screen.Home.route) { Home(navController, viewModel) }
+                composable(Screen.Elements.route) { Elements(navController, viewModel) }
+                composable(Screen.Scanner.route) { Scanner(navController, viewModel) }
+                composable(Screen.More.route) { MapWrapper(navController, viewModel) }
+                composable(Screen.Element.route) { Element(navController, viewModel) }
+                composable(Screen.Attest.route) { Attest(navController, viewModel) }
+                composable(Screen.Map.route) { MapWrapper(navController, viewModel) }
+                composable(Screen.Policy.route) { Policy(navController, viewModel) }
                 composable(Screen.Claim.route) {
-                    showTopBar.value = true; ClaimWrapper(navController, viewModel.useAttestationUtil())
+                    ClaimWrapper(navController, viewModel.useAttestationUtil())
                 }
                 composable(Screen.Result.route) {
-                    showTopBar.value = false; ResultScreenProvider(
-                    navController = navController,
-                    viewModel = viewModel,
-                    resultFlow = viewModel.useAttestationUtil().latestResult,
-                )
-                }
-                composable(Screen.Map.route) {
-                    showTopBar.value = true; MapWrapper(navController, viewModel)
-                }
-                composable(Screen.Policy.route) {
-                    showTopBar.value = true; Policy(navController, viewModel)
+                    ResultScreenProvider(
+                        navController = navController,
+                        viewModel = viewModel,
+                        resultFlow = viewModel.useAttestationUtil().latestResult,
+                    )
                 }
             }
         }
@@ -148,23 +140,20 @@ object NavUtils {
                     label = { Text(stringResource(screen.stringResId)) },
                     selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
                     onClick = {
-                        if (screen.route != currentDestination?.route)
-                            navController.navigate(screen.route) {
-                                while (navController.popBackStack()) {
-                                } // Remove backstack for back button
+                        if (screen.route != currentDestination?.route) navController.navigate(screen.route) {
+                            navController.popBackStack()
 
-                                popUpTo(navController.graph.findStartDestination().id) {
-                                    saveState = true
-                                }
-                                // Avoid multiple copies of the same destination when
-                                // reselecting the same item
-                                launchSingleTop = true
-                                // Restore state when reselecting a previously selected item
-                                restoreState = true
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
                             }
+                            // Avoid multiple copies of the same destination when
+                            // reselecting the same item
+                            launchSingleTop = true
+                            // Restore state when reselecting a previously selected item
+                            restoreState = true
+                        }
                     },
-
-                    )
+                )
             }
         }
     }
@@ -180,27 +169,27 @@ object NavUtils {
         if (isTopDestination) {
             TopAppBar(
                 title = { Text(stringResource(id = screen.stringResId)) },
-                backgroundColor = MaterialTheme.colors.primary,
-                contentColor = MaterialTheme.colors.onPrimary,
+                backgroundColor = getTopBarColor(screen),
             )
-        } else {
-            TopAppBar(
-                title = { Text(stringResource(id = screen.stringResId)) },
-                backgroundColor = MaterialTheme.colors.primary,
-                contentColor = MaterialTheme.colors.onPrimary,
-                navigationIcon = {
-                    IconButton(
-                        content = {
-                            Icon(
-                                painter = painterResource(id = R.drawable.ic_baseline_arrow_back_24),
-                                contentDescription = null,
-                            )
-                        },
-                        onClick = { navController.navigateUp() },
-                    )
-                },
-            )
+            return
         }
+
+        // With back icon
+        TopAppBar(
+            title = { Text(stringResource(id = screen.stringResId)) },
+            backgroundColor = getTopBarColor(screen),
+            navigationIcon = {
+                IconButton(
+                    content = {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_baseline_arrow_back_24),
+                            contentDescription = null,
+                        )
+                    },
+                    onClick = { navController.navigateUp() },
+                )
+            },
+        )
     }
 
     private fun getRouteIcon(screen: Screen): ImageVector {
@@ -212,10 +201,26 @@ object NavUtils {
             else -> TablerIcons.QuestionMark
         }
     }
+
+    private fun getTopBarColor(screen: Screen): Color {
+        return when (screen) {
+            Screen.Result -> Secondary
+            else -> Primary
+        }
+    }
+
+    /**
+     * @return Should route show top bar?
+     */
+    private fun showsTopBar(screen: Screen): Boolean {
+        return when (screen) {
+            Screen.Scanner -> false
+            else -> true
+        }
+    }
 }
 
 // NavController extension that allows arguments
-@SuppressLint("RestrictedApi") // ?
 fun NavController.navigate(
     route: String,
     args: Bundle,

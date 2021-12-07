@@ -24,10 +24,10 @@ import com.example.mobileattester.data.network.Status
 import com.example.mobileattester.data.util.abs.DataFilter
 import com.example.mobileattester.ui.components.SearchBar
 import com.example.mobileattester.ui.components.TagRow
+import com.example.mobileattester.ui.components.anim.FadeInWithDelay
 import com.example.mobileattester.ui.components.common.DecorText
 import com.example.mobileattester.ui.components.common.ErrorIndicator
 import com.example.mobileattester.ui.components.common.HeaderRoundedBottom
-import com.example.mobileattester.ui.components.common.LoadingIndicator
 import com.example.mobileattester.ui.theme.*
 import com.example.mobileattester.ui.util.Screen
 import com.example.mobileattester.ui.util.latestResults
@@ -38,24 +38,31 @@ import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import compose.icons.TablerIcons
 import compose.icons.tablericons.ChevronRight
+import compose.icons.tablericons.Refresh
 
 const val ARG_BASE_FILTERS = "base_filters"
 
 @Composable
 fun Elements(navController: NavController, viewModel: AttestationViewModel) {
-    val basefilters =
+    val elementResponse = viewModel.elementFlowResponse.collectAsState().value
+    val lastIndex = viewModel.elementFlowResponse.collectAsState().value.data?.lastIndex ?: 0
+    val isRefreshing = viewModel.isRefreshing.collectAsState()
+    val filters = remember { mutableStateOf(TextFieldValue()) }
+    val isLoading = viewModel.isLoading.collectAsState()
+    val basefilters = remember {
         navController.currentBackStackEntry?.arguments?.getString(ARG_BASE_FILTERS, "")
+    }
 
     // Navigate to single element view, pass clicked id as argument
     fun onElementClicked(itemid: String) {
         navController.navigate(Screen.Element.route, bundleOf(Pair(ARG_ELEMENT_ID, itemid)))
     }
 
-    val elementResponse = viewModel.elementFlowResponse.collectAsState().value
-    val lastIndex = viewModel.elementFlowResponse.collectAsState().value.data?.lastIndex ?: 0
-    val isRefreshing = viewModel.isRefreshing.collectAsState()
-    val filters = remember { mutableStateOf(TextFieldValue()) }
-    val isLoading = viewModel.isLoading.collectAsState()
+    fun onLoadElements() {
+        if (elementResponse.data?.isNotEmpty() == true) {
+            viewModel.getMoreElements()
+        } else viewModel.refreshElements()
+    }
 
     SwipeRefresh(
         state = rememberSwipeRefreshState(isRefreshing.value),
@@ -65,38 +72,17 @@ fun Elements(navController: NavController, viewModel: AttestationViewModel) {
             // Header
             item {
                 HeaderRoundedBottom {
-                    SearchBar(
-                        filters,
-                        stringResource(id = R.string.placeholder_search_elementlist)
-                    )
+                    SearchBar(filters, stringResource(id = R.string.placeholder_search_elementlist))
                 }
                 Spacer(modifier = Modifier.size(5.dp))
             }
 
-            item {
-                when (elementResponse.status) {
-                    Status.ERROR -> {
-                        ErrorIndicator(msg = elementResponse.message.toString())
-                    }
-                    Status.LOADING -> {
-                        if (!isRefreshing.value) {
-                            LoadingIndicator()
-                        }
-                    }
-                    else -> {
-                    }
-                }
-            }
-
-
             // List of the elements
             itemsIndexed(
-                viewModel
-                    .filterElements(
-                        DataFilter(filters.value.text),
-                        DataFilter(basefilters.toString())
-                    )
+                viewModel.filterElements(DataFilter(filters.value.text),
+                    DataFilter(basefilters.toString())),
             ) { index, element ->
+                // Get more elements when we are getting close to the end of the list
                 if (index + FETCH_START_BUFFER >= lastIndex) {
                     viewModel.getMoreElements()
                 }
@@ -107,18 +93,34 @@ fun Elements(navController: NavController, viewModel: AttestationViewModel) {
                 }
             }
 
+            item {
+                if (elementResponse.status == Status.ERROR && !isLoading.value) {
+                    FadeInWithDelay(200) {
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                        ) {
+                            ErrorIndicator(msg = elementResponse.message.toString())
+                            IconButton(onClick = { onLoadElements() }) {
+                                Icon(TablerIcons.Refresh, null, tint = Primary)
+                            }
+                        }
+                    }
+                }
+            }
+
             // Footer
             item {
                 Row(
-                    Modifier
+                    modifier = Modifier
                         .fillMaxWidth()
                         .padding(24.dp),
-                    horizontalArrangement = Arrangement.Center
+                    horizontalArrangement = Arrangement.Center,
                 ) {
                     if (isLoading.value) {
                         CircularProgressIndicator(
                             modifier = Modifier.size(32.dp),
-                            color = MaterialTheme.colors.primary
+                            color = MaterialTheme.colors.primary,
                         )
                     } else if (!isRefreshing.value && elementResponse.status != Status.ERROR) {
                         Text(text = "All elements loaded", color = DarkGrey)
@@ -135,10 +137,9 @@ private fun ElementListItem(
     element: Element,
     onElementClick: (id: String) -> Unit,
 ) {
-
-    val res = element.results.latestResults(24)
-    val attestations = res.size
-    val passed = res.count { it.result == CODE_RESULT_OK }
+    val results = element.results.latestResults(24)
+    val attestations = results.size
+    val passed = results.count { it.result == CODE_RESULT_OK }
     val failed = attestations - passed
 
     Row(
@@ -154,7 +155,6 @@ private fun ElementListItem(
         Row {
             Column {
                 Text(text = element.name, style = MaterialTheme.typography.h2)
-
                 Spacer(modifier = Modifier.size(8.dp))
                 Row {
                     TagRow(tags = element.types)

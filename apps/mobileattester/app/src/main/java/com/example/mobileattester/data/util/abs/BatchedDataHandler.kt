@@ -15,6 +15,13 @@ typealias FetchIdData<T, U> = suspend (T) -> U
 
 /**
  *  Data fetching in batches.
+ *
+ *  Gets a list of all the item ids ->
+ *  Creates chunks of the ids, size of param batchSize  ->
+ *  Initially fetches data for one chunk.
+ *
+ *  Call fetchNextBatch() whenever data for the next batch of ids is required.
+ *
  *  T - Id type
  *  U - Data type
  */
@@ -74,7 +81,8 @@ abstract class BatchedDataHandler<T, U>(
                 }
             } catch (e: Exception) {
                 Log.d(TAG, "failed to fetch next batch[$batchNumber]: $e")
-                dataFlow.value = Response.error(message = "Data could not be fetched: $e")
+                dataFlow.value =
+                    Response.error(message = "Error: ${e.message}", data = dataAsList())
             } finally {
                 setNotLoading(batchNumber)
 
@@ -110,7 +118,6 @@ abstract class BatchedDataHandler<T, U>(
                 Log.d(TAG, "refreshData: $e")
             } finally {
                 scope.launch {
-                    delay(500) // TODO Remove fake delay
                     _refreshingData.value = false
                 }
             }
@@ -168,32 +175,28 @@ abstract class BatchedDataHandler<T, U>(
         batches.entries.forEach { entry ->
             // For each key-value pair in fetched data
             entry.value.forEach loop@{
-                if(filterAll == null && filterAny == null)  {
+                if (filterAll == null && filterAny == null) {
                     loadedBatchValues.add(it.second)
                     return@loop
                 }
 
                 when (val value = it.second) {
                     is Filterable -> {
-                        var filtered : U? = null
+                        var filtered: U? = null
 
-                        if(filterAll != null) {
+                        if (filterAll != null) {
                             val matchesFilter = value.filter(filterAll)
-                            if (matchesFilter)
-                                filtered = it.second
+                            if (matchesFilter) filtered = it.second
                         }
 
-                        if(filterAny != null) {
+                        if (filterAny != null) {
                             val matchesFilter = value.filterAny(filterAny)
                             if (matchesFilter) {
-                                if(filterAll == null)
-                                    filtered = it.second
-                            }
-                            else
-                                filtered = null
+                                if (filterAll == null) filtered = it.second
+                            } else filtered = null
                         }
 
-                        if(filtered != null) {
+                        if (filtered != null) {
                             loadedBatchValues.add(filtered)
                         }
                     }
@@ -213,7 +216,7 @@ abstract class BatchedDataHandler<T, U>(
     private suspend fun fetchBatch(batchNumber: Int): List<Pair<T, U>> {
         // Get next chunk from the list
         val ids = listChunks?.getOrNull(batchNumber)
-            ?: throw Exception("The provided batch number does not exist.")
+            ?: throw Exception("Requested batch number does not exist.")
         var error: String? = null
 
         val temp = mutableListOf<Pair<T, U>>()
@@ -274,10 +277,12 @@ abstract class BatchedDataHandler<T, U>(
 
     private fun setLoading(batchNumber: Int) {
         batchesLoading.value.add(batchNumber)
+        isLoading.value = batchesLoading.value.isNotEmpty()
     }
 
     private fun setNotLoading(batchNumber: Int) {
         batchesLoading.value.remove(batchNumber)
+        isLoading.value = batchesLoading.value.isNotEmpty()
     }
 }
 

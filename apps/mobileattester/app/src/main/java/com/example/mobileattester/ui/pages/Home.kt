@@ -55,26 +55,20 @@ fun Home(navController: NavController? = null, viewModel: AttestationViewModel) 
     LaunchedEffect(scope) {
         preferences.engine.collect {
             // Switch engine from preference if not the same
-            if(currentUrl.value != "http://${it}/")
-                viewModel.switchBaseUrl("http://${it}/")
+            if (currentUrl.value != "http://${it}/") viewModel.switchBaseUrl("http://${it}/")
         }
     }
-
-
 
     /** UI */
     Column(modifier = Modifier.verticalScroll(ScrollState(0))) {
         var showAllConfigurations by remember { mutableStateOf(false) }
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Primary)
-                .border(0.dp, Color.Transparent)
-        ) {
+        Column(modifier = Modifier
+            .fillMaxSize()
+            .background(Primary)
+            .border(0.dp, Color.Transparent)) {
 
             // Top Bar
-            Text(
-                text = "Current Configuration",
+            Text(text = "Current Configuration",
                 modifier = Modifier.padding(10.dp, 15.dp, 10.dp, 5.dp),
                 fontSize = FONTSIZE_XXL,
                 color = Color.White)
@@ -123,15 +117,10 @@ fun Home(navController: NavController? = null, viewModel: AttestationViewModel) 
                         val config = parseBaseUrl(str)
 
                         if (config != null) {
-                            if(enginesList.value.contains(config))
-                            {
-                                Toast.makeText(
-                                    context,
-                                    "Config already exists",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-                            else {
+                            if (enginesList.value.contains(config)) {
+                                Toast.makeText(context, "Config already exists", Toast.LENGTH_SHORT)
+                                    .show()
+                            } else {
                                 enginesList.value.add(config)
 
                                 scope.launch {
@@ -195,9 +184,7 @@ fun ConfigurationButton(
                     label = { Text(text) },
                     onValueChange = { input = it; onTextChange(input) },
                     singleLine = true,
-                    keyboardActions = KeyboardActions(
-                        onDone = { onIconClick(input) }
-                    ),
+                    keyboardActions = KeyboardActions(onDone = { onIconClick(input) }),
                     colors = TextFieldDefaults.outlinedTextFieldColors(
                         unfocusedLabelColor = Color.White, // TODO: MaterialTheme.colors.primary
                         focusedLabelColor = Color.White,
@@ -260,8 +247,7 @@ fun Content(navController: NavController? = null, viewModel: AttestationViewMode
         if (isRefreshing.value) {
             LoadingIndicator()
         } else {
-            Text(
-                AnnotatedString(elementCount.value.data.toString()),
+            Text(AnnotatedString(elementCount.value.data.toString()),
                 modifier = Modifier
                     .padding(5.dp, 0.dp)
                     .align(Alignment.CenterVertically)
@@ -285,11 +271,14 @@ fun Content(navController: NavController? = null, viewModel: AttestationViewMode
     Column(Modifier.padding(horizontal = 2.dp)) {
         Spacer(modifier = Modifier.size(10.dp))
         Alert("Active", attestations = attestations?.size ?: -1, fail = fail?.size ?: -1) {
-            navController!!.navigate(Screen.Elements.route, bundleOf(Pair(ARG_BASE_FILTERS, fail?.joinToString(separator = " ") { it.itemid })))
+            navController!!.navigate(Screen.Elements.route,
+                bundleOf(Pair(ARG_BASE_FILTERS, fail?.joinToString(separator = " ") { it.itemid })))
         }
         Spacer(modifier = Modifier.size(20.dp))
         Alert("24H", attestations = attestations24?.size ?: -1, fail = fail24?.size ?: -1) {
-            navController!!.navigate(Screen.Elements.route, bundleOf(Pair(ARG_BASE_FILTERS, fail24?.joinToString(separator = " ") { it.itemid })))
+            navController!!.navigate(Screen.Elements.route,
+                bundleOf(Pair(ARG_BASE_FILTERS,
+                    fail24?.joinToString(separator = " ") { it.itemid })))
         }
     }
 }
