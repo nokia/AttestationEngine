@@ -278,7 +278,7 @@ fun Content(navController: NavController? = null, viewModel: AttestationViewMode
 
     val results24h = viewModel.getLatestResults(timestamp24HoursAgo).collectAsState()
     val results24hByElement = results24h.value.groupBy { it.elementID }
-    val results24hFails = results24hByElement.map { it.value.first { r -> r.result != 0 } }
+    val results24hFails = results24hByElement.mapNotNull { it.value.firstOrNull() { r -> r.result != 0 } }
 
     Column(Modifier.padding(horizontal = 2.dp))
     {

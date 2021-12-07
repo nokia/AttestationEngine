@@ -334,7 +334,7 @@ def getresultslatest():
         try:
             out = results.getResultsSince(float(args["timestamp"]))
         except ValueError:
-            out = "bad datetime"
+            return jsonify(out), 200
     else: ## First latest result of each element
         elems = elements.getElements()
         for i in range(len(elems)):

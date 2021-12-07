@@ -644,12 +644,11 @@ def getResultsSince(t):
 
     collection = asdb["results"]
     e = collection.find({}, {'_id': False}).sort("verifiedAt", pymongo.DESCENDING)
-    
     ## Mongodb (3.6) does not support casting string verifiedAt for comparison with timestamp, filtering must be done manually. 
 
     for i in e:
         if(i["verifiedAt"] != None):
-            if( float(i["verifiedAt"]) < t):
+            if( float(i["verifiedAt"]) > t):
                 out.append(i)
             else:
                 return out
@@ -684,7 +683,7 @@ def getLatestResults(e, n):
 
     collection = asdb["results"]
     rs = list(
-        collection.find({"elementID": e})
+        collection.find({"elementID": e},{'_id': False})
         .sort("verifiedAt", pymongo.DESCENDING)
         .limit(n)
     )
