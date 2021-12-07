@@ -325,18 +325,23 @@ def getresult(itemid):
         return e.msg(), 200
 
 
-@a10rest.route("/results/latest/", methods=['GET'])
+@a10rest.route("/results/latest", methods=['GET'])
 def getresultslatest():
-    elems = elements.getElements()
-
-    out = []
+    args = request.args
+    out = list()
     
-    for i in range(len(elems)):
-        r = results.getLatestResults(elems[i]['itemid'],1)
-        if(r and r[0]):
-            out.append(r[0])
+    if("timestamp" in args): # All results since timestamp
+        try:
+            out = results.getResultsSince(float(args["timestamp"]))
+        except ValueError:
+            out = "bad datetime"
+    else: ## First latest result of each element
+        elems = elements.getElements()
+        for i in range(len(elems)):
+            r = results.getLatestResults(elems[i]['itemid'],1)
+            if(r and r[0]):
+                out.append(r[0])
 
-    
 
     return jsonify(out), 200
 
@@ -355,18 +360,6 @@ def getresultslatestlimit(itemid):
     
     rs = results.getLatestResults(itemid, lim)
     return jsonify(rs), 200
-
-@a10rest.route("/results/since/<timestamp>", methods=['GET'])
-def getResultsSince(timestamp):
-    print("timestamp", timestamp)
-
-    try:
-        rs = results.getResultsSince(timestamp)
-    except ValueError:
-        rs = "bad datetime"
-
-    return jsonify(rs), 200
-
 
 #
 # ATTESTATION and VERIFICATION

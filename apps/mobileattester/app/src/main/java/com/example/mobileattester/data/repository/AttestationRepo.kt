@@ -34,6 +34,7 @@ interface AttestationRepository {
 
     // --- Results ---
     suspend fun getElementResults(itemid: String, limit: Int = 100): List<ElementResult>
+    suspend fun getLatestResults(timestamp: Float? = null): List<ElementResult>
 }
 
 
@@ -72,4 +73,7 @@ class AttestationRepositoryImpl(
 
     override suspend fun getElementResults(itemid: String, limit: Int): List<ElementResult> =
         handler.getElementResults(itemid, limit)
+
+    override suspend fun getLatestResults(timestamp: Float?): List<ElementResult> =
+        handler.getLatestResults(timestamp)
 }

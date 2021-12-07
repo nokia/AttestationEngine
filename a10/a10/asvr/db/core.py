@@ -632,28 +632,28 @@ def getResults():
     return list(e)
 
 def getResultsSince(t):
-	""" Returns results since t timestamp
+    
+    """ Returns results since t timestamp
 
-	:param str t: timestamp
-	:return: list of element ids, result numbers and timestamps from Monogo
+	:param str t: float timestamp
+	:return: the list of results
 	:rtype: list dict or None
 	"""
+    
+    out = []
 
-	## TODO: Make this work. Current mongodb (3.6) does not support casting verifiedAt string for comparison
+    collection = asdb["results"]
+    e = collection.find({}, {'_id': False}).sort("verifiedAt", pymongo.DESCENDING)
+    
+    ## Mongodb (3.6) does not support casting string verifiedAt for comparison with timestamp, filtering must be done manually. 
 
-	collection = asdb["results"]
-	e = collection.find(
-	{
-		'$expr': 
-		{
-			'$gt': 
-			[
-				'$verifiedAt',
-				str(t)
-			]
-		}
-	}, {'_id': False, 'itemid':True, 'result':True, 'verifiedAt': True })
-	return list(e)
+    for i in e:
+        if(i["verifiedAt"] != None):
+            if( float(i["verifiedAt"]) < t):
+                out.append(i)
+            else:
+                return out
+    return out
 
 def getResultsFull(n):
     """ Returns an element with the given itemid
