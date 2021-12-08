@@ -72,61 +72,59 @@ fun Claim(
     claim: Claim,
 ) {
     println("CLAIM : $claim")
-    FadeInWithDelay(50) {
-        Column(Modifier
-            .fillMaxWidth()
-            .verticalScroll(rememberScrollState())) {
-            HeaderRoundedBottom {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 24.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Icon(
-                        TablerIcons.InfoSquare,
-                        contentDescription = null,
-                        tint = White,
-                        modifier = Modifier.size(40.dp),
-                    )
-                    Spacer(modifier = Modifier.size(8.dp))
-                    Text(
-                        text = "Claim",
-                        color = White,
-                        fontSize = FONTSIZE_XXL,
-                        fontWeight = FontWeight.Bold,
-                    )
-                }
-            }
-            Column(Modifier.padding(16.dp)) {
-                TextWithSmallHeader(text = claim.itemid, header = "ID")
-                TextWithSmallHeader(
-                    text = claim.getElementData().second,
-                    header = "Element",
-                    onClick = {
-                        navController.navigate(Screen.Element.route,
-                            bundleOf(Pair(ARG_ELEMENT_ID, claim.getElementData().first)))
-                    },
+    Column(Modifier
+        .fillMaxWidth()
+        .verticalScroll(rememberScrollState())) {
+        HeaderRoundedBottom {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 24.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(
+                    TablerIcons.InfoSquare,
+                    contentDescription = null,
+                    tint = White,
+                    modifier = Modifier.size(40.dp),
                 )
-                TextWithSmallHeader(
-                    text = claim.getPolicyData().second,
-                    header = "Policy",
-                    onClick = {
-                        navController.navigate(Screen.Policy.route,
-                            bundleOf(Pair(ARG_POLICY_ID, claim.getPolicyData().first)))
-                    },
+                Spacer(modifier = Modifier.size(8.dp))
+                Text(
+                    text = "Claim",
+                    color = White,
+                    fontSize = FONTSIZE_XXL,
+                    fontWeight = FontWeight.Bold,
                 )
-                TextWithSmallHeader(text = getTimeFormatted(
-                    claim.getTimestamps().first?.time.toString(),
-                    DatePattern.DateTimeMs,
-                ), header = "Requested")
-                TextWithSmallHeader(text = getTimeFormatted(
-                    claim.getTimestamps().second?.time.toString(),
-                    DatePattern.DateTimeMs,
-                ), header = "Received")
-                Divider(color = DividerColor, modifier = Modifier.padding(top = 16.dp))
-                CTabs(claim)
             }
+        }
+        Column(Modifier.padding(16.dp)) {
+            TextWithSmallHeader(text = claim.itemid, header = "ID")
+            TextWithSmallHeader(
+                text = claim.getElementData().second,
+                header = "Element",
+                onClick = {
+                    navController.navigate(Screen.Element.route,
+                        bundleOf(Pair(ARG_ELEMENT_ID, claim.getElementData().first)))
+                },
+            )
+            TextWithSmallHeader(
+                text = claim.getPolicyData().second,
+                header = "Policy",
+                onClick = {
+                    navController.navigate(Screen.Policy.route,
+                        bundleOf(Pair(ARG_POLICY_ID, claim.getPolicyData().first)))
+                },
+            )
+            TextWithSmallHeader(text = getTimeFormatted(
+                claim.getTimestamps().first?.time.toString(),
+                DatePattern.DateTimeMs,
+            ), header = "Requested")
+            TextWithSmallHeader(text = getTimeFormatted(
+                claim.getTimestamps().second?.time.toString(),
+                DatePattern.DateTimeMs,
+            ), header = "Received")
+            Divider(color = DividerColor, modifier = Modifier.padding(top = 16.dp))
+            CTabs(claim)
         }
     }
 }

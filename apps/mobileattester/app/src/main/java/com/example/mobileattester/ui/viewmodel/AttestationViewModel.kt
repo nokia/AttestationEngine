@@ -30,6 +30,9 @@ interface AttestationViewModel {
     fun refreshElements()
     fun refreshElement(itemid: String)
 
+    fun startElementFetchLoop()
+    fun stopElementFetchLoop()
+
     /** Returns ElementResult if it exists in downloaded data */
     fun findElementResult(resultId: String): ElementResult?
 
@@ -71,10 +74,14 @@ class AttestationViewModelImpl(
         elementDataHandler.getDataForId(itemid)
 
     override fun getMoreElements() = elementDataHandler.fetchNextBatch()
-    override fun filterElements(all: DataFilter?, any: DataFilter?): List<Element> = elementDataHandler.dataAsList(all, any)
+    override fun filterElements(all: DataFilter?, any: DataFilter?): List<Element> =
+        elementDataHandler.dataAsList(all, any)
 
     override fun refreshElements() = elementDataHandler.refreshData(hardReset = true)
     override fun refreshElement(itemid: String) = elementDataHandler.refreshSingleValue(itemid)
+
+    override fun startElementFetchLoop() = elementDataHandler.startFetchLoop()
+    override fun stopElementFetchLoop() = elementDataHandler.stopFetchLoop()
 
     override fun findElementResult(resultId: String): ElementResult? {
         val data = elementDataHandler.dataFlow.value.data ?: return null
