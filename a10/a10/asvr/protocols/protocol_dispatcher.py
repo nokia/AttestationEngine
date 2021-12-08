@@ -7,6 +7,7 @@
 
 import a10.asvr.protocols.A10DummyProtocol
 import a10.asvr.protocols.A10HttpRest
+import a10.asvr.protocols.A10Keylime
 
 
 import a10.structures.constants
@@ -18,6 +19,8 @@ REGISTER = {
     # 	A10ContainerImage.A10Container.NAME: A10ContainerImage.A10Container
     a10.asvr.protocols.A10DummyProtocol.A10DummyProtocol.NAME: a10.asvr.protocols.A10DummyProtocol.A10DummyProtocol,
     a10.asvr.protocols.A10HttpRest.A10HttpRest.NAME: a10.asvr.protocols.A10HttpRest.A10HttpRest,
+    a10.asvr.protocols.A10Keylime.A10Keylime.NAME: a10.asvr.protocols.A10Keylime.A10Keylime,
+
 }
 
 
