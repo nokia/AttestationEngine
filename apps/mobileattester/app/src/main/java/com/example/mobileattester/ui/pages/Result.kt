@@ -9,6 +9,7 @@ import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
@@ -46,7 +47,7 @@ fun ResultScreenProvider(
     resultFlow: MutableStateFlow<Response<ElementResult>?>? = null,
 ) {
     fun navBack() {
-        navController.popBackStack()
+        navController.navigateUp()
     }
 
     // --------------------------------------------------
@@ -75,7 +76,8 @@ fun ResultScreenProvider(
             }
             return
         }
-        else -> {}
+        else -> {
+        }
     }
 
     // --------------------------------------------------
@@ -92,130 +94,122 @@ fun Result(
     navController: NavController,
     onNavigateUp: () -> Unit,
 ) {
-    val element = viewModel.getElementFromCache(result.elementID)
-    val policy = viewModel.useAttestationUtil().getPolicyFromCache(result.policyID)
-    val color = getCodeColor(result.result)
+    val element = remember {
+        viewModel.getElementFromCache(result.elementID)
+    }
+    val policy = remember {
+        viewModel.useAttestationUtil().getPolicyFromCache(result.policyID)
+    }
+    val color = remember {
+        getCodeColor(result.result)
+    }
 
-    fun navElement() = navController.navigate(Screen.Element.route, bundleOf(
-        Pair(ARG_ELEMENT_ID, element?.itemid)
-    ))
+    fun navElement() = navController.navigate(Screen.Element.route,
+        bundleOf(Pair(ARG_ELEMENT_ID, element?.itemid)))
 
-    fun navPolicy() = navController.navigate(Screen.Policy.route, bundleOf(
-        Pair(ARG_POLICY_ID, policy?.itemid)
-    ))
+    fun navPolicy() =
+        navController.navigate(Screen.Policy.route, bundleOf(Pair(ARG_POLICY_ID, policy?.itemid)))
 
-    fun navClaim() = navController.navigate(Screen.Claim.route, bundleOf(
-        Pair(ARG_CLAIM_ID, result.claimID)
-    ))
+    fun navClaim() =
+        navController.navigate(Screen.Claim.route, bundleOf(Pair(ARG_CLAIM_ID, result.claimID)))
 
-    FadeInWithDelay(50) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .verticalScroll(rememberScrollState()),
-        ) {
-            // Header
-            HeaderRoundedBottom(color) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 24.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Icon(
-                        getResultIcon(result),
-                        contentDescription = null,
-                        tint = White,
-                        modifier = Modifier.size(40.dp),
-                    )
-                    Spacer(modifier = Modifier.size(8.dp))
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .verticalScroll(rememberScrollState()),
+    ) {
+        // Header
+        HeaderRoundedBottom(color) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 24.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(
+                    getResultIcon(result),
+                    contentDescription = null,
+                    tint = White,
+                    modifier = Modifier.size(40.dp),
+                )
+                Spacer(modifier = Modifier.size(8.dp))
+                Text(
+                    text = result.ruleName,
+                    color = White,
+                    fontSize = FONTSIZE_XXL,
+                    fontWeight = FontWeight.Bold,
+                )
+            }
+        }
+
+        // Content
+        Column(Modifier.padding(horizontal = 16.dp)) {
+            // Top part
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Column(horizontalAlignment = Alignment.Start) {
                     Text(
-                        text = result.ruleName,
-                        color = White,
-                        fontSize = FONTSIZE_XXL,
+                        text = "Result ${result.result}",
                         fontWeight = FontWeight.Bold,
+                        fontSize = FONTSIZE_XXL,
+                        color = color,
+                    )
+                }
+                Column(horizontalAlignment = Alignment.End) {
+                    Text(
+                        text = getTimeFormatted(result.verifiedAt, DatePattern.DateWithYear),
+                        fontWeight = FontWeight.Bold,
+                        fontSize = FONTSIZE_XXL,
+                        color = getCodeColor(result.result),
+                    )
+                    Text(
+                        modifier = Modifier.padding(end = 4.dp),
+                        text = getTimeFormatted(result.verifiedAt, DatePattern.TimeOnly),
+                        color = LightGrey,
+                        fontSize = FONTSIZE_LG,
                     )
                 }
             }
+            TextWithSmallHeader(text = result.message, header = "msg", c = color)
 
-            // Content
-            Column(Modifier.padding(horizontal = 16.dp)) {
-                // Top part
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 16.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                ) {
-                    Column(horizontalAlignment = Alignment.Start) {
-                        Text(
-                            text = "Result ${result.result}",
-                            fontWeight = FontWeight.Bold,
-                            fontSize = FONTSIZE_XXL,
-                            color = color,
-                        )
-                    }
-                    Column(horizontalAlignment = Alignment.End) {
-                        Text(
-                            text = getTimeFormatted(result.verifiedAt, DatePattern.DateWithYear),
-                            fontWeight = FontWeight.Bold,
-                            fontSize = FONTSIZE_XXL,
-                            color = getCodeColor(result.result),
-                        )
-                        Text(
-                            modifier = Modifier.padding(end = 4.dp),
-                            text = getTimeFormatted(result.verifiedAt, DatePattern.TimeOnly),
-                            color = LightGrey,
-                            fontSize = FONTSIZE_LG,
-                        )
-                    }
-                }
-                TextWithSmallHeader(text = result.message, header = "msg", c = color)
+            Div()
 
-                Div()
+            // Related element + policy + claim
+            TextWithSmallHeader(text = element?.name ?: "ERROR",
+                header = "elmnt.",
+                icon = TablerIcons.DeviceDesktop,
+                c = color,
+                onClick = { navElement() })
+            TextWithSmallHeader(text = policy?.name ?: "ERROR",
+                header = "policy",
+                icon = TablerIcons.QuestionMark,
+                c = color,
+                onClick = { navPolicy() })
+            TextWithSmallHeader(text = result.claimID,
+                header = "claim",
+                icon = TablerIcons.Id,
+                truncate = true,
+                c = color,
+                onClick = { navClaim() })
 
-                // Related element + policy + claim
-                TextWithSmallHeader(
-                    text = element?.name ?: "ERROR",
-                    header = "elmnt.",
-                    icon = TablerIcons.DeviceDesktop,
-                    c = color,
-                    onClick = { navElement() }
-                )
-                TextWithSmallHeader(
-                    text = policy?.name ?: "ERROR",
-                    header = "policy",
-                    icon = TablerIcons.QuestionMark,
-                    c = color,
-                    onClick = { navPolicy() }
-                )
-                TextWithSmallHeader(
-                    text = result.claimID,
-                    header = "claim",
-                    icon = TablerIcons.Id,
-                    truncate = true,
-                    c = color,
-                    onClick = { navClaim() }
-                )
+            Div()
 
-                Div()
-
-
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-                    Text(text = "TODO: Additional")
-                }
-
-                Button(
-                    modifier = Modifier
-                        .align(CenterHorizontally)
-                        .padding(24.dp),
-                    onClick = { onNavigateUp() },
-                ) {
-                    Text(text = "Close")
-                }
+            Button(
+                modifier = Modifier
+                    .align(CenterHorizontally)
+                    .padding(24.dp),
+                onClick = { onNavigateUp() },
+            ) {
+                Text(text = "Close")
             }
         }
     }
+
 }
 
 @Composable

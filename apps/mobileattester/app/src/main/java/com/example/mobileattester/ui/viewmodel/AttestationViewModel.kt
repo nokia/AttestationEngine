@@ -9,6 +9,7 @@ import com.example.mobileattester.data.network.Response
 import com.example.mobileattester.data.repository.AttestationRepository
 import com.example.mobileattester.data.util.*
 import com.example.mobileattester.data.util.abs.DataFilter
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
 interface AttestationViewModel {
@@ -29,6 +30,9 @@ interface AttestationViewModel {
     fun refreshElements()
     fun refreshElement(itemid: String)
 
+    fun startElementFetchLoop()
+    fun stopElementFetchLoop()
+
     /** Returns ElementResult if it exists in downloaded data */
     fun findElementResult(resultId: String): ElementResult?
 
@@ -42,6 +46,7 @@ interface AttestationViewModel {
     fun useUpdateUtil(): UpdateUtil
     fun useOverviewProvider(): OverviewProvider
     fun useMapManager(): MapManager
+    fun getLatestResults(hoursSince: Int? = null): MutableStateFlow<List<ElementResult>>
 }
 
 // --------- Implementation ---------
@@ -69,10 +74,14 @@ class AttestationViewModelImpl(
         elementDataHandler.getDataForId(itemid)
 
     override fun getMoreElements() = elementDataHandler.fetchNextBatch()
-    override fun filterElements(all: DataFilter?, any: DataFilter?): List<Element> = elementDataHandler.dataAsList(all, any)
+    override fun filterElements(all: DataFilter?, any: DataFilter?): List<Element> =
+        elementDataHandler.dataAsList(all, any)
 
     override fun refreshElements() = elementDataHandler.refreshData(hardReset = true)
     override fun refreshElement(itemid: String) = elementDataHandler.refreshSingleValue(itemid)
+
+    override fun startElementFetchLoop() = elementDataHandler.startFetchLoop()
+    override fun stopElementFetchLoop() = elementDataHandler.stopFetchLoop()
 
     override fun findElementResult(resultId: String): ElementResult? {
         val data = elementDataHandler.dataFlow.value.data ?: return null
@@ -86,6 +95,9 @@ class AttestationViewModelImpl(
 
         return null
     }
+
+    override fun getLatestResults(hoursSince: Int?): MutableStateFlow<List<ElementResult>> = overviewProvider.getOverview(hoursSince)
+
 
     override fun getPolicyFromCache(policyId: String): Policy? =
         attestationUtil.getPolicyFromCache(policyId)

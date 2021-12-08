@@ -33,9 +33,7 @@ data class DataFilter(
         // For potential time saves...
         if (timeFrame != null && (flags == null || flags.isEmpty())) {
             Log.w(TAG,
-                ": A timeframe was provided to DataFilter without flags. " +
-                        "Make sure that the element does not need a flag to use the timeframes. " +
-                        "If the aforementioned case is true, this message can be ignored.")
+                ": A timeframe was provided to DataFilter without flags. " + "Make sure that the element does not need a flag to use the timeframes. " + "If the aforementioned case is true, this message can be ignored.")
         }
     }
 }

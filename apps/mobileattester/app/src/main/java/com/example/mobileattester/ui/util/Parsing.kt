@@ -99,8 +99,12 @@ class Timestamp(val time: Long) : Comparable<Long> {
     fun toHours(): Int = time.div(3600).toInt() // total seconds / 3600 seconds = hours
 
     override fun compareTo(other: Long): Int = time.compareTo(other = other)
-    fun minus(value: Timestamp) = Timestamp(this.time - value.time)
-    fun add(value: Timestamp) = Timestamp(this.time + value.time)
-    fun div(value: Timestamp) = Timestamp(this.time / value.time)
-    fun mul(value: Timestamp) = Timestamp(this.time * value.time)
+    fun minus(value: Timestamp?) = this.minus(value?.time)
+    fun add(value: Timestamp?) = this.add(value?.time)
+    fun div(value: Timestamp?) = this.div(value?.time)
+    fun mul(value: Timestamp?) = this.mul(value?.time)
+    fun minus(value: Long?) = value?.let { v -> Timestamp(this.time - v) }
+    fun add(value: Long?) = value?.let { v -> Timestamp(this.time + v) }
+    fun div(value: Long?) = value?.let { v -> Timestamp(this.time / v) }
+    fun mul(value: Long?) = value?.let { v -> Timestamp(this.time * v) }
 }

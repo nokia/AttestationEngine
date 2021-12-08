@@ -6,7 +6,6 @@ import com.example.mobileattester.data.util.abs.Filterable
 import com.google.gson.annotations.SerializedName
 import org.osmdroid.util.GeoPoint
 
-
 /**
  * Represents an Element in the application.
  * This should contain all the data we are interested to see in the UI.
@@ -31,8 +30,8 @@ data class Element(
     }
 
     fun geoPoint(): GeoPoint? {
-        val lat = location?.get(0)
-        val long = location?.get(1)
+        val lat = location?.getOrNull(0)
+        val long = location?.getOrNull(1)
 
         if (lat == null || long == null) {
             return null
@@ -42,16 +41,14 @@ data class Element(
     }
 
     fun cloneWithNewLocation(location: Location): Element {
-        return Element(
-            itemid,
+        return Element(itemid,
             name,
             endpoint,
             types,
             protocol,
             description,
             listOf(location.latitude.toString(), location.longitude.toString()),
-            results
-        )
+            results)
     }
 
     /**
@@ -60,12 +57,10 @@ data class Element(
      */
     private fun matchFields(l: List<String>): Boolean {
         return l.all { s ->
-            name.lowercase().contains(s)
-                    || endpoint.lowercase().contains(s)
-                    || types.find { it.lowercase().contains(s) } != null
-                    || protocol.lowercase().contains(s)
-                    || description?.lowercase()?.contains(s) == true
-                    || itemid.lowercase().contains(s)
+            name.lowercase().contains(s) || endpoint.lowercase().contains(s) || types.find {
+                it.lowercase().contains(s)
+            } != null || protocol.lowercase().contains(s) || description?.lowercase()
+                ?.contains(s) == true || itemid.lowercase().contains(s)
         }
     }
 
@@ -75,20 +70,15 @@ data class Element(
      */
     private fun matchFieldsAny(l: List<String>): Boolean {
         return l.any { s ->
-            (name.lowercase().contains(s)
-                    || endpoint.lowercase().contains(s)
-                    || types.find { it.lowercase().contains(s) } != null
-                    || protocol.lowercase().contains(s)
-                    || description?.lowercase()?.contains(s) == true)
-                    || itemid.lowercase().contains(s)
+            (name.lowercase().contains(s) || endpoint.lowercase().contains(s) || types.find {
+                it.lowercase().contains(s)
+            } != null || protocol.lowercase().contains(s) || description?.lowercase()
+                ?.contains(s) == true) || itemid.lowercase().contains(s)
         }
     }
-
 
 }
 
 fun emptyElement(): Element {
-    return Element(
-        "", "", "", listOf(), "", "", listOf(), listOf()
-    )
+    return Element("", "", "", listOf(), "", "", listOf(), listOf())
 }

@@ -20,22 +20,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.os.bundleOf
 import androidx.navigation.NavController
-import com.example.mobileattester.data.model.Element
 import com.example.mobileattester.data.network.Status
-import com.example.mobileattester.data.util.OverviewProviderImpl
 import com.example.mobileattester.ui.components.common.ErrorIndicator
 import com.example.mobileattester.ui.components.common.HeaderRoundedBottom
 import com.example.mobileattester.ui.components.common.LoadingIndicator
 import com.example.mobileattester.ui.theme.*
-import com.example.mobileattester.ui.util.Preferences
-import com.example.mobileattester.ui.util.Screen
-import com.example.mobileattester.ui.util.navigate
-import com.example.mobileattester.ui.util.parseBaseUrl
+import com.example.mobileattester.ui.util.*
 import com.example.mobileattester.ui.viewmodel.AttestationViewModel
 import compose.icons.TablerIcons
 import compose.icons.tablericons.*
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import java.sql.Time
 
 @Composable
 fun Home(navController: NavController? = null, viewModel: AttestationViewModel) {
@@ -55,26 +51,20 @@ fun Home(navController: NavController? = null, viewModel: AttestationViewModel) 
     LaunchedEffect(scope) {
         preferences.engine.collect {
             // Switch engine from preference if not the same
-            if(currentUrl.value != "http://${it}/")
-                viewModel.switchBaseUrl("http://${it}/")
+            if (currentUrl.value != "http://${it}/") viewModel.switchBaseUrl("http://${it}/")
         }
     }
-
-
 
     /** UI */
     Column(modifier = Modifier.verticalScroll(ScrollState(0))) {
         var showAllConfigurations by remember { mutableStateOf(false) }
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(Primary)
-                .border(0.dp, Color.Transparent)
-        ) {
+        Column(modifier = Modifier
+            .fillMaxSize()
+            .background(Primary)
+            .border(0.dp, Color.Transparent)) {
 
             // Top Bar
-            Text(
-                text = "Current Configuration",
+            Text(text = "Current Configuration",
                 modifier = Modifier.padding(10.dp, 15.dp, 10.dp, 5.dp),
                 fontSize = FONTSIZE_XXL,
                 color = Color.White)
@@ -123,15 +113,10 @@ fun Home(navController: NavController? = null, viewModel: AttestationViewModel) 
                         val config = parseBaseUrl(str)
 
                         if (config != null) {
-                            if(enginesList.value.contains(config))
-                            {
-                                Toast.makeText(
-                                    context,
-                                    "Config already exists",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-                            else {
+                            if (enginesList.value.contains(config)) {
+                                Toast.makeText(context, "Config already exists", Toast.LENGTH_SHORT)
+                                    .show()
+                            } else {
                                 enginesList.value.add(config)
 
                                 scope.launch {
@@ -195,9 +180,7 @@ fun ConfigurationButton(
                     label = { Text(text) },
                     onValueChange = { input = it; onTextChange(input) },
                     singleLine = true,
-                    keyboardActions = KeyboardActions(
-                        onDone = { onIconClick(input) }
-                    ),
+                    keyboardActions = KeyboardActions(onDone = { onIconClick(input) }),
                     colors = TextFieldDefaults.outlinedTextFieldColors(
                         unfocusedLabelColor = Color.White, // TODO: MaterialTheme.colors.primary
                         focusedLabelColor = Color.White,
@@ -217,14 +200,6 @@ fun ConfigurationButton(
 fun Content(navController: NavController? = null, viewModel: AttestationViewModel) {
     val elementCount = viewModel.elementCount.collectAsState()
     val isRefreshing = viewModel.isRefreshing.collectAsState()
-
-    val overviews: Map<String, List<Element>> =
-        viewModel.useOverviewProvider().elementsByResults.collectAsState().value
-
-    val attestations = overviews[OverviewProviderImpl.OVERVIEW_ATTESTED_ELEMENTS]
-    val attestations24 = overviews[OverviewProviderImpl.OVERVIEW_ATTESTED_ELEMENTS_24H]
-    val fail = overviews[OverviewProviderImpl.OVERVIEW_ATTESTED_ELEMENTS_FAIL]
-    val fail24 = overviews[OverviewProviderImpl.OVERVIEW_ATTESTED_ELEMENTS_FAIL_24H]
 
     when (elementCount.value.status) {
         Status.ERROR -> {
@@ -260,8 +235,7 @@ fun Content(navController: NavController? = null, viewModel: AttestationViewMode
         if (isRefreshing.value) {
             LoadingIndicator()
         } else {
-            Text(
-                AnnotatedString(elementCount.value.data.toString()),
+            Text(AnnotatedString(elementCount.value.data.toString()),
                 modifier = Modifier
                     .padding(5.dp, 0.dp)
                     .align(Alignment.CenterVertically)
@@ -271,9 +245,10 @@ fun Content(navController: NavController? = null, viewModel: AttestationViewMode
         }
     }
 
-    Divider(Modifier
-        .fillMaxWidth()
-        .padding(8.dp, 8.dp), color = DividerColor)
+    Divider(
+        Modifier
+            .fillMaxWidth()
+            .padding(8.dp, 8.dp), color = DividerColor)
 
     Text(text = "Attestation Overview",
         modifier = Modifier
@@ -282,14 +257,22 @@ fun Content(navController: NavController? = null, viewModel: AttestationViewMode
         textAlign = TextAlign.Center,
         fontSize = FONTSIZE_XL)
 
-    Column(Modifier.padding(horizontal = 2.dp)) {
+    val resultsLatest = viewModel.getLatestResults().collectAsState()
+    val resultsLatestsFails = resultsLatest.value.filter { it.result != 0 }
+
+    val results24h = viewModel.getLatestResults(hoursSince = 24).collectAsState()
+    val results24hByElement = results24h.value.groupBy { it.elementID }
+    val results24hFails = results24hByElement.mapNotNull { it.value.firstOrNull() { r -> r.result != 0 } }
+
+    Column(Modifier.padding(horizontal = 2.dp))
+    {
         Spacer(modifier = Modifier.size(10.dp))
-        Alert("Active", attestations = attestations?.size ?: -1, fail = fail?.size ?: -1) {
-            navController!!.navigate(Screen.Elements.route, bundleOf(Pair(ARG_BASE_FILTERS, fail?.joinToString(separator = " ") { it.itemid })))
+        Alert("Active", attestations = resultsLatest.value.size, fail = resultsLatestsFails.size) {
+            navController!!.navigate(Screen.Elements.route, bundleOf(Pair(ARG_BASE_FILTERS, resultsLatestsFails.joinToString(separator = " ") { it.elementID })))
         }
         Spacer(modifier = Modifier.size(20.dp))
-        Alert("24H", attestations = attestations24?.size ?: -1, fail = fail24?.size ?: -1) {
-            navController!!.navigate(Screen.Elements.route, bundleOf(Pair(ARG_BASE_FILTERS, fail24?.joinToString(separator = " ") { it.itemid })))
+        Alert("24H", attestations = results24hByElement.size, fail = results24hFails.size) {
+            navController!!.navigate(Screen.Elements.route, bundleOf(Pair(ARG_BASE_FILTERS, results24hFails.joinToString(separator = " ") { it.elementID })))
         }
     }
 }

@@ -76,6 +76,9 @@ def getResultsFull(n):
     rs = list(a10.asvr.db.core.getResultsFull(n))
     return rs
 
+def getResultsSince(t):
+    rs = a10.asvr.db.core.getResultsSince(t)
+    return rs
 
 def getLatestResults(e, n=10):
     """

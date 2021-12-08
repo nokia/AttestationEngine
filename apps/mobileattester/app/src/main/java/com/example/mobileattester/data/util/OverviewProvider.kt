@@ -1,7 +1,7 @@
 package com.example.mobileattester.data.util
 
-import com.example.mobileattester.data.model.Element
-import com.example.mobileattester.data.util.abs.DataFilter
+import com.example.mobileattester.data.model.ElementResult
+import com.example.mobileattester.data.network.AttestationDataHandler
 import com.example.mobileattester.data.util.abs.NotificationSubscriber
 import com.example.mobileattester.ui.util.Timestamp
 import kotlinx.coroutines.CoroutineScope
@@ -9,98 +9,90 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
-import java.util.concurrent.CancellationException
 
-interface OverviewProvider : NotificationSubscriber {
-    /** Map containing lists of elements, filtered by created DataFilters */
-    val elementsByResults: MutableStateFlow<Map<String, List<Element>>>
-
-    /** Add a new element list which is filtered by its results with the provided DataFilter */
-    fun addFilterByResults(key: String, filter: DataFilter)
+interface OverviewProvider : NotificationSubscriber
+{
+    /** Lists of all results  */
+    fun getOverview(hoursSince: Int?): MutableStateFlow<List<ElementResult>>
+    fun refreshOverview(overview: Int?)
+    fun removeOverview(hoursSince: Int?)
 }
 
 /**
  * Implementation, which reads the results from fetched elements.
- * TODO A result endpoint in the REST API, so that this would
- *      not need to rely on downloading all the element data first
  */
 class OverviewProviderImpl(
-    private val elementDataHandler: ElementDataHandler,
+    private val dataHandler: AttestationDataHandler,
 ) : OverviewProvider {
     private val job = Job()
     private val scope = CoroutineScope(job)
-    private val addedFilters: MutableMap<String, DataFilter> = mutableMapOf()
 
-    override val elementsByResults: MutableStateFlow<Map<String, List<Element>>> =
-        MutableStateFlow(mapOf())
+    val results: MutableMap<Int?, MutableStateFlow<List<ElementResult>>> = mutableMapOf()
 
-    override fun addFilterByResults(key: String, filter: DataFilter) {
-        addedFilters[key] = filter
-    }
-
-    override fun <T> notify(data: T) {
-        // Keep overviews up-to-date
-        updateOverviews()
-    }
-
-    private fun updateOverviews() {
-        job.cancelChildren(CancellationException("Relaunching updates"))
-        println("OVERVIEW updating ${addedFilters.size} lists")
-
-        // Update result based elements
+    override fun refreshOverview(overview: Int?) {
+        job.cancelChildren()
         scope.launch {
-            val temp = mutableMapOf<String, List<Element>>()
-
-            addedFilters.keys.map { key ->
-                val filter = addedFilters[key]!!
-                val elements = elementDataHandler.dataAsList()
-                val filtered = mutableListOf<Element>()
-
-                for (element in elements) {
-                    when (key) {
-                        OVERVIEW_ATTESTED_ELEMENTS -> {
-                            element.results.isNotEmpty() && filtered.add(element)
-                        }
-                        OVERVIEW_ATTESTED_ELEMENTS_FAIL -> (element.results.firstOrNull()?.result
-                            ?: 0) != 0 && filtered.add(element)
-                        OVERVIEW_ATTESTED_ELEMENTS_24H -> {
-                            element.results.filter {
-                                Timestamp.fromSecondsString(it.verifiedAt)!!.timeSince()
-                                    .toHours() < 24
-                            }.isNotEmpty() && filtered.add(element)
-                        }
-                        OVERVIEW_ATTESTED_ELEMENTS_FAIL_24H -> {
-                            element.results.filter {
-                                println(Timestamp.fromSecondsString(it.verifiedAt)!!.timeSince()
-                                    .toHours())
-                                Timestamp.fromSecondsString(it.verifiedAt)!!.timeSince()
-                                    .toHours() < 24
-                            }.any { it.result != 0 }.also {
-                                if (it) {
-                                    println("FAIL: " + element.name)
-                                }
-                            } && filtered.add(element)
-                        }
-                    }
-
+            if (overview == null)
+                for (hoursSince in results.keys) {
+                    setOverview(hoursSince)
                 }
-                temp[key] = filtered
-            }
-
-            val cp = elementsByResults.value.toMutableMap()
-            temp.forEach {
-                println("OVERVIEW: ${it.key} size :${it.value.size}")
-                cp[it.key] = it.value
-            }
-
-            elementsByResults.value = cp
+            else
+                setOverview(overview)
         }
     }
 
-    companion object {
-        const val OVERVIEW_ATTESTED_ELEMENTS = "ove_attested"
-        const val OVERVIEW_ATTESTED_ELEMENTS_FAIL = "ove_attested_fail"
-        const val OVERVIEW_ATTESTED_ELEMENTS_24H = "ove_attested_24"
-        const val OVERVIEW_ATTESTED_ELEMENTS_FAIL_24H = "ove_attested_fail_24"
+    override fun getOverview(hoursSince: Int?): MutableStateFlow<List<ElementResult>> =
+        results[hoursSince].let {
+            if (it == null) {
+                results[hoursSince] = MutableStateFlow(mutableListOf())
+
+                scope.launch {
+                    setOverview(hoursSince)
+                }
+            }
+
+            return results[hoursSince]!!
+        }
+
+    override fun removeOverview(hoursSince: Int?)
+    {
+        results.remove(hoursSince)
+    }
+
+    override fun <T> notify(data: T) {
+        when(data) {
+            is ResultAcquired -> addResult(data.result) // Add to all relevant results
+        }
+    }
+
+    private fun addResult(result: ElementResult)
+    {
+        for (hoursSince in results.keys) {
+            when(hoursSince)
+            {
+                // Set the latest result or add if does not exist
+                null -> {
+                    val latestResults = results[null]!!.value.toMutableList()
+                    val resultIndex = latestResults.indexOfFirst { it.elementID == result.elementID }
+
+                    if(resultIndex > 0)
+                        latestResults[resultIndex] = result
+                    else
+                        latestResults.add(result)
+
+                    results[null]!!.value = latestResults
+                }
+
+                // Add new result to all overviews
+                else -> results[hoursSince]!!.value.toMutableList().also {  it.add(result) }.toList()
+            }
+        }
+    }
+
+    private suspend fun setOverview(overview: Int?) {
+        results[overview]!!.value =
+            dataHandler.getLatestResults(
+                Timestamp.now()
+                    .minus(overview?.let { 3600L * overview })?.time?.toFloat()).toMutableList()
     }
 }

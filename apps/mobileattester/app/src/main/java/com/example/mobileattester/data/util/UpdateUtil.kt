@@ -24,7 +24,6 @@ class UpdateUtil(
             function = {
                 elementUpdateFlow.value = Response.loading()
                 val res = adh.updateElement(it)
-                delay(1000)
                 println("UpdateElement res: $res")
                 // Todo Check whether the response is id or not
                 elementUpdateFlow.value = Response.success("Success")

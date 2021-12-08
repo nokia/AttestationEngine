@@ -2,6 +2,7 @@
 # Licensed under the BSD 3-Clause License.
 # SPDX-License-Identifier: BSD-3-Clause
 
+import datetime
 import os
 import sys
 
@@ -323,25 +324,42 @@ def getresult(itemid):
     else:
         return e.msg(), 200
 
-@a10rest.route("/result/element/latest/<itemid>", methods=['GET'])
-def getresultlatest(itemid):
-    print("itemid", itemid)
+
+@a10rest.route("/results/latest", methods=['GET'])
+def getresultslatest():
+    args = request.args
+    out = list()
     
-    rs = results.getLatestResults(itemid)
-    return jsonify(rs), 200
+    if("timestamp" in args): # All results since timestamp
+        try:
+            out = results.getResultsSince(float(args["timestamp"]))
+        except ValueError:
+            return jsonify(out), 200
+    else: ## First latest result of each element
+        elems = elements.getElements()
+        for i in range(len(elems)):
+            r = results.getLatestResults(elems[i]['itemid'],1)
+            if(r and r[0]):
+                out.append(r[0])
 
-@a10rest.route("/result/element/latest/<itemid>/<limit>", methods=['GET'])
-def getresultlatestlimit(itemid, limit):
+
+    return jsonify(out), 200
+
+@a10rest.route("/results/element/latest/<itemid>", methods=['GET'])
+def getresultslatestlimit(itemid):
+    args = request.args
     print("itemid", itemid)
 
-    try:
-        lim = int(limit)
-    except ValueError:
+    if("limit" in args):
+        try:
+            lim = int(args["limit"])
+        except ValueError:
+            lim = 10
+    else:
         lim = 10
     
     rs = results.getLatestResults(itemid, lim)
     return jsonify(rs), 200
-
 
 #
 # ATTESTATION and VERIFICATION
