@@ -18,6 +18,7 @@ import java.util.concurrent.CancellationException
 interface OverviewProvider {
     /** Lists of all results  */
     val results: MutableMap<Timestamp?, MutableStateFlow<List<ElementResult>>>
+
     fun addOverview(timestamp: Timestamp?)
 }
 

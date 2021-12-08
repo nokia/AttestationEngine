@@ -100,19 +100,19 @@ fun Claim(
         Column(Modifier.padding(16.dp)) {
             TextWithSmallHeader(text = claim.itemid, header = "ID")
             TextWithSmallHeader(
-                text = claim.getElementData().second,
+                text = claim.getElementData()?.second ?: "Error",
                 header = "Element",
                 onClick = {
                     navController.navigate(Screen.Element.route,
-                        bundleOf(Pair(ARG_ELEMENT_ID, claim.getElementData().first)))
+                        bundleOf(Pair(ARG_ELEMENT_ID, claim.getElementData()?.first)))
                 },
             )
             TextWithSmallHeader(
-                text = claim.getPolicyData().second,
+                text = claim.getPolicyData()?.second ?: "Error",
                 header = "Policy",
                 onClick = {
                     navController.navigate(Screen.Policy.route,
-                        bundleOf(Pair(ARG_POLICY_ID, claim.getPolicyData().first)))
+                        bundleOf(Pair(ARG_POLICY_ID, claim.getPolicyData()?.first)))
                 },
             )
             TextWithSmallHeader(text = getTimeFormatted(

@@ -4,6 +4,8 @@ import android.util.Log
 import com.example.mobileattester.ui.util.Timestamp
 import com.google.gson.JsonObject
 
+private const val TAG = "Claim"
+
 data class Claim(
     val itemid: String,
     val header: JsonObject,
@@ -13,27 +15,44 @@ data class Claim(
      * @return Pair(Time requested, Time received)
      */
     fun getTimestamps(): Pair<Timestamp?, Timestamp?> {
-        val requested = header["as_requested"].asString
-        val received = header["as_received"].asString
-
-
-        return Pair(Timestamp.fromSecondsString(requested), Timestamp.fromSecondsString(received))
+        var req: String? = null
+        var rec: String? = null
+        try {
+            req = header["as_requested"].asString
+            rec = header["as_received"].asString
+        } catch (e: Exception) {
+            Log.d(TAG, "getTimestamps: $e")
+        }
+        return Pair(
+            req?.let { Timestamp.fromSecondsString(it) },
+            rec?.let { Timestamp.fromSecondsString(it) },
+        )
     }
 
     /**
      * Return Pair<ElementId, ElementName> for this claim
      */
-    fun getElementData(): Pair<String, String> {
-        val e = header["element"].asJsonObject
-        return Pair(e["itemid"].asString, e["hostname"].asString)
+    fun getElementData(): Pair<String, String>? {
+        return try {
+            val e = header["element"].asJsonObject
+            Pair(e["itemid"].asString, e["name"].asString)
+        } catch (e: Exception) {
+            Log.d(TAG, "getElementData: $e")
+            null
+        }
     }
 
     /**
      * Return Pair<PolicyId, PolicyName> for this claim
      */
-    fun getPolicyData(): Pair<String, String> {
-        val p = header["policy"].asJsonObject
-        return Pair(p["itemid"].asString, p["name"].asString)
+    fun getPolicyData(): Pair<String, String>? {
+        return try {
+            val p = header["policy"].asJsonObject
+            Pair(p["itemid"].asString, p["name"].asString)
+        } catch (e: Exception) {
+            Log.d(TAG, "getPolicyData: $e")
+            null
+        }
     }
 
     fun getQuote() = payload.getQuote()
@@ -75,11 +94,9 @@ data class PCR(
                 val pcrs = payload["pcrs"].asJsonObject
                 pcrs.keySet().map { key ->
                     val pcrObj = pcrs[key].asJsonObject
-
                     val values = pcrObj.keySet().map { valueKey ->
                         Pair(valueKey, pcrObj[valueKey].asString)
                     }
-
                     PCR(key = key, values = values.toMap())
                 }
             } catch (e: Exception) {

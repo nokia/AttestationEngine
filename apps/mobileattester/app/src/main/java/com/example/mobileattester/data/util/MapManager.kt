@@ -11,6 +11,7 @@ import com.example.mobileattester.R
 import com.example.mobileattester.data.model.Element
 import com.example.mobileattester.data.model.emptyElement
 import com.example.mobileattester.ui.components.ElementInfoWindow
+import com.example.mobileattester.ui.components.ElementInfoWindowClickHandler
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import org.osmdroid.bonuspack.clustering.RadiusMarkerClusterer
@@ -29,7 +30,7 @@ enum class MapMode {
  */
 class MapManager(
     private val locationEditor: LocationEditor,
-) {
+) : ElementInfoWindowClickHandler {
     private var mapView: WeakReference<MapView>? = null
     private var mapListener: WeakReference<View.OnTouchListener>? = null
     private val _map: () -> MapView?
@@ -51,7 +52,7 @@ class MapManager(
     fun displayElement(map: MapView, element: Element): Boolean {
         initializeMap(map, MapMode.SINGLE_ELEMENT)
 
-        val m = addMarker(element, map.context, "Element position")
+        val m = addMarker(element, map.context)
         map.controller.setCenter(m.position)
         return true
     }
@@ -78,7 +79,7 @@ class MapManager(
                 m.title = element.name
                 m.position = it
                 m.icon = markerIcon
-                m.setInfoWindow(ElementInfoWindow(map))
+                m.setInfoWindow(ElementInfoWindow(map, element, this))
                 cluster.add(m)
             }
         }
@@ -107,7 +108,7 @@ class MapManager(
 
         val gp = GeoPoint(locToEdit.latitude, locToEdit.longitude)
 
-        addMarker(element, map.context, "New element position").apply {
+        addMarker(element, map.context).apply {
             setMarkerFollowScreen(this)
         }
 
@@ -139,9 +140,7 @@ class MapManager(
             locationEditor.setLocation(geoToLoc(geoPoint))
             clearMarkers()
             val m = _map()?.context?.let {
-                addMarker(emptyElement().cloneWithNewLocation(geoToLoc(geoPoint)),
-                    it,
-                    "New element position")
+                addMarker(emptyElement().cloneWithNewLocation(geoToLoc(geoPoint)), it)
             }
             m?.let { setMarkerFollowScreen(it) }
         }
@@ -195,7 +194,7 @@ class MapManager(
         return location
     }
 
-    private fun addMarker(element: Element, ctx: Context, txt: String): Marker {
+    private fun addMarker(element: Element, ctx: Context): Marker {
         // Position
         val marker = Marker(_map())
         marker.icon =
@@ -203,10 +202,14 @@ class MapManager(
                 this?.setTint(ctx.getColor(R.color.primary))
             }
         marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
-        marker.title = txt
-        marker.setInfoWindow(ElementInfoWindow(_map()))
+        marker.setInfoWindow(ElementInfoWindow(_map(), element, this))
         element.geoPoint()?.let { marker.position = it }
         _map()?.overlays?.add(marker)
         return marker
+    }
+
+    override fun onElementButtonClicked(element: Element) {
+        println("ELEMENT INFO CLICK")
+        // TODO
     }
 }
