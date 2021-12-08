@@ -69,12 +69,11 @@ object Injector {
             { attestationRepo.getPolicy(it) }
         )
 
-        val overviewProvider = initOverviewProvider(elementDataHandler)
+        val overviewProvider = OverviewProviderImpl(dataHandler = handler)
 
 
         notifier.apply {
             addSubscriber(elementDataHandler)
-            addSubscriber(overviewProvider)
         }
 
         val attestUtil = AttestUtil(
@@ -101,37 +100,5 @@ object Injector {
             overviewProvider,
             mapManager
         )
-    }
-
-    private fun initOverviewProvider(
-        elementDataHandler: ElementDataHandler,
-    ): OverviewProvider {
-        val t = OverviewProviderImpl(
-            elementDataHandler
-        )
-
-        val now = System.currentTimeMillis()
-        val yd = now - TWENTY_FOUR_H_IN_MS
-        val day = Pair(Timestamp(yd), Timestamp(now))
-
-        // Create filters for the overview stuff we are interested to see
-        val latest = DataFilter("")
-        val latest24 =
-            DataFilter("", timeFrame = day, setOf(ElementResult.FILTER_FLAG_WITHIN_TIMEFRAME))
-        val fail = DataFilter("", flags = setOf(ElementResult.FILTER_FLAG_RESULT_FAIL))
-        val fail24 = DataFilter("",
-            flags = setOf(
-                ElementResult.FILTER_FLAG_WITHIN_TIMEFRAME,
-                ElementResult.FILTER_FLAG_RESULT_FAIL,
-            ),
-            timeFrame = day
-        )
-
-        t.addFilterByResults(OverviewProviderImpl.OVERVIEW_ATTESTED_ELEMENTS, latest)
-        t.addFilterByResults(OverviewProviderImpl.OVERVIEW_ATTESTED_ELEMENTS_24H, latest24)
-        t.addFilterByResults(OverviewProviderImpl.OVERVIEW_ATTESTED_ELEMENTS_FAIL, fail)
-        t.addFilterByResults(OverviewProviderImpl.OVERVIEW_ATTESTED_ELEMENTS_FAIL_24H, fail24)
-
-        return t
     }
 }

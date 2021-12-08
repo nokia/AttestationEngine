@@ -9,6 +9,8 @@ import com.example.mobileattester.data.network.Response
 import com.example.mobileattester.data.repository.AttestationRepository
 import com.example.mobileattester.data.util.*
 import com.example.mobileattester.data.util.abs.DataFilter
+import com.example.mobileattester.ui.util.Timestamp
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
 interface AttestationViewModel {
@@ -45,6 +47,7 @@ interface AttestationViewModel {
     fun useUpdateUtil(): UpdateUtil
     fun useOverviewProvider(): OverviewProvider
     fun useMapManager(): MapManager
+    fun getLatestResults(timestamp: Timestamp? = null): MutableStateFlow<List<ElementResult>>
 }
 
 // --------- Implementation ---------
@@ -92,6 +95,12 @@ class AttestationViewModelImpl(
         }
 
         return null
+    }
+
+    override fun getLatestResults(timestamp: Timestamp?): MutableStateFlow<List<ElementResult>>
+    {
+        overviewProvider.addOverview(timestamp = timestamp)
+        return overviewProvider.results[timestamp]!!
     }
 
     override fun getPolicyFromCache(policyId: String): Policy? =

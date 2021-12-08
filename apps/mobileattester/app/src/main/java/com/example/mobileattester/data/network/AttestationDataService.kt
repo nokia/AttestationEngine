@@ -62,10 +62,15 @@ interface AttestationDataService {
     @GET("result/{itemid}")
     suspend fun getResult(@Path("itemid") itemid: String): ElementResult
 
-    @GET("result/element/latest/{itemid}/{limit}")
+    @GET("results/latest")
+    suspend fun getLatestResults(
+        @Query("timestamp") limit: Float?,
+    ): List<ElementResult>
+
+    @GET("results/element/latest/{itemid}")
     suspend fun getElementResults(
         @Path("itemid") itemid: String,
-        @Path("limit") limit: Int,
+        @Query("limit") limit: Int,
     ): List<ElementResult>
 
     /**

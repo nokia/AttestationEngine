@@ -51,6 +51,7 @@ interface AttestationDataHandler {
 
     // --- Claims ---
     suspend fun getClaim(itemid: String): com.example.mobileattester.data.model.Claim
+    suspend fun getLatestResults(timestamp: Float?): List<ElementResult>
 }
 
 class AttestationDataHandlerImpl(
@@ -122,6 +123,9 @@ class AttestationDataHandlerImpl(
 
     override suspend fun getElementResults(itemid: String, limit: Int): List<ElementResult> =
         apiService.getElementResults(itemid, limit)
+
+    override suspend fun getLatestResults(timestamp: Float?): List<ElementResult> =
+        apiService.getLatestResults(timestamp)
 
     override suspend fun attestElement(eid: String, pid: String): String {
         val params = AttestationParams(eid = eid, pid = pid)

@@ -103,4 +103,8 @@ class Timestamp(val time: Long) : Comparable<Long> {
     fun add(value: Timestamp) = Timestamp(this.time + value.time)
     fun div(value: Timestamp) = Timestamp(this.time / value.time)
     fun mul(value: Timestamp) = Timestamp(this.time * value.time)
+    fun minus(value: Long) = Timestamp(this.time - value)
+    fun add(value: Long) = Timestamp(this.time + value)
+    fun div(value: Long) = Timestamp(this.time / value)
+    fun mul(value: Long) = Timestamp(this.time * value)
 }
