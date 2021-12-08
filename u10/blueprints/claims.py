@@ -105,6 +105,9 @@ def claimprettyprintQuote(item_id):
 def claimprettyprintUEFIEventLog(item_id):
     c = a10.asvr.claims.getClaim(item_id).msg()
 
+    # claim body contains a base85 encoded claim
+    
+
     
     if c.get("payload").get("payload").get("eventlog")==None:
        return render_template("claimprettyprint/incorrecttype.html", cla=c, msg="Claim does not appear to be a UEFI Eventlog")        
