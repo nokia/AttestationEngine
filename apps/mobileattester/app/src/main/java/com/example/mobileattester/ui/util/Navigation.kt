@@ -1,5 +1,6 @@
 package com.example.mobileattester.ui.util
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.annotation.StringRes
@@ -230,6 +231,7 @@ object NavUtils {
 }
 
 // NavController extension that allows arguments
+@SuppressLint("RestrictedApi")
 fun NavController.navigate(
     route: String,
     args: Bundle,
