@@ -33,6 +33,4 @@ def returnEVENTLOGRREAD():
     
     rc = c.getClaim()
 
-    print("\nRC",type(eventlog_enc))
-
     return jsonify(rc), 200
