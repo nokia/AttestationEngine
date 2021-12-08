@@ -23,7 +23,7 @@ interface AttestationDataService {
     suspend fun getAllTypes(): List<String>
 
     @PUT("element")
-    suspend fun updateElement(@Body element: Element)
+    suspend fun updateElement(@Body element: Element): String
 
     /**
     Policies
@@ -67,13 +67,11 @@ interface AttestationDataService {
         @Query("timestamp") limit: Float?,
     ): List<ElementResult>
 
-
     @GET("results/element/latest/{itemid}")
     suspend fun getElementResults(
         @Path("itemid") itemid: String,
         @Query("limit") limit: Int,
     ): List<ElementResult>
-
 
     /**
     Attestation

@@ -4,8 +4,9 @@ import android.content.Context
 import androidx.annotation.StringRes
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
-import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
@@ -25,11 +26,8 @@ import com.example.mobileattester.data.util.AttestationStatus
 import com.example.mobileattester.ui.components.anim.FadeInWithDelay
 import com.example.mobileattester.ui.components.common.*
 import com.example.mobileattester.ui.theme.FONTSIZE_XXL
-import com.example.mobileattester.ui.theme.Ok
 import com.example.mobileattester.ui.util.Screen
 import com.example.mobileattester.ui.viewmodel.AttestationViewModel
-import compose.icons.TablerIcons
-import compose.icons.tablericons.Checks
 
 sealed class AttestationType(@StringRes val resId: Int) {
     companion object {
@@ -50,7 +48,6 @@ sealed class AttestationType(@StringRes val resId: Int) {
     object Attest : AttestationType(resId = R.string.attest)
 }
 
-
 /**
  * Provides attestation screen
  *
@@ -65,7 +62,6 @@ fun Attest(navController: NavController, viewModel: AttestationViewModel) {
         FadeInWithDelay(1500) {
             Text(text = "Error getting element data for id: $clickedElementId")
         }
-
         return
     }
 
@@ -74,10 +70,9 @@ fun Attest(navController: NavController, viewModel: AttestationViewModel) {
 
     // Reset attestation util state when navigating out of this screen
     DisposableEffect(navController) {
-        val onNavigateOutListener =
-            NavController.OnDestinationChangedListener { _, _, _ ->
-                u.reset()
-            }
+        val onNavigateOutListener = NavController.OnDestinationChangedListener { _, _, _ ->
+            u.reset()
+        }
 
         navController.addOnDestinationChangedListener(onNavigateOutListener)
 
@@ -85,7 +80,6 @@ fun Attest(navController: NavController, viewModel: AttestationViewModel) {
             navController.removeOnDestinationChangedListener(onNavigateOutListener)
         }
     }
-
 
     val attestationStatus = u.attestationStatus.collectAsState().value
 
@@ -110,16 +104,14 @@ fun Attest(navController: NavController, viewModel: AttestationViewModel) {
     fun submit() {
         u.reset()
 
-        val policyId =
-            policies.find { it.name == selectedPolicy.value }?.itemid ?: run {
-                println("PolicyId not found")
-                return
-            }
+        val policyId = policies.find { it.name == selectedPolicy.value }?.itemid ?: run {
+            println("PolicyId not found")
+            return
+        }
 
-        val rule =
-            if (selectedType.value == context.getString(AttestationType.Attest.resId)) {
-                null
-            } else selectedRule
+        val rule = if (selectedType.value == context.getString(AttestationType.Attest.resId)) {
+            null
+        } else selectedRule
 
         u.attest(element.itemid, policyId, rule?.value)
     }
@@ -161,7 +153,7 @@ private fun AttestationConfig(
     selectedRule: MutableState<String>,
     onSubmit: () -> Unit,
 ) {
-    Column {
+    Column(Modifier.verticalScroll(rememberScrollState())) {
 
         // Element data
         HeaderRoundedBottom {
@@ -171,11 +163,9 @@ private fun AttestationConfig(
                     fontSize = FONTSIZE_XXL,
                     fontWeight = FontWeight.Bold,
                 )
-                Text(
-                    text = element.endpoint,
+                Text(text = element.endpoint,
                     style = MaterialTheme.typography.body1,
-                    modifier = Modifier.padding(vertical = 8.dp, horizontal = 2.dp)
-                )
+                    modifier = Modifier.padding(vertical = 8.dp, horizontal = 2.dp))
             }
         }
 
@@ -184,37 +174,31 @@ private fun AttestationConfig(
             Spacer(modifier = Modifier.size(16.dp))
 
             // Attestation type
-            SimpleRadioGroup(
-                selections = attestTypes,
+            SimpleRadioGroup(selections = attestTypes,
                 selected = selectedAttestType,
                 onSelectionChanged = { selectedAttestType.value = it },
-                vertical = false
-            )
+                vertical = false)
 
             // Policy
             Spacer(modifier = Modifier.size(24.dp))
             Text(modifier = Modifier.padding(bottom = 4.dp), text = "Select policy")
-            DropDown(
-                items = policies.map { it.name },
+            DropDown(items = policies.map { it.name },
                 selectedValue = policies.find { it.name == selectedPolicy.value }?.name,
                 onSelectionChanged = {
                     println("it $it")
                     selectedPolicy.value = it.toString()
-                }
-            )
+                })
 
             Spacer(modifier = Modifier.size(24.dp))
 
             // Rule
             if (selectedAttestType.value == stringResource(id = AttestationType.AttestAndVerify.resId)) {
                 Text(modifier = Modifier.padding(bottom = 4.dp), text = "Select rule")
-                DropDown(
-                    items = rules.map { it.name },
+                DropDown(items = rules.map { it.name },
                     selectedValue = selectedRule.value,
                     onSelectionChanged = {
                         selectedRule.value = it
-                    }
-                )
+                    })
             }
 
             // Submit
@@ -232,48 +216,6 @@ private fun AttestationConfig(
 }
 
 @Composable
-private fun AttestationSuccessScreen(
-    type: AttestationType,
-    onReset: () -> Unit,
-    onNav: () -> Unit,
-) {
-    val txtSuccess = remember {
-        if (type == AttestationType.Attest) "Claim received" else "Result received"
-    }
-
-    val txtBtn = remember {
-        if (type == AttestationType.Attest) "See claim" else "See result"
-    }
-
-
-    FadeInWithDelay(50) {
-        Column(Modifier.fillMaxWidth(), Arrangement.Center, Alignment.CenterHorizontally) {
-            Spacer(Modifier.size(80.dp))
-            Icon(
-                modifier = Modifier.size(80.dp),
-                imageVector = TablerIcons.Checks,
-                contentDescription = null,
-                tint = Ok,
-            )
-            Text(modifier = Modifier.padding(32.dp), text = txtSuccess, color = Ok)
-
-
-            Row(Modifier.fillMaxWidth(), Arrangement.Center, Alignment.CenterVertically) {
-                Button(
-                    onClick = { onReset() }) {
-                    Text(text = "Reset", color = Color.White)
-                }
-                Spacer(Modifier.size(16.dp))
-                Button(
-                    onClick = { onNav() }) {
-                    Text(text = txtBtn, color = Color.White)
-                }
-            }
-        }
-    }
-}
-
-@Composable
 private fun AttestationErrorScreen(
     onReset: () -> Unit,
     onRetry: () -> Unit,
@@ -284,13 +226,11 @@ private fun AttestationErrorScreen(
             .padding(horizontal = 16.dp, vertical = 32.dp)) {
             ErrorIndicator(msg = "Something went wrong")
             Row(Modifier.fillMaxWidth(), Arrangement.Center, Alignment.CenterVertically) {
-                Button(
-                    onClick = { onReset() }) {
+                Button(onClick = { onReset() }) {
                     Text(text = "Reset", color = Color.White)
                 }
                 Spacer(Modifier.size(16.dp))
-                Button(
-                    onClick = { onRetry() }) {
+                Button(onClick = { onRetry() }) {
                     Text(text = "Submit again", color = Color.White)
                 }
             }

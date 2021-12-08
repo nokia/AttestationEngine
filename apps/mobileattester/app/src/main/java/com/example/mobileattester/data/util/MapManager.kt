@@ -6,16 +6,19 @@ import android.location.Location
 import android.view.MotionEvent
 import android.view.View
 import androidx.appcompat.content.res.AppCompatResources
+import androidx.core.graphics.drawable.toBitmap
 import com.example.mobileattester.R
 import com.example.mobileattester.data.model.Element
+import com.example.mobileattester.data.model.emptyElement
+import com.example.mobileattester.ui.components.ElementInfoWindow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import org.osmdroid.bonuspack.clustering.RadiusMarkerClusterer
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
 import java.lang.ref.WeakReference
-
 
 enum class MapMode {
     SINGLE_ELEMENT, EDIT_LOCATION, ALL_ELEMENTS
@@ -47,13 +50,39 @@ class MapManager(
      */
     fun displayElement(map: MapView, element: Element): Boolean {
         initializeMap(map, MapMode.SINGLE_ELEMENT)
-        val gp = element.geoPoint() ?: run {
-            return false
-        }
 
-        val m = addMarker(gp, map.context, "Element position")
+        val m = addMarker(element, map.context, "Element position")
         map.controller.setCenter(m.position)
         return true
+    }
+
+    fun displayElements(map: MapView, elements: List<Element>) {
+        initializeMap(map, MapMode.ALL_ELEMENTS, 2.0)
+
+        val markerIcon =
+            AppCompatResources.getDrawable(map.context, R.drawable.ic_baseline_location_on_32)
+                .apply {
+                    this?.setTint(map.context.getColor(R.color.primary))
+                }
+        val clusterIcon =
+            AppCompatResources.getDrawable(map.context, R.drawable.ic_baseline_circle_32).apply {
+                this?.setTint(map.context.getColor(R.color.primary))
+            }
+
+        val cluster = RadiusMarkerClusterer(map.context)
+        cluster.setIcon(clusterIcon!!.toBitmap())
+
+        elements.forEach { element ->
+            element.geoPoint()?.let {
+                val m = Marker(map)
+                m.title = element.name
+                m.position = it
+                m.icon = markerIcon
+                m.setInfoWindow(ElementInfoWindow(map))
+                cluster.add(m)
+            }
+        }
+        map.overlayManager.add(cluster)
     }
 
     /**
@@ -78,7 +107,7 @@ class MapManager(
 
         val gp = GeoPoint(locToEdit.latitude, locToEdit.longitude)
 
-        addMarker(gp, map.context, "New element position").apply {
+        addMarker(element, map.context, "New element position").apply {
             setMarkerFollowScreen(this)
         }
 
@@ -109,7 +138,11 @@ class MapManager(
         if (this.mapMode.value == MapMode.EDIT_LOCATION) {
             locationEditor.setLocation(geoToLoc(geoPoint))
             clearMarkers()
-            val m = _map()?.context?.let { addMarker(geoPoint, it, "New element position") }
+            val m = _map()?.context?.let {
+                addMarker(emptyElement().cloneWithNewLocation(geoToLoc(geoPoint)),
+                    it,
+                    "New element position")
+            }
             m?.let { setMarkerFollowScreen(it) }
         }
 
@@ -136,13 +169,13 @@ class MapManager(
         _map()?.setOnTouchListener(l)
     }
 
-    private fun initializeMap(map: MapView, type: MapMode) {
+    private fun initializeMap(map: MapView, type: MapMode, zoomLevel: Double = 17.0) {
         mapView = WeakReference(map)
         _map()?.apply {
             setTileSource(TileSourceFactory.WIKIMEDIA)
             isTilesScaledToDpi = true
             setMultiTouchControls(true)
-            controller.setZoom(17.0)
+            controller.setZoom(zoomLevel)
         }
         clearMarkers()
         mapMode.value = type
@@ -162,7 +195,7 @@ class MapManager(
         return location
     }
 
-    private fun addMarker(pos: GeoPoint?, ctx: Context, txt: String): Marker {
+    private fun addMarker(element: Element, ctx: Context, txt: String): Marker {
         // Position
         val marker = Marker(_map())
         marker.icon =
@@ -171,7 +204,8 @@ class MapManager(
             }
         marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
         marker.title = txt
-        pos?.let { marker.position = it }
+        marker.setInfoWindow(ElementInfoWindow(_map()))
+        element.geoPoint()?.let { marker.position = it }
         _map()?.overlays?.add(marker)
         return marker
     }
