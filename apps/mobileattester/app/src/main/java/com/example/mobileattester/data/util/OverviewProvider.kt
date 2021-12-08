@@ -2,6 +2,7 @@ package com.example.mobileattester.data.util
 
 import com.example.mobileattester.data.model.ElementResult
 import com.example.mobileattester.data.network.AttestationDataHandler
+import com.example.mobileattester.data.util.abs.NotificationSubscriber
 import com.example.mobileattester.ui.util.Timestamp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -9,11 +10,12 @@ import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
-interface OverviewProvider {
+interface OverviewProvider : NotificationSubscriber
+{
     /** Lists of all results  */
     fun getOverview(hoursSince: Int?): MutableStateFlow<List<ElementResult>>
     fun refreshOverview(overview: Int?)
-    fun removeOverview(hoursSince: Int?): MutableStateFlow<List<ElementResult>>?
+    fun removeOverview(hoursSince: Int?)
 }
 
 /**
@@ -42,7 +44,7 @@ class OverviewProviderImpl(
     override fun getOverview(hoursSince: Int?): MutableStateFlow<List<ElementResult>> =
         results[hoursSince].let {
             if (it == null) {
-                results[hoursSince] = MutableStateFlow(listOf())
+                results[hoursSince] = MutableStateFlow(mutableListOf())
 
                 scope.launch {
                     setOverview(hoursSince)
@@ -52,12 +54,45 @@ class OverviewProviderImpl(
             return results[hoursSince]!!
         }
 
-    override fun removeOverview(hoursSince: Int?) = results.remove(hoursSince)
+    override fun removeOverview(hoursSince: Int?)
+    {
+        results.remove(hoursSince)
+    }
+
+    override fun <T> notify(data: T) {
+        when(data) {
+            is ResultAcquired -> addResult(data.result) // Add to all relevant results
+        }
+    }
+
+    private fun addResult(result: ElementResult)
+    {
+        for (hoursSince in results.keys) {
+            when(hoursSince)
+            {
+                // Set the latest result or add if does not exist
+                null -> {
+                    val latestResults = results[null]!!.value.toMutableList()
+                    val resultIndex = latestResults.indexOfFirst { it.elementID == result.elementID }
+
+                    if(resultIndex > 0)
+                        latestResults[resultIndex] = result
+                    else
+                        latestResults.add(result)
+
+                    results[null]!!.value = latestResults
+                }
+
+                // Add new result to all overviews
+                else -> results[hoursSince]!!.value.toMutableList().also {  it.add(result) }.toList()
+            }
+        }
+    }
 
     private suspend fun setOverview(overview: Int?) {
         results[overview]!!.value =
             dataHandler.getLatestResults(
                 Timestamp.now()
-                    .minus(overview?.let { 3600L * overview })?.time?.toFloat())
+                    .minus(overview?.let { 3600L * overview })?.time?.toFloat()).toMutableList()
     }
 }

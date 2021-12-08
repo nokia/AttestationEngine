@@ -140,18 +140,27 @@ object NavUtils {
                     label = { Text(stringResource(screen.stringResId)) },
                     selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
                     onClick = {
-                        if (screen.route != currentDestination?.route) navController.navigate(screen.route) {
-                            navController.popBackStack()
+                        if (screen.route != currentDestination?.route)
+                            navController.navigate(screen.route) {
 
-                            popUpTo(navController.graph.findStartDestination().id) {
-                                saveState = true
+                                // Bottom navbar should not be back navigable
+                                navController.backQueue.removeAll(
+                                    // Remove all back history except current
+                                    navController
+                                        .backQueue
+                                        .takeLast(navController.backQueue.size-1)
+                                )
+
+                                popUpTo(navController.graph.findStartDestination().id) {
+                                    saveState = true
+                                }
+
+                                // Avoid multiple copies of the same destination when
+                                // reselecting the same item
+                                launchSingleTop = true
+                                // Restore state when reselecting a previously selected item
+                                restoreState = true
                             }
-                            // Avoid multiple copies of the same destination when
-                            // reselecting the same item
-                            launchSingleTop = true
-                            // Restore state when reselecting a previously selected item
-                            restoreState = true
-                        }
                     },
                 )
             }

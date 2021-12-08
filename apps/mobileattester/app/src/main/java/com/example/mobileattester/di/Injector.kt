@@ -74,6 +74,7 @@ object Injector {
 
         notifier.apply {
             addSubscriber(elementDataHandler)
+            addSubscriber(overviewProvider)
         }
 
         val attestUtil = AttestUtil(
