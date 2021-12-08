@@ -274,9 +274,7 @@ fun Content(navController: NavController? = null, viewModel: AttestationViewMode
     val resultsLatest = viewModel.getLatestResults().collectAsState()
     val resultsLatestsFails = resultsLatest.value.filter { it.result != 0 }
 
-    val timestamp24HoursAgo = Timestamp.now().minus(3600L * 24L)
-
-    val results24h = viewModel.getLatestResults(timestamp24HoursAgo).collectAsState()
+    val results24h = viewModel.getLatestResults(hoursSince = 24).collectAsState()
     val results24hByElement = results24h.value.groupBy { it.elementID }
     val results24hFails = results24hByElement.mapNotNull { it.value.firstOrNull() { r -> r.result != 0 } }
 

@@ -1,24 +1,19 @@
 package com.example.mobileattester.data.util
 
-import androidx.compose.runtime.MutableState
-import com.example.mobileattester.data.model.Element
 import com.example.mobileattester.data.model.ElementResult
 import com.example.mobileattester.data.network.AttestationDataHandler
-import com.example.mobileattester.data.network.Response
-import com.example.mobileattester.data.util.abs.DataFilter
-import com.example.mobileattester.data.util.abs.NotificationSubscriber
 import com.example.mobileattester.ui.util.Timestamp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
-import java.util.concurrent.CancellationException
 
 interface OverviewProvider {
     /** Lists of all results  */
-    val results: MutableMap<Timestamp?, MutableStateFlow<List<ElementResult>>>
-    fun addOverview(timestamp: Timestamp?)
+    fun getOverview(hoursSince: Int?): MutableStateFlow<List<ElementResult>>
+    fun refreshOverview(overview: Int?)
+    fun removeOverview(hoursSince: Int?): MutableStateFlow<List<ElementResult>>?
 }
 
 /**
@@ -26,30 +21,43 @@ interface OverviewProvider {
  */
 class OverviewProviderImpl(
     private val dataHandler: AttestationDataHandler,
-): OverviewProvider {
+) : OverviewProvider {
     private val job = Job()
     private val scope = CoroutineScope(job)
 
-    override val results: MutableMap<Timestamp?, MutableStateFlow<List<ElementResult>>> = mutableMapOf()
+    val results: MutableMap<Int?, MutableStateFlow<List<ElementResult>>> = mutableMapOf()
 
-    private fun refreshData()
-    {
+    override fun refreshOverview(overview: Int?) {
         job.cancelChildren()
         scope.launch {
-            for (i in results.keys) {
-                results[i]?.value = dataHandler.getLatestResults(i?.time?.toFloat())
-            }
+            if (overview == null)
+                for (hoursSince in results.keys) {
+                    setOverview(hoursSince)
+                }
+            else
+                setOverview(overview)
         }
     }
 
-    override fun addOverview(timestamp: Timestamp?)
-    {
-        if (!results.contains(timestamp))
-            results[timestamp] = MutableStateFlow(listOf())
+    override fun getOverview(hoursSince: Int?): MutableStateFlow<List<ElementResult>> =
+        results[hoursSince].let {
+            if (it == null) {
+                results[hoursSince] = MutableStateFlow(listOf())
 
-        scope.launch {
-            results[timestamp]!!.value =
-                dataHandler.getLatestResults(timestamp?.time?.toFloat())
+                scope.launch {
+                    setOverview(hoursSince)
+                }
+            }
+
+            return results[hoursSince]!!
         }
+
+    override fun removeOverview(hoursSince: Int?) = results.remove(hoursSince)
+
+    private suspend fun setOverview(overview: Int?) {
+        results[overview]!!.value =
+            dataHandler.getLatestResults(
+                Timestamp.now()
+                    .minus(overview?.let { 3600L * overview })?.time?.toFloat())
     }
 }
