@@ -41,14 +41,15 @@ object Injector {
         address: String,
         ctx: Context,
     ): ViewModelProvider.Factory {
-        val handler: AttestationDataHandler =
-            AttestationDataHandlerImpl("http://$address/")
-        val attestationRepo: AttestationRepository = AttestationRepositoryImpl(handler)
-
         /**
          * Create a notifier for updates
          */
         val notifier = Notifier()
+
+        val handler: AttestationDataHandler =
+            AttestationDataHandlerImpl("http://$address/", notifier)
+
+        val attestationRepo: AttestationRepository = AttestationRepositoryImpl(handler)
 
         /*
             Here, Initialize the BatchedDataHandlers of different types.
@@ -71,8 +72,13 @@ object Injector {
 
         val overviewProvider = OverviewProviderImpl(dataHandler = handler)
 
+        val engineInfo = EngineInfoImpl(dataHandler = handler)
+
+
         notifier.apply {
             addSubscriber(elementDataHandler)
+            addSubscriber(overviewProvider)
+            addSubscriber(engineInfo)
         }
 
         val attestUtil = AttestUtil(
@@ -97,6 +103,7 @@ object Injector {
             attestUtil,
             updateUtil,
             overviewProvider,
+            engineInfo,
             mapManager
         )
     }

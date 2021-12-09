@@ -61,9 +61,9 @@ fun MapWrapper(
     val elementId =
         navController.currentBackStackEntry?.arguments?.getString(ARG_MAP_SINGLE_ELEMENT_ID)
     val element = viewModel.getElementFromCache(elementId ?: "")
-    val mapMode = viewModel.useMapManager().mapMode.collectAsState()
-    val elementUpdateResponse = viewModel.useUpdateUtil().elementUpdateFlow.collectAsState()
-    val deviceLocation = viewModel.useMapManager().getCurrentLocation().collectAsState()
+    val mapMode = viewModel.mapManager.mapMode.collectAsState()
+    val elementUpdateResponse = viewModel.updateUtil.elementUpdateFlow.collectAsState()
+    val deviceLocation = viewModel.mapManager.getCurrentLocation().collectAsState()
     val updateSent = remember {
         mutableStateOf(false)
     }
@@ -75,7 +75,7 @@ fun MapWrapper(
 
     DisposableEffect(LocalLifecycleOwner.current) {
         onDispose {
-            viewModel.useMapManager().resetMapState()
+            viewModel.mapManager.resetMapState()
             navController.currentBackStackEntry?.arguments?.remove(ARG_MAP_SINGLE_ELEMENT_ID)
         }
     }
@@ -101,11 +101,11 @@ fun MapWrapper(
 
             if (element != null) {
                 fun saveNewLocationRequest() {
-                    val editedLocation = viewModel.useMapManager().getEditedLocation()
+                    val editedLocation = viewModel.mapManager.getEditedLocation()
                     if (editedLocation.value != null) {
-                        viewModel.useMapManager().lockInteractions()
+                        viewModel.mapManager.lockInteractions()
                         val e = element.cloneWithNewLocation(editedLocation.value!!)
-                        viewModel.useUpdateUtil().updateElement(e)
+                        viewModel.updateUtil.updateElement(e)
                         updateSent.value = true
                     }
                 }
@@ -114,14 +114,14 @@ fun MapWrapper(
                         deviceLocation = deviceLocation.value,
                         element = element,
                         onEditLocation = {
-                            viewModel.useMapManager().useEditLocation(map, element)
+                            viewModel.mapManager.useEditLocation(map, element)
                         },
                         onSaveNewLocation = { saveNewLocationRequest() },
                         onCancelEdit = {
-                            viewModel.useMapManager().displayElement(map, element)
+                            viewModel.mapManager.displayElement(map, element)
                         },
                         onCenter = {
-                            viewModel.useMapManager().centerToDevice()
+                            viewModel.mapManager.centerToDevice()
                         })
                     true -> OperationStatusIndication(elementUpdateResponse,
                         onRetry = { saveNewLocationRequest() },
@@ -228,15 +228,15 @@ private fun setup(
     navController.currentBackStackEntry?.arguments?.getString(ARG_MAP_SINGLE_ELEMENT_ID)
         ?.let { id ->
             val element = viewModel.getElementFromCache(id) ?: return
-            val hasLocation = viewModel.useMapManager().displayElement(mapView, element)
+            val hasLocation = viewModel.mapManager.displayElement(mapView, element)
             if (!hasLocation) {
-                viewModel.useMapManager().useEditLocation(mapView, element)
+                viewModel.mapManager.useEditLocation(mapView, element)
             }
             return@setup
         }
 
     // Use map with all element locations displayed
-    viewModel.useMapManager().displayElements(mapView, viewModel.filterElements())
+    viewModel.mapManager.displayElements(mapView, viewModel.filterElements())
 }
 
 @Composable

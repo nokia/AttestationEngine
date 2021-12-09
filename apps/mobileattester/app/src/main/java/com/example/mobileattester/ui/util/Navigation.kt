@@ -1,5 +1,6 @@
 package com.example.mobileattester.ui.util
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.annotation.StringRes
@@ -113,13 +114,13 @@ object NavUtils {
                 composable(Screen.Map.route) { MapWrapper(navController, viewModel) }
                 composable(Screen.Policy.route) { Policy(navController, viewModel) }
                 composable(Screen.Claim.route) {
-                    ClaimWrapper(navController, viewModel.useAttestationUtil())
+                    ClaimWrapper(navController, viewModel.attestationUtil)
                 }
                 composable(Screen.Result.route) {
                     ResultScreenProvider(
                         navController = navController,
                         viewModel = viewModel,
-                        resultFlow = viewModel.useAttestationUtil().latestResult,
+                        resultFlow = viewModel.attestationUtil.latestResult,
                     )
                 }
             }
@@ -140,18 +141,27 @@ object NavUtils {
                     label = { Text(stringResource(screen.stringResId)) },
                     selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
                     onClick = {
-                        if (screen.route != currentDestination?.route) navController.navigate(screen.route) {
-                            navController.popBackStack()
+                        if (screen.route != currentDestination?.route)
+                            navController.navigate(screen.route) {
 
-                            popUpTo(navController.graph.findStartDestination().id) {
-                                saveState = true
+                                // Bottom navbar should not be back navigable
+                                navController.backQueue.removeAll(
+                                    // Remove all back history except current
+                                    navController
+                                        .backQueue
+                                        .takeLast(navController.backQueue.size-1)
+                                )
+
+                                popUpTo(navController.graph.findStartDestination().id) {
+                                    saveState = true
+                                }
+
+                                // Avoid multiple copies of the same destination when
+                                // reselecting the same item
+                                launchSingleTop = true
+                                // Restore state when reselecting a previously selected item
+                                restoreState = true
                             }
-                            // Avoid multiple copies of the same destination when
-                            // reselecting the same item
-                            launchSingleTop = true
-                            // Restore state when reselecting a previously selected item
-                            restoreState = true
-                        }
                     },
                 )
             }
@@ -221,6 +231,7 @@ object NavUtils {
 }
 
 // NavController extension that allows arguments
+@SuppressLint("RestrictedApi")
 fun NavController.navigate(
     route: String,
     args: Bundle,

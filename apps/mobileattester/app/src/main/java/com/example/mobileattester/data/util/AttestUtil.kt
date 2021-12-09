@@ -22,6 +22,7 @@ enum class AttestationStatus {
 }
 
 data class ElementAttested(val eid: String)
+data class ResultAcquired(val result: ElementResult)
 
 /**
  * Functionality to attest elements.
@@ -167,7 +168,10 @@ class AttestUtil(
     private suspend fun attestVerify(eid: String, pid: String, rule: String) {
         val claimId = dataHandler.attestElement(eid, pid)
         val resId = dataHandler.verifyClaim(claimId, rule)
-        latestResult.value = Response.success(dataHandler.getResult(resId))
+
+        val result = dataHandler.getResult(resId)
+        latestResult.value = Response.success(result)
+        notifier.notifyAll(ResultAcquired(result))
     }
 
     private fun fetchRules() {

@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.Icon
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -27,6 +28,8 @@ fun More(navController: NavController, viewModel: AttestationViewModel) {
             .fillMaxSize()
             .padding(16.dp),
     ) {
+        val spec = viewModel.engineInfo.spec.collectAsState()
+        Text(spec.value.toString())
 
         Text(text = "Elements", fontSize = FONTSIZE_XL)
         Box(modifier = Modifier

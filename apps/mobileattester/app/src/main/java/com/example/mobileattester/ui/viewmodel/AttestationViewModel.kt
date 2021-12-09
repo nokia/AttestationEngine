@@ -9,7 +9,6 @@ import com.example.mobileattester.data.network.Response
 import com.example.mobileattester.data.repository.AttestationRepository
 import com.example.mobileattester.data.util.*
 import com.example.mobileattester.data.util.abs.DataFilter
-import com.example.mobileattester.ui.util.Timestamp
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
@@ -45,11 +44,13 @@ interface AttestationViewModel {
     fun switchBaseUrl(url: String)
 
     // Use the different classes directly to avoid cluttering in this vm
-    fun useAttestationUtil(): AttestationUtil
-    fun useUpdateUtil(): UpdateUtil
-    fun useOverviewProvider(): OverviewProvider
-    fun useMapManager(): MapManager
-    fun getLatestResults(timestamp: Timestamp? = null): MutableStateFlow<List<ElementResult>>
+    fun getLatestResults(hoursSince: Int? = null): MutableStateFlow<List<ElementResult>>
+
+    val attestationUtil: AttestationUtil
+    val updateUtil: UpdateUtil
+    val overviewProvider: OverviewProvider
+    val engineInfo: EngineInfo
+    val mapManager: MapManager
 }
 
 // --------- Implementation ---------
@@ -57,10 +58,11 @@ interface AttestationViewModel {
 class AttestationViewModelImpl(
     private val repo: AttestationRepository,
     private val elementDataHandler: ElementDataHandler,
-    private val attestationUtil: AttestationUtil,
-    private val updateUtil: UpdateUtil,
-    private val overviewProvider: OverviewProvider,
-    private val mapManager: MapManager,
+    override val attestationUtil: AttestationUtil,
+    override val updateUtil: UpdateUtil,
+    override val overviewProvider: OverviewProvider,
+    override val engineInfo: EngineInfo,
+    override val mapManager: MapManager,
 ) : AttestationViewModel, ViewModel() {
     companion object {
         const val FETCH_START_BUFFER = 3
@@ -103,10 +105,9 @@ class AttestationViewModelImpl(
         return null
     }
 
-    override fun getLatestResults(timestamp: Timestamp?): MutableStateFlow<List<ElementResult>> {
-        overviewProvider.addOverview(timestamp = timestamp)
-        return overviewProvider.results[timestamp]!!
-    }
+    override fun getLatestResults(hoursSince: Int?): MutableStateFlow<List<ElementResult>> =
+        overviewProvider.getOverview(hoursSince)
+
 
     override fun getPolicyFromCache(policyId: String): Policy? =
         attestationUtil.getPolicyFromCache(policyId)
@@ -117,11 +118,6 @@ class AttestationViewModelImpl(
         elementDataHandler.refreshData(true)
         attestationUtil.reset(true)
     }
-
-    override fun useAttestationUtil(): AttestationUtil = attestationUtil
-    override fun useUpdateUtil(): UpdateUtil = updateUtil
-    override fun useOverviewProvider(): OverviewProvider = overviewProvider
-    override fun useMapManager(): MapManager = mapManager
 }
 
 class AttestationViewModelImplFactory(
@@ -130,6 +126,7 @@ class AttestationViewModelImplFactory(
     private val attestUtil: AttestationUtil,
     private val updateUtil: UpdateUtil,
     private val overviewProvider: OverviewProvider,
+    private val engineInfo: EngineInfo,
     private val mapManager: MapManager,
 ) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
@@ -139,6 +136,7 @@ class AttestationViewModelImplFactory(
             attestUtil,
             updateUtil,
             overviewProvider,
+            engineInfo,
             mapManager) as T
     }
 }
