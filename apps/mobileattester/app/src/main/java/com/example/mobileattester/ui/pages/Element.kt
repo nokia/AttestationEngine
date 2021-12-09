@@ -54,7 +54,7 @@ fun Element(navController: NavController, viewModel: AttestationViewModel) {
     }
 
     if (element == null) {
-        Text(text = "Element null.")
+        Text(text = "Element null. id=$clickedElementId")
         return
     }
 

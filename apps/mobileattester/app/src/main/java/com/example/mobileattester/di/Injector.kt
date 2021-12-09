@@ -74,7 +74,6 @@ object Injector {
 
         val engineInfo = EngineInfoImpl(dataHandler = handler)
 
-
         notifier.apply {
             addSubscriber(elementDataHandler)
             addSubscriber(overviewProvider)

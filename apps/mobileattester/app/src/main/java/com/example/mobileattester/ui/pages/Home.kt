@@ -20,8 +20,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.os.bundleOf
 import androidx.navigation.NavController
-import com.example.mobileattester.data.network.Status
-import com.example.mobileattester.ui.components.common.ErrorIndicator
 import com.example.mobileattester.ui.components.common.HeaderRoundedBottom
 import com.example.mobileattester.ui.components.common.LoadingIndicator
 import com.example.mobileattester.ui.theme.*
@@ -31,7 +29,6 @@ import compose.icons.TablerIcons
 import compose.icons.tablericons.*
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import java.sql.Time
 
 @Composable
 fun Home(navController: NavController? = null, viewModel: AttestationViewModel) {
@@ -200,19 +197,19 @@ fun ConfigurationButton(
 fun Content(navController: NavController? = null, viewModel: AttestationViewModel) {
     val elementCount = viewModel.elementCount.collectAsState()
     val isRefreshing = viewModel.isRefreshing.collectAsState()
-
-    when (elementCount.value.status) {
-        Status.ERROR -> {
-            ErrorIndicator(msg = elementCount.value.message.toString())
-            return
-        }
-        Status.LOADING -> {
-            LoadingIndicator()
-            return
-        }
-        else -> {
-        }
-    }
+//
+//    when (elementCount.value) {
+//        Status.ERROR -> {
+//            ErrorIndicator(msg = elementCount.value.message.toString())
+//            return
+//        }
+//        Status.LOADING -> {
+//            LoadingIndicator()
+//            return
+//        }
+//        else -> {
+//        }
+//    }
 
     Row(modifier = Modifier
         .padding(15.dp)
@@ -235,7 +232,7 @@ fun Content(navController: NavController? = null, viewModel: AttestationViewMode
         if (isRefreshing.value) {
             LoadingIndicator()
         } else {
-            Text(AnnotatedString(elementCount.value.data.toString()),
+            Text(AnnotatedString(elementCount.value.toString()),
                 modifier = Modifier
                     .padding(5.dp, 0.dp)
                     .align(Alignment.CenterVertically)
@@ -258,21 +255,26 @@ fun Content(navController: NavController? = null, viewModel: AttestationViewMode
         fontSize = FONTSIZE_XL)
 
     val resultsLatest = viewModel.getLatestResults().collectAsState()
-    val resultsLatestsFails = resultsLatest.value.filter { it.result != 0 }
+    val resultsLatestFails = resultsLatest.value.filter { it.result != 0 }
 
     val results24h = viewModel.getLatestResults(hoursSince = 24).collectAsState()
     val results24hByElement = results24h.value.groupBy { it.elementID }
-    val results24hFails = results24hByElement.mapNotNull { it.value.firstOrNull() { r -> r.result != 0 } }
+    val results24hFails =
+        results24hByElement.mapNotNull { it.value.firstOrNull() { r -> r.result != 0 } }
 
     Column(Modifier.padding(horizontal = 2.dp))
     {
         Spacer(modifier = Modifier.size(10.dp))
-        Alert("Active", attestations = resultsLatest.value.size, fail = resultsLatestsFails.size) {
-            navController!!.navigate(Screen.Elements.route, bundleOf(Pair(ARG_BASE_FILTERS, resultsLatestsFails.joinToString(separator = " ") { it.elementID })))
+        Alert("Active", attestations = resultsLatest.value.size, fail = resultsLatestFails.size) {
+            navController!!.navigate(Screen.Elements.route,
+                bundleOf(Pair(ARG_BASE_FILTERS,
+                    resultsLatestFails.joinToString(separator = " ") { it.elementID })))
         }
         Spacer(modifier = Modifier.size(20.dp))
         Alert("24H", attestations = results24hByElement.size, fail = results24hFails.size) {
-            navController!!.navigate(Screen.Elements.route, bundleOf(Pair(ARG_BASE_FILTERS, results24hFails.joinToString(separator = " ") { it.elementID })))
+            navController!!.navigate(Screen.Elements.route,
+                bundleOf(Pair(ARG_BASE_FILTERS,
+                    results24hFails.joinToString(separator = " ") { it.elementID })))
         }
     }
 }

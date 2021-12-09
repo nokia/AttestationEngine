@@ -51,7 +51,11 @@ class AttestationRepositoryImpl(
     override suspend fun getElementIds(): List<String> = handler.getElementIds()
     override suspend fun getElement(itemid: String): Element {
         val element = handler.getElement(itemid)
-        element.results = getElementResults(element.itemid)
+        try {
+            element.results = getElementResults(element.itemid)
+        } catch (e: Exception) {
+            println("REPO ERROR $e")
+        }
 
         return element
     }

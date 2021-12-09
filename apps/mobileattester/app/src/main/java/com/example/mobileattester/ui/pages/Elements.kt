@@ -1,5 +1,6 @@
 package com.example.mobileattester.ui.pages
 
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -22,6 +23,7 @@ import com.example.mobileattester.data.model.Element
 import com.example.mobileattester.data.model.ElementResult.Companion.CODE_RESULT_OK
 import com.example.mobileattester.data.network.Status
 import com.example.mobileattester.data.util.abs.DataFilter
+import com.example.mobileattester.data.util.abs.MatchType
 import com.example.mobileattester.ui.components.SearchBar
 import com.example.mobileattester.ui.components.TagRow
 import com.example.mobileattester.ui.components.anim.FadeInWithDelay
@@ -29,6 +31,7 @@ import com.example.mobileattester.ui.components.common.DecorText
 import com.example.mobileattester.ui.components.common.ErrorIndicator
 import com.example.mobileattester.ui.components.common.HeaderRoundedBottom
 import com.example.mobileattester.ui.theme.*
+import com.example.mobileattester.ui.util.FilterBuilder
 import com.example.mobileattester.ui.util.Screen
 import com.example.mobileattester.ui.util.latestResults
 import com.example.mobileattester.ui.util.navigate
@@ -42,16 +45,25 @@ import compose.icons.tablericons.Refresh
 
 const val ARG_BASE_FILTERS = "base_filters"
 
+private const val TAG = "Elements"
+
 @Composable
 fun Elements(navController: NavController, viewModel: AttestationViewModel) {
     val elementResponse = viewModel.elementFlowResponse.collectAsState().value
     val lastIndex = viewModel.elementFlowResponse.collectAsState().value.data?.lastIndex ?: 0
     val isRefreshing = viewModel.isRefreshing.collectAsState()
-    val filters = remember { mutableStateOf(TextFieldValue()) }
     val isLoading = viewModel.isLoading.collectAsState()
-    val basefilters = remember {
+
+    val searchField = remember { mutableStateOf(TextFieldValue()) }
+    val baseFilters = remember {
         navController.currentBackStackEntry?.arguments?.getString(ARG_BASE_FILTERS, "")
     }
+    val dataFilter = FilterBuilder.buildWithBaseFilter(
+        baseFilters,
+        MatchType.MATCH_ANY,
+        searchField.value.text,
+        MatchType.MATCH_ALL
+    )
 
     // Navigate to single element view, pass clicked id as argument
     fun onElementClicked(itemid: String) {
@@ -72,16 +84,14 @@ fun Elements(navController: NavController, viewModel: AttestationViewModel) {
             // Header
             item {
                 HeaderRoundedBottom {
-                    SearchBar(filters, stringResource(id = R.string.placeholder_search_elementlist))
+                    SearchBar(searchField,
+                        stringResource(id = R.string.placeholder_search_elementlist))
                 }
                 Spacer(modifier = Modifier.size(5.dp))
             }
 
             // List of the elements
-            itemsIndexed(
-                viewModel.filterElements(DataFilter(filters.value.text),
-                    DataFilter(basefilters.toString())),
-            ) { index, element ->
+            itemsIndexed(viewModel.filterElements(dataFilter)) { index, element ->
                 // Get more elements when we are getting close to the end of the list
                 if (index + FETCH_START_BUFFER >= lastIndex) {
                     viewModel.getMoreElements()

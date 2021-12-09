@@ -3,6 +3,7 @@ package com.example.mobileattester.data.util
 import android.annotation.SuppressLint
 import android.content.Context
 import android.location.Location
+import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import androidx.appcompat.content.res.AppCompatResources
@@ -11,6 +12,7 @@ import com.example.mobileattester.R
 import com.example.mobileattester.data.model.Element
 import com.example.mobileattester.data.model.emptyElement
 import com.example.mobileattester.ui.components.ElementInfoWindow
+import com.example.mobileattester.ui.components.ElementInfoWindowClickHandler
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import org.osmdroid.bonuspack.clustering.RadiusMarkerClusterer
@@ -24,12 +26,15 @@ enum class MapMode {
     SINGLE_ELEMENT, EDIT_LOCATION, ALL_ELEMENTS
 }
 
+private const val TAG = "MapManager"
+
 /**
  * Provides everything for the map that the application requires
  */
 class MapManager(
     private val locationEditor: LocationEditor,
-) {
+) : ElementInfoWindowClickHandler {
+    private var elementButtonClickHandler: ((Element) -> Unit)? = null
     private var mapView: WeakReference<MapView>? = null
     private var mapListener: WeakReference<View.OnTouchListener>? = null
     private val _map: () -> MapView?
@@ -44,6 +49,17 @@ class MapManager(
     }
 
     /**
+     * Call to register a handler function for ElementInfoWindow button click
+     */
+    fun registerElementButtonClickHandler(func: (Element) -> Unit) {
+        elementButtonClickHandler = func
+    }
+
+    fun unregisterElementButtonClickHandler() {
+        elementButtonClickHandler = null
+    }
+
+    /**
      * Set the map to show a location for an element.
      * @return true if the element had a location in it. False if the element did not contain
      * a location.
@@ -51,7 +67,7 @@ class MapManager(
     fun displayElement(map: MapView, element: Element): Boolean {
         initializeMap(map, MapMode.SINGLE_ELEMENT)
 
-        val m = addMarker(element, map.context, "Element position")
+        val m = addMarker(element, map.context)
         map.controller.setCenter(m.position)
         return true
     }
@@ -78,7 +94,7 @@ class MapManager(
                 m.title = element.name
                 m.position = it
                 m.icon = markerIcon
-                m.setInfoWindow(ElementInfoWindow(map))
+                m.setInfoWindow(ElementInfoWindow(map, element, this))
                 cluster.add(m)
             }
         }
@@ -107,7 +123,7 @@ class MapManager(
 
         val gp = GeoPoint(locToEdit.latitude, locToEdit.longitude)
 
-        addMarker(element, map.context, "New element position").apply {
+        addMarker(element, map.context).apply {
             setMarkerFollowScreen(this)
         }
 
@@ -139,9 +155,7 @@ class MapManager(
             locationEditor.setLocation(geoToLoc(geoPoint))
             clearMarkers()
             val m = _map()?.context?.let {
-                addMarker(emptyElement().cloneWithNewLocation(geoToLoc(geoPoint)),
-                    it,
-                    "New element position")
+                addMarker(emptyElement().cloneWithNewLocation(geoToLoc(geoPoint)), it)
             }
             m?.let { setMarkerFollowScreen(it) }
         }
@@ -149,6 +163,7 @@ class MapManager(
         return geoPoint
     }
 
+    // ------------------------- Private --------------------------------------
     // ------------------------- Private --------------------------------------
     // ------------------------- Private --------------------------------------
 
@@ -195,7 +210,7 @@ class MapManager(
         return location
     }
 
-    private fun addMarker(element: Element, ctx: Context, txt: String): Marker {
+    private fun addMarker(element: Element, ctx: Context): Marker {
         // Position
         val marker = Marker(_map())
         marker.icon =
@@ -203,10 +218,14 @@ class MapManager(
                 this?.setTint(ctx.getColor(R.color.primary))
             }
         marker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_CENTER)
-        marker.title = txt
-        marker.setInfoWindow(ElementInfoWindow(_map()))
+        marker.setInfoWindow(ElementInfoWindow(_map(), element, this))
         element.geoPoint()?.let { marker.position = it }
         _map()?.overlays?.add(marker)
         return marker
+    }
+
+    override fun onElementButtonClicked(element: Element) {
+        elementButtonClickHandler?.let { it(element) } ?: Log.e(TAG,
+            "Map manager has no registered click handler for element button clicks")
     }
 }

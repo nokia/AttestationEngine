@@ -16,15 +16,18 @@ interface AttestationViewModel {
     val isRefreshing: StateFlow<Boolean>
     val isLoading: StateFlow<Boolean>
     val currentUrl: StateFlow<String>
+
     /** Response object containing the element data/errors */
     val elementFlowResponse: StateFlow<Response<List<Element>>>
 
     /** Total count of elements in the system */
-    val elementCount: StateFlow<Response<Int>>
+    val elementCount: StateFlow<Int>
 
     /** Get element data, which has already been downloaded */
     fun getElementFromCache(itemid: String): Element?
-    fun filterElements(all: DataFilter? = null, any: DataFilter? = null): List<Element>
+    fun filterElements(filter: DataFilter? = null): List<Element>
+    fun filterElements(filters: List<DataFilter>): List<Element>
+
     fun getMoreElements()
     fun refreshElements()
     fun refreshElement(itemid: String)
@@ -40,14 +43,14 @@ interface AttestationViewModel {
     /** Switch the base url used for the engine */
     fun switchBaseUrl(url: String)
 
-    // Use the different classes directly to avoid cluttering in this vm
-    fun getLatestResults(hoursSince: Int? = null): MutableStateFlow<List<ElementResult>>
+    fun getLatestResults(hoursSince: Int? = null): StateFlow<List<ElementResult>>
 
-    val attestationUtil : AttestationUtil
-    val updateUtil : UpdateUtil
-    val overviewProvider : OverviewProvider
-    val engineInfo : EngineInfo
-    val mapManager : MapManager
+    // Use the different classes directly to avoid cluttering this vm
+    val attestationUtil: AttestationUtil
+    val updateUtil: UpdateUtil
+    val overviewProvider: OverviewProvider
+    val engineInfo: EngineInfo
+    val mapManager: MapManager
 }
 
 // --------- Implementation ---------
@@ -59,25 +62,29 @@ class AttestationViewModelImpl(
     override val updateUtil: UpdateUtil,
     override val overviewProvider: OverviewProvider,
     override val engineInfo: EngineInfo,
-    override val mapManager: MapManager
+    override val mapManager: MapManager,
 ) : AttestationViewModel, ViewModel() {
     companion object {
         const val FETCH_START_BUFFER = 3
     }
 
-    override val isRefreshing: StateFlow<Boolean> = elementDataHandler.isRefreshing
-    override val isLoading: StateFlow<Boolean> = elementDataHandler.isLoading
+    override val isRefreshing: StateFlow<Boolean> = MutableStateFlow(false) // TODO
+    override val isLoading: StateFlow<Boolean> = MutableStateFlow(false) // TODO
     override val currentUrl: StateFlow<String> = repo.currentUrl
     override val elementFlowResponse: StateFlow<Response<List<Element>>> =
         elementDataHandler.dataFlow
-    override val elementCount: StateFlow<Response<Int>> = elementDataHandler.idCount
+    override val elementCount: StateFlow<Int> = elementDataHandler.idCount
 
     override fun getElementFromCache(itemid: String): Element? =
         elementDataHandler.getDataForId(itemid)
 
     override fun getMoreElements() = elementDataHandler.fetchNextBatch()
-    override fun filterElements(all: DataFilter?, any: DataFilter?): List<Element> =
-        elementDataHandler.dataAsList(all, any)
+
+    override fun filterElements(filter: DataFilter?): List<Element> =
+        elementDataHandler.dataAsList(filter)
+
+    override fun filterElements(filters: List<DataFilter>): List<Element> =
+        elementDataHandler.dataAsList(filters)
 
     override fun refreshElements() = elementDataHandler.refreshData(hardReset = true)
     override fun refreshElement(itemid: String) = elementDataHandler.refreshSingleValue(itemid)
@@ -98,7 +105,8 @@ class AttestationViewModelImpl(
         return null
     }
 
-    override fun getLatestResults(hoursSince: Int?): MutableStateFlow<List<ElementResult>> = overviewProvider.getOverview(hoursSince)
+    override fun getLatestResults(hoursSince: Int?): StateFlow<List<ElementResult>> =
+        overviewProvider.getOverview(hoursSince)
 
 
     override fun getPolicyFromCache(policyId: String): Policy? =

@@ -3,6 +3,7 @@ package com.example.mobileattester.data.model
 import android.location.Location
 import com.example.mobileattester.data.util.abs.DataFilter
 import com.example.mobileattester.data.util.abs.Filterable
+import com.example.mobileattester.data.util.abs.MatchType
 import com.google.gson.annotations.SerializedName
 import org.osmdroid.util.GeoPoint
 
@@ -22,11 +23,10 @@ data class Element(
 ) : Filterable {
 
     override fun filter(f: DataFilter): Boolean {
-        return matchFields(f.keywords)
-    }
-
-    override fun filterAny(f: DataFilter): Boolean {
-        return matchFieldsAny(f.keywords)
+        return when (f.matchType) {
+            MatchType.MATCH_ALL -> matchAll(f.keywords)
+            MatchType.MATCH_ANY -> matchAny(f.keywords)
+        }
     }
 
     fun geoPoint(): GeoPoint? {
@@ -55,7 +55,7 @@ data class Element(
      * Returns true if all the strings in the list
      * are matched in one of the searched fields of this instance.
      */
-    private fun matchFields(l: List<String>): Boolean {
+    private fun matchAll(l: List<String>): Boolean {
         return l.all { s ->
             name.lowercase().contains(s) || endpoint.lowercase().contains(s) || types.find {
                 it.lowercase().contains(s)
@@ -68,7 +68,7 @@ data class Element(
      * Returns true if any of the strings in the list
      * are matched in one of the searched fields of this instance.
      */
-    private fun matchFieldsAny(l: List<String>): Boolean {
+    private fun matchAny(l: List<String>): Boolean {
         return l.any { s ->
             (name.lowercase().contains(s) || endpoint.lowercase().contains(s) || types.find {
                 it.lowercase().contains(s)

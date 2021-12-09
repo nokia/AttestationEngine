@@ -20,6 +20,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
+import androidx.core.os.bundleOf
 import androidx.navigation.NavController
 import com.example.mobileattester.data.model.Element
 import com.example.mobileattester.data.network.Response
@@ -32,6 +33,7 @@ import com.example.mobileattester.ui.theme.*
 import com.example.mobileattester.ui.util.PermissionDeniedRequestSettings
 import com.example.mobileattester.ui.util.PermissionsRationale
 import com.example.mobileattester.ui.util.Screen
+import com.example.mobileattester.ui.util.navigate
 import com.example.mobileattester.ui.viewmodel.AttestationViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionsRequired
@@ -74,8 +76,14 @@ fun MapWrapper(
     }
 
     DisposableEffect(LocalLifecycleOwner.current) {
+
+        viewModel.mapManager.registerElementButtonClickHandler {
+            navController.navigate(Screen.Element.route, bundleOf(Pair(ARG_ELEMENT_ID, it.itemid)))
+        }
+
         onDispose {
             viewModel.mapManager.resetMapState()
+            viewModel.mapManager.unregisterElementButtonClickHandler()
             navController.currentBackStackEntry?.arguments?.remove(ARG_MAP_SINGLE_ELEMENT_ID)
         }
     }
