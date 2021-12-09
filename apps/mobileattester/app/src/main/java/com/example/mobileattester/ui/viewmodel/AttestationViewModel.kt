@@ -16,7 +16,6 @@ interface AttestationViewModel {
     val isRefreshing: StateFlow<Boolean>
     val isLoading: StateFlow<Boolean>
     val currentUrl: StateFlow<String>
-
     /** Response object containing the element data/errors */
     val elementFlowResponse: StateFlow<Response<List<Element>>>
 
@@ -42,11 +41,13 @@ interface AttestationViewModel {
     fun switchBaseUrl(url: String)
 
     // Use the different classes directly to avoid cluttering in this vm
-    fun useAttestationUtil(): AttestationUtil
-    fun useUpdateUtil(): UpdateUtil
-    fun useOverviewProvider(): OverviewProvider
-    fun useMapManager(): MapManager
     fun getLatestResults(hoursSince: Int? = null): MutableStateFlow<List<ElementResult>>
+
+    val attestationUtil : AttestationUtil
+    val updateUtil : UpdateUtil
+    val overviewProvider : OverviewProvider
+    val engineInfo : EngineInfo
+    val mapManager : MapManager
 }
 
 // --------- Implementation ---------
@@ -54,10 +55,11 @@ interface AttestationViewModel {
 class AttestationViewModelImpl(
     private val repo: AttestationRepository,
     private val elementDataHandler: ElementDataHandler,
-    private val attestationUtil: AttestationUtil,
-    private val updateUtil: UpdateUtil,
-    private val overviewProvider: OverviewProvider,
-    private val mapManager: MapManager,
+    override val attestationUtil: AttestationUtil,
+    override val updateUtil: UpdateUtil,
+    override val overviewProvider: OverviewProvider,
+    override val engineInfo: EngineInfo,
+    override val mapManager: MapManager
 ) : AttestationViewModel, ViewModel() {
     companion object {
         const val FETCH_START_BUFFER = 3
@@ -108,11 +110,6 @@ class AttestationViewModelImpl(
         elementDataHandler.refreshData(true)
         attestationUtil.reset(true)
     }
-
-    override fun useAttestationUtil(): AttestationUtil = attestationUtil
-    override fun useUpdateUtil(): UpdateUtil = updateUtil
-    override fun useOverviewProvider(): OverviewProvider = overviewProvider
-    override fun useMapManager(): MapManager = mapManager
 }
 
 class AttestationViewModelImplFactory(
@@ -121,6 +118,7 @@ class AttestationViewModelImplFactory(
     private val attestUtil: AttestationUtil,
     private val updateUtil: UpdateUtil,
     private val overviewProvider: OverviewProvider,
+    private val engineInfo: EngineInfo,
     private val mapManager: MapManager,
 ) : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
@@ -130,6 +128,7 @@ class AttestationViewModelImplFactory(
             attestUtil,
             updateUtil,
             overviewProvider,
+            engineInfo,
             mapManager) as T
     }
 }

@@ -1,9 +1,6 @@
 package com.example.mobileattester.data.repository
 
-import com.example.mobileattester.data.model.Element
-import com.example.mobileattester.data.model.ElementResult
-import com.example.mobileattester.data.model.ExpectedValue
-import com.example.mobileattester.data.model.Policy
+import com.example.mobileattester.data.model.*
 import com.example.mobileattester.data.network.AttestationDataHandler
 import kotlinx.coroutines.flow.MutableStateFlow
 
@@ -18,6 +15,7 @@ interface AttestationRepository {
 
     /** Call to rebuild the api service with a new url */
     fun rebuildService(withUrl: String)
+
 
     // --- Elements ---
     suspend fun getElementIds(): List<String>

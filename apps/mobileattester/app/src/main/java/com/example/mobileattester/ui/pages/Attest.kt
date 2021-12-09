@@ -65,7 +65,7 @@ fun Attest(navController: NavController, viewModel: AttestationViewModel) {
         return
     }
 
-    val u = viewModel.useAttestationUtil()
+    val u = viewModel.attestationUtil
     val context = LocalContext.current
 
     // Reset attestation util state when navigating out of this screen

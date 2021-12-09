@@ -2,10 +2,13 @@ package com.example.mobileattester.data.network
 
 import android.util.Log
 import com.example.mobileattester.data.model.*
+import com.example.mobileattester.data.util.BaseUrlChanged
+import com.example.mobileattester.data.util.abs.Notifier
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonObject
 import kotlinx.coroutines.flow.MutableStateFlow
 import okhttp3.OkHttpClient
+import okhttp3.internal.notify
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -17,7 +20,7 @@ import retrofit2.converter.scalars.ScalarsConverterFactory
  */
 interface AttestationDataHandler {
 
-    // --- URL ---
+    // --- Engine ---
     /** Base url currently used for api calls */
     val currentUrl: MutableStateFlow<String>
 
@@ -50,12 +53,16 @@ interface AttestationDataHandler {
     suspend fun getRules(): List<Rule>
 
     // --- Claims ---
-    suspend fun getClaim(itemid: String): com.example.mobileattester.data.model.Claim
+    suspend fun getClaim(itemid: String): Claim
     suspend fun getLatestResults(timestamp: Float?): List<ElementResult>
+
+    // --- Spec ---
+    suspend fun getSpec(): Spec
 }
 
 class AttestationDataHandlerImpl(
     private var initialUrl: String,
+    private var notifier: Notifier
 ) : AttestationDataHandler {
 
     // TODO -----------  Move out of here -----------
@@ -74,6 +81,8 @@ class AttestationDataHandlerImpl(
             .addConverterFactory(ScalarsConverterFactory.create()) //important
             .addConverterFactory(GsonConverterFactory.create(gson)).build()
             .create(AttestationDataService::class.java)
+
+        notifier.notifyAll(BaseUrlChanged(initialUrl))
     }
 
     override fun rebuildService(withUrl: String) {
@@ -83,7 +92,7 @@ class AttestationDataHandlerImpl(
         currentUrl.value = initialUrl
     }
 
-    private fun getOkHttpClient(): OkHttpClient? {
+    private fun getOkHttpClient(): OkHttpClient {
         //Log display level
         val level = HttpLoggingInterceptor.Level.BASIC
         //New log interceptor
@@ -132,12 +141,15 @@ class AttestationDataHandlerImpl(
         return apiService.attestElement(params)
     }
 
+    override suspend fun getClaim(itemid: String): Claim =
+        apiService.getClaim(itemid)
+
     override suspend fun verifyClaim(cid: String, rul: String): String {
         val params = VerifyParams(cid, listOf(rul, JsonObject()))
         return apiService.verifyClaim(params)
     }
 
     override suspend fun getRules(): List<Rule> = apiService.getRules()
-    override suspend fun getClaim(itemid: String): com.example.mobileattester.data.model.Claim =
-        apiService.getClaim(itemid)
+
+    override suspend fun getSpec(): Spec = apiService.getSpec()
 }

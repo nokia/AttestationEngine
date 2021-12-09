@@ -114,13 +114,13 @@ object NavUtils {
                 composable(Screen.Map.route) { MapWrapper(navController, viewModel) }
                 composable(Screen.Policy.route) { Policy(navController, viewModel) }
                 composable(Screen.Claim.route) {
-                    ClaimWrapper(navController, viewModel.useAttestationUtil())
+                    ClaimWrapper(navController, viewModel.attestationUtil)
                 }
                 composable(Screen.Result.route) {
                     ResultScreenProvider(
                         navController = navController,
                         viewModel = viewModel,
-                        resultFlow = viewModel.useAttestationUtil().latestResult,
+                        resultFlow = viewModel.attestationUtil.latestResult,
                     )
                 }
             }
