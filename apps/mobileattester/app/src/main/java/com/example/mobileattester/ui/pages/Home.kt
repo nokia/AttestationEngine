@@ -20,8 +20,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.os.bundleOf
 import androidx.navigation.NavController
-import com.example.mobileattester.data.network.Status
-import com.example.mobileattester.ui.components.common.ErrorIndicator
 import com.example.mobileattester.ui.components.common.HeaderRoundedBottom
 import com.example.mobileattester.ui.components.common.LoadingIndicator
 import com.example.mobileattester.ui.theme.*
@@ -31,7 +29,6 @@ import compose.icons.TablerIcons
 import compose.icons.tablericons.*
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
-import java.sql.Time
 
 @Composable
 fun Home(navController: NavController? = null, viewModel: AttestationViewModel) {
@@ -258,7 +255,7 @@ fun Content(navController: NavController? = null, viewModel: AttestationViewMode
         fontSize = FONTSIZE_XL)
 
     val resultsLatest = viewModel.getLatestResults().collectAsState()
-    val resultsLatestsFails = resultsLatest.value.filter { it.result != 0 }
+    val resultsLatestFails = resultsLatest.value.filter { it.result != 0 }
 
     val results24h = viewModel.getLatestResults(hoursSince = 24).collectAsState()
     val results24hByElement = results24h.value.groupBy { it.elementID }
@@ -268,10 +265,10 @@ fun Content(navController: NavController? = null, viewModel: AttestationViewMode
     Column(Modifier.padding(horizontal = 2.dp))
     {
         Spacer(modifier = Modifier.size(10.dp))
-        Alert("Active", attestations = resultsLatest.value.size, fail = resultsLatestsFails.size) {
+        Alert("Active", attestations = resultsLatest.value.size, fail = resultsLatestFails.size) {
             navController!!.navigate(Screen.Elements.route,
                 bundleOf(Pair(ARG_BASE_FILTERS,
-                    resultsLatestsFails.joinToString(separator = " ") { it.elementID })))
+                    resultsLatestFails.joinToString(separator = " ") { it.elementID })))
         }
         Spacer(modifier = Modifier.size(20.dp))
         Alert("24H", attestations = results24hByElement.size, fail = results24hFails.size) {

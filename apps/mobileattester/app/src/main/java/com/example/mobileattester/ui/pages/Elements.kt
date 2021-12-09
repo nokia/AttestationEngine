@@ -65,8 +65,6 @@ fun Elements(navController: NavController, viewModel: AttestationViewModel) {
         MatchType.MATCH_ALL
     )
 
-    Log.d(TAG, "Elements: Filter: $dataFilter")
-
     // Navigate to single element view, pass clicked id as argument
     fun onElementClicked(itemid: String) {
         navController.navigate(Screen.Element.route, bundleOf(Pair(ARG_ELEMENT_ID, itemid)))

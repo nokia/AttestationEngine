@@ -43,9 +43,9 @@ interface AttestationViewModel {
     /** Switch the base url used for the engine */
     fun switchBaseUrl(url: String)
 
-    // Use the different classes directly to avoid cluttering in this vm
-    fun getLatestResults(hoursSince: Int? = null): MutableStateFlow<List<ElementResult>>
+    fun getLatestResults(hoursSince: Int? = null): StateFlow<List<ElementResult>>
 
+    // Use the different classes directly to avoid cluttering this vm
     val attestationUtil: AttestationUtil
     val updateUtil: UpdateUtil
     val overviewProvider: OverviewProvider
@@ -105,7 +105,7 @@ class AttestationViewModelImpl(
         return null
     }
 
-    override fun getLatestResults(hoursSince: Int?): MutableStateFlow<List<ElementResult>> =
+    override fun getLatestResults(hoursSince: Int?): StateFlow<List<ElementResult>> =
         overviewProvider.getOverview(hoursSince)
 
 
