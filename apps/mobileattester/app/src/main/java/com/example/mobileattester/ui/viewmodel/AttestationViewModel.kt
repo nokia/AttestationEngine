@@ -22,11 +22,13 @@ interface AttestationViewModel {
     val elementFlowResponse: StateFlow<Response<List<Element>>>
 
     /** Total count of elements in the system */
-    val elementCount: StateFlow<Response<Int>>
+    val elementCount: StateFlow<Int>
 
     /** Get element data, which has already been downloaded */
     fun getElementFromCache(itemid: String): Element?
-    fun filterElements(all: DataFilter? = null, any: DataFilter? = null): List<Element>
+    fun filterElements(filter: DataFilter? = null): List<Element>
+    fun filterElements(filters: List<DataFilter>): List<Element>
+
     fun getMoreElements()
     fun refreshElements()
     fun refreshElement(itemid: String)
@@ -64,19 +66,23 @@ class AttestationViewModelImpl(
         const val FETCH_START_BUFFER = 3
     }
 
-    override val isRefreshing: StateFlow<Boolean> = elementDataHandler.isRefreshing
-    override val isLoading: StateFlow<Boolean> = elementDataHandler.isLoading
+    override val isRefreshing: StateFlow<Boolean> = MutableStateFlow(false) // TODO
+    override val isLoading: StateFlow<Boolean> = MutableStateFlow(false) // TODO
     override val currentUrl: StateFlow<String> = repo.currentUrl
     override val elementFlowResponse: StateFlow<Response<List<Element>>> =
         elementDataHandler.dataFlow
-    override val elementCount: StateFlow<Response<Int>> = elementDataHandler.idCount
+    override val elementCount: StateFlow<Int> = elementDataHandler.idCount
 
     override fun getElementFromCache(itemid: String): Element? =
         elementDataHandler.getDataForId(itemid)
 
     override fun getMoreElements() = elementDataHandler.fetchNextBatch()
-    override fun filterElements(all: DataFilter?, any: DataFilter?): List<Element> =
-        elementDataHandler.dataAsList(all, any)
+
+    override fun filterElements(filter: DataFilter?): List<Element> =
+        elementDataHandler.dataAsList(filter)
+
+    override fun filterElements(filters: List<DataFilter>): List<Element> =
+        elementDataHandler.dataAsList(filters)
 
     override fun refreshElements() = elementDataHandler.refreshData(hardReset = true)
     override fun refreshElement(itemid: String) = elementDataHandler.refreshSingleValue(itemid)
@@ -97,8 +103,7 @@ class AttestationViewModelImpl(
         return null
     }
 
-    override fun getLatestResults(timestamp: Timestamp?): MutableStateFlow<List<ElementResult>>
-    {
+    override fun getLatestResults(timestamp: Timestamp?): MutableStateFlow<List<ElementResult>> {
         overviewProvider.addOverview(timestamp = timestamp)
         return overviewProvider.results[timestamp]!!
     }

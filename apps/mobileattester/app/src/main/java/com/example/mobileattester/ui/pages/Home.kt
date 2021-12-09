@@ -200,19 +200,19 @@ fun ConfigurationButton(
 fun Content(navController: NavController? = null, viewModel: AttestationViewModel) {
     val elementCount = viewModel.elementCount.collectAsState()
     val isRefreshing = viewModel.isRefreshing.collectAsState()
-
-    when (elementCount.value.status) {
-        Status.ERROR -> {
-            ErrorIndicator(msg = elementCount.value.message.toString())
-            return
-        }
-        Status.LOADING -> {
-            LoadingIndicator()
-            return
-        }
-        else -> {
-        }
-    }
+//
+//    when (elementCount.value) {
+//        Status.ERROR -> {
+//            ErrorIndicator(msg = elementCount.value.message.toString())
+//            return
+//        }
+//        Status.LOADING -> {
+//            LoadingIndicator()
+//            return
+//        }
+//        else -> {
+//        }
+//    }
 
     Row(modifier = Modifier
         .padding(15.dp)
@@ -235,7 +235,7 @@ fun Content(navController: NavController? = null, viewModel: AttestationViewMode
         if (isRefreshing.value) {
             LoadingIndicator()
         } else {
-            Text(AnnotatedString(elementCount.value.data.toString()),
+            Text(AnnotatedString(elementCount.value.toString()),
                 modifier = Modifier
                     .padding(5.dp, 0.dp)
                     .align(Alignment.CenterVertically)
@@ -264,17 +264,22 @@ fun Content(navController: NavController? = null, viewModel: AttestationViewMode
 
     val results24h = viewModel.getLatestResults(timestamp24HoursAgo).collectAsState()
     val results24hByElement = results24h.value.groupBy { it.elementID }
-    val results24hFails = results24hByElement.mapNotNull { it.value.firstOrNull() { r -> r.result != 0 } }
+    val results24hFails =
+        results24hByElement.mapNotNull { it.value.firstOrNull() { r -> r.result != 0 } }
 
     Column(Modifier.padding(horizontal = 2.dp))
     {
         Spacer(modifier = Modifier.size(10.dp))
         Alert("Active", attestations = resultsLatest.value.size, fail = resultsLatestsFails.size) {
-            navController!!.navigate(Screen.Elements.route, bundleOf(Pair(ARG_BASE_FILTERS, resultsLatestsFails.joinToString(separator = " ") { it.elementID })))
+            navController!!.navigate(Screen.Elements.route,
+                bundleOf(Pair(ARG_BASE_FILTERS,
+                    resultsLatestsFails.joinToString(separator = " ") { it.elementID })))
         }
         Spacer(modifier = Modifier.size(20.dp))
         Alert("24H", attestations = results24hByElement.size, fail = results24hFails.size) {
-            navController!!.navigate(Screen.Elements.route, bundleOf(Pair(ARG_BASE_FILTERS, results24hFails.joinToString(separator = " ") { it.elementID })))
+            navController!!.navigate(Screen.Elements.route,
+                bundleOf(Pair(ARG_BASE_FILTERS,
+                    results24hFails.joinToString(separator = " ") { it.elementID })))
         }
     }
 }

@@ -25,10 +25,6 @@ data class Element(
         return matchFields(f.keywords)
     }
 
-    override fun filterAny(f: DataFilter): Boolean {
-        return matchFieldsAny(f.keywords)
-    }
-
     fun geoPoint(): GeoPoint? {
         val lat = location?.getOrNull(0)
         val long = location?.getOrNull(1)

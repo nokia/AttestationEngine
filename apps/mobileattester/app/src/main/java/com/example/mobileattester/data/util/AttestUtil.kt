@@ -14,6 +14,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 enum class AttestationStatus {
@@ -28,7 +29,7 @@ data class ElementAttested(val eid: String)
 interface AttestationUtil {
 
     /** Contains the policies */
-    val policyFlow: MutableStateFlow<Response<List<Policy>>>
+    val policyFlow: StateFlow<Response<List<Policy>>>
 
     /** Contains the rules */
     val ruleFlow: MutableStateFlow<Response<List<Rule>>>
@@ -74,7 +75,7 @@ class AttestUtil(
     private val scope = CoroutineScope(job)
     private val _stat = MutableStateFlow(AttestationStatus.IDLE)
 
-    override val policyFlow: MutableStateFlow<Response<List<Policy>>> = policyDataHandler.dataFlow
+    override val policyFlow: StateFlow<Response<List<Policy>>> = policyDataHandler.dataFlow
 
     override val ruleFlow: MutableStateFlow<Response<List<Rule>>> =
         MutableStateFlow(Response.loading())

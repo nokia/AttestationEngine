@@ -2,6 +2,8 @@ package com.example.mobileattester.data.network
 
 import android.util.Log
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import java.io.IOException
 
 enum class Status {
@@ -19,8 +21,29 @@ data class Response<out T>(val status: Status, val data: T? = null, val message:
         fun <T> loading(data: T? = null): Response<T> =
             Response(status = Status.LOADING, data = data)
 
-        fun <T> idle(): Response<T> =
-            Response(status = Status.IDLE)
+        fun <T> idle(data: T? = null): Response<T> =
+            Response(status = Status.IDLE, data = data)
+    }
+}
+
+class ResponseStateManager<T> {
+    private val _res = MutableStateFlow(Response.idle<T>())
+    val response: StateFlow<Response<T>> = _res
+
+    fun setError(msg: String, data: T? = null) {
+        _res.value = Response.error(message = msg, data = data)
+    }
+
+    fun setLoading(data: T? = null) {
+        _res.value = Response.loading(data)
+    }
+
+    fun setSuccess(data: T) {
+        _res.value = Response.success(data)
+    }
+
+    fun setIdle(data: T? = null) {
+        _res.value = Response.idle(data)
     }
 }
 

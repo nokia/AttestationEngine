@@ -71,7 +71,6 @@ object Injector {
 
         val overviewProvider = OverviewProviderImpl(dataHandler = handler)
 
-
         notifier.apply {
             addSubscriber(elementDataHandler)
         }
