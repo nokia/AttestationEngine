@@ -92,7 +92,6 @@ class OverviewProviderImpl(
 
     private suspend fun setOverview(overview: Int?) {
         try {
-
             results[overview]!!.value =
                 dataHandler.getLatestResults(
                     Timestamp.now()

@@ -3,6 +3,7 @@ package com.example.mobileattester.data.util
 import android.annotation.SuppressLint
 import android.content.Context
 import android.location.Location
+import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import androidx.appcompat.content.res.AppCompatResources
@@ -25,12 +26,15 @@ enum class MapMode {
     SINGLE_ELEMENT, EDIT_LOCATION, ALL_ELEMENTS
 }
 
+private const val TAG = "MapManager"
+
 /**
  * Provides everything for the map that the application requires
  */
 class MapManager(
     private val locationEditor: LocationEditor,
 ) : ElementInfoWindowClickHandler {
+    private var elementButtonClickHandler: ((Element) -> Unit)? = null
     private var mapView: WeakReference<MapView>? = null
     private var mapListener: WeakReference<View.OnTouchListener>? = null
     private val _map: () -> MapView?
@@ -42,6 +46,17 @@ class MapManager(
 
     init {
         locationEditor.requestLocationUpdates()
+    }
+
+    /**
+     * Call to register a handler function for ElementInfoWindow button click
+     */
+    fun registerElementButtonClickHandler(func: (Element) -> Unit) {
+        elementButtonClickHandler = func
+    }
+
+    fun unregisterElementButtonClickHandler() {
+        elementButtonClickHandler = null
     }
 
     /**
@@ -150,6 +165,7 @@ class MapManager(
 
     // ------------------------- Private --------------------------------------
     // ------------------------- Private --------------------------------------
+    // ------------------------- Private --------------------------------------
 
     @SuppressLint("ClickableViewAccessibility")
     private fun setMarkerFollowScreen(marker: Marker) {
@@ -209,7 +225,7 @@ class MapManager(
     }
 
     override fun onElementButtonClicked(element: Element) {
-        println("ELEMENT INFO CLICK")
-        // TODO
+        elementButtonClickHandler?.let { it(element) } ?: Log.e(TAG,
+            "Map manager has no registered click handler for element button clicks")
     }
 }

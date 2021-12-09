@@ -16,23 +16,6 @@ private const val TAG = "BatchedDataHandler"
 typealias FetchIdList<T> = suspend () -> List<T>
 typealias FetchIdData<T, U> = suspend (T) -> U
 
-//class BatchManager<T>(private val : FetchIdData){
-//    private val batches = mutableSetOf<Batch<T>>()
-//    private val batchStates = mutableMapOf<Int, Status>()
-//
-//    fun createBatch(data: List<T>) {
-//        val batchNum = batches.size
-//        batches.add(
-//            Batch(
-//                number = batchNum,
-//                data = data
-//            )
-//        )
-//        batchStates[batchNum] = Status.IDLE
-//    }
-//}
-
-
 data class BatchElement<T>(
     val data: T?,
     val status: Status,
@@ -79,9 +62,17 @@ abstract class BatchedDataHandler<T, U>(
         initIds()
     }
 
+    // --------------------------------- Public ---------------------------------------
+    // --------------------------------- Public ---------------------------------------
+    // --------------------------------- Public ---------------------------------------
+
     /** Call to fetch the next available batch in line */
     fun fetchNextBatch() = fetchFreeBatch()
+
+    /** Call to start a loop, that continuously fetches batches one-by-one */
     fun startFetchLoop() {}
+
+    /** Stop the fetch loop */
     fun stopFetchLoop() {}
 
     /**
@@ -90,6 +81,7 @@ abstract class BatchedDataHandler<T, U>(
      */
     fun refreshData(hardReset: Boolean = false) {
         cancelJobs("Refresh data called")
+        // TODO
         if (hardReset) initIds()
     }
 
@@ -119,19 +111,7 @@ abstract class BatchedDataHandler<T, U>(
     }
 
     fun dataAsList(filters: List<DataFilter>): List<U> {
-        return rec(filters, dataAsList())
-    }
-
-    private fun rec(filters: List<DataFilter>, data: List<U>): List<U> {
-        return when (filters.firstOrNull()) {
-            null -> return data
-            else -> {
-                Log.d(TAG, "rec: REC ${filters.size}")
-                val fs = filters.toMutableList()
-                val d = filterList(fs.removeAt(0), data)
-                rec(fs, d)
-            }
-        }
+        return recursiveFilter(filters, dataAsList())
     }
 
     /**
@@ -159,12 +139,11 @@ abstract class BatchedDataHandler<T, U>(
                 return@launch
             }
             /*
-                IDs were successfully fetched, reset the batch stuff, since there might
-                be new additions to the id list from before.
+                IDs were successfully fetched, reset the batch stuff.
 
                 Could also have logic to re-fetch data for each id, but currently we
                 are holding all the data gotten for the ids before in memory, and reusing the
-                data?
+                data.
             */
             val ids = idResponseManager.response.value.data!!
             batches = ids.chunked(batchSize)
@@ -197,6 +176,18 @@ abstract class BatchedDataHandler<T, U>(
         }
         return matchingValues
     }
+
+    private fun recursiveFilter(filters: List<DataFilter>, data: List<U>): List<U> {
+        return when (filters.firstOrNull()) {
+            null -> return data
+            else -> {
+                val fs = filters.toMutableList()
+                val d = filterList(fs.removeAt(0), data)
+                recursiveFilter(fs, d)
+            }
+        }
+    }
+
 
     /**
      * Call to fetch data for a batch which is not yet loading/fetched.

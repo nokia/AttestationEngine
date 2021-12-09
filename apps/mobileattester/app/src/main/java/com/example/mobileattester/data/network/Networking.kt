@@ -47,6 +47,7 @@ class ResponseStateManager<T> {
     }
 }
 
+private const val TAG = "Networking"
 /**
  * Retries a given block x times with increasing delay between retries. (5 by default)
  * @throws Exception If the block fails x times
@@ -54,7 +55,7 @@ class ResponseStateManager<T> {
 suspend fun <T> retryIO(
     times: Int = 5,
     initialDelay: Long = 100, // Delay after first fail
-    maxDelay: Long = 1000,
+    maxDelay: Long = 10000,
     factor: Double = 2.0,
     block: suspend () -> T,
 ): T? {
@@ -62,8 +63,9 @@ suspend fun <T> retryIO(
 
     repeat(times) {
         try {
+            Log.d(TAG, "retryIO: count: $times")
             return block()
-        } finally {
+        } catch (e: Exception) {
             delay(currentDelay)
             currentDelay = (currentDelay * factor).toLong().coerceAtMost(maxDelay)
         }
