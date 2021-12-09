@@ -41,7 +41,7 @@ def getDatabaseStatus():
         "log",
     ]:
         collection = asdb[c]
-        count = collection.find().count()
+        count = collection.estimated_document_count()
         dbstatus[c] = str(count)
 
     return dbstatus
