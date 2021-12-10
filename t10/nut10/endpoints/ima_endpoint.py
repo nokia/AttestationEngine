@@ -19,13 +19,13 @@ def returnIMALOG():
     
     try:
         f = open("/sys/kernel/security/ima/ascii_runtime_measurements","r")
-        eventlog = f.read()
+        imalog = f.read()
         #eventlog_enc = base64.b85encode(eventlog).decode("utf-8")   
         #c.addPayloadItem("encoding", "base85/utf-8")
         #c.addPayloadItem("eventlog", eventlog_enc)
-        c.addPayloadItem("size",len(eventlog))
-        c.addPayloadItem("logfile":"/sys/kernel/security/ima/ascii_runtime_measurements")
-        c.addPayloadItem("imalog":evetntlog)
+        c.addPayloadItem("size",len(imalog))
+        c.addPayloadItem("logfile","/sys/kernel/security/ima/ascii_runtime_measurements")
+        c.addPayloadItem("imalog",imalog)
         #c.addPayloadItem("sizeencoded",len(eventlog_enc))
         f.close()
     except Exception as e:
