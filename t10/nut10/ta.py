@@ -6,6 +6,7 @@ from flask import Flask, request, jsonify
 
 from endpoints.tpm2_endpoint import tpm2_endpoint
 from endpoints.uefi_endpoint import uefi_endpoint
+from endpoints.ima_endpoint import ima_endpoint
 
 import requests
 import configparser

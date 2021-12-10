@@ -157,3 +157,17 @@ def claimprettyprintUEFIEventLog(item_id):
     #
 
     return render_template("claimprettyprint/uefieventlog.html", cla=c, evdec1= tpm2_eventlog_dict, evdec1len=evdec1len)        
+
+
+
+  
+    
+@claims_blueprint.route("/claim/prettyprint/imalog/<item_id>", methods=["GET"])
+def claimprettyprintQuote(item_id):
+    c = a10.asvr.claims.getClaim(item_id).msg()
+
+        
+    if c.get("payload").get("payload").get("imalog")==None:
+       return render_template("claimprettyprint/incorrecttype.html", cla=c, msg="Claim does not appear to be an IMA log")        
+    else:
+       return render_template("claimprettyprint/imalog.html", cla=c)  

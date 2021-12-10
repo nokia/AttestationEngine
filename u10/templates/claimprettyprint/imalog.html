@@ -1,0 +1,61 @@
+<!--
+Copyright 2021 Nokia
+Licensed under the BSD 3-Clause Clear License.
+SPDX-License-Identifier: BSD-3-Clear
+-->
+{% extends "base.html" %}
+{% block content %}
+<h2>IMA Log Pretty Print</h2>
+Claim: <a href=/claim/{{ cla.itemid }}>{{ cla.itemid }}</a>
+<hr />
+
+<input class="form-control" id="uefisearch" type="text" placeholder="Search...">
+<br>
+
+<div>
+    <table class="table table-striped .table-sm">
+        <tbody>
+            <tr>
+                <td><b>Size<b></td>
+                <td>{{ cla.payload.payload.size }} bytes </td>
+            </tr>
+            <tr>
+                <td><b>File<b></td>
+                <td> {{ cla.payload.payload.logfile }} </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+<hr />
+
+
+<div>
+Pretty print it here
+</div>
+
+
+
+<hr />
+
+
+
+<div>
+    <h3>Raw log file</h3>
+    {{ cla.payload.payload.imalog }}
+    </div>
+
+
+        <script>
+
+$(document).ready(function() {
+    $("#uefisearch").on("keyup", function() {
+        var value = $(this).val().toLowerCase();
+        $("#uefitable tr").filter(function() {
+            $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+        });
+    });
+});
+</script>
+
+
+        {% endblock %}
