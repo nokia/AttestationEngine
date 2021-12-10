@@ -52,7 +52,13 @@ fun More(navController: NavController, viewModel: AttestationViewModel) {
 
 @Composable fun Map(navController: NavController, viewModel: AttestationViewModel)
 {
-    var map : MapView
+    lateinit var map : MapView
+
+    fun mapInit()
+    {
+        map.isVerticalMapRepetitionEnabled = false
+        map.isTilesScaledToDpi = true
+    }
 
     Column(modifier = Modifier.padding(16.dp)) {
         Text(text = "Elements", modifier = Modifier.padding(bottom = 16.dp), fontSize = FONTSIZE_XL)
@@ -65,7 +71,7 @@ fun More(navController: NavController, viewModel: AttestationViewModel) {
         ) {
             AndroidView(
                 factory = {
-                    MapView(it).apply { map = this; }
+                    MapView(it).apply { map = this; mapInit() }
                 },
                 modifier = Modifier.clip(ROUNDED_SM),
             )
