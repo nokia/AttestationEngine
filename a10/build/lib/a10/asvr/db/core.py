@@ -41,7 +41,7 @@ def getDatabaseStatus():
         "log",
     ]:
         collection = asdb[c]
-        count = collection.find().count()
+        count = collection.estimated_document_count()
         dbstatus[c] = str(count)
 
     return dbstatus
@@ -631,6 +631,28 @@ def getResults():
     e = collection.find({}, {"_id": False, "itemid": True})
     return list(e)
 
+def getResultsSince(t):
+    
+    """ Returns results since t timestamp
+
+	:param str t: float timestamp
+	:return: the list of results
+	:rtype: list dict or None
+	"""
+    
+    out = []
+
+    collection = asdb["results"]
+    e = collection.find({}, {'_id': False}).sort("verifiedAt", pymongo.DESCENDING)
+    ## Mongodb (3.6) does not support casting string verifiedAt for comparison with timestamp, filtering must be done manually. 
+
+    for i in e:
+        if(i["verifiedAt"] != None):
+            if( float(i["verifiedAt"]) > t):
+                out.append(i)
+            else:
+                return out
+    return out
 
 def getResultsFull(n):
     """ Returns an element with the given itemid
@@ -661,7 +683,7 @@ def getLatestResults(e, n):
 
     collection = asdb["results"]
     rs = list(
-        collection.find({"elementID": e})
+        collection.find({"elementID": e},{'_id': False})
         .sort("verifiedAt", pymongo.DESCENDING)
         .limit(n)
     )
