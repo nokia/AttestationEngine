@@ -9,15 +9,15 @@ SPDX-License-Identifier: BSD-3-Clear
 Claim: <a href=/claim/{{ cla.itemid }}>{{ cla.itemid }}</a>
 <hr />
 
-<input class="form-control" id="uefisearch" type="text" placeholder="Search...">
+<input class="form-control" id="imasearch" type="text" placeholder="Search...">
 <br>
 
 <div>
     <table class="table table-striped .table-sm">
         <tbody>
             <tr>
-                <td><b>Size<b></td>
-                <td>{{ cla.payload.payload.size }} bytes </td>
+                <td><b>Size/Entries<b></td>
+                <td>{{ cla.payload.payload.size }} bytes, {{ es }} entries</td>
             </tr>
             <tr>
                 <td><b>File<b></td>
@@ -30,7 +30,32 @@ Claim: <a href=/claim/{{ cla.itemid }}>{{ cla.itemid }}</a>
 
 
 <div>
-Pretty print it here
+   <table class="table table-striped .table-sm">
+        <tbody id="imatable">
+            <tr>
+                <th>PCR</th>
+                <th>Hash</th>
+                <th>Policy</th>
+                <th>File Hash</th>
+                <th>File Name</th>
+                <th>Signature</th>
+            </tr>
+            {% for i in imalog %}
+            <tr>
+                <td> {{ i.pcr }}</td>
+                <td> {{ i.thash }}</td>
+                <td> {{ i.pol }}</td>
+                <td> {{ i.fhash }}</td>
+                <td> {{ i.nhint }}</td>
+                <td> {{ i.fsig }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+
+
+
 </div>
 
 
@@ -48,9 +73,9 @@ Pretty print it here
         <script>
 
 $(document).ready(function() {
-    $("#uefisearch").on("keyup", function() {
+    $("#imasearch").on("keyup", function() {
         var value = $(this).val().toLowerCase();
-        $("#uefitable tr").filter(function() {
+        $("#imatable tr").filter(function() {
             $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
         });
     });

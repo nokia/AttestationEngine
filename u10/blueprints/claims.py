@@ -88,9 +88,6 @@ def claimprettyprintPCRs(item_id):
        return render_template("claimprettyprint/pcrs.html", cla=c,pcrlist=pcrlist)  
     
     
-    
-    
-    
 @claims_blueprint.route("/claim/prettyprint/quote/<item_id>", methods=["GET"])
 def claimprettyprintQuote(item_id):
     c = a10.asvr.claims.getClaim(item_id).msg()
@@ -101,10 +98,7 @@ def claimprettyprintQuote(item_id):
     else:
        return render_template("claimprettyprint/quote.html", cla=c)  
     
-    
-    
-    
-    
+     
 @claims_blueprint.route("/claim/prettyprint/uefieventlog/<item_id>", methods=["GET"])
 def claimprettyprintUEFIEventLog(item_id):
     c = a10.asvr.claims.getClaim(item_id).msg()
@@ -158,16 +152,55 @@ def claimprettyprintUEFIEventLog(item_id):
 
     return render_template("claimprettyprint/uefieventlog.html", cla=c, evdec1= tpm2_eventlog_dict, evdec1len=evdec1len)        
 
-
-
-  
-    
+   
 @claims_blueprint.route("/claim/prettyprint/imalog/<item_id>", methods=["GET"])
-def claimprettyprintQuote(item_id):
+def claimprettyprintIMAlog(item_id):
     c = a10.asvr.claims.getClaim(item_id).msg()
 
+    imalog_raw = c.get("payload").get("payload").get("imalog")
         
-    if c.get("payload").get("payload").get("imalog")==None:
+    if imalog_raw==None:
        return render_template("claimprettyprint/incorrecttype.html", cla=c, msg="Claim does not appear to be an IMA log")        
-    else:
-       return render_template("claimprettyprint/imalog.html", cla=c)  
+
+    #
+    # The ima log is a space delimited file
+    # PCR Template-Hash Policy Filedata-Hash Filename-hint Filename-Signature (if the latter is present)
+    #  Policies: ima-ng, ima and ima-sig (the latter includes the signature)
+    #
+
+    lines = imalog_raw.split("\n")
+
+    imalog=[]
+
+    for l in lines:
+        logentry = l.split(" ")
+        print("le=",logentry)
+        if len(logentry)==5:               #ima-ng and ima
+            imalog.append( { "pcr":logentry[0],
+                 "thash":logentry[1],
+                 "pol":logentry[2],
+                 "fhash":logentry[3],
+                 "nhint":logentry[4],
+                 "fsig":"" }) 
+        elif len(logentry)==6:            #ima-sig
+             imalog.append( { "pcr":logentry[0],
+                 "thash":logentry[1],
+                 "pol":logentry[2],
+                 "fhash":logentry[3],
+                 "nhint":logentry[4],
+                 "fsig":logentry[5] } )      
+        else:                           #something else, maybe a PCR read ?
+             imalog.append( { "pcr":"",
+                 "thash":"",
+                 "pol":"?",
+                 "fhash":"",
+                 "nhint":"",
+                 "fsig":"" })                
+
+    print("LINES ",len(lines),lines)
+
+    #
+    # Render the page
+    #
+
+    return render_template("claimprettyprint/imalog.html", cla=c, imalog=imalog, es=len(imalog))  
