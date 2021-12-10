@@ -6,6 +6,7 @@ from flask import Flask, request, jsonify
 
 from endpoints.tpm2_endpoint import tpm2_endpoint
 from endpoints.uefi_endpoint import uefi_endpoint
+from endpoints.ima_endpoint import ima_endpoint
 
 import requests
 import configparser
@@ -26,6 +27,7 @@ ta = Flask(__name__)
 
 ta.register_blueprint(tpm2_endpoint, url_prefix="/tpm2")
 ta.register_blueprint(uefi_endpoint, url_prefix="/uefi")
+ta.register_blueprint(ima_endpoint, url_prefix="/ima")
 
 
 
