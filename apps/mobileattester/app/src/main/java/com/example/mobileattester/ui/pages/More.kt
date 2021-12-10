@@ -2,6 +2,7 @@ package com.example.mobileattester.ui.pages
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.Divider
 import androidx.compose.material.Icon
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
@@ -29,6 +30,7 @@ fun More(navController: NavController, viewModel: AttestationViewModel) {
             .fillMaxSize()
     ) {
         Info(navController = navController, viewModel = viewModel)
+        Divider(color = DividerColor, modifier = Modifier.padding(vertical = 16.dp), thickness = 1.dp)
         Map(navController = navController, viewModel = viewModel)
     }
 }
@@ -39,15 +41,16 @@ fun More(navController: NavController, viewModel: AttestationViewModel) {
     val engineInfo = viewModel.engineInfo.spec.collectAsState()
 
     Text(text = "Engine Information", modifier = Modifier.padding(16.dp), fontSize = FONTSIZE_XL)
-    Surface(elevation = 8.dp, modifier = Modifier.padding(16.dp), shape = ROUNDED_SM ) {
-        Column(modifier = Modifier
-            .fillMaxWidth().padding(8.dp) )
-        {
-            Text(text = engineInfo.value.info?.title.toString(), modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center, fontSize = FONTSIZE_XL)
-            Text(text = engineInfo.value.info?.description.toString(), modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center, fontSize = FONTSIZE_MD)
-            Text(text = engineInfo.value.info?.version.toString().let { "v.$it" }, modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Right, fontSize = FONTSIZE_MD)
-        }
+
+    Row(horizontalArrangement = Arrangement.SpaceBetween ,  modifier = Modifier.padding(horizontal = 32.dp).fillMaxWidth()) {
+        Text(text = engineInfo.value.info?.title.toString().let { "• $it" }, fontSize = FONTSIZE_XL, color = PrimaryLight)
+        Text(text = engineInfo.value.info?.version.toString().let { "v.$it" }, fontSize = FONTSIZE_MD, color = PrimaryLight)
     }
+
+    Text(text = engineInfo.value.info?.description.toString(), modifier = Modifier.padding(horizontal = 32.dp), fontSize = FONTSIZE_MD, color = Secondary)
+
+
+
 }
 
 @Composable fun Map(navController: NavController, viewModel: AttestationViewModel)
@@ -60,7 +63,7 @@ fun More(navController: NavController, viewModel: AttestationViewModel) {
         map.isTilesScaledToDpi = true
     }
 
-    Column(modifier = Modifier.padding(16.dp)) {
+    Column(modifier = Modifier.padding(bottom = 16.dp).padding(horizontal = 16.dp)) {
         Text(text = "Elements", modifier = Modifier.padding(bottom = 16.dp), fontSize = FONTSIZE_XL)
         Box(
             modifier = Modifier
