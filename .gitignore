@@ -1,5 +1,7 @@
 *.egg
+*.egg-info/
 *.whl
 **/__pycache__/
 a10/dist
+a10/build
 *.tar.gz
