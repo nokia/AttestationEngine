@@ -23,7 +23,10 @@ import androidx.navigation.NavController
 import com.example.mobileattester.ui.components.common.HeaderRoundedBottom
 import com.example.mobileattester.ui.components.common.LoadingIndicator
 import com.example.mobileattester.ui.theme.*
-import com.example.mobileattester.ui.util.*
+import com.example.mobileattester.ui.util.Preferences
+import com.example.mobileattester.ui.util.Screen
+import com.example.mobileattester.ui.util.navigate
+import com.example.mobileattester.ui.util.parseBaseUrl
 import com.example.mobileattester.ui.viewmodel.AttestationViewModel
 import compose.icons.TablerIcons
 import compose.icons.tablericons.*
@@ -151,8 +154,8 @@ fun ConfigurationButton(
     name: String = "History",
     editable: Boolean = false,
     onClick: (String) -> Unit = {},
-    onTextChange: (String) -> Unit = {},
-    onIconClick: (String) -> Unit = {},
+    onTextChange: ((String) -> Unit)? = null,
+    onIconClick: ((String) -> Unit)? = null,
 ) {
     Button(modifier = Modifier
         .fillMaxWidth()
@@ -175,9 +178,9 @@ fun ConfigurationButton(
                     Text(text)
                 } else OutlinedTextField(value = input,
                     label = { Text(text) },
-                    onValueChange = { input = it; onTextChange(input) },
+                    onValueChange = { input = it; onTextChange?.invoke(input) },
                     singleLine = true,
-                    keyboardActions = KeyboardActions(onDone = { onIconClick(input) }),
+                    keyboardActions = KeyboardActions(onDone = { onIconClick?.invoke(input) }),
                     colors = TextFieldDefaults.outlinedTextFieldColors(
                         unfocusedLabelColor = Color.White, // TODO: MaterialTheme.colors.primary
                         focusedLabelColor = Color.White,
@@ -186,9 +189,17 @@ fun ConfigurationButton(
                     ))
             }
 
-            IconButton(onClick = { if (!editable) onIconClick(text) else onIconClick(input) }) {
-                Icon(imageVector = icon, null)
-            }
+            if(onIconClick != null)
+                IconButton(onClick = { if(!editable) onIconClick.invoke(text) else onIconClick.invoke(input) }, modifier = Modifier.
+                then(Modifier.size(48.dp))) {
+                    Icon(imageVector = icon, null)
+                }
+            else
+                Box(contentAlignment = Alignment.Center, modifier = Modifier.then(Modifier.size(48.dp)))
+                {
+                    Icon(imageVector = icon, null)
+                }
+
         }
     }
 }
