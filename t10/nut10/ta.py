@@ -27,6 +27,7 @@ ta = Flask(__name__)
 
 ta.register_blueprint(tpm2_endpoint, url_prefix="/tpm2")
 ta.register_blueprint(uefi_endpoint, url_prefix="/uefi")
+ta.register_blueprint(ima_endpoint, url_prefix="/ima")
 
 
 
