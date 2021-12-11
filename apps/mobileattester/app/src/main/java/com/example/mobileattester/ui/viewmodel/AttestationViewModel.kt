@@ -17,15 +17,15 @@ interface AttestationViewModel {
     val currentUrl: StateFlow<String>
 
     /** Response object containing the element data/errors */
-    val elementFlowResponse: StateFlow<Response<List<Element?>>>
+    val elementFlowResponse: StateFlow<Response<List<Element>>>
 
     /** Total count of elements in the system */
     val elementCount: StateFlow<Response<Int>>
 
     /** Get element data, which has already been downloaded */
     fun getElementFromCache(itemid: String): Element?
-    fun filterElements(filter: DataFilter? = null): List<Element>
-    fun filterElements(filters: List<DataFilter>): List<Element>
+    fun applyFilter(filter: DataFilter? = null)
+    fun applyFilters(filters: List<DataFilter>)
 
     fun getMoreElements()
     fun refreshElements()
@@ -70,22 +70,24 @@ class AttestationViewModelImpl(
     override val isRefreshing: StateFlow<Boolean> = elementDataHandler.refreshing
     override val isLoading: StateFlow<Boolean> = elementDataHandler.loading
     override val currentUrl: StateFlow<String> = repo.currentUrl
-    override val elementFlowResponse: StateFlow<Response<List<Element?>>> =
+    override val elementFlowResponse: StateFlow<Response<List<Element>>> =
         elementDataHandler.dataFlow
     override val elementCount: StateFlow<Response<Int>> = elementDataHandler.idCount
 
     override fun getElementFromCache(itemid: String): Element? =
-        elementDataHandler.getDataForId(itemid)
+        elementDataHandler.getDataFromCache(itemid)
 
     override fun getMoreElements() = elementDataHandler.fetchNextBatch()
 
-    override fun filterElements(filter: DataFilter?): List<Element> =
-        elementDataHandler.dataAsList(filter)
+    override fun applyFilter(filter: DataFilter?) {
+        if (filter != null) {
+            elementDataHandler.applyFilters(listOf(filter))
+        }
+    }
 
-    override fun filterElements(filters: List<DataFilter>): List<Element> =
-        elementDataHandler.dataAsList(filters)
+    override fun applyFilters(filters: List<DataFilter>) = elementDataHandler.applyFilters(filters)
 
-    override fun refreshElements() = elementDataHandler.refreshData(hardReset = true)
+    override fun refreshElements() = elementDataHandler.refreshData()
     override fun refreshElement(itemid: String) = elementDataHandler.refreshSingleValue(itemid)
 
     override fun startElementFetchLoop() = elementDataHandler.startFetchLoop()
@@ -95,7 +97,7 @@ class AttestationViewModelImpl(
         val data = elementDataHandler.dataFlow.value.data ?: return null
 
         for (element in data) {
-            val result = element?.results?.find {
+            val result = element.results.find {
                 it.itemid == resultId
             }
             if (result != null) return result
@@ -137,3 +139,4 @@ class AttestationViewModelImplFactory(
             mapManager) as T
     }
 }
+

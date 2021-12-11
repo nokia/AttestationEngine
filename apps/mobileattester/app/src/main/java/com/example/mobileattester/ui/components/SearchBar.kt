@@ -20,16 +20,17 @@ import com.example.mobileattester.ui.theme.*
 
 @Composable
 fun SearchBar(
-    state: MutableState<TextFieldValue>, placeholder: String? = null
+    state: MutableState<TextFieldValue>,
+    placeholder: String? = null,
+    onValueChange: ((TextFieldValue) -> Unit)? = null,
 ) {
-    Surface(
-        color = White,
+    Surface(color = White,
         modifier = Modifier.padding(24.dp),
         elevation = ELEVATION_MD,
-        shape = ROUNDED_MD
-    ) {
+        shape = ROUNDED_MD) {
         TextField(value = state.value,
             onValueChange = { value ->
+                onValueChange?.invoke(value)
                 state.value = value
             },
             modifier = Modifier
@@ -37,33 +38,28 @@ fun SearchBar(
                 .clip(ROUNDED_MD),
             textStyle = TextStyle(fontSize = 18.sp),
             leadingIcon = {
-                Icon(
-                    Icons.Default.Search,
+                Icon(Icons.Default.Search,
                     contentDescription = "",
                     modifier = Modifier
                         .padding(15.dp)
-                        .size(24.dp)
-                )
+                        .size(24.dp))
             },
             trailingIcon = {
                 if (state.value != TextFieldValue("")) {
                     IconButton(onClick = {
                         state.value = TextFieldValue("")
                     }) {
-                        Icon(
-                            Icons.Default.Close,
+                        Icon(Icons.Default.Close,
                             contentDescription = "",
                             modifier = Modifier
                                 .padding(15.dp)
-                                .size(24.dp)
-                        )
+                                .size(24.dp))
                     }
                 }
             },
             singleLine = true,
             shape = ROUNDED_MD,
-            colors = TextFieldDefaults.textFieldColors(
-                textColor = DarkGrey,
+            colors = TextFieldDefaults.textFieldColors(textColor = DarkGrey,
                 cursorColor = DarkGrey,
                 leadingIconColor = DarkGrey,
                 trailingIconColor = DarkGrey,
@@ -71,9 +67,7 @@ fun SearchBar(
                 focusedIndicatorColor = Color.Transparent,
                 unfocusedIndicatorColor = Color.Transparent,
                 disabledIndicatorColor = Color.Transparent,
-                placeholderColor = LightGrey
-            ),
+                placeholderColor = LightGrey),
             placeholder = { Text(text = placeholder ?: "") })
-
     }
 }

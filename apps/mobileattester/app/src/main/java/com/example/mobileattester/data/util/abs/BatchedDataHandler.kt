@@ -44,12 +44,14 @@ abstract class BatchedDataHandler<T, U>(
     private val job = Job()
     private val scope = CoroutineScope(job)
 
-    private val _dataFlow: MutableStateFlow<Response<List<U?>>> = MutableStateFlow(Response.idle())
+    private val _dataFlow: MutableStateFlow<Response<List<U>>> = MutableStateFlow(Response.idle())
+    private val _currentFilters: MutableStateFlow<List<DataFilter>> = MutableStateFlow(listOf())
     private val _idCount: MutableStateFlow<Response<Int>> = MutableStateFlow(Response.idle(0))
     private val _loading: MutableStateFlow<Boolean> = MutableStateFlow(false)
     private val _refreshing: MutableStateFlow<Boolean> = MutableStateFlow(false)
 
-    val dataFlow: StateFlow<Response<List<U?>>> = _dataFlow
+    val dataFlow: StateFlow<Response<List<U>>> = _dataFlow
+    val appliedFilters: StateFlow<List<DataFilter>> = _currentFilters
     val idCount: StateFlow<Response<Int>> = _idCount
     val loading: StateFlow<Boolean> = _loading
     val refreshing: MutableStateFlow<Boolean> = _refreshing
@@ -76,11 +78,15 @@ abstract class BatchedDataHandler<T, U>(
      * @param hardReset Set to true to also fetch the ids again
      */
     fun refreshData(hardReset: Boolean = false) {
+        if (refreshing.value) return
+
         refreshing.value = true
-        when (hardReset) {
+        when (hardReset || _idCount.value.status == Status.ERROR) {
             true -> initIds()
             false -> {
-                clearBatchData()
+                Log.d(TAG, "@@@ Not hard reset. Flow size: ${_dataFlow.value.data?.size}")
+                cleanUp(batches = true, filters = false, ids = false)
+                Log.d(TAG, "@@@ After clear flow size: ${_dataFlow.value.data?.size}")
                 fetchFreeBatch()
             }
         }
@@ -92,7 +98,6 @@ abstract class BatchedDataHandler<T, U>(
     }
 
     fun refreshSingleValue(id: T) {
-        updateLoadingState()
         fetchedData[id] = BatchElement(fetchedData[id]?.data, Status.LOADING)
 
         scope.launch(Dispatchers.IO) {
@@ -103,52 +108,35 @@ abstract class BatchedDataHandler<T, U>(
             if (!success) {
                 fetchedData[id] = BatchElement(null, Status.ERROR)
             }
-            updateLoadingState()
         }
     }
 
-    fun getDataForId(id: T): U? {
+    fun getDataFromCache(id: T): U? {
         return fetchedData[id]?.data
     }
 
-    fun dataAsList(filters: List<DataFilter>): List<U> {
-        return recursiveFilter(filters, dataAsList())
+    fun applyFilters(filters: List<DataFilter>) {
+        _currentFilters.value = filters
+
+        _dataFlow.value = Response(
+            status = _dataFlow.value.status,
+            data = recursiveFilter(filters, fetchedData.map { it.value.data }.filterNotNull()),
+            message = _dataFlow.value.message,
+        )
     }
 
-    /**
-     * Returns all data from downloaded batches as a list
-     * and optionally filters if U implements Filterable.
-     */
-    fun dataAsList(filter: DataFilter? = null): List<U> {
-        return filterList(filter, fetchedData.map { it.value.data }.filterNotNull())
-    }
-
     // --------------------------------- Private ---------------------------------------
     // --------------------------------- Private ---------------------------------------
     // --------------------------------- Private ---------------------------------------
 
-    private fun initIds() {
-        updateLoadingState()
-
-        scope.launch {
-            clearBatchData()
-            _idCount.value = Response.loading()
-            fetchedIds.clear()
-
-            try {
-                fetchedIds.addAll(fetchIdList())
-            } catch (e: Exception) {
-                _idCount.value = Response.error(null, "ID fetch error: $e")
-                return@launch
+    private fun recursiveFilter(filters: List<DataFilter>, data: List<U>): List<U> {
+        return when (filters.firstOrNull()) {
+            null -> return data
+            else -> {
+                val fs = filters.toMutableList()
+                val d = filterList(fs.removeAt(0), data)
+                recursiveFilter(fs, d)
             }
-
-            batches = fetchedIds.chunked(batchSize)
-            batches.forEachIndexed { index, _ ->
-                batchStates[index] = Status.IDLE
-            }
-            _idCount.value = Response.success(fetchedIds.size)
-            fetchFreeBatch()
-            updateLoadingState()
         }
     }
 
@@ -174,14 +162,28 @@ abstract class BatchedDataHandler<T, U>(
         return matchingValues
     }
 
-    private fun recursiveFilter(filters: List<DataFilter>, data: List<U>): List<U> {
-        return when (filters.firstOrNull()) {
-            null -> return data
-            else -> {
-                val fs = filters.toMutableList()
-                val d = filterList(fs.removeAt(0), data)
-                recursiveFilter(fs, d)
+    private fun initIds() {
+        scope.launch {
+            updateLoadingState()
+            _idCount.value = Response.loading()
+            cleanUp(batches = true, filters = true, ids = true)
+
+            try {
+                retryIO {
+                    fetchedIds.addAll(fetchIdList())
+                }
+                _idCount.value = Response.success(fetchedIds.size)
+            } catch (e: Exception) {
+                Log.e(TAG, "initIds: $e")
+                _idCount.value = Response.error(null, "ID fetch error: $e")
+                return@launch
             }
+
+            batches = fetchedIds.chunked(batchSize)
+            batches.forEachIndexed { index, _ ->
+                batchStates[index] = Status.IDLE
+            }
+            fetchFreeBatch()
         }
     }
 
@@ -197,23 +199,32 @@ abstract class BatchedDataHandler<T, U>(
             }
         } ?: return
 
-        updateLoadingState()
         batchStates[batch.key] = Status.LOADING
+        updateLoadingState()
 
         scope.launch {
             val batchIds = batches[batch.key]
 
             batchStates[batch.key] = when (fetchDataForIds(batchIds)) {
                 false -> Status.SUCCESS.also {
-                    _dataFlow.value = Response.success(dataAsList())
+                    _dataFlow.value = Response.success(
+                        recursiveFilter(_currentFilters.value, getNotNullBatchData()),
+                    )
                 }
                 true -> Status.ERROR.also {
-                    _dataFlow.value = Response.error(dataAsList(), "An error occurred.")
+                    _dataFlow.value = Response.error(recursiveFilter(
+                        _currentFilters.value,
+                        getNotNullBatchData(),
+                    ), "An error occurred.")
                     handleErrorBatch(batch.key)
                 }
             }
             updateLoadingState()
         }
+    }
+
+    private fun getNotNullBatchData(): List<U> {
+        return fetchedData.map { it.value.data }.filterNotNull()
     }
 
     private fun handleErrorBatch(bn: Int) {
@@ -255,9 +266,29 @@ abstract class BatchedDataHandler<T, U>(
         }
     }
 
-    private fun clearBatchData() {
-        _dataFlow.value = Response.loading(listOf())
-        fetchedData.clear()
+    private fun cleanUp(
+        batches: Boolean,
+        filters: Boolean,
+        ids: Boolean,
+    ) {
+        if (batches) {
+            fetchedData.clear()
+            this.batches.forEachIndexed { index, _ ->
+                batchStates[index] = Status.IDLE
+            }
+            _dataFlow.value = Response.idle(listOf())
+        }
+
+        if (filters) {
+            _currentFilters.value = listOf()
+        }
+
+        if (ids) {
+            fetchedIds.clear()
+            this.batches = listOf()
+            batchStates.clear()
+            _idCount.value = Response.loading(null)
+        }
     }
 
     private fun cancelJobs(reason: String = "Default") {
