@@ -90,7 +90,7 @@ def getLogEntryCount():
 	:rtype: int
 	"""
     collection = asdb["log"]
-    return collection.find().count()
+    return collection.estimated_document_count()
 
 
 ##################################################
