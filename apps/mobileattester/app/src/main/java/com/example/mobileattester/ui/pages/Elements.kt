@@ -1,6 +1,5 @@
 package com.example.mobileattester.ui.pages
 
-import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -22,7 +21,6 @@ import com.example.mobileattester.R
 import com.example.mobileattester.data.model.Element
 import com.example.mobileattester.data.model.ElementResult.Companion.CODE_RESULT_OK
 import com.example.mobileattester.data.network.Status
-import com.example.mobileattester.data.util.abs.DataFilter
 import com.example.mobileattester.data.util.abs.MatchType
 import com.example.mobileattester.ui.components.SearchBar
 import com.example.mobileattester.ui.components.TagRow
@@ -51,8 +49,8 @@ private const val TAG = "Elements"
 fun Elements(navController: NavController, viewModel: AttestationViewModel) {
     val elementResponse = viewModel.elementFlowResponse.collectAsState().value
     val lastIndex = viewModel.elementFlowResponse.collectAsState().value.data?.lastIndex ?: 0
-    val isRefreshing = viewModel.isRefreshing.collectAsState()
     val isLoading = viewModel.isLoading.collectAsState()
+    val isRefreshing = viewModel.isRefreshing.collectAsState()
 
     val searchField = remember { mutableStateOf(TextFieldValue()) }
     val baseFilters = remember {
@@ -62,7 +60,7 @@ fun Elements(navController: NavController, viewModel: AttestationViewModel) {
         baseFilters,
         MatchType.MATCH_ANY,
         searchField.value.text,
-        MatchType.MATCH_ALL
+        MatchType.MATCH_ALL,
     )
 
     // Navigate to single element view, pass clicked id as argument
@@ -133,7 +131,9 @@ fun Elements(navController: NavController, viewModel: AttestationViewModel) {
                             color = MaterialTheme.colors.primary,
                         )
                     } else if (!isRefreshing.value && elementResponse.status != Status.ERROR) {
-                        Text(text = "All elements loaded", color = DarkGrey)
+                        FadeInWithDelay(200) {
+                            Text(text = "All elements loaded", color = DarkGrey)
+                        }
                     }
                 }
             }

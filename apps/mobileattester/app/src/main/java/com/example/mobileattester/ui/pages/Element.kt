@@ -148,19 +148,6 @@ private fun ElementMap(element: Element, onClick: () -> Unit) {
 }
 
 @Composable
-private fun ElementNull() {
-    FadeInWithDelay(1000) {
-        Column(modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally) {
-            Text("This element was not found, please ensure that the server contains this element",
-                modifier = Modifier.padding(16.dp))
-            Spacer(modifier = Modifier.height(8.dp))
-        }
-    }
-}
-
-@Composable
 private fun ElementResult(navController: NavController, element: Element) {
     val resultHoursShown = remember {
         mutableStateOf(navController.currentBackStackEntry?.arguments?.getInt("result_hours_shown",

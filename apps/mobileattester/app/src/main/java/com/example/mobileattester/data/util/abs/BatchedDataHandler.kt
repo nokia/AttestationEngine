@@ -2,14 +2,11 @@ package com.example.mobileattester.data.util.abs
 
 import android.util.Log
 import com.example.mobileattester.data.network.Response
-import com.example.mobileattester.data.network.ResponseStateManager
 import com.example.mobileattester.data.network.Status
 import com.example.mobileattester.data.network.retryIO
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.*
 
-const val NOTIFY_BATCH_FETCHED = "ABatchHasBeenFetched"
 private const val TAG = "BatchedDataHandler"
 
 // Typealiases for the functions that need to be provided for the Batched data handler.
@@ -28,8 +25,6 @@ data class BatchElement<T>(
  *  Creates chunks of the ids, size of param batchSize  ->
  *  Initially fetches data for one chunk.
  *
- *  Call fetchNextBatch() whenever data for the next batch of ids is required.
- *
  *  T - Id type
  *  U - Data type
  */
@@ -39,24 +34,25 @@ abstract class BatchedDataHandler<T, U>(
     private val fetchDataForId: FetchIdData<T, U>,
     private val notifier: Notifier? = null,
 ) : NotificationSubscriber {
-    // Ids fetched from network in here
-    private val idResponseManager = ResponseStateManager<List<T>>()
-
     // Fetched ids are divided into batches, and the data for these ids is fetched in batches.
     private var batches: List<List<T>> = listOf()
     private var batchStates: MutableMap<Int/* Index of batch */, Status> = mutableMapOf()
 
+    private val fetchedIds: MutableList<T> = mutableListOf()
     private val fetchedData: MutableMap<T, BatchElement<U>> = mutableMapOf()
 
     private val job = Job()
     private val scope = CoroutineScope(job)
 
-    private val _dataFlow: MutableStateFlow<Response<List<U>>> = MutableStateFlow(Response.idle())
-    private val _idCount: MutableStateFlow<Int> = MutableStateFlow(0)
+    private val _dataFlow: MutableStateFlow<Response<List<U?>>> = MutableStateFlow(Response.idle())
+    private val _idCount: MutableStateFlow<Response<Int>> = MutableStateFlow(Response.idle(0))
+    private val _loading: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    private val _refreshing: MutableStateFlow<Boolean> = MutableStateFlow(false)
 
-    // All of the fetched data in a simple list, wrapped in a Response object
-    val dataFlow: StateFlow<Response<List<U>>> = _dataFlow
-    val idCount: StateFlow<Int> = _idCount
+    val dataFlow: StateFlow<Response<List<U?>>> = _dataFlow
+    val idCount: StateFlow<Response<Int>> = _idCount
+    val loading: StateFlow<Boolean> = _loading
+    val refreshing: MutableStateFlow<Boolean> = _refreshing
 
     init {
         initIds()
@@ -80,20 +76,24 @@ abstract class BatchedDataHandler<T, U>(
      * @param hardReset Set to true to also fetch the ids again
      */
     fun refreshData(hardReset: Boolean = false) {
-        cancelJobs("Refresh data called")
-        // TODO
-        if (hardReset) initIds()
+        refreshing.value = true
+        when (hardReset) {
+            true -> initIds()
+            false -> {
+                clearBatchData()
+                fetchFreeBatch()
+            }
+        }
+
+        scope.launch {
+            delay(500)
+            refreshing.value = false
+        }
     }
 
     fun refreshSingleValue(id: T) {
-        if (fetchedData[id]?.status == Status.LOADING) {
-            return
-        }
-
-        fetchedData[id] = BatchElement(
-            fetchedData[id]?.data,
-            Status.LOADING
-        )
+        updateLoadingState()
+        fetchedData[id] = BatchElement(fetchedData[id]?.data, Status.LOADING)
 
         scope.launch(Dispatchers.IO) {
             val success = tryFun {
@@ -103,6 +103,7 @@ abstract class BatchedDataHandler<T, U>(
             if (!success) {
                 fetchedData[id] = BatchElement(null, Status.ERROR)
             }
+            updateLoadingState()
         }
     }
 
@@ -127,31 +128,27 @@ abstract class BatchedDataHandler<T, U>(
     // --------------------------------- Private ---------------------------------------
 
     private fun initIds() {
-        if (idResponseManager.response.value.status == Status.LOADING) {
-            return
-        }
+        updateLoadingState()
 
         scope.launch {
-            // When initialized, try to fetch the ids.
-            val success = tryFun { idResponseManager.setSuccess(fetchIdList()) }
-            if (!success) {
-                idResponseManager.setError("Error happened while fetching IDs")
+            clearBatchData()
+            _idCount.value = Response.loading()
+            fetchedIds.clear()
+
+            try {
+                fetchedIds.addAll(fetchIdList())
+            } catch (e: Exception) {
+                _idCount.value = Response.error(null, "ID fetch error: $e")
                 return@launch
             }
-            /*
-                IDs were successfully fetched, reset the batch stuff.
 
-                Could also have logic to re-fetch data for each id, but currently we
-                are holding all the data gotten for the ids before in memory, and reusing the
-                data.
-            */
-            val ids = idResponseManager.response.value.data!!
-            batches = ids.chunked(batchSize)
+            batches = fetchedIds.chunked(batchSize)
             batches.forEachIndexed { index, _ ->
                 batchStates[index] = Status.IDLE
             }
-            _idCount.value = ids.size
+            _idCount.value = Response.success(fetchedIds.size)
             fetchFreeBatch()
+            updateLoadingState()
         }
     }
 
@@ -188,40 +185,52 @@ abstract class BatchedDataHandler<T, U>(
         }
     }
 
-
     /**
      * Call to fetch data for a batch which is not yet loading/fetched.
      */
     private fun fetchFreeBatch() {
+        // Get the first idle batch
         val batch = batchStates.firstNotNullOfOrNull {
             when (it.value) {
-                Status.LOADING -> null
-                Status.SUCCESS -> null
-                else -> it
+                Status.IDLE -> it
+                else -> null
             }
         } ?: return
 
+        updateLoadingState()
         batchStates[batch.key] = Status.LOADING
 
         scope.launch {
-            val ids = batches[batch.key]
-            batchStates[batch.key] = when (fetchData(ids)) {
-                true -> Status.SUCCESS
-                false -> Status.ERROR
+            val batchIds = batches[batch.key]
+
+            batchStates[batch.key] = when (fetchDataForIds(batchIds)) {
+                false -> Status.SUCCESS.also {
+                    _dataFlow.value = Response.success(dataAsList())
+                }
+                true -> Status.ERROR.also {
+                    _dataFlow.value = Response.error(dataAsList(), "An error occurred.")
+                    handleErrorBatch(batch.key)
+                }
             }
+            updateLoadingState()
         }
+    }
+
+    private fun handleErrorBatch(bn: Int) {
+        // TODO retry for failed values inside batches that have failed
     }
 
     /**
      * Fetches data for the provided list of ids, and sets the status/data of the id
      * based on the response.
-     * @return true if nothing failed
+     * @return boolean, did something fail?
      */
-    private suspend fun fetchData(ids: List<T>): Boolean {
+    private suspend fun fetchDataForIds(ids: List<T>): Boolean {
         var errors = false
         ids.map { id ->
             scope.launch(Dispatchers.IO) {
                 val success = tryFun {
+                    Log.d(TAG, "fetchData: for id: $id")
                     val data = fetchDataForId(id)
                     fetchedData[id] = BatchElement(data, Status.SUCCESS)
                 }
@@ -246,10 +255,22 @@ abstract class BatchedDataHandler<T, U>(
         }
     }
 
+    private fun clearBatchData() {
+        _dataFlow.value = Response.loading(listOf())
+        fetchedData.clear()
+    }
+
     private fun cancelJobs(reason: String = "Default") {
         Log.w(TAG, "cancelJobs: Cancelling jobs")
-        // TODO Proper state setting for cancelled jobs (not loading anymore?)
         job.cancelChildren(CancellationException(reason))
     }
+
+    private fun updateLoadingState() {
+        val itemsLoading = fetchedData.map { it.value.status == Status.LOADING }.contains(true)
+        val batchesLoading = batchStates.map { it.value == Status.LOADING }.contains(true)
+
+        _loading.value = itemsLoading || batchesLoading
+    }
 }
+
 

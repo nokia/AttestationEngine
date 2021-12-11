@@ -20,10 +20,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.os.bundleOf
 import androidx.navigation.NavController
+import com.example.mobileattester.data.network.Status
+import com.example.mobileattester.ui.components.common.Center
+import com.example.mobileattester.ui.components.common.ErrorIndicator
 import com.example.mobileattester.ui.components.common.HeaderRoundedBottom
 import com.example.mobileattester.ui.components.common.LoadingIndicator
 import com.example.mobileattester.ui.theme.*
-import com.example.mobileattester.ui.util.*
+import com.example.mobileattester.ui.util.Preferences
+import com.example.mobileattester.ui.util.Screen
+import com.example.mobileattester.ui.util.navigate
+import com.example.mobileattester.ui.util.parseBaseUrl
 import com.example.mobileattester.ui.viewmodel.AttestationViewModel
 import compose.icons.TablerIcons
 import compose.icons.tablericons.*
@@ -196,20 +202,23 @@ fun ConfigurationButton(
 @Composable
 fun Content(navController: NavController? = null, viewModel: AttestationViewModel) {
     val elementCount = viewModel.elementCount.collectAsState()
-    val isRefreshing = viewModel.isRefreshing.collectAsState()
-//
-//    when (elementCount.value) {
-//        Status.ERROR -> {
-//            ErrorIndicator(msg = elementCount.value.message.toString())
-//            return
-//        }
-//        Status.LOADING -> {
-//            LoadingIndicator()
-//            return
-//        }
-//        else -> {
-//        }
-//    }
+    val isLoading = viewModel.isRefreshing.collectAsState()
+
+    when (elementCount.value.status) {
+        Status.ERROR -> {
+            ErrorIndicator(msg = elementCount.value.message.toString())
+            return
+        }
+        Status.LOADING -> {
+            Center {
+
+                LoadingIndicator()
+            }
+            return
+        }
+        else -> {
+        }
+    }
 
     Row(modifier = Modifier
         .padding(15.dp)
@@ -229,10 +238,10 @@ fun Content(navController: NavController? = null, viewModel: AttestationViewMode
                 fontSize = 18.sp)
         }
 
-        if (isRefreshing.value) {
+        if (isLoading.value) {
             LoadingIndicator()
         } else {
-            Text(AnnotatedString(elementCount.value.toString()),
+            Text(AnnotatedString(elementCount.value.data.toString()),
                 modifier = Modifier
                     .padding(5.dp, 0.dp)
                     .align(Alignment.CenterVertically)
@@ -242,10 +251,9 @@ fun Content(navController: NavController? = null, viewModel: AttestationViewMode
         }
     }
 
-    Divider(
-        Modifier
-            .fillMaxWidth()
-            .padding(8.dp, 8.dp), color = DividerColor)
+    Divider(Modifier
+        .fillMaxWidth()
+        .padding(8.dp, 8.dp), color = DividerColor)
 
     Text(text = "Attestation Overview",
         modifier = Modifier
@@ -262,8 +270,7 @@ fun Content(navController: NavController? = null, viewModel: AttestationViewMode
     val results24hFails =
         results24hByElement.mapNotNull { it.value.firstOrNull() { r -> r.result != 0 } }
 
-    Column(Modifier.padding(horizontal = 2.dp))
-    {
+    Column(Modifier.padding(horizontal = 2.dp)) {
         Spacer(modifier = Modifier.size(10.dp))
         Alert("Active", attestations = resultsLatest.value.size, fail = resultsLatestFails.size) {
             navController!!.navigate(Screen.Elements.route,

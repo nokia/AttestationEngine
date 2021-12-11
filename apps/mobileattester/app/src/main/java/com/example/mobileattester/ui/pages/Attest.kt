@@ -104,7 +104,7 @@ fun Attest(navController: NavController, viewModel: AttestationViewModel) {
     fun submit() {
         u.reset()
 
-        val policyId = policies.find { it.name == selectedPolicy.value }?.itemid ?: run {
+        val policyId = policies.find { it?.name == selectedPolicy.value }?.itemid ?: run {
             println("PolicyId not found")
             return
         }
@@ -147,7 +147,7 @@ private fun AttestationConfig(
     element: Element,
     attestTypes: List<String>,
     selectedAttestType: MutableState<String>,
-    policies: List<Policy>,
+    policies: List<Policy?>,
     selectedPolicy: MutableState<String>,
     rules: List<Rule>,
     selectedRule: MutableState<String>,
@@ -182,8 +182,8 @@ private fun AttestationConfig(
             // Policy
             Spacer(modifier = Modifier.size(24.dp))
             Text(modifier = Modifier.padding(bottom = 4.dp), text = "Select policy")
-            DropDown(items = policies.map { it.name },
-                selectedValue = policies.find { it.name == selectedPolicy.value }?.name,
+            DropDown(items = policies.map { it?.name },
+                selectedValue = policies.find { it?.name == selectedPolicy.value }?.name,
                 onSelectionChanged = {
                     println("it $it")
                     selectedPolicy.value = it.toString()

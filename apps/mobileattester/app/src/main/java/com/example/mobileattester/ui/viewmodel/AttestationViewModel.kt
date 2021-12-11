@@ -9,7 +9,6 @@ import com.example.mobileattester.data.network.Response
 import com.example.mobileattester.data.repository.AttestationRepository
 import com.example.mobileattester.data.util.*
 import com.example.mobileattester.data.util.abs.DataFilter
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
 interface AttestationViewModel {
@@ -18,10 +17,10 @@ interface AttestationViewModel {
     val currentUrl: StateFlow<String>
 
     /** Response object containing the element data/errors */
-    val elementFlowResponse: StateFlow<Response<List<Element>>>
+    val elementFlowResponse: StateFlow<Response<List<Element?>>>
 
     /** Total count of elements in the system */
-    val elementCount: StateFlow<Int>
+    val elementCount: StateFlow<Response<Int>>
 
     /** Get element data, which has already been downloaded */
     fun getElementFromCache(itemid: String): Element?
@@ -68,12 +67,12 @@ class AttestationViewModelImpl(
         const val FETCH_START_BUFFER = 3
     }
 
-    override val isRefreshing: StateFlow<Boolean> = MutableStateFlow(false) // TODO
-    override val isLoading: StateFlow<Boolean> = MutableStateFlow(false) // TODO
+    override val isRefreshing: StateFlow<Boolean> = elementDataHandler.refreshing
+    override val isLoading: StateFlow<Boolean> = elementDataHandler.loading
     override val currentUrl: StateFlow<String> = repo.currentUrl
-    override val elementFlowResponse: StateFlow<Response<List<Element>>> =
+    override val elementFlowResponse: StateFlow<Response<List<Element?>>> =
         elementDataHandler.dataFlow
-    override val elementCount: StateFlow<Int> = elementDataHandler.idCount
+    override val elementCount: StateFlow<Response<Int>> = elementDataHandler.idCount
 
     override fun getElementFromCache(itemid: String): Element? =
         elementDataHandler.getDataForId(itemid)
@@ -96,7 +95,7 @@ class AttestationViewModelImpl(
         val data = elementDataHandler.dataFlow.value.data ?: return null
 
         for (element in data) {
-            val result = element.results.find {
+            val result = element?.results?.find {
                 it.itemid == resultId
             }
             if (result != null) return result
@@ -108,12 +107,10 @@ class AttestationViewModelImpl(
     override fun getLatestResults(hoursSince: Int?): StateFlow<List<ElementResult>> =
         overviewProvider.getOverview(hoursSince)
 
-
     override fun getPolicyFromCache(policyId: String): Policy? =
         attestationUtil.getPolicyFromCache(policyId)
 
     override fun switchBaseUrl(url: String) {
-        println("SwitchedBaseUrl")
         repo.rebuildService(url)
         elementDataHandler.refreshData(true)
         attestationUtil.reset(true)

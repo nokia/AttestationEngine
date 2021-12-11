@@ -3,6 +3,7 @@ package com.example.mobileattester.data.util
 import android.util.Log
 import com.example.mobileattester.data.model.ElementResult
 import com.example.mobileattester.data.network.AttestationDataHandler
+import com.example.mobileattester.data.network.retryIO
 import com.example.mobileattester.data.util.abs.NotificationSubscriber
 import com.example.mobileattester.ui.util.Timestamp
 import kotlinx.coroutines.CoroutineScope
@@ -34,12 +35,10 @@ class OverviewProviderImpl(
     override fun refreshOverview(overview: Int?) {
         job.cancelChildren()
         scope.launch {
-            if (overview == null)
-                for (hoursSince in results.keys) {
-                    setOverview(hoursSince)
-                }
-            else
-                setOverview(overview)
+            if (overview == null) for (hoursSince in results.keys) {
+                setOverview(hoursSince)
+            }
+            else setOverview(overview)
         }
     }
 
@@ -76,10 +75,8 @@ class OverviewProviderImpl(
                     val resultIndex =
                         latestResults.indexOfFirst { it.elementID == result.elementID }
 
-                    if (resultIndex > 0)
-                        latestResults[resultIndex] = result
-                    else
-                        latestResults.add(result)
+                    if (resultIndex > 0) latestResults[resultIndex] = result
+                    else latestResults.add(result)
 
                     results[null]!!.value = latestResults
                 }
@@ -92,11 +89,10 @@ class OverviewProviderImpl(
 
     private suspend fun setOverview(overview: Int?) {
         try {
-            results[overview]!!.value =
-                dataHandler.getLatestResults(
-                    Timestamp.now()
-                        .minus(overview?.let { 3600L * overview })?.time?.toFloat()).toMutableList()
-            Log.d(TAG, "setOverview: ALL OK")
+            retryIO {
+                results[overview]!!.value = dataHandler.getLatestResults(Timestamp.now()
+                    .minus(overview?.let { 3600L * overview })?.time?.toFloat()).toMutableList()
+            }
         } catch (e: Exception) {
             Log.e(TAG, "setOverview: $e")
         }

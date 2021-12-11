@@ -131,7 +131,7 @@ fun Claim(
 
 @Composable
 private fun CTabs(claim: Claim) {
-    val tabs = listOf("Quote", "PCRs", "UEFI")
+    val tabs = listOf("Quote", "PCRs")
     val selectedIndex = remember {
         mutableStateOf(0)
     }
@@ -159,7 +159,6 @@ private fun CTabs(claim: Claim) {
     when (selectedIndex.value) {
         0 -> Quote(quote = claim.getQuote())
         1 -> PCRs(data = claim.getPCRs())
-        2 -> ErrorMsg(msg = "Not implemented. add")
     }
 }
 

@@ -2,13 +2,13 @@ package com.example.mobileattester.data.network
 
 import android.util.Log
 import com.example.mobileattester.data.model.*
+import com.example.mobileattester.data.network.AttestationDataHandler.Companion.UPDATE_ERROR
 import com.example.mobileattester.data.util.BaseUrlChanged
 import com.example.mobileattester.data.util.abs.Notifier
 import com.google.gson.GsonBuilder
 import com.google.gson.JsonObject
 import kotlinx.coroutines.flow.MutableStateFlow
 import okhttp3.OkHttpClient
-import okhttp3.internal.notify
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -58,11 +58,17 @@ interface AttestationDataHandler {
 
     // --- Spec ---
     suspend fun getSpec(): Spec
+
+    companion object {
+        const val UPDATE_ERROR = "updateError"
+    }
 }
+
+private const val TAG = "AttestationDataHandler"
 
 class AttestationDataHandlerImpl(
     private var initialUrl: String,
-    private var notifier: Notifier
+    private var notifier: Notifier,
 ) : AttestationDataHandler {
 
     // TODO -----------  Move out of here -----------
@@ -75,10 +81,11 @@ class AttestationDataHandlerImpl(
     }
 
     private fun buildService() {
-        val gson = GsonBuilder().setLenient().create()
+        val gson = GsonBuilder().registerTypeAdapter(Element::class.java, ElementDeserializer())
+            .setLenient().create()
 
         apiService = Retrofit.Builder().baseUrl(initialUrl).client(getOkHttpClient())
-            .addConverterFactory(ScalarsConverterFactory.create()) //important
+            .addConverterFactory(ScalarsConverterFactory.create())
             .addConverterFactory(GsonConverterFactory.create(gson)).build()
             .create(AttestationDataService::class.java)
 
@@ -93,29 +100,32 @@ class AttestationDataHandlerImpl(
     }
 
     private fun getOkHttpClient(): OkHttpClient {
-        //Log display level
-        val level = HttpLoggingInterceptor.Level.BASIC
+
         //New log interceptor
         val loggingInterceptor = HttpLoggingInterceptor { message ->
             Log.d("RETROFIT", "OkHttp====Message:$message")
         }
-        loggingInterceptor.level = level
+        loggingInterceptor.level = HttpLoggingInterceptor.Level.BASIC
 
-        //Custom OKHTTP
         val httpClientBuilder = OkHttpClient.Builder()
-        //OKHTTP to add interceptors loggingInterceptor
         httpClientBuilder.addInterceptor(loggingInterceptor)
-
         return httpClientBuilder.build()
     }
 
-    // TODO ----------------------------------------
+    // TODO ---------------------^^^^-------------------
 
     override suspend fun getElementIds(): List<String> = apiService.getElementIds()
 
     override suspend fun getElement(itemid: String): Element = apiService.getElement(itemid)
     override suspend fun getAllTypes(): List<String> = apiService.getAllTypes()
-    override suspend fun updateElement(element: Element) = apiService.updateElement(element)
+    override suspend fun updateElement(element: Element): String {
+        return if (!element.serializationError) {
+            apiService.updateElement(element)
+        } else {
+            Log.e(TAG, "updateElement: Cannot update an element which is in incorrect form.")
+            UPDATE_ERROR
+        }
+    }
 
     override suspend fun getPolicyIds(): List<String> = apiService.getPolicyIds()
     override suspend fun getPolicy(itemid: String): Policy = apiService.getPolicy(itemid)
@@ -141,8 +151,7 @@ class AttestationDataHandlerImpl(
         return apiService.attestElement(params)
     }
 
-    override suspend fun getClaim(itemid: String): Claim =
-        apiService.getClaim(itemid)
+    override suspend fun getClaim(itemid: String): Claim = apiService.getClaim(itemid)
 
     override suspend fun verifyClaim(cid: String, rul: String): String {
         val params = VerifyParams(cid, listOf(rul, JsonObject()))
@@ -152,4 +161,5 @@ class AttestationDataHandlerImpl(
     override suspend fun getRules(): List<Rule> = apiService.getRules()
 
     override suspend fun getSpec(): Spec = apiService.getSpec()
+
 }
