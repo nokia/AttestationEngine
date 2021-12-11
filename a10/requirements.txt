@@ -3,3 +3,4 @@ requests
 pymongo
 paho-mqtt
 pyserial
+pyyaml
