@@ -7,12 +7,15 @@ import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import androidx.appcompat.content.res.AppCompatResources
+import androidx.compose.ui.graphics.toArgb
 import androidx.core.graphics.drawable.toBitmap
 import com.example.mobileattester.R
 import com.example.mobileattester.data.model.Element
 import com.example.mobileattester.data.model.emptyElement
 import com.example.mobileattester.ui.components.ElementInfoWindow
 import com.example.mobileattester.ui.components.ElementInfoWindowClickHandler
+import com.example.mobileattester.ui.theme.Error
+import com.example.mobileattester.ui.theme.Ok
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import org.osmdroid.bonuspack.clustering.RadiusMarkerClusterer
@@ -75,11 +78,17 @@ class MapManager(
     fun displayElements(map: MapView, elements: List<Element>) {
         initializeMap(map, MapMode.ALL_ELEMENTS, 2.0)
 
-        val markerIcon =
+        val markerIconOk =
             AppCompatResources.getDrawable(map.context, R.drawable.ic_baseline_location_on_32)
                 .apply {
-                    this?.setTint(map.context.getColor(R.color.primary))
+                    this?.setTint(Ok.toArgb())
                 }
+        val markerIconError =
+            AppCompatResources.getDrawable(map.context, R.drawable.ic_baseline_location_on_32)
+                .apply {
+                    this?.setTint(Error.toArgb())
+                }
+
         val clusterIcon =
             AppCompatResources.getDrawable(map.context, R.drawable.ic_baseline_circle_32).apply {
                 this?.setTint(map.context.getColor(R.color.primary))
@@ -89,11 +98,18 @@ class MapManager(
         cluster.setIcon(clusterIcon!!.toBitmap())
 
         elements.forEach { element ->
+            val result = element.results.firstOrNull()?.result
+            print("result: " + element.name + " -  " + result)
             element.geoPoint()?.let {
                 val m = Marker(map)
                 m.title = element.name
                 m.position = it
-                m.icon = markerIcon
+
+                if(element.results.firstOrNull()?.result == 0)
+                    m.icon = markerIconOk
+                else
+                    m.icon = markerIconError
+
                 m.setInfoWindow(ElementInfoWindow(map, element, this))
                 cluster.add(m)
             }
