@@ -42,7 +42,9 @@ abstract class BatchedDataHandler<T, U>(
     private val fetchedData: MutableMap<T, BatchElement<U>> = mutableMapOf()
 
     private val job = Job()
+    private val loopJob = Job()
     private val scope = CoroutineScope(job)
+    private val loopScope = CoroutineScope(loopJob)
 
     private val _dataFlow: MutableStateFlow<Response<List<U>>> = MutableStateFlow(Response.idle())
     private val _currentFilters: MutableStateFlow<List<DataFilter>> = MutableStateFlow(listOf())
@@ -68,10 +70,16 @@ abstract class BatchedDataHandler<T, U>(
     fun fetchNextBatch() = fetchFreeBatch()
 
     /** Call to start a loop, that continuously fetches batches one-by-one */
-    fun startFetchLoop() {}
+    fun startFetchLoop() {
+        loopScope.launch {
+
+        }
+    }
 
     /** Stop the fetch loop */
-    fun stopFetchLoop() {}
+    fun stopFetchLoop() {
+        loopJob.cancelChildren(CancellationException("Cancelled."))
+    }
 
     /**
      * Refresh the contained data
@@ -84,9 +92,7 @@ abstract class BatchedDataHandler<T, U>(
         when (hardReset || _idCount.value.status == Status.ERROR) {
             true -> initIds()
             false -> {
-                Log.d(TAG, "@@@ Not hard reset. Flow size: ${_dataFlow.value.data?.size}")
                 cleanUp(batches = true, filters = false, ids = false)
-                Log.d(TAG, "@@@ After clear flow size: ${_dataFlow.value.data?.size}")
                 fetchFreeBatch()
             }
         }
