@@ -1,15 +1,12 @@
 package com.example.mobileattester.data.network
 
-import android.util.Log
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import java.io.IOException
 
 enum class Status {
     SUCCESS, ERROR, LOADING, IDLE
 }
-
 
 data class Response<out T>(val status: Status, val data: T? = null, val message: String? = null) {
     companion object {
@@ -21,8 +18,7 @@ data class Response<out T>(val status: Status, val data: T? = null, val message:
         fun <T> loading(data: T? = null): Response<T> =
             Response(status = Status.LOADING, data = data)
 
-        fun <T> idle(data: T? = null): Response<T> =
-            Response(status = Status.IDLE, data = data)
+        fun <T> idle(data: T? = null): Response<T> = Response(status = Status.IDLE, data = data)
     }
 }
 
@@ -48,6 +44,7 @@ class ResponseStateManager<T> {
 }
 
 private const val TAG = "Networking"
+
 /**
  * Retries a given block x times with increasing delay between retries. (5 by default)
  * @throws Exception If the block fails x times
@@ -55,21 +52,22 @@ private const val TAG = "Networking"
 suspend fun <T> retryIO(
     times: Int = 5,
     initialDelay: Long = 100, // Delay after first fail
-    maxDelay: Long = 10000,
+    maxDelay: Long = 1,
     factor: Double = 2.0,
     block: suspend () -> T,
 ): T? {
     var currentDelay = initialDelay
+    var exc: Exception? = null
 
     repeat(times) {
         try {
-            Log.d(TAG, "retryIO: count: $times")
-            return block()
+            return@retryIO block()
         } catch (e: Exception) {
             delay(currentDelay)
             currentDelay = (currentDelay * factor).toLong().coerceAtMost(maxDelay)
+            exc = e
         }
     }
 
-    throw Exception("Operation $block failed $times.")
+    throw Exception("Operation $block failed $times. Cause: $exc")
 }

@@ -17,6 +17,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.os.bundleOf
 import androidx.navigation.NavController
+import com.example.mobileattester.data.network.Status
+import com.example.mobileattester.ui.components.common.Center
+import com.example.mobileattester.ui.components.common.ErrorIndicator
 import com.example.mobileattester.ui.components.common.HeaderRoundedBottom
 import com.example.mobileattester.ui.components.common.LoadingIndicator
 import com.example.mobileattester.ui.theme.*
@@ -40,8 +43,7 @@ fun Home(navController: NavController? = null, viewModel: AttestationViewModel) 
 }
 
 @Composable
-fun Header(navController: NavController? = null, viewModel: AttestationViewModel)
-{
+fun Header(navController: NavController? = null, viewModel: AttestationViewModel) {
     val compose = currentRecomposeScope
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -144,7 +146,26 @@ fun Header(navController: NavController? = null, viewModel: AttestationViewModel
 @Composable
 fun Content(navController: NavController? = null, viewModel: AttestationViewModel) {
     val elementCount = viewModel.elementCount.collectAsState()
+    val isLoading = viewModel.isRefreshing.collectAsState()
     val isRefreshing = viewModel.isRefreshing.collectAsState()
+
+    when (elementCount.value.status) {
+        Status.ERROR -> {
+            ErrorIndicator(msg = elementCount.value.message.toString())
+            return
+        }
+        Status.LOADING -> {
+            Center {
+
+                LoadingIndicator()
+            }
+            return
+        }
+        else -> {
+        }
+    }
+
+
 
     Row(modifier = Modifier
         .padding(15.dp)
@@ -164,10 +185,10 @@ fun Content(navController: NavController? = null, viewModel: AttestationViewMode
                 fontSize = FONTSIZE_LG)
         }
 
-        if (isRefreshing.value) {
+        if (isLoading.value) {
             LoadingIndicator()
         } else {
-            Text(AnnotatedString(elementCount.value.toString()),
+            Text(AnnotatedString(elementCount.value.data.toString()),
                 modifier = Modifier
                     .padding(5.dp, 0.dp)
                     .align(Alignment.CenterVertically)
@@ -177,10 +198,9 @@ fun Content(navController: NavController? = null, viewModel: AttestationViewMode
         }
     }
 
-    Divider(
-        Modifier
-            .fillMaxWidth()
-            .padding(8.dp, 8.dp), color = DividerColor)
+    Divider(Modifier
+        .fillMaxWidth()
+        .padding(8.dp, 8.dp), color = DividerColor)
 
     Text(text = "Attestation Overview",
         modifier = Modifier
@@ -197,8 +217,7 @@ fun Content(navController: NavController? = null, viewModel: AttestationViewMode
     val results24hFails =
         results24hByElement.mapNotNull { it.value.firstOrNull() { r -> r.result != 0 } }
 
-    Column(Modifier.padding(horizontal = 2.dp))
-    {
+    Column(Modifier.padding(horizontal = 2.dp)) {
         Spacer(modifier = Modifier.size(10.dp))
         Alert("Active", attestations = resultsLatest.value.size, fail = resultsLatestFails.size) {
             navController!!.navigate(Screen.Elements.route,
@@ -256,16 +275,15 @@ fun ConfigurationButton(
                     ))
             }
 
-            if(onIconClick != null)
-                IconButton(onClick = { if(!editable) onIconClick.invoke(text) else onIconClick.invoke(input) }, modifier = Modifier.
-                then(Modifier.size(48.dp))) {
-                    Icon(imageVector = icon, null)
-                }
-            else
-                Box(contentAlignment = Alignment.Center, modifier = Modifier.then(Modifier.size(48.dp)))
-                {
-                    Icon(imageVector = icon, null)
-                }
+            if (onIconClick != null) IconButton(onClick = {
+                if (!editable) onIconClick.invoke(text) else onIconClick.invoke(input)
+            }, modifier = Modifier.then(Modifier.size(48.dp))) {
+                Icon(imageVector = icon, null)
+            }
+            else Box(contentAlignment = Alignment.Center,
+                modifier = Modifier.then(Modifier.size(48.dp))) {
+                Icon(imageVector = icon, null)
+            }
 
         }
     }

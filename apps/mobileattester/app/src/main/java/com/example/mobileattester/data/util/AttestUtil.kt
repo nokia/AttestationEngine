@@ -30,7 +30,7 @@ data class ResultAcquired(val result: ElementResult)
 interface AttestationUtil {
 
     /** Contains the policies */
-    val policyFlow: StateFlow<Response<List<Policy>>>
+    val policyFlow: StateFlow<Response<List<Policy?>>>
 
     /** Contains the rules */
     val ruleFlow: MutableStateFlow<Response<List<Rule>>>
@@ -76,7 +76,7 @@ class AttestUtil(
     private val scope = CoroutineScope(job)
     private val _stat = MutableStateFlow(AttestationStatus.IDLE)
 
-    override val policyFlow: StateFlow<Response<List<Policy>>> = policyDataHandler.dataFlow
+    override val policyFlow: StateFlow<Response<List<Policy?>>> = policyDataHandler.dataFlow
 
     override val ruleFlow: MutableStateFlow<Response<List<Rule>>> =
         MutableStateFlow(Response.loading())
@@ -128,7 +128,7 @@ class AttestUtil(
     }
 
     override fun getPolicyFromCache(policyId: String): Policy? {
-        return policyFlow.value.data?.find { it.itemid == policyId }
+        return policyFlow.value.data?.find { it?.itemid == policyId }
     }
 
     override fun fetchClaim(claimId: String) {

@@ -31,7 +31,7 @@ object Injector {
      * loaded once the user goes through the list of elements. The overview updates
      * whenever we get more data, but is not accurate until all elements are fetched.
      */
-    private const val DEFAULT_BATCH_SIZE = Int.MAX_VALUE
+    private const val DEFAULT_BATCH_SIZE = 1
 
 
     /**

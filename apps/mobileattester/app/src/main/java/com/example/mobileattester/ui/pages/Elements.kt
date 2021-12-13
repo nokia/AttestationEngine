@@ -1,17 +1,14 @@
 package com.example.mobileattester.ui.pages
 
-import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
@@ -22,7 +19,6 @@ import com.example.mobileattester.R
 import com.example.mobileattester.data.model.Element
 import com.example.mobileattester.data.model.ElementResult.Companion.CODE_RESULT_OK
 import com.example.mobileattester.data.network.Status
-import com.example.mobileattester.data.util.abs.DataFilter
 import com.example.mobileattester.data.util.abs.MatchType
 import com.example.mobileattester.ui.components.SearchBar
 import com.example.mobileattester.ui.components.TagRow
@@ -49,10 +45,11 @@ private const val TAG = "Elements"
 
 @Composable
 fun Elements(navController: NavController, viewModel: AttestationViewModel) {
+    val lifecycleOwner = LocalLifecycleOwner.current
     val elementResponse = viewModel.elementFlowResponse.collectAsState().value
     val lastIndex = viewModel.elementFlowResponse.collectAsState().value.data?.lastIndex ?: 0
-    val isRefreshing = viewModel.isRefreshing.collectAsState()
     val isLoading = viewModel.isLoading.collectAsState()
+    val isRefreshing = viewModel.isRefreshing.collectAsState()
 
     val searchField = remember { mutableStateOf(TextFieldValue()) }
     val baseFilters = remember {
@@ -62,8 +59,15 @@ fun Elements(navController: NavController, viewModel: AttestationViewModel) {
         baseFilters,
         MatchType.MATCH_ANY,
         searchField.value.text,
-        MatchType.MATCH_ALL
+        MatchType.MATCH_ALL,
     )
+
+    DisposableEffect(lifecycleOwner) {
+        viewModel.applyFilters(dataFilter)
+        onDispose {
+            viewModel.applyFilter()
+        }
+    }
 
     // Navigate to single element view, pass clicked id as argument
     fun onElementClicked(itemid: String) {
@@ -85,13 +89,15 @@ fun Elements(navController: NavController, viewModel: AttestationViewModel) {
             item {
                 HeaderRoundedBottom {
                     SearchBar(searchField,
-                        stringResource(id = R.string.placeholder_search_elementlist))
+                        stringResource(id = R.string.placeholder_search_elementlist)) {
+                        viewModel.applyFilters(dataFilter)
+                    }
                 }
                 Spacer(modifier = Modifier.size(5.dp))
             }
 
             // List of the elements
-            itemsIndexed(viewModel.filterElements(dataFilter)) { index, element ->
+            itemsIndexed(elementResponse.data ?: listOf()) { index, element ->
                 // Get more elements when we are getting close to the end of the list
                 if (index + FETCH_START_BUFFER >= lastIndex) {
                     viewModel.getMoreElements()
@@ -133,7 +139,7 @@ fun Elements(navController: NavController, viewModel: AttestationViewModel) {
                             color = MaterialTheme.colors.primary,
                         )
                     } else if (!isRefreshing.value && elementResponse.status != Status.ERROR) {
-                        Text(text = "All elements loaded", color = DarkGrey)
+                        Text(text = "All elements listed.", color = DarkGrey)
                     }
                 }
             }

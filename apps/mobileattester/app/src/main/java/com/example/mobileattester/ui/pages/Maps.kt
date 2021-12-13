@@ -243,8 +243,10 @@ private fun setup(
             return@setup
         }
 
+    // TODO Move out of here to get constant updates of the data
     // Use map with all element locations displayed
-    viewModel.mapManager.displayElements(mapView, viewModel.filterElements())
+    viewModel.mapManager.displayElements(mapView,
+        viewModel.elementFlowResponse.value.data ?: listOf())
 }
 
 @Composable

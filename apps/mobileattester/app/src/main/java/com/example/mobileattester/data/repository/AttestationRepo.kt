@@ -1,7 +1,12 @@
 package com.example.mobileattester.data.repository
 
-import com.example.mobileattester.data.model.*
+import android.util.Log
+import com.example.mobileattester.data.model.Element
+import com.example.mobileattester.data.model.ElementResult
+import com.example.mobileattester.data.model.ExpectedValue
+import com.example.mobileattester.data.model.Policy
 import com.example.mobileattester.data.network.AttestationDataHandler
+import com.example.mobileattester.data.network.retryIO
 import kotlinx.coroutines.flow.MutableStateFlow
 
 /**
@@ -15,7 +20,6 @@ interface AttestationRepository {
 
     /** Call to rebuild the api service with a new url */
     fun rebuildService(withUrl: String)
-
 
     // --- Elements ---
     suspend fun getElementIds(): List<String>
@@ -35,10 +39,10 @@ interface AttestationRepository {
     suspend fun getLatestResults(timestamp: Float? = null): List<ElementResult>
 }
 
-
 // ----------------------------------------------------------------------------------------------
 // ----------------------------------------------------------------------------------------------
 // ----------------------------------------------------------------------------------------------
+private const val TAG = "AttestationRepo"
 
 class AttestationRepositoryImpl(
     private val handler: AttestationDataHandler,
@@ -51,10 +55,14 @@ class AttestationRepositoryImpl(
     override suspend fun getElementIds(): List<String> = handler.getElementIds()
     override suspend fun getElement(itemid: String): Element {
         val element = handler.getElement(itemid)
+
         try {
-            element.results = getElementResults(element.itemid)
+            retryIO {
+                element.results = getElementResults(element.itemid)
+            }
         } catch (e: Exception) {
-            println("REPO ERROR $e")
+            Log.e(TAG, "getElement: $e")
+            element.results = listOf()
         }
 
         return element
