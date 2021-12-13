@@ -98,8 +98,6 @@ class MapManager(
         cluster.setIcon(clusterIcon!!.toBitmap())
 
         elements.forEach { element ->
-            val result = element.results.firstOrNull()?.result
-            print("result: " + element.name + " -  " + result)
             element.geoPoint()?.let {
                 val m = Marker(map)
                 m.title = element.name
