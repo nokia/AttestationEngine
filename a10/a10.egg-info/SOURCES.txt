@@ -33,6 +33,7 @@ a10/asvr/protocols/__init__.py
 a10/asvr/protocols/protocol_dispatcher.py
 a10/asvr/rules/__init__.py
 a10/asvr/rules/baserule.py
+a10/asvr/rules/inteltxt.py
 a10/asvr/rules/nullrules.py
 a10/asvr/rules/rule_dispatcher.py
 a10/asvr/rules/tpm2rules.py
