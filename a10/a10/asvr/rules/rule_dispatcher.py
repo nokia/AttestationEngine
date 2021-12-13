@@ -8,11 +8,15 @@
 import a10.asvr.rules.nullrules
 import a10.asvr.rules.tpm2rules
 import a10.asvr.rules.uefi
+import a10.asvr.rules.inteltxt
 
 import a10.structures.constants
 import a10.structures.returncode
 
 RULEREGISTER = {
+    
+    # Debugging and dummy values
+
     a10.asvr.rules.nullrules.AlwaysSuccess.NAME: (
         a10.asvr.rules.nullrules.AlwaysSuccess,
         a10.asvr.rules.nullrules.AlwaysSuccess.DESCRIPTION,
@@ -29,10 +33,16 @@ RULEREGISTER = {
         a10.asvr.rules.nullrules.AlwaysNoResult,
         a10.asvr.rules.nullrules.AlwaysNoResult.DESCRIPTION,
     ),
+
+    # PCRs
+
     a10.asvr.rules.tpm2rules.PCRsAllUnassigned.NAME: (
         a10.asvr.rules.tpm2rules.PCRsAllUnassigned,
         a10.asvr.rules.tpm2rules.PCRsAllUnassigned.DESCRIPTION,
     ),
+
+    # TPM2
+
     a10.asvr.rules.tpm2rules.TPM2FirmwareVersion.NAME: (
         a10.asvr.rules.tpm2rules.TPM2FirmwareVersion,
         a10.asvr.rules.tpm2rules.TPM2FirmwareVersion.DESCRIPTION,
@@ -49,10 +59,20 @@ RULEREGISTER = {
         a10.asvr.rules.tpm2rules.TPM2CredentialVerify,
         a10.asvr.rules.tpm2rules.TPM2CredentialVerify.DESCRIPTION,
     ),
+    
+    # UEFI
+
     a10.asvr.rules.uefi.ValidUEFIEventLog.NAME: (
         a10.asvr.rules.uefi.ValidUEFIEventLog,
         a10.asvr.rules.uefi.ValidUEFIEventLog.DESCRIPTION,
     ),
+
+    #Intel TXT
+    
+    a10.asvr.rules.inteltxt.MeasuredBootLaunch.NAME: (
+        a10.asvr.rules.inteltxt.MeasuredBootLaunch,
+        a10.asvr.rules.inteltxt.MeasuredBootLaunch.DESCRIPTION,
+    )
 }
 
 
