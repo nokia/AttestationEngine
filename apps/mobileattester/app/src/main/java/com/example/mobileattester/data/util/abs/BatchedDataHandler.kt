@@ -67,12 +67,22 @@ abstract class BatchedDataHandler<T, U>(
     // --------------------------------- Public ---------------------------------------
 
     /** Call to fetch the next available batch in line */
-    fun fetchNextBatch() = fetchFreeBatch()
+    fun fetchNextBatch() {
+        scope.launch {
+            fetchFreeBatch()
+        }
+    }
 
     /** Call to start a loop, that continuously fetches batches one-by-one */
     fun startFetchLoop() {
-        loopScope.launch {
+        if (loopJob.children.count() != 0 || allBatchesFetched()) return
 
+        loopScope.launch {
+            Log.d(TAG, "startFetchLoop: called")
+
+            while (!allBatchesFetched()) {
+                fetchFreeBatch()
+            }
         }
     }
 
@@ -92,8 +102,10 @@ abstract class BatchedDataHandler<T, U>(
         when (hardReset || _idCount.value.status == Status.ERROR) {
             true -> initIds()
             false -> {
-                cleanUp(batches = true, filters = false, ids = false)
-                fetchFreeBatch()
+                scope.launch {
+                    cleanUp(batches = true, filters = false, ids = false)
+                    fetchFreeBatch()
+                }
             }
         }
 
@@ -110,6 +122,9 @@ abstract class BatchedDataHandler<T, U>(
             val success = tryFun {
                 val data = fetchDataForId(id)
                 fetchedData[id] = BatchElement(data, Status.SUCCESS)
+                _dataFlow.value = Response.success(
+                    recursiveFilter(_currentFilters.value, getNotNullBatchData()),
+                )
             }
             if (!success) {
                 fetchedData[id] = BatchElement(null, Status.ERROR)
@@ -196,7 +211,7 @@ abstract class BatchedDataHandler<T, U>(
     /**
      * Call to fetch data for a batch which is not yet loading/fetched.
      */
-    private fun fetchFreeBatch() {
+    private suspend fun fetchFreeBatch() {
         // Get the first idle batch
         val batch = batchStates.firstNotNullOfOrNull {
             when (it.value) {
@@ -208,25 +223,24 @@ abstract class BatchedDataHandler<T, U>(
         batchStates[batch.key] = Status.LOADING
         updateLoadingState()
 
-        scope.launch {
-            val batchIds = batches[batch.key]
+        val batchIds = batches[batch.key]
 
-            batchStates[batch.key] = when (fetchDataForIds(batchIds)) {
-                false -> Status.SUCCESS.also {
-                    _dataFlow.value = Response.success(
-                        recursiveFilter(_currentFilters.value, getNotNullBatchData()),
-                    )
-                }
-                true -> Status.ERROR.also {
-                    _dataFlow.value = Response.error(recursiveFilter(
-                        _currentFilters.value,
-                        getNotNullBatchData(),
-                    ), "An error occurred.")
-                    handleErrorBatch(batch.key)
-                }
+        batchStates[batch.key] = when (fetchDataForIds(batchIds)) {
+            false -> Status.SUCCESS.also {
+                _dataFlow.value = Response.success(
+                    recursiveFilter(_currentFilters.value, getNotNullBatchData()),
+                )
             }
-            updateLoadingState()
+            true -> Status.ERROR.also {
+                _dataFlow.value = Response.error(recursiveFilter(
+                    _currentFilters.value,
+                    getNotNullBatchData(),
+                ), "An error occurred.")
+                handleErrorBatch(batch.key)
+            }
         }
+        updateLoadingState()
+
     }
 
     private fun getNotNullBatchData(): List<U> {
@@ -235,6 +249,7 @@ abstract class BatchedDataHandler<T, U>(
 
     private fun handleErrorBatch(bn: Int) {
         // TODO retry for failed values inside batches that have failed
+        batchStates[bn] = Status.SUCCESS
     }
 
     /**
@@ -307,6 +322,11 @@ abstract class BatchedDataHandler<T, U>(
         val batchesLoading = batchStates.map { it.value == Status.LOADING }.contains(true)
 
         _loading.value = itemsLoading || batchesLoading
+    }
+
+    private fun allBatchesFetched(): Boolean {
+        return !batchStates.map { it.value == Status.SUCCESS || it.value == Status.ERROR }
+            .contains(false)
     }
 }
 

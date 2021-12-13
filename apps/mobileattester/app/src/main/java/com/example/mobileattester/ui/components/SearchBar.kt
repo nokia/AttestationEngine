@@ -24,11 +24,14 @@ fun SearchBar(
     placeholder: String? = null,
     onValueChange: ((TextFieldValue) -> Unit)? = null,
 ) {
-    Surface(color = White,
+    Surface(
+        color = White,
         modifier = Modifier.padding(24.dp),
         elevation = ELEVATION_MD,
-        shape = ROUNDED_MD) {
-        TextField(value = state.value,
+        shape = ROUNDED_MD,
+    ) {
+        TextField(
+            value = state.value,
             onValueChange = { value ->
                 onValueChange?.invoke(value)
                 state.value = value
@@ -68,6 +71,8 @@ fun SearchBar(
                 unfocusedIndicatorColor = Color.Transparent,
                 disabledIndicatorColor = Color.Transparent,
                 placeholderColor = LightGrey),
-            placeholder = { Text(text = placeholder ?: "") })
+            placeholder = { Text(text = placeholder ?: "") },
+        )
+
     }
 }

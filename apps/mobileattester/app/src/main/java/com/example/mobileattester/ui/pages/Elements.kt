@@ -1,5 +1,6 @@
 package com.example.mobileattester.ui.pages
 
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -66,8 +67,11 @@ fun Elements(navController: NavController, viewModel: AttestationViewModel) {
         viewModel.applyFilters(dataFilter)
         onDispose {
             viewModel.applyFilter()
+            viewModel.stopElementFetchLoop()
         }
     }
+
+    Log.d(TAG, "Elements: ${elementResponse.data?.size}")
 
     // Navigate to single element view, pass clicked id as argument
     fun onElementClicked(itemid: String) {
@@ -88,10 +92,14 @@ fun Elements(navController: NavController, viewModel: AttestationViewModel) {
             // Header
             item {
                 HeaderRoundedBottom {
-                    SearchBar(searchField,
-                        stringResource(id = R.string.placeholder_search_elementlist)) {
-                        viewModel.applyFilters(dataFilter)
-                    }
+                    SearchBar(
+                        searchField,
+                        stringResource(id = R.string.placeholder_search_elementlist),
+                        onValueChange = {
+                            viewModel.applyFilters(dataFilter)
+                            viewModel.startElementFetchLoop()
+                        },
+                    )
                 }
                 Spacer(modifier = Modifier.size(5.dp))
             }

@@ -63,20 +63,18 @@ fun MapWrapper(
     val elementId =
         navController.currentBackStackEntry?.arguments?.getString(ARG_MAP_SINGLE_ELEMENT_ID)
     val element = viewModel.getElementFromCache(elementId ?: "")
+    val elements = viewModel.elementFlowResponse.collectAsState()
     val mapMode = viewModel.mapManager.mapMode.collectAsState()
     val elementUpdateResponse = viewModel.updateUtil.elementUpdateFlow.collectAsState()
     val deviceLocation = viewModel.mapManager.getCurrentLocation().collectAsState()
-    val updateSent = remember {
-        mutableStateOf(false)
-    }
+    val updateSent = remember { mutableStateOf(false) }
     val map = remember {
         MapView(context).also {
-            setup(navController, viewModel, it)
+            setup(viewModel, it, element, elements.value.data)
         }
     }
 
     DisposableEffect(LocalLifecycleOwner.current) {
-
         viewModel.mapManager.registerElementButtonClickHandler {
             navController.navigate(Screen.Element.route, bundleOf(Pair(ARG_ELEMENT_ID, it.itemid)))
         }
@@ -228,25 +226,21 @@ private fun AdditionalUI(
 
 // Logic to choose different functionality for the map based on need
 private fun setup(
-    navController: NavController,
     viewModel: AttestationViewModel,
     mapView: MapView,
+    element: Element? = null,
+    elements: List<Element>? = null,
 ) {
-    // Single element id was provided in nav args
-    navController.currentBackStackEntry?.arguments?.getString(ARG_MAP_SINGLE_ELEMENT_ID)
-        ?.let { id ->
-            val element = viewModel.getElementFromCache(id) ?: return
-            val hasLocation = viewModel.mapManager.displayElement(mapView, element)
-            if (!hasLocation) {
-                viewModel.mapManager.useEditLocation(mapView, element)
-            }
-            return@setup
+    element?.let {
+        val hasLocation = viewModel.mapManager.displayElement(mapView, element)
+        if (!hasLocation) {
+            viewModel.mapManager.useEditLocation(mapView, element)
         }
+        return@setup
+    }
 
-    // TODO Move out of here to get constant updates of the data
     // Use map with all element locations displayed
-    viewModel.mapManager.displayElements(mapView,
-        viewModel.elementFlowResponse.value.data ?: listOf())
+    viewModel.mapManager.displayElements(mapView, elements ?: listOf())
 }
 
 @Composable

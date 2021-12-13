@@ -73,6 +73,7 @@ class MapManager(
     }
 
     fun displayElements(map: MapView, elements: List<Element>) {
+        println("displayElements called :${elements.size}")
         initializeMap(map, MapMode.ALL_ELEMENTS, 2.0)
 
         val markerIcon =
@@ -86,7 +87,7 @@ class MapManager(
             }
 
         val cluster = RadiusMarkerClusterer(map.context)
-        cluster.setIcon(clusterIcon!!.toBitmap())
+        cluster.setIcon(clusterIcon?.toBitmap())
 
         elements.forEach { element ->
             element.geoPoint()?.let {
