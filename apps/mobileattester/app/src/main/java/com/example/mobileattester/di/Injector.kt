@@ -2,20 +2,16 @@ package com.example.mobileattester.di
 
 import android.content.Context
 import androidx.lifecycle.ViewModelProvider
+import com.example.mobileattester.BuildConfig.BATCHSIZE
 import com.example.mobileattester.data.location.LocationHandler
-import com.example.mobileattester.data.model.ElementResult
 import com.example.mobileattester.data.network.AttestationDataHandler
 import com.example.mobileattester.data.network.AttestationDataHandlerImpl
 import com.example.mobileattester.data.repository.AttestationRepository
 import com.example.mobileattester.data.repository.AttestationRepositoryImpl
 import com.example.mobileattester.data.util.*
 import com.example.mobileattester.data.util.abs.AsyncRunner
-import com.example.mobileattester.data.util.abs.DataFilter
 import com.example.mobileattester.data.util.abs.Notifier
-import com.example.mobileattester.ui.util.Timestamp
 import com.example.mobileattester.ui.viewmodel.AttestationViewModelImplFactory
-
-const val TWENTY_FOUR_H_IN_MS = 86_400_000
 
 object Injector {
 
@@ -31,7 +27,7 @@ object Injector {
      * loaded once the user goes through the list of elements. The overview updates
      * whenever we get more data, but is not accurate until all elements are fetched.
      */
-    private const val DEFAULT_BATCH_SIZE = 1
+    private val DEFAULT_BATCH_SIZE = BATCHSIZE.toInt()
 
 
     /**
