@@ -2,6 +2,9 @@
 
 Attesting and viewing devices with an android device allowing for easier management of multiple machines by leveraging a built-in camera and GPS.
 
+![Screenshot](media/Screenshot_1639475937.png) | ![Screenshot](media/Screenshot_1639476478.png ) | ![Screenshot](media/Screenshot_1639476952.png ) | ![Screenshot](media/Screenshot_1639476558.png) 
+ | :------ | :-------- | :-------- | :-------- 
+ 
 * Attesting and managing devices remotely or on site. 
   *  **On-Site:** QR -codes containing device unique IDs can be placed on physical devices allowing for on site attestation and location fetching.
   *  **Remote:** Advanced device list filtering based on last attest result or device information.
