@@ -13,8 +13,8 @@ Attesting and viewing devices with an android device allowing for easier managem
 
 ## Prerequisites
 
-   * An attestation engine with [a10rest](../a10rest) running
-   * (optional) [Trust agent](../t10) on each device for attesting the device
+   * An attestation engine with [a10rest](../../a10rest) running
+   * (optional) [Trust agent](../../t10) on each device for attesting the device
 
 ## (Optional) Configuration
 
