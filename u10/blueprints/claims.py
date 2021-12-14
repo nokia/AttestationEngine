@@ -4,11 +4,15 @@
 
 import secrets
 import json
+import base64
+import subprocess
+import tempfile
+import yaml
+
 from flask import Blueprint, render_template, flash, redirect
 
 import a10.structures.constants
 import a10.structures.identity
-
 import a10.asvr.claims
 
 from . import formatting
@@ -84,9 +88,6 @@ def claimprettyprintPCRs(item_id):
        return render_template("claimprettyprint/pcrs.html", cla=c,pcrlist=pcrlist)  
     
     
-    
-    
-    
 @claims_blueprint.route("/claim/prettyprint/quote/<item_id>", methods=["GET"])
 def claimprettyprintQuote(item_id):
     c = a10.asvr.claims.getClaim(item_id).msg()
@@ -97,19 +98,109 @@ def claimprettyprintQuote(item_id):
     else:
        return render_template("claimprettyprint/quote.html", cla=c)  
     
-    
-    
-    
-    
+     
 @claims_blueprint.route("/claim/prettyprint/uefieventlog/<item_id>", methods=["GET"])
 def claimprettyprintUEFIEventLog(item_id):
     c = a10.asvr.claims.getClaim(item_id).msg()
 
     # claim body contains a base85 encoded claim
-    
-
+    if c.get("payload").get("payload").get("encoding")!="base85/utf-8":
+       return render_template("claimprettyprint/incorrecttype.html", cla=c, msg="UEFI Eventlog must be in base/utf-8 encoding")        
     
     if c.get("payload").get("payload").get("eventlog")==None:
        return render_template("claimprettyprint/incorrecttype.html", cla=c, msg="Claim does not appear to be a UEFI Eventlog")        
-    else:
-       return render_template("claimprettyprint/uefieventlog.html", cla=c)        
+
+
+    #
+    # Decode
+    #
+
+    undecoded_eventlog = c.get("payload").get("payload").get("eventlog")
+    decoded_eventlog = base64.b85decode(undecoded_eventlog)
+
+    #
+    # Write to temporary file
+    #
+
+    tf = tempfile.NamedTemporaryFile()
+    tf.write(decoded_eventlog)
+    tf.seek(0)
+
+    #
+    # Process file with tpm2_eventlog
+    #
+    # This command generates yaml which we load and generate a python dict
+    #
+
+    cmd = "tpm2_eventlog " + tf.name
+    tpm2_eventlog_yaml = subprocess.check_output(cmd.split())
+    tpm2_eventlog_dict = yaml.load(tpm2_eventlog_yaml, Loader=yaml.BaseLoader)
+    evdec1len = len(tpm2_eventlog_dict['events'])
+
+    # NB: if we do more processing then we must call tf.seek(0) to reset the file pointer
+    # maybe here goes a call to the IBM tpm tools eventlog reader from Ken
+
+    #
+    # Close file
+    #
+
+    tf.close()
+
+    #
+    # Render page
+    #
+
+    return render_template("claimprettyprint/uefieventlog.html", cla=c, evdec1= tpm2_eventlog_dict, evdec1len=evdec1len)        
+
+   
+@claims_blueprint.route("/claim/prettyprint/imalog/<item_id>", methods=["GET"])
+def claimprettyprintIMAlog(item_id):
+    c = a10.asvr.claims.getClaim(item_id).msg()
+
+    imalog_raw = c.get("payload").get("payload").get("imalog")
+        
+    if imalog_raw==None:
+       return render_template("claimprettyprint/incorrecttype.html", cla=c, msg="Claim does not appear to be an IMA log")        
+
+    #
+    # The ima log is a space delimited file
+    # PCR Template-Hash Policy Filedata-Hash Filename-hint Filename-Signature (if the latter is present)
+    #  Policies: ima-ng, ima and ima-sig (the latter includes the signature)
+    #
+
+    lines = imalog_raw.split("\n")
+
+    imalog=[]
+
+    for l in lines:
+        logentry = l.split(" ")
+        print("le=",logentry)
+        if len(logentry)==5:               #ima-ng and ima
+            imalog.append( { "pcr":logentry[0],
+                 "thash":logentry[1],
+                 "pol":logentry[2],
+                 "fhash":logentry[3],
+                 "nhint":logentry[4],
+                 "fsig":"" }) 
+        elif len(logentry)==6:            #ima-sig
+             imalog.append( { "pcr":logentry[0],
+                 "thash":logentry[1],
+                 "pol":logentry[2],
+                 "fhash":logentry[3],
+                 "nhint":logentry[4],
+                 "fsig":logentry[5] } )      
+        else:                           #something else, maybe a PCR read ?
+             imalog.append( { "pcr":"",
+                 "thash":"",
+                 "pol":"?",
+                 "fhash":"",
+                 "nhint":"",
+                 "fsig":"" })                
+
+    print("LINES ",len(lines),lines)
+
+    #
+    # Render the page
+    #
+
+    return render_template("claimprettyprint/imalog.html", cla=c, imalog=imalog, es=len(imalog))  

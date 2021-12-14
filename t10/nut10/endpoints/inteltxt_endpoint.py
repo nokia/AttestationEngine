@@ -5,27 +5,27 @@
 from flask import Blueprint, jsonify
 import json
 import datetime
-import base64
+import subprocess
 from claims import claimstructure
 
-uefi_endpoint = Blueprint("uefi_endpoint", __name__)
+inteltxt_endpoint = Blueprint("inteltxt_endpoint", __name__)
 
 
-@uefi_endpoint.route("/eventlog", methods=["GET", "POST"])
-def returnEVENTLOGRREAD():
+@inteltxt_endpoint.route("/stat", methods=["GET", "POST"])
+def returnTXTSTAT():
     c = claimstructure.Claim()
 
     c.addHeaderItem("ta_received", str(datetime.datetime.now(datetime.timezone.utc)))
     
     try:
-        f = open("/sys/kernel/security/tpm0/binary_bios_measurements","rb")
-        eventlog = f.read()
-        eventlog_enc = base64.b85encode(eventlog).decode("utf-8")   
-        c.addPayloadItem("encoding", "base85/utf-8")
-        c.addPayloadItem("eventlog", eventlog_enc)
-        c.addPayloadItem("size",len(eventlog))
-        c.addPayloadItem("sizeencoded",len(eventlog_enc))
-        f.close()
+        cmd = ["txt-stat"]
+        out = subprocess.check_output(cmd)
+        print("TXTSTAT=",out)
+        
+        c.addPayloadItem("encoding", "utf-8")
+        c.addPayloadItem("stat", out.decode('utf-8'))
+        c.addPayloadItem("size",len(out))
+
     except Exception as e:
         c.addPayloadItem("error", str(e))
 

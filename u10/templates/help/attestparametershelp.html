@@ -70,4 +70,11 @@ SPDX-License-Identifier: BSD-3-Clear
                         in the container image signature. By default, there is the TPM2FirmwareVersion <br>
                         verification of the build env. Please provide the required arguments for rules as well.</td>
                 </tr>
+                <tr>
+                    <td>inteltxt.MeasuredBootLaunch</td>
+                    <td>expect</td>
+                    <td>NO</td>
+                    <td>{"expect":"TRUE"}</td>
+                    <td>If present then always defaults to TRUE. If the value is specified as FALSE then the result is success if the TXT Measure Boot did not occur. Any value other than FALSE here will be interpreted as TRUE.</td>
+                </tr>     
             </table>

@@ -96,7 +96,7 @@
 {
 
     "description": "Obtain the Intel TXT Txt-stat log",
-    "intent": "txt/txtstat",
+    "intent": "txt/stat",
     "name": "TXT-Stat",
     "parameters": {}
 },
