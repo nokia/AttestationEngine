@@ -32,7 +32,7 @@ enum class MapMode {
 private const val TAG = "MapManager"
 
 /**
- * Provides everything for the map that the application requires
+ * Provides everything for the map that the application requires.
  */
 class MapManager(
     private val locationEditor: LocationEditor,
@@ -75,43 +75,53 @@ class MapManager(
         return true
     }
 
-    fun displayElements(map: MapView, elements: List<Element>) {
-        initializeMap(map, MapMode.ALL_ELEMENTS, 2.0)
+    /**
+     * Initialize the map to display multiple elements.
+     */
+    fun initElementsMap(map: MapView, zoomLevel: Double? = 2.0) {
+        initializeMap(map, MapMode.ALL_ELEMENTS, zoomLevel)
+    }
 
-        val markerIconOk =
-            AppCompatResources.getDrawable(map.context, R.drawable.ic_baseline_location_on_32)
-                .apply {
-                    this?.setTint(Ok.toArgb())
-                }
-        val markerIconError =
-            AppCompatResources.getDrawable(map.context, R.drawable.ic_baseline_location_on_32)
-                .apply {
-                    this?.setTint(Error.toArgb())
-                }
-
-        val clusterIcon =
-            AppCompatResources.getDrawable(map.context, R.drawable.ic_baseline_circle_32).apply {
-                this?.setTint(map.context.getColor(R.color.primary))
+    /**
+     * Replace map markers with the markers from the geopoints of provided elements.
+     */
+    fun setElementMarkers(elements: List<Element>) {
+        val markerIconOk = _map()?.context?.let {
+            AppCompatResources.getDrawable(it, R.drawable.ic_baseline_location_on_32).apply {
+                this?.setTint(Ok.toArgb())
             }
+        }
+        val markerIconError = _map()?.context?.let {
+            AppCompatResources.getDrawable(it, R.drawable.ic_baseline_location_on_32).apply {
+                this?.setTint(Error.toArgb())
+            }
+        }
 
-        val cluster = RadiusMarkerClusterer(map.context)
+        val clusterIcon = _map()?.context?.let {
+            AppCompatResources.getDrawable(it, R.drawable.ic_baseline_circle_32).apply {
+                this?.setTint(it.getColor(R.color.primary))
+            }
+        }
+
+        val cluster = RadiusMarkerClusterer(_map()?.context)
         cluster.setIcon(clusterIcon?.toBitmap())
 
         elements.forEach { element ->
             element.geoPoint()?.let {
-                val m = Marker(map)
+                val m = Marker(_map())
                 m.title = element.name
                 m.position = it
 
                 if (element.results.firstOrNull()?.result == 0) m.icon = markerIconOk
                 else m.icon = markerIconError
 
-                m.setInfoWindow(ElementInfoWindow(map, element, this))
+                m.setInfoWindow(ElementInfoWindow(_map(), element, this))
                 cluster.add(m)
             }
         }
-        map.overlayManager.clear()
-        map.overlayManager.add(cluster)
+        _map()?.overlayManager?.clear()
+        _map()?.overlayManager?.add(cluster)
+        _map()?.invalidate()
     }
 
     /**
@@ -195,13 +205,15 @@ class MapManager(
         _map()?.setOnTouchListener(l)
     }
 
-    private fun initializeMap(map: MapView, type: MapMode, zoomLevel: Double = 17.0) {
+    private fun initializeMap(map: MapView, type: MapMode, zoomLevel: Double? = 17.0) {
         mapView = WeakReference(map)
         _map()?.apply {
             setTileSource(TileSourceFactory.WIKIMEDIA)
             isTilesScaledToDpi = true
             setMultiTouchControls(true)
-            controller.setZoom(zoomLevel)
+            if (zoomLevel != null) {
+                controller.setZoom(zoomLevel)
+            }
         }
         clearMarkers()
         mapMode.value = type

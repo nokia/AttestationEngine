@@ -11,6 +11,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -61,15 +62,14 @@ fun Info(navController: NavController, viewModel: AttestationViewModel) {
 
 @Composable
 fun Map(navController: NavController, viewModel: AttestationViewModel) {
-    lateinit var map: MapView
+    val ctx = LocalContext.current
+    val map = MapView(ctx).apply {
+        isVerticalMapRepetitionEnabled = false
+        isTilesScaledToDpi = true
+    }
 
     LaunchedEffect(LocalLifecycleOwner.current) {
         viewModel.startElementFetchLoop()
-    }
-
-    fun mapInit() {
-        map.isVerticalMapRepetitionEnabled = false
-        map.isTilesScaledToDpi = true
     }
 
     Column(modifier = Modifier
@@ -82,9 +82,7 @@ fun Map(navController: NavController, viewModel: AttestationViewModel) {
             .clip(ROUNDED_SM),
             contentAlignment = Alignment.CenterEnd) {
             AndroidView(
-                factory = {
-                    MapView(it).apply { map = this; mapInit() }
-                },
+                factory = { map },
                 modifier = Modifier.clip(ROUNDED_SM),
             )
             Icon(
@@ -102,3 +100,4 @@ fun Map(navController: NavController, viewModel: AttestationViewModel) {
         }
     }
 }
+

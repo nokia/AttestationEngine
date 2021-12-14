@@ -43,7 +43,6 @@ import compose.icons.tablericons.AlertCircle
 import compose.icons.tablericons.ArrowsMaximize
 import compose.icons.tablericons.Check
 import compose.icons.tablericons.CurrentLocation
-import org.osmdroid.bonuspack.clustering.RadiusMarkerClusterer
 import org.osmdroid.views.MapView
 
 /**  */
@@ -73,6 +72,12 @@ fun MapWrapper(
         MapView(context).also {
             setup(viewModel, it, element, elements.value.data)
         }
+    }
+
+    // Ugly way to add all the markers to the map, should be done in MapManager.
+    // + Rewrite MapManager
+    LaunchedEffect(elements.value.data?.mapNotNull { it.geoPoint() }?.size) {
+        elements.value.data?.let { viewModel.mapManager.setElementMarkers(it) }
     }
 
     DisposableEffect(LocalLifecycleOwner.current) {
@@ -105,12 +110,8 @@ fun MapWrapper(
         // Map content
         Box(contentAlignment = Alignment.BottomStart) {
             AndroidView(factory = {
-                println("AVTEST INIT")
                 map
-            }, update = {
-                println("AVTEST UPDATE CALLED ${elements.value.data?.size}")
             })
-            Text(text = elements.value.data?.map { it.name }.toString())
 
             if (element != null) {
                 fun saveNewLocationRequest() {
@@ -143,8 +144,6 @@ fun MapWrapper(
             }
         }
     }
-
-    println("Map overlay marker counter: " + (map.overlayManager.get(0) as RadiusMarkerClusterer).items.size)
 }
 
 @Composable
@@ -249,7 +248,7 @@ private fun setup(
     }
 
     // Use map with all element locations displayed
-    viewModel.mapManager.displayElements(mapView, elements ?: listOf())
+    viewModel.mapManager.initElementsMap(mapView)
 }
 
 @Composable
