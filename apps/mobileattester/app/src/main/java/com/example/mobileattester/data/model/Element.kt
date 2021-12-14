@@ -1,10 +1,16 @@
 package com.example.mobileattester.data.model
 
 import android.location.Location
+import android.util.Log
 import com.example.mobileattester.data.util.abs.DataFilter
 import com.example.mobileattester.data.util.abs.Filterable
+import com.example.mobileattester.data.util.abs.MatchType
+import com.google.gson.JsonDeserializationContext
+import com.google.gson.JsonDeserializer
+import com.google.gson.JsonElement
 import com.google.gson.annotations.SerializedName
 import org.osmdroid.util.GeoPoint
+import java.lang.reflect.Type
 
 /**
  * Represents an Element in the application.
@@ -19,14 +25,14 @@ data class Element(
     val description: String?,
     val location: List<String>?,
     @Transient var results: List<ElementResult>,
+    @Transient val serializationError: Boolean,
 ) : Filterable {
 
     override fun filter(f: DataFilter): Boolean {
-        return matchFields(f.keywords)
-    }
-
-    override fun filterAny(f: DataFilter): Boolean {
-        return matchFieldsAny(f.keywords)
+        return when (f.matchType) {
+            MatchType.MATCH_ALL -> matchAll(f.keywords)
+            MatchType.MATCH_ANY -> matchAny(f.keywords)
+        }
     }
 
     fun geoPoint(): GeoPoint? {
@@ -41,21 +47,24 @@ data class Element(
     }
 
     fun cloneWithNewLocation(location: Location): Element {
-        return Element(itemid,
+        return Element(
+            itemid,
             name,
             endpoint,
             types,
             protocol,
             description,
             listOf(location.latitude.toString(), location.longitude.toString()),
-            results)
+            results,
+            serializationError,
+        )
     }
 
     /**
      * Returns true if all the strings in the list
      * are matched in one of the searched fields of this instance.
      */
-    private fun matchFields(l: List<String>): Boolean {
+    private fun matchAll(l: List<String>): Boolean {
         return l.all { s ->
             name.lowercase().contains(s) || endpoint.lowercase().contains(s) || types.find {
                 it.lowercase().contains(s)
@@ -68,7 +77,7 @@ data class Element(
      * Returns true if any of the strings in the list
      * are matched in one of the searched fields of this instance.
      */
-    private fun matchFieldsAny(l: List<String>): Boolean {
+    private fun matchAny(l: List<String>): Boolean {
         return l.any { s ->
             (name.lowercase().contains(s) || endpoint.lowercase().contains(s) || types.find {
                 it.lowercase().contains(s)
@@ -80,5 +89,47 @@ data class Element(
 }
 
 fun emptyElement(): Element {
-    return Element("", "", "", listOf(), "", "", listOf(), listOf())
+    return Element("", "", "", listOf(), "", "", listOf(), listOf(), false)
+}
+
+private const val TAG = "ElementDeserializer"
+
+class ElementDeserializer() : JsonDeserializer<Element> {
+    override fun deserialize(
+        json: JsonElement?,
+        typeOfT: Type?,
+        context: JsonDeserializationContext?,
+    ): Element {
+        val obj = json?.asJsonObject
+        return try {
+            obj!!
+            Element(
+                obj.get("itemid").asString,
+                obj.get("name").asString,
+                obj.get("endpoint").asString,
+                obj.get("type").asJsonArray.map { it.asString },
+                obj.get("protocol").asString,
+                obj.get("description").asString,
+                if (obj.has("location")) obj.get("location").asJsonArray.map { it.asString } else null,
+                listOf(),
+                false,
+            )
+        } catch (e: Exception) {
+            Log.d(TAG, "deserialization error: $e")
+            Element(
+                if (obj != null) obj.get("itemid").asString else "err",
+                "----",
+                "----",
+                listOf(),
+                "----",
+                "This element seems to be in an incorrect form. ID: ${
+                    obj?.get("itemid")?.toString()
+                }",
+                listOf(),
+                listOf(),
+                true,
+            )
+        }
+    }
+
 }

@@ -20,6 +20,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
+import androidx.core.os.bundleOf
 import androidx.navigation.NavController
 import com.example.mobileattester.data.model.Element
 import com.example.mobileattester.data.network.Response
@@ -32,6 +33,7 @@ import com.example.mobileattester.ui.theme.*
 import com.example.mobileattester.ui.util.PermissionDeniedRequestSettings
 import com.example.mobileattester.ui.util.PermissionsRationale
 import com.example.mobileattester.ui.util.Screen
+import com.example.mobileattester.ui.util.navigate
 import com.example.mobileattester.ui.viewmodel.AttestationViewModel
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionsRequired
@@ -61,21 +63,31 @@ fun MapWrapper(
     val elementId =
         navController.currentBackStackEntry?.arguments?.getString(ARG_MAP_SINGLE_ELEMENT_ID)
     val element = viewModel.getElementFromCache(elementId ?: "")
-    val mapMode = viewModel.useMapManager().mapMode.collectAsState()
-    val elementUpdateResponse = viewModel.useUpdateUtil().elementUpdateFlow.collectAsState()
-    val deviceLocation = viewModel.useMapManager().getCurrentLocation().collectAsState()
-    val updateSent = remember {
-        mutableStateOf(false)
-    }
+    val elements = viewModel.elementFlowResponse.collectAsState()
+    val mapMode = viewModel.mapManager.mapMode.collectAsState()
+    val elementUpdateResponse = viewModel.updateUtil.elementUpdateFlow.collectAsState()
+    val deviceLocation = viewModel.mapManager.getCurrentLocation().collectAsState()
+    val updateSent = remember { mutableStateOf(false) }
     val map = remember {
         MapView(context).also {
-            setup(navController, viewModel, it)
+            setup(viewModel, it, element, elements.value.data)
         }
     }
 
+    // Ugly way to add all the markers to the map, should be done in MapManager.
+    // + Rewrite MapManager
+    LaunchedEffect(elements.value.data?.mapNotNull { it.geoPoint() }?.size) {
+        elements.value.data?.let { viewModel.mapManager.setElementMarkers(it) }
+    }
+
     DisposableEffect(LocalLifecycleOwner.current) {
+        viewModel.mapManager.registerElementButtonClickHandler {
+            navController.navigate(Screen.Element.route, bundleOf(Pair(ARG_ELEMENT_ID, it.itemid)))
+        }
+
         onDispose {
-            viewModel.useMapManager().resetMapState()
+            viewModel.mapManager.resetMapState()
+            viewModel.mapManager.unregisterElementButtonClickHandler()
             navController.currentBackStackEntry?.arguments?.remove(ARG_MAP_SINGLE_ELEMENT_ID)
         }
     }
@@ -97,15 +109,17 @@ fun MapWrapper(
 
         // Map content
         Box(contentAlignment = Alignment.BottomStart) {
-            AndroidView(factory = { map })
+            AndroidView(factory = {
+                map
+            })
 
             if (element != null) {
                 fun saveNewLocationRequest() {
-                    val editedLocation = viewModel.useMapManager().getEditedLocation()
+                    val editedLocation = viewModel.mapManager.getEditedLocation()
                     if (editedLocation.value != null) {
-                        viewModel.useMapManager().lockInteractions()
+                        viewModel.mapManager.lockInteractions()
                         val e = element.cloneWithNewLocation(editedLocation.value!!)
-                        viewModel.useUpdateUtil().updateElement(e)
+                        viewModel.updateUtil.updateElement(e)
                         updateSent.value = true
                     }
                 }
@@ -114,14 +128,14 @@ fun MapWrapper(
                         deviceLocation = deviceLocation.value,
                         element = element,
                         onEditLocation = {
-                            viewModel.useMapManager().useEditLocation(map, element)
+                            viewModel.mapManager.useEditLocation(map, element)
                         },
                         onSaveNewLocation = { saveNewLocationRequest() },
                         onCancelEdit = {
-                            viewModel.useMapManager().displayElement(map, element)
+                            viewModel.mapManager.displayElement(map, element)
                         },
                         onCenter = {
-                            viewModel.useMapManager().centerToDevice()
+                            viewModel.mapManager.centerToDevice()
                         })
                     true -> OperationStatusIndication(elementUpdateResponse,
                         onRetry = { saveNewLocationRequest() },
@@ -220,23 +234,21 @@ private fun AdditionalUI(
 
 // Logic to choose different functionality for the map based on need
 private fun setup(
-    navController: NavController,
     viewModel: AttestationViewModel,
     mapView: MapView,
+    element: Element? = null,
+    elements: List<Element>? = null,
 ) {
-    // Single element id was provided in nav args
-    navController.currentBackStackEntry?.arguments?.getString(ARG_MAP_SINGLE_ELEMENT_ID)
-        ?.let { id ->
-            val element = viewModel.getElementFromCache(id) ?: return
-            val hasLocation = viewModel.useMapManager().displayElement(mapView, element)
-            if (!hasLocation) {
-                viewModel.useMapManager().useEditLocation(mapView, element)
-            }
-            return@setup
+    element?.let {
+        val hasLocation = viewModel.mapManager.displayElement(mapView, element)
+        if (!hasLocation) {
+            viewModel.mapManager.useEditLocation(mapView, element)
         }
+        return@setup
+    }
 
     // Use map with all element locations displayed
-    viewModel.useMapManager().displayElements(mapView, viewModel.filterElements())
+    viewModel.mapManager.initElementsMap(mapView)
 }
 
 @Composable

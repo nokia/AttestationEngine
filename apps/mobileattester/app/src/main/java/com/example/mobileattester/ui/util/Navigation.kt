@@ -114,13 +114,13 @@ object NavUtils {
                 composable(Screen.Map.route) { MapWrapper(navController, viewModel) }
                 composable(Screen.Policy.route) { Policy(navController, viewModel) }
                 composable(Screen.Claim.route) {
-                    ClaimWrapper(navController, viewModel.useAttestationUtil())
+                    ClaimWrapper(navController, viewModel.attestationUtil)
                 }
                 composable(Screen.Result.route) {
                     ResultScreenProvider(
                         navController = navController,
                         viewModel = viewModel,
-                        resultFlow = viewModel.useAttestationUtil().latestResult,
+                        resultFlow = viewModel.attestationUtil.latestResult,
                     )
                 }
             }
@@ -141,27 +141,23 @@ object NavUtils {
                     label = { Text(stringResource(screen.stringResId)) },
                     selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
                     onClick = {
-                        if (screen.route != currentDestination?.route)
-                            navController.navigate(screen.route) {
+                        if (screen.route != currentDestination?.route) navController.navigate(screen.route) {
 
-                                // Bottom navbar should not be back navigable
-                                navController.backQueue.removeAll(
-                                    // Remove all back history except current
-                                    navController
-                                        .backQueue
-                                        .takeLast(navController.backQueue.size-1)
-                                )
+                            // Bottom navbar should not be back navigable
+                            navController.backQueue.removeAll(
+                                // Remove all back history except current
+                                navController.backQueue.takeLast(navController.backQueue.size - 1))
 
-                                popUpTo(navController.graph.findStartDestination().id) {
-                                    saveState = true
-                                }
-
-                                // Avoid multiple copies of the same destination when
-                                // reselecting the same item
-                                launchSingleTop = true
-                                // Restore state when reselecting a previously selected item
-                                restoreState = true
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
                             }
+
+                            // Avoid multiple copies of the same destination when
+                            // reselecting the same item
+                            launchSingleTop = true
+                            // Restore state when reselecting a previously selected item
+                            restoreState = true
+                        }
                     },
                 )
             }
@@ -225,6 +221,7 @@ object NavUtils {
     private fun showsTopBar(screen: Screen): Boolean {
         return when (screen) {
             Screen.Scanner -> false
+            Screen.Result -> false
             else -> true
         }
     }

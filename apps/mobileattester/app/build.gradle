@@ -6,12 +6,18 @@ plugins {
 android {
     compileSdk 31
 
+    def CONFIG = { k -> "\"${project.properties.get(k)}\"" }
+
     defaultConfig {
         applicationId "com.example.mobileattester"
         minSdk 25
         targetSdk 31
         versionCode 1
         versionName "1.0"
+
+        buildConfigField "String", "DEFAULTHOST", CONFIG("DEFAULTHOST")
+        buildConfigField "String", "DEFAULTPORT", CONFIG("DEFAULTPORT")
+        buildConfigField "String", "BATCHSIZE", CONFIG("BATCHSIZE")
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
