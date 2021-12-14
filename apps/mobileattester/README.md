@@ -21,7 +21,7 @@ Attesting and viewing devices with an android device allowing for easier managem
 There are no required configurations as the application will remember the list of attestation engines used in the past and will adhere to sensible defaults.
 
 
-[gradle.properties](mobileattester/gradle.properties#L24-L39)
+[gradle.properties](gradle.properties#L24-L39)
 
 ``` .properties
 
