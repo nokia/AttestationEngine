@@ -108,7 +108,7 @@ fun Elements(navController: NavController, viewModel: AttestationViewModel) {
             itemsIndexed(elementResponse.data ?: listOf()) { index, element ->
                 // Get more elements when we are getting close to the end of the list
                 if (index + FETCH_START_BUFFER >= lastIndex) {
-                    viewModel.getMoreElements()
+//                    viewModel.getMoreElements()
                 }
 
                 Column(Modifier.padding(horizontal = 12.dp)) {

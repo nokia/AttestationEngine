@@ -43,6 +43,7 @@ import compose.icons.tablericons.AlertCircle
 import compose.icons.tablericons.ArrowsMaximize
 import compose.icons.tablericons.Check
 import compose.icons.tablericons.CurrentLocation
+import org.osmdroid.bonuspack.clustering.RadiusMarkerClusterer
 import org.osmdroid.views.MapView
 
 /**  */
@@ -68,10 +69,11 @@ fun MapWrapper(
     val elementUpdateResponse = viewModel.updateUtil.elementUpdateFlow.collectAsState()
     val deviceLocation = viewModel.mapManager.getCurrentLocation().collectAsState()
     val updateSent = remember { mutableStateOf(false) }
-    val map = MapView(context).also {
-        setup(viewModel, it, element, elements.value.data)
+    val map = remember {
+        MapView(context).also {
+            setup(viewModel, it, element, elements.value.data)
+        }
     }
-
 
     DisposableEffect(LocalLifecycleOwner.current) {
         viewModel.mapManager.registerElementButtonClickHandler {
@@ -102,7 +104,13 @@ fun MapWrapper(
 
         // Map content
         Box(contentAlignment = Alignment.BottomStart) {
-            AndroidView(factory = { map })
+            AndroidView(factory = {
+                println("AVTEST INIT")
+                map
+            }, update = {
+                println("AVTEST UPDATE CALLED ${elements.value.data?.size}")
+            })
+            Text(text = elements.value.data?.map { it.name }.toString())
 
             if (element != null) {
                 fun saveNewLocationRequest() {
@@ -135,6 +143,8 @@ fun MapWrapper(
             }
         }
     }
+
+    println("Map overlay marker counter: " + (map.overlayManager.get(0) as RadiusMarkerClusterer).items.size)
 }
 
 @Composable

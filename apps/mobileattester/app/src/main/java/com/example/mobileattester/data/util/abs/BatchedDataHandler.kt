@@ -85,6 +85,7 @@ abstract class BatchedDataHandler<T, U>(
 
             while (!allBatchesFetched()) {
                 fetchFreeBatch()
+                delay(500)
             }
         }
     }

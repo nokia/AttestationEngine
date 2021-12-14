@@ -76,7 +76,6 @@ class MapManager(
     }
 
     fun displayElements(map: MapView, elements: List<Element>) {
-        println("displayElements called :${elements.size}")
         initializeMap(map, MapMode.ALL_ELEMENTS, 2.0)
 
         val markerIconOk =
@@ -104,15 +103,14 @@ class MapManager(
                 m.title = element.name
                 m.position = it
 
-                if(element.results.firstOrNull()?.result == 0)
-                    m.icon = markerIconOk
-                else
-                    m.icon = markerIconError
+                if (element.results.firstOrNull()?.result == 0) m.icon = markerIconOk
+                else m.icon = markerIconError
 
                 m.setInfoWindow(ElementInfoWindow(map, element, this))
                 cluster.add(m)
             }
         }
+        map.overlayManager.clear()
         map.overlayManager.add(cluster)
     }
 
@@ -127,10 +125,8 @@ class MapManager(
         clearMarkers()
 
         val locToEdit = if (element.geoPoint() != null) {
-            println("@@ Using element location")
             geoToLoc(element.geoPoint()!!)
         } else {
-            println("@@ Using device location ${locationEditor.deviceLocation.value}")
             locationEditor.deviceLocation.value
         } ?: geoToLoc(GeoPoint(map.mapCenter.latitude, map.mapCenter.longitude))
 
