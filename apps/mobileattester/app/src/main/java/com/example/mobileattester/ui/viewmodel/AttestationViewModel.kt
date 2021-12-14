@@ -63,9 +63,6 @@ class AttestationViewModelImpl(
     override val engineInfo: EngineInfo,
     override val mapManager: MapManager,
 ) : AttestationViewModel, ViewModel() {
-    companion object {
-        const val FETCH_START_BUFFER = 3
-    }
 
     override val isRefreshing: StateFlow<Boolean> = elementDataHandler.refreshing
     override val isLoading: StateFlow<Boolean> = elementDataHandler.loading
