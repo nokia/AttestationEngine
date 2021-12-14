@@ -7,15 +7,12 @@ import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import androidx.appcompat.content.res.AppCompatResources
-import androidx.compose.ui.graphics.toArgb
 import androidx.core.graphics.drawable.toBitmap
 import com.example.mobileattester.R
 import com.example.mobileattester.data.model.Element
 import com.example.mobileattester.data.model.emptyElement
 import com.example.mobileattester.ui.components.ElementInfoWindow
 import com.example.mobileattester.ui.components.ElementInfoWindowClickHandler
-import com.example.mobileattester.ui.theme.Error
-import com.example.mobileattester.ui.theme.Ok
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import org.osmdroid.bonuspack.clustering.RadiusMarkerClusterer
@@ -87,14 +84,10 @@ class MapManager(
      */
     fun setElementMarkers(elements: List<Element>) {
         val markerIconOk = _map()?.context?.let {
-            AppCompatResources.getDrawable(it, R.drawable.ic_baseline_location_on_32).apply {
-                this?.setTint(Ok.toArgb())
-            }
+            AppCompatResources.getDrawable(it, R.drawable.ic_baseline_location_on_32_green)
         }
         val markerIconError = _map()?.context?.let {
-            AppCompatResources.getDrawable(it, R.drawable.ic_baseline_location_on_32).apply {
-                this?.setTint(Error.toArgb())
-            }
+            AppCompatResources.getDrawable(it, R.drawable.ic_baseline_location_on_32_red)
         }
 
         val clusterIcon = _map()?.context?.let {
