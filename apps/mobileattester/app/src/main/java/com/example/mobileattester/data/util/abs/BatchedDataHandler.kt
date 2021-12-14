@@ -75,7 +75,10 @@ abstract class BatchedDataHandler<T, U>(
 
     /** Call to start a loop, that continuously fetches batches one-by-one */
     fun startFetchLoop() {
-        if (loopJob.children.count() != 0 || allBatchesFetched()) return
+        if (loopJob.children.count() != 0 || allBatchesFetched()) {
+            Log.d(TAG, "startFetchLoop: returning early")
+            return
+        }
 
         loopScope.launch {
             Log.d(TAG, "startFetchLoop: called")

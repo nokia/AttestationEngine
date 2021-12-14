@@ -110,13 +110,12 @@ class ElementDeserializer() : JsonDeserializer<Element> {
                 obj.get("type").asJsonArray.map { it.asString },
                 obj.get("protocol").asString,
                 obj.get("description").asString,
-                obj.get("location").asJsonArray.map { it.asString },
+                if (obj.has("location")) obj.get("location").asJsonArray.map { it.asString } else null,
                 listOf(),
                 false,
             )
         } catch (e: Exception) {
             Log.d(TAG, "deserialization error: $e")
-
             Element(
                 if (obj != null) obj.get("itemid").asString else "err",
                 "----",

@@ -68,11 +68,10 @@ fun MapWrapper(
     val elementUpdateResponse = viewModel.updateUtil.elementUpdateFlow.collectAsState()
     val deviceLocation = viewModel.mapManager.getCurrentLocation().collectAsState()
     val updateSent = remember { mutableStateOf(false) }
-    val map = remember {
-        MapView(context).also {
-            setup(viewModel, it, element, elements.value.data)
-        }
+    val map = MapView(context).also {
+        setup(viewModel, it, element, elements.value.data)
     }
+
 
     DisposableEffect(LocalLifecycleOwner.current) {
         viewModel.mapManager.registerElementButtonClickHandler {
