@@ -152,7 +152,7 @@ class MapManager(
 
     @SuppressLint("ClickableViewAccessibility")
     fun lockInteractions() {
-        mapView?.get()?.setOnTouchListener { _, _ -> false }
+        _map()?.setOnTouchListener { _, _ -> false }
     }
 
     fun getEditedLocation() = locationEditor.currentLocation
