@@ -80,9 +80,8 @@ class AttestationViewModelImpl(
     override fun getMoreElements() = elementDataHandler.fetchNextBatch()
 
     override fun applyFilter(filter: DataFilter?) {
-        if (filter != null) {
-            elementDataHandler.applyFilters(listOf(filter))
-        }
+        val fs = filter?.let { listOf(it) } ?: listOf()
+        elementDataHandler.applyFilters(fs)
     }
 
     override fun applyFilters(filters: List<DataFilter>) = elementDataHandler.applyFilters(filters)

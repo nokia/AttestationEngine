@@ -221,6 +221,7 @@ object NavUtils {
     private fun showsTopBar(screen: Screen): Boolean {
         return when (screen) {
             Screen.Scanner -> false
+            Screen.Result -> false
             else -> true
         }
     }
