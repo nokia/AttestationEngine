@@ -33,7 +33,6 @@ import com.example.mobileattester.ui.util.Screen
 import com.example.mobileattester.ui.util.latestResults
 import com.example.mobileattester.ui.util.navigate
 import com.example.mobileattester.ui.viewmodel.AttestationViewModel
-import com.example.mobileattester.ui.viewmodel.AttestationViewModelImpl.Companion.FETCH_START_BUFFER
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import compose.icons.TablerIcons
@@ -47,8 +46,8 @@ private const val TAG = "Elements"
 @Composable
 fun Elements(navController: NavController, viewModel: AttestationViewModel) {
     val lifecycleOwner = LocalLifecycleOwner.current
-    val elementResponse = viewModel.elementFlowResponse.collectAsState().value
-    val lastIndex = viewModel.elementFlowResponse.collectAsState().value.data?.lastIndex ?: 0
+    val elementResponse = viewModel.elementFlowResponse.collectAsState()
+    val lastIndex = elementResponse.value.data?.lastIndex
     val isLoading = viewModel.isLoading.collectAsState()
     val isRefreshing = viewModel.isRefreshing.collectAsState()
 
@@ -71,7 +70,7 @@ fun Elements(navController: NavController, viewModel: AttestationViewModel) {
         }
     }
 
-    Log.d(TAG, "Elements: ${elementResponse.data?.size}")
+    Log.d(TAG, "Elements: ${elementResponse.value.data?.size}")
 
     // Navigate to single element view, pass clicked id as argument
     fun onElementClicked(itemid: String) {
@@ -79,7 +78,7 @@ fun Elements(navController: NavController, viewModel: AttestationViewModel) {
     }
 
     fun onLoadElements() {
-        if (elementResponse.data?.isNotEmpty() == true) {
+        if (elementResponse.value.data?.isNotEmpty() == true) {
             viewModel.getMoreElements()
         } else viewModel.refreshElements()
     }
@@ -105,10 +104,10 @@ fun Elements(navController: NavController, viewModel: AttestationViewModel) {
             }
 
             // List of the elements
-            itemsIndexed(elementResponse.data ?: listOf()) { index, element ->
+            itemsIndexed(elementResponse.value.data ?: listOf()) { index, element ->
                 // Get more elements when we are getting close to the end of the list
-                if (index + FETCH_START_BUFFER >= lastIndex) {
-//                    viewModel.getMoreElements()
+                if (lastIndex != null && index >= lastIndex) {
+                    viewModel.getMoreElements()
                 }
 
                 Column(Modifier.padding(horizontal = 12.dp)) {
@@ -118,13 +117,13 @@ fun Elements(navController: NavController, viewModel: AttestationViewModel) {
             }
 
             item {
-                if (elementResponse.status == Status.ERROR && !isLoading.value) {
+                if (elementResponse.value.status == Status.ERROR && !isLoading.value) {
                     FadeInWithDelay(200) {
                         Column(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalAlignment = Alignment.CenterHorizontally,
                         ) {
-                            ErrorIndicator(msg = elementResponse.message.toString())
+                            ErrorIndicator(msg = elementResponse.value.message.toString())
                             IconButton(onClick = { onLoadElements() }) {
                                 Icon(TablerIcons.Refresh, null, tint = Primary)
                             }
@@ -146,7 +145,7 @@ fun Elements(navController: NavController, viewModel: AttestationViewModel) {
                             modifier = Modifier.size(32.dp),
                             color = MaterialTheme.colors.primary,
                         )
-                    } else if (!isRefreshing.value && elementResponse.status != Status.ERROR) {
+                    } else if (!isRefreshing.value && elementResponse.value.status != Status.ERROR) {
                         Text(text = "All elements listed.", color = DarkGrey)
                     }
                 }
