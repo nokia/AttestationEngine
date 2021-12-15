@@ -4,7 +4,6 @@ import com.example.mobileattester.data.model.Element
 import com.example.mobileattester.data.network.AttestationDataHandler
 import com.example.mobileattester.data.network.Response
 import com.example.mobileattester.data.util.abs.AsyncRunner
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 
 /**
@@ -23,11 +22,17 @@ class UpdateUtil(
             element,
             function = {
                 elementUpdateFlow.value = Response.loading()
-                val res = adh.updateElement(it)
-                println("UpdateElement res: $res")
-                // Todo Check whether the response is id or not
-                elementUpdateFlow.value = Response.success("Success")
-                true
+                when (adh.updateElement(it)) {
+                    AttestationDataHandler.UPDATE_ERROR -> {
+                        elementUpdateFlow.value =
+                            Response.error(message = "Failed to update element")
+                        false
+                    }
+                    else -> {
+                        elementUpdateFlow.value = Response.success("Success")
+                        true
+                    }
+                }
             },
             onException = {
                 elementUpdateFlow.value =

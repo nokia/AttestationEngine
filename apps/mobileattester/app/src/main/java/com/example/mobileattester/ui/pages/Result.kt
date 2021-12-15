@@ -98,7 +98,7 @@ fun Result(
         viewModel.getElementFromCache(result.elementID)
     }
     val policy = remember {
-        viewModel.useAttestationUtil().getPolicyFromCache(result.policyID)
+        viewModel.attestationUtil.getPolicyFromCache(result.policyID)
     }
     val color = remember {
         getCodeColor(result.result)

@@ -1,16 +1,15 @@
 package com.example.mobileattester.ui.pages
 
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.TextFieldValue
@@ -21,7 +20,7 @@ import com.example.mobileattester.R
 import com.example.mobileattester.data.model.Element
 import com.example.mobileattester.data.model.ElementResult.Companion.CODE_RESULT_OK
 import com.example.mobileattester.data.network.Status
-import com.example.mobileattester.data.util.abs.DataFilter
+import com.example.mobileattester.data.util.abs.MatchType
 import com.example.mobileattester.ui.components.SearchBar
 import com.example.mobileattester.ui.components.TagRow
 import com.example.mobileattester.ui.components.anim.FadeInWithDelay
@@ -29,11 +28,11 @@ import com.example.mobileattester.ui.components.common.DecorText
 import com.example.mobileattester.ui.components.common.ErrorIndicator
 import com.example.mobileattester.ui.components.common.HeaderRoundedBottom
 import com.example.mobileattester.ui.theme.*
+import com.example.mobileattester.ui.util.FilterBuilder
 import com.example.mobileattester.ui.util.Screen
 import com.example.mobileattester.ui.util.latestResults
 import com.example.mobileattester.ui.util.navigate
 import com.example.mobileattester.ui.viewmodel.AttestationViewModel
-import com.example.mobileattester.ui.viewmodel.AttestationViewModelImpl.Companion.FETCH_START_BUFFER
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
 import compose.icons.TablerIcons
@@ -42,16 +41,36 @@ import compose.icons.tablericons.Refresh
 
 const val ARG_BASE_FILTERS = "base_filters"
 
+private const val TAG = "Elements"
+
 @Composable
 fun Elements(navController: NavController, viewModel: AttestationViewModel) {
-    val elementResponse = viewModel.elementFlowResponse.collectAsState().value
-    val lastIndex = viewModel.elementFlowResponse.collectAsState().value.data?.lastIndex ?: 0
-    val isRefreshing = viewModel.isRefreshing.collectAsState()
-    val filters = remember { mutableStateOf(TextFieldValue()) }
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val elementResponse = viewModel.elementFlowResponse.collectAsState()
+    val lastIndex = elementResponse.value.data?.lastIndex
     val isLoading = viewModel.isLoading.collectAsState()
-    val basefilters = remember {
+    val isRefreshing = viewModel.isRefreshing.collectAsState()
+
+    val searchField = remember { mutableStateOf(TextFieldValue()) }
+    val baseFilters = remember {
         navController.currentBackStackEntry?.arguments?.getString(ARG_BASE_FILTERS, "")
     }
+    val dataFilter = FilterBuilder.buildWithBaseFilter(
+        baseFilters,
+        MatchType.MATCH_ANY,
+        searchField.value.text,
+        MatchType.MATCH_ALL,
+    )
+
+    DisposableEffect(lifecycleOwner) {
+        viewModel.applyFilters(dataFilter)
+        onDispose {
+            viewModel.applyFilter()
+            viewModel.stopElementFetchLoop()
+        }
+    }
+
+    Log.d(TAG, "Elements: ${elementResponse.value.data?.size}")
 
     // Navigate to single element view, pass clicked id as argument
     fun onElementClicked(itemid: String) {
@@ -59,7 +78,7 @@ fun Elements(navController: NavController, viewModel: AttestationViewModel) {
     }
 
     fun onLoadElements() {
-        if (elementResponse.data?.isNotEmpty() == true) {
+        if (elementResponse.value.data?.isNotEmpty() == true) {
             viewModel.getMoreElements()
         } else viewModel.refreshElements()
     }
@@ -72,18 +91,22 @@ fun Elements(navController: NavController, viewModel: AttestationViewModel) {
             // Header
             item {
                 HeaderRoundedBottom {
-                    SearchBar(filters, stringResource(id = R.string.placeholder_search_elementlist))
+                    SearchBar(
+                        searchField,
+                        stringResource(id = R.string.placeholder_search_elementlist),
+                        onValueChange = {
+                            viewModel.applyFilters(dataFilter)
+                            viewModel.startElementFetchLoop()
+                        },
+                    )
                 }
                 Spacer(modifier = Modifier.size(5.dp))
             }
 
             // List of the elements
-            itemsIndexed(
-                viewModel.filterElements(DataFilter(filters.value.text),
-                    DataFilter(basefilters.toString())),
-            ) { index, element ->
+            itemsIndexed(elementResponse.value.data ?: listOf()) { index, element ->
                 // Get more elements when we are getting close to the end of the list
-                if (index + FETCH_START_BUFFER >= lastIndex) {
+                if (lastIndex != null && index >= lastIndex) {
                     viewModel.getMoreElements()
                 }
 
@@ -94,13 +117,13 @@ fun Elements(navController: NavController, viewModel: AttestationViewModel) {
             }
 
             item {
-                if (elementResponse.status == Status.ERROR && !isLoading.value) {
+                if (elementResponse.value.status == Status.ERROR && !isLoading.value) {
                     FadeInWithDelay(200) {
                         Column(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalAlignment = Alignment.CenterHorizontally,
                         ) {
-                            ErrorIndicator(msg = elementResponse.message.toString())
+                            ErrorIndicator(msg = elementResponse.value.message.toString())
                             IconButton(onClick = { onLoadElements() }) {
                                 Icon(TablerIcons.Refresh, null, tint = Primary)
                             }
@@ -122,8 +145,8 @@ fun Elements(navController: NavController, viewModel: AttestationViewModel) {
                             modifier = Modifier.size(32.dp),
                             color = MaterialTheme.colors.primary,
                         )
-                    } else if (!isRefreshing.value && elementResponse.status != Status.ERROR) {
-                        Text(text = "All elements loaded", color = DarkGrey)
+                    } else if (!isRefreshing.value && elementResponse.value.status != Status.ERROR) {
+                        Text(text = "All elements listed.", color = DarkGrey)
                     }
                 }
             }

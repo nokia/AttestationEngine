@@ -2,6 +2,7 @@ package com.example.mobileattester.data.model
 
 import com.example.mobileattester.data.util.abs.DataFilter
 import com.example.mobileattester.data.util.abs.Filterable
+import com.example.mobileattester.data.util.abs.MatchType
 import com.example.mobileattester.ui.util.Timeframe
 import com.example.mobileattester.ui.util.Timestamp
 import com.google.gson.JsonElement
@@ -32,6 +33,13 @@ data class ElementResult(
     }
 
     override fun filter(f: DataFilter): Boolean {
+        return when (f.matchType) {
+            MatchType.MATCH_ALL -> matchAll(f)
+            MatchType.MATCH_ANY -> matchAny(f)
+        }
+    }
+
+    private fun matchAll(f: DataFilter): Boolean {
         val flags = f.flags ?: listOf()
         val checkTime = flags.contains(FILTER_FLAG_WITHIN_TIMEFRAME)
         val checkResultFail = flags.contains(FILTER_FLAG_WITHIN_TIMEFRAME)
@@ -46,7 +54,7 @@ data class ElementResult(
         else false
     }
 
-    override fun filterAny(f: DataFilter): Boolean {
+    private fun matchAny(f: DataFilter): Boolean {
         val flags = f.flags ?: listOf()
         val checkTime = flags.contains(FILTER_FLAG_WITHIN_TIMEFRAME)
         val checkResultFail = flags.contains(FILTER_FLAG_WITHIN_TIMEFRAME)
@@ -61,11 +69,11 @@ data class ElementResult(
         else false
     }
 
-    fun isFailed(): Boolean {
+    private fun isFailed(): Boolean {
         return this.result != CODE_RESULT_OK
     }
 
-    fun inTimeframe(timeframe: Timeframe): Boolean {
+    private fun inTimeframe(timeframe: Timeframe): Boolean {
         return Timestamp.fromSecondsString(this.verifiedAt)!!
             .isBetween(timeframe.first, timeframe.second)
     }

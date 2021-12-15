@@ -53,7 +53,7 @@ interface AttestationDataService {
      */
 
     @GET("claim/{itemid}")
-    suspend fun getClaim(@Path("itemid") itemid: String): com.example.mobileattester.data.model.Claim
+    suspend fun getClaim(@Path("itemid") itemid: String): Claim
 
     /**
     Results
@@ -90,4 +90,11 @@ interface AttestationDataService {
 
     @GET("rules")
     suspend fun getRules(): List<Rule>
+
+    /**
+    Spec
+     */
+
+    @GET("spec")
+    suspend fun getSpec(): Spec
 }

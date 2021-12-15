@@ -39,6 +39,8 @@ import compose.icons.tablericons.Checkbox
 import compose.icons.tablericons.ChevronRight
 import compose.icons.tablericons.CurrentLocation
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
+import org.osmdroid.views.CustomZoomButtonsController
+import org.osmdroid.views.CustomZoomButtonsDisplay
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
 
@@ -54,7 +56,7 @@ fun Element(navController: NavController, viewModel: AttestationViewModel) {
     }
 
     if (element == null) {
-        Text(text = "Element null.")
+        Text(text = "Element null. id=$clickedElementId")
         return
     }
 
@@ -120,7 +122,7 @@ private fun ElementMap(element: Element, onClick: () -> Unit) {
                     isTilesScaledToDpi = true
                     controller.setZoom(18.0)
                     this.controller.setCenter(loc)
-                    setBuiltInZoomControls(false)
+                    this.zoomController.setVisibility(CustomZoomButtonsController.Visibility.NEVER)
                     setOnTouchListener { v, _ -> true }
                     val marker = Marker(this).apply {
                         icon = AppCompatResources.getDrawable(ctx,
@@ -145,19 +147,6 @@ private fun ElementMap(element: Element, onClick: () -> Unit) {
             .fillMaxSize()) {}
     }
 
-}
-
-@Composable
-private fun ElementNull() {
-    FadeInWithDelay(1000) {
-        Column(modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally) {
-            Text("This element was not found, please ensure that the server contains this element",
-                modifier = Modifier.padding(16.dp))
-            Spacer(modifier = Modifier.height(8.dp))
-        }
-    }
 }
 
 @Composable

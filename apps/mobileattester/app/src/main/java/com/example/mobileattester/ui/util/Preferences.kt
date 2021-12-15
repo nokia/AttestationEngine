@@ -10,10 +10,10 @@ import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import java.util.*
+import com.example.mobileattester.BuildConfig.DEFAULTHOST
+import com.example.mobileattester.BuildConfig.DEFAULTPORT
 
 const val CONFIG = "Config"
-
-val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = CONFIG)
 
 class Preferences(
     private val context: Context,
@@ -24,7 +24,7 @@ class Preferences(
         private val enginesKey = stringSetPreferencesKey("addresses")
         private val currentEnginesKey = stringPreferencesKey("address")
 
-        val defaultConfig = mutableSetOf("0.0.0.0:8520")
+        val defaultConfig = mutableSetOf("$DEFAULTHOST:$DEFAULTPORT")
     }
 
     // Access set of saved configs?
