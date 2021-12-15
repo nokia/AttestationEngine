@@ -83,9 +83,9 @@ fun Scanner(navController: NavController? = null, viewModel: AttestationViewMode
                     this.cameraSettings.isAutoFocusEnabled = true
 
                     this.decodeContinuous { qr ->
-                        println(qr.text)
                         scope.launch {
                             if (viewModel.getElementFromCache(qr.text) != null) {
+                                pause()
                                 this@outer.cameraSettings.isAutoFocusEnabled = false
                                 navController!!.navigate(
                                     Screen.Element.route,
@@ -93,8 +93,8 @@ fun Scanner(navController: NavController? = null, viewModel: AttestationViewMode
                                 )
                             } else if (qr.text.startsWith("http")) {
                                 val parsedId = parseBaseUrl(qr.text, false)
-                                println(parsedId)
                                 if (parsedId != null && viewModel.getElementFromCache(parsedId) != null) {
+                                    pause()
                                     this@outer.cameraSettings.isAutoFocusEnabled = false
                                     navController!!.navigate(
                                         Screen.Element.route,
