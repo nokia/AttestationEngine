@@ -35,12 +35,22 @@ def elements():
 
     for e in es:
         res = a10.asvr.results.getLatestResults(e["itemid"], lrs)
-        resultsummary = []
+        resultsummary = []      
         for r in res:
+            pol = a10.asvr.policies.getPolicy(r['policyID'])
+            pname = ""
+
+            if pol.rc()!=0:
+                pname = "?"
+            else:
+                pname=pol.msg()['name']
+
+
+
             summarystr = {
                 "verifiedAt": formatting.futc(r["verifiedAt"]),
                 "pid": r["policyID"],
-                "pname": a10.asvr.policies.getPolicy(r["policyID"]).msg()["name"],
+                "pname": pname,
                 "res": r["result"],
                 "rul": r["ruleName"],
                 "rid": r["itemid"],
@@ -77,11 +87,20 @@ def element(item_id):
     res = a10.asvr.results.getLatestResults(item_id, lrs)
 
     for r in res:
+        pol = a10.asvr.policies.getPolicy(r['policyID'])
+        pname=""
+
+        if pol.rc()!=0:
+            pname = "?"
+        else:
+            pname=pol.msg()['name']
+
+
         resultsummary.append(
             {
                 "verifiedAt": formatting.futc(r["verifiedAt"]),
                 "pid": r["policyID"],
-                "pname": a10.asvr.policies.getPolicy(r["policyID"]).msg()["name"],
+                "pname": pname,
                 "res": r["result"],
                 "rul": r["ruleName"],
                 "msg": r["message"],
