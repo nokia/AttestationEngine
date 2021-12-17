@@ -8,7 +8,7 @@
 import a10.asvr.protocols.A10DummyProtocol
 import a10.asvr.protocols.A10HttpRest
 import a10.asvr.protocols.A10Keylime
-
+import a10.asvr.protocols.A10tpm2send
 
 import a10.structures.constants
 import a10.structures.returncode
@@ -20,7 +20,7 @@ REGISTER = {
     a10.asvr.protocols.A10DummyProtocol.A10DummyProtocol.NAME: a10.asvr.protocols.A10DummyProtocol.A10DummyProtocol,
     a10.asvr.protocols.A10HttpRest.A10HttpRest.NAME: a10.asvr.protocols.A10HttpRest.A10HttpRest,
     a10.asvr.protocols.A10Keylime.A10Keylime.NAME: a10.asvr.protocols.A10Keylime.A10Keylime,
-
+    a10.asvr.protocols.A10tpm2send.A10tpm2send.NAME: a10.asvr.protocols.A10tpm2send.A10tpm2send,
 }
 
 

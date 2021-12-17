@@ -29,6 +29,7 @@ a10/asvr/protocols/A10DummyProtocol.py
 a10/asvr/protocols/A10HttpRest.py
 a10/asvr/protocols/A10Keylime.py
 a10/asvr/protocols/A10ProtocolBase.py
+a10/asvr/protocols/A10tpm2send.py
 a10/asvr/protocols/__init__.py
 a10/asvr/protocols/protocol_dispatcher.py
 a10/asvr/rules/__init__.py
