@@ -62,7 +62,7 @@ class A10tpm2send(a10.asvr.protocols.A10ProtocolBase.A10ProtocolBase):
         #
         key = self.callparameters["a10_tpm_send_ssl"]["key"]
         username = self.callparameters["a10_tpm_send_ssl"]["username"]
-        ip = urlparse(self.endpoint).netloc
+        ip = urlparse(self.endpoint).hostname   # we need just the IP address, ssh does the rest
 
         tcti = "cmd:ssh "+username+"@"+ip+" -i "+key+" tpm2_send"
         print("CONSTRUCTED TCTI IS ",tcti)
@@ -97,8 +97,8 @@ class A10tpm2send(a10.asvr.protocols.A10ProtocolBase.A10ProtocolBase):
             #    universal_newlines=True)
             out = subprocess.check_output(cmdwtcti, stderr=subprocess.STDOUT, timeout=3) 
         except subprocess.CalledProcessError as exc:
-            #print("Status : FAIL", exc.returncode, exc.out)
-            claim['payload']={"msg":"Command failed to execute","out":exc.out,"process_return_code":exc.retyrbcide}
+            print("Status : FAIL", exc)
+            claim['payload']={"msg":"Command failed to execute","exc":str(exc)}
         else:
             claim['payload']['pcrs']=yaml.load(out, Loader=yaml.BaseLoader)
             #print("Output: \n{}\n".format(out))

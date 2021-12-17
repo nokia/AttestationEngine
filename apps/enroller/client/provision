@@ -51,6 +51,7 @@
 
 echo "\e[32mProvisioning Script: JSON Element Description Generation\e[0m"
 
+echo "TCTI is (if set):" $TPM2TOOLS_TCTI
 #
 #Calculated defaults (note the _C in the name)
 #

@@ -11,11 +11,16 @@ import requests
 import tempfile
 import base64
 import subprocess
+import os
 
 enrollmentserver = sys.argv[1]
 jsonfile = open(sys.argv[2])
 jsondata = json.loads(jsonfile.read())
 jsonfile.close()
+tcti=os.environ['TPM2TOOLS_TCTI']
+
+print("Enroller start")
+print("TPM2TOOLS_TCTI is ",tcti)
 
 ekpub = jsondata["tpm2"]["tpm0"]["ekpem"]
 akname = jsondata["tpm2"]["tpm0"]["akname"]
@@ -26,7 +31,7 @@ initialrequestbody = {"ekpub": ekpub, "akname": akname}
 
 r = requests.post(enrollmentserver + "/enrol/credentialcheck", json=initialrequestbody)
 
-# print("Credential Check ",r, r.text )
+print("Credential Check ",r, r.text )
 
 if r.status_code != 200:
     print("Call to credential check on enrolment server failed ", r.text, r.json())
