@@ -21,7 +21,7 @@ from bson.objectid import ObjectId
 from flask import Flask, request, send_from_directory, jsonify
 from flask.json import JSONEncoder
 
-from flask_swagger import swagger
+#from flask_swagger import swagger
 import a10.asvr.rules.rule_dispatcher
 
 print(sys.path)
@@ -51,14 +51,14 @@ def hello():
 #
 
 
-@a10rest.route("/spec")
-def spec():
-    swag = swagger(a10rest)
-    swag["info"]["version"] = "1.0"
-    swag["info"]["description"] = "The A10 REST API Server"
-    swag["info"]["title"] = "A10REST"
-    swag["title"] = "A10REST"
-    return jsonify(swag)
+#@a10rest.route("/spec")
+#def spec():
+#    swag = swagger(a10rest)
+#    swag["info"]["version"] = "1.0"
+#    swag["info"]["description"] = "The A10 REST API Server"
+#    swag["info"]["title"] = "A10REST"
+#    swag["title"] = "A10REST"
+#    return jsonify(swag)
 
 
 #
