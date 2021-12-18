@@ -4,7 +4,7 @@ Licensed under the BSD 3-Clause Clear License.
 SPDX-License-Identifier: BSD-3-Clear
 -->
 
-    <h3>Call Parameters</h3>
+    <h3>Call Intent Parameters</h3>
         <table class="table .table-striped">
             <tr>
                 <th>Policy Intent</th>
@@ -33,8 +33,40 @@ SPDX-License-Identifier: BSD-3-Clear
                 <td>Yes</td>
                 <td></td>
                 <td>The AK name</td>
-            </tr>                     
+            </tr>
         </table>
+
+    <h3>Call Protocol Parameters</h3>
+        <table class="table .table-striped">
+            <tr>
+                <th>Protocol</th>
+                <th>Call Parameter</th>
+                <th>Compulsory?</th>
+                <th>Default</th>
+                <th>Description</th>
+            </tr>
+            <tr>
+                <td>TPM2TPMSENDSSL</td>
+                <td>a10_tpm_send_ssl.username</td>
+                <td>YES</td>
+                <td></td>
+                <td>The name of the user that is associated with the SSL key</td>
+            </tr>
+            <tr>
+                <td>TPM2TPMSENDSSL</td>
+                <td>a10_tpm_send_ssl.key</td>
+                <td>YES</td>
+                <td></td>
+                <td>Location of the ssl key file to be used by the attestation server</td>
+            </tr>
+            <tr>
+                <td>TPM2TPMSENDSSL</td>
+                <td>a10_tpm_send_ssl.timeout</td>
+                <td>NO</td>
+                <td>20</td>
+                <td>Duration of an ssl connection+tpm2_send processing timeout.</td>
+            </tr>            
+        </table>        
         <hr />
         <h3>Rule Parameters</h3>
             <table class="table .table-striped">
