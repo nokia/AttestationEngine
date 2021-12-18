@@ -23,8 +23,6 @@ class A10tpm2send(a10.asvr.protocols.A10ProtocolBase.A10ProtocolBase):
         super().__init__(endpoint, policyintent, policyparameters, callparameters)
 
     def exec(self):
-
-      
         transientdata = {}
 
         print(
@@ -49,6 +47,13 @@ class A10tpm2send(a10.asvr.protocols.A10ProtocolBase.A10ProtocolBase):
     #
     # Utility functions
     #
+
+    def getTimeout(self):
+        timeout = 20
+        print("Timeout ",self.callparameters.get("a10_tpm_send_ssl"))
+        if  self.callparameters.get("a10_tpm_send_ssl").get("timeout")!=None:
+            timeout = self.callparameters.get("a10_tpm_send_ssl").get("timeout")
+        return int(timeout)
       
     def getTCTI(self):
         #
@@ -79,7 +84,8 @@ class A10tpm2send(a10.asvr.protocols.A10ProtocolBase.A10ProtocolBase):
       
     def tpm2pcrs(self):
         claim = { "header": {
-                "ta_received": str(datetime.datetime.now(datetime.timezone.utc))
+                "ta_received": str(datetime.datetime.now(datetime.timezone.utc)),
+                "ssl_tpm2send_timeout":str(self.getTimeout())
              },
              "payload":{},
              "signature":{}
@@ -89,22 +95,20 @@ class A10tpm2send(a10.asvr.protocols.A10ProtocolBase.A10ProtocolBase):
 
         cmd = 'tpm2_pcrread'
 
+        #TODO: this is a bit odd because the protocol returns always success...fix later
+
         try:
             cmdwtcti = cmd.split()+["-T",self.getTCTI()]
             print("Trying ",cmdwtcti)
-            #out = subprocess.check_output(
-            #    cmdwtcti, stderr=subprocess.STDOUT, shell=True, timeout=3,
-            #    universal_newlines=True)
-            out = subprocess.check_output(cmdwtcti, stderr=subprocess.STDOUT, timeout=3) 
+
+            out = subprocess.check_output(cmdwtcti, stderr=subprocess.STDOUT, timeout=self.getTimeout()) 
         except subprocess.CalledProcessError as exc:
             print("Status : FAIL", exc)
             claim['payload']={"msg":"Command failed to execute","exc":str(exc)}
+        except subprocess.TimeoutExpired as exc:
+            claim['payload']={"msg":"Connection and/or processing timedout after "+str(self.getTimeout())+"seconds"} 
         else:
             claim['payload']['pcrs']=yaml.load(out, Loader=yaml.BaseLoader)
-            #print("Output: \n{}\n".format(out))
-
-
-        #claim['payload']=out
 
         # and return
 
