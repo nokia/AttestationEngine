@@ -161,6 +161,24 @@ def getElements():
     return list(e)
 
 
+def getElementsByType(t):
+    """ Returns an element with the given itemid
+
+    :param str t: The type to filter by
+    :return: the returned object from Monogo less the mongo object ID
+    :rtype: dict or None
+    """
+
+    collection = asdb["elements"]
+    es = list(collection.find({}, {"_id": False, "itemid": True, "type": True}))
+    print("\nES with TYPE is ", type(es), es,"\n")
+    fs = list(filter(
+            lambda x: t in x["type"], es
+        ))
+    print("\nFS ",fs,"\n")
+    return list(fs)
+
+
 def getElementsFull():
     """ Returns an element with the given itemid
 

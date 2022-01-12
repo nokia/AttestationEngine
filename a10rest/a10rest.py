@@ -79,26 +79,19 @@ def getelements():
                     schema: list itemid
     """
     es = [x["itemid"] for x in elements.getElements()]
-    print("ES is ", es)
     return str(es), 200
 
 
 @a10rest.route("/elements/types", methods=["GET"])
 def getTypes():
-    """
-    Gets a list of all types currently in use
-    ---
-    get:
-       responses:
-         - 200:
-            content:
-                application/json:
-                    schema: list str
-    """
     ts = str(types.getTypes())
 
     return ts, 200
 
+@a10rest.route("/elements/type/<elementtype>", methods=["GET"])
+def getElementsByType(elementtype):
+    es = [x["itemid"] for x in elements.getElementsByType(elementtype)]
+    return str(es), 200
 
 #
 # ELEMENT (SINGULAR)
@@ -122,6 +115,17 @@ def getelement(itemid):
                     schema: Element
     """
     elem = elements.getElement(itemid)
+
+    if elem.rc() != constants.SUCCESS:
+        return elem.msg(), 404
+    else:
+        return elem.msg(), 200
+
+
+
+@a10rest.route("/element/name/<elementname>", methods=["GET"])
+def getelementbyname(elementname):
+    elem = elements.getElementByName(elementname)
 
     if elem.rc() != constants.SUCCESS:
         return elem.msg(), 404
@@ -188,6 +192,20 @@ def getpolicy(itemid):
         return e.msg(), 404
     else:
         return e.msg(), 200
+
+
+
+
+@a10rest.route("/policy/name/<policyname>", methods=["GET"])
+def getpolicybyname(policyname):
+   
+    pol = policies.getPolicyByName(policyname)
+
+    if pol.rc() != constants.SUCCESS:
+        return pol.msg(), 404
+    else:
+        return pol.msg(), 200
+
 
 
 @a10rest.route("/policy", methods=["POST"])
