@@ -129,6 +129,31 @@ def getelement(itemid):
         return elem.msg(), 200
 
 
+
+@a10rest.route("/element/name/<elementname>", methods=["GET"])
+def getelementbyname(elementname):
+    """
+    Gets the details of a specific element
+    ---
+    get:
+       parameters:
+         - in: itemid
+           schema: Item ID
+       responses:
+         - 404
+         - 200:
+            content:
+                application/json:
+                    schema: Element
+    """
+    elem = elements.getElementByName(elementname)
+
+    if elem.rc() != constants.SUCCESS:
+        return elem.msg(), 404
+    else:
+        return elem.msg(), 200
+
+
 @a10rest.route("/element", methods=["POST"])
 def addElement():
     content = request.json
@@ -188,6 +213,20 @@ def getpolicy(itemid):
         return e.msg(), 404
     else:
         return e.msg(), 200
+
+
+
+
+@a10rest.route("/policy/name/<policyname>", methods=["GET"])
+def getpolicybyname(policyname):
+   
+    pol = policies.getPolicyByName(policyname)
+
+    if pol.rc() != constants.SUCCESS:
+        return elem.msg(), 404
+    else:
+        return elem.msg(), 200
+
 
 
 @a10rest.route("/policy", methods=["POST"])
