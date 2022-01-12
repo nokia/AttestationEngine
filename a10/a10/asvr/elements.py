@@ -68,6 +68,7 @@ def getElement(i):
         return a10.structures.returncode.ReturnCode(a10.structures.constants.SUCCESS, e)
 
 
+
 def getElementByName(n):
     """Gets a single element from the database by its name.
 
@@ -104,6 +105,18 @@ def getElementsFull():
     es = a10.asvr.db.core.getElementsFull()
     return es
 
+
+def getElementsByType(t):
+    """Gets a list of elements from the database by their itemID filtered by the given type t
+
+    :param str t: the type
+    :return: return code structure
+    :rtype: ResultCode
+    """
+
+    es = a10.asvr.db.core.getElementsByType(t)
+    return es
+  
 
 def updateElement(e):
     """Modifies a given element. The element *must* contain a valid itemid

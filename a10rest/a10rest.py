@@ -79,26 +79,19 @@ def getelements():
                     schema: list itemid
     """
     es = [x["itemid"] for x in elements.getElements()]
-    print("ES is ", es)
     return str(es), 200
 
 
 @a10rest.route("/elements/types", methods=["GET"])
 def getTypes():
-    """
-    Gets a list of all types currently in use
-    ---
-    get:
-       responses:
-         - 200:
-            content:
-                application/json:
-                    schema: list str
-    """
     ts = str(types.getTypes())
 
     return ts, 200
 
+@a10rest.route("/elements/type/<elementtype>", methods=["GET"])
+def getElementsByType(elementtype):
+    es = [x["itemid"] for x in elements.getElementsByType(elementtype)]
+    return str(es), 200
 
 #
 # ELEMENT (SINGULAR)
@@ -132,20 +125,6 @@ def getelement(itemid):
 
 @a10rest.route("/element/name/<elementname>", methods=["GET"])
 def getelementbyname(elementname):
-    """
-    Gets the details of a specific element
-    ---
-    get:
-       parameters:
-         - in: itemid
-           schema: Item ID
-       responses:
-         - 404
-         - 200:
-            content:
-                application/json:
-                    schema: Element
-    """
     elem = elements.getElementByName(elementname)
 
     if elem.rc() != constants.SUCCESS:
