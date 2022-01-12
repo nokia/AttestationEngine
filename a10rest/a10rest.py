@@ -202,9 +202,9 @@ def getpolicybyname(policyname):
     pol = policies.getPolicyByName(policyname)
 
     if pol.rc() != constants.SUCCESS:
-        return elem.msg(), 404
+        return pol.msg(), 404
     else:
-        return elem.msg(), 200
+        return pol.msg(), 200
 
 
 
