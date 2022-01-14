@@ -60,12 +60,22 @@ ocredf = tempfile.NamedTemporaryFile(delete=False)
 # if any of these fail then the whole thing fails...hard!
 # Of course that is hardly ever going to happen in production....hahahahhaha
 
+
+theenv= os.environ
+print("Environment ",theenv)
+
 try:
+    cmd = "tpm2_pcrread"
+    out = subprocess.run(cmd.split(), env=theenv)
+    print("OUT1 ",out)
+
     cmd = "tpm2_startauthsession --policy-session -S " + sfile.name
-    out = subprocess.run(cmd.split())
+    out = subprocess.run(cmd.split(), env=theenv)
+    print("OUT2 ",out)
 
     cmd = "tpm2_policysecret -S " + sfile.name + " -c e"
-    out = subprocess.run(cmd.split())
+    out = subprocess.run(cmd.split(), env=theenv)
+    print("OUT3 ",out)
 
     cmd = (
         "tpm2_activatecredential -c "
@@ -79,10 +89,13 @@ try:
         + " -P session:"
         + sfile.name
     )
-    out = subprocess.run(cmd.split())
+    out = subprocess.run(cmd.split(), env=theenv)
+    print("OUT4 ",out)
 
     cmd = "tpm2_flushcontext " + sfile.name
-    out = subprocess.run(cmd.split())
+    out = subprocess.run(cmd.split(), env=theenv)
+    print("OUT5 ",out)
+
 except:
     print("Failed to run a tpm command ", out)
     sys.exit(1)
