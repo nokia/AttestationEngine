@@ -4,7 +4,7 @@ This is the source for the Nokia Attestation Engine A10.
 
 This software is used as the remote attestation engine as part of a trusted computing environment. THis is the system that holds the known good values about devices and other elements, and provides the attestation and validation mechanisms.
 
-The sofware here is provided as-in - there is no security (http for the win!) and the error checking in places is completely missing. The point of this was to explore more interesting mechanisms for remote attestation and to implement ideas from the IEFT RATS specification.
+The sofware here is provided as-is - there is no security (http for the win!) and the error checking in places is completely missing. The point of this was to explore more interesting mechanisms for remote attestation and to implement ideas from the IEFT RATS specification.
 
 The engine itself in a future production environment would be effectively hidden by higher-level components providing integrations to other managemenet components etc.
 
@@ -65,14 +65,26 @@ cd a10rest
 python3 a10rest.py
 ```
 
+### Trust Agents
+
+We have three possible trust agent options at the moment:
+
+   * Our reference TA, called nut10    ( It was supposed to be "nu" as in "new" but cooler, t10...yeah, I noticed that afterwards)
+   * A protocol mechanism for Keyline 
+   * Connection over SSH using the TPM2_TSS TCTI to tpm2_send on a remote device
+
+
 A trust agent needs to be run on all machines that you wish to attest. The trust agent is typically self-contained and does not require installation of the A10 libraries or any other component. See specific TA's and the protocols they support.
 
-The reference TA is run:
+The reference nut10 TA is run:
 
 ```bash
-cd t10/py
+cd t10/nut10
 python3 ta.py
 ```
+
+
+To talk to the Keylime or TPM2_Send then the client devices need to run either the Keylime trust agent or the tpm2_send  from tpm2_tools and and ssh server with the keys setup for passwordless log-in.
 
 ### Database Contents
 
