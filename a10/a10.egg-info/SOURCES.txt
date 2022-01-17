@@ -47,3 +47,5 @@ a10/structures/identity.py
 a10/structures/result.py
 a10/structures/returncode.py
 a10/structures/timestamps.py
+a10/utilities/__init__.py
+a10/utilities/tpmoperations.py

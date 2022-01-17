@@ -76,7 +76,7 @@ class A10HttpRest(a10.asvr.protocols.A10ProtocolBase.A10ProtocolBase):
                 url=elementURL,
                 json=jsondata,
                 headers={"Content-type": "application/json", "Accept": "text/plain"},
-                timeout=20,
+                timeout=30,
             )
         except requests.exceptions.ConnectionError as e:
             return a10.structures.returncode.ReturnCode(
