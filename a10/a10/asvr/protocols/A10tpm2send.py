@@ -37,9 +37,11 @@ class A10tpm2send(a10.asvr.protocols.A10ProtocolBase.A10ProtocolBase):
         
         if self.policyintent=="tpm2/pcrs":
             rc = self.tpm2pcrs()
+        elif self.policyintent=="tpm2/quote":
+            rc = self.tpm2quote()
         else:
             rc = a10.structures.returncode.ReturnCode(
-                a10.structures.constants.PROTOCOLFAIL, ({"msg":"unsupported intent -> "+self.policyintent},transientdata)
+                a10.structures.constants.UNSUPPORTEDPROTOCOLINTENT, ({"msg":"unsupported intent -> "+self.policyintent},transientdata)
             )
        
         return rc
@@ -82,6 +84,54 @@ class A10tpm2send(a10.asvr.protocols.A10ProtocolBase.A10ProtocolBase):
     # Each will return a ReturnCode complete with a Claim structure, if successful
     #  
       
+
+    def tpm2quote(self):
+        claim = { "header": {
+                "ta_received": str(datetime.datetime.now(datetime.timezone.utc)),
+                "ssl_tpm2send_timeout":str(self.getTimeout())
+             },
+             "payload":{},
+             "signature":{}
+           }       
+
+        print("\nquote policy parameters ",self.policyparameters)
+
+        #resolve ak
+        ak_to_use = "0x810100AA"
+
+        cmd = "tpm2_quote -c "+ak_to_use+" -l "+self.policyparameters["pcrselection"]
+
+        #TODO: this is a bit odd because the protocol returns always success...fix later
+
+        #TODO: tpm2_quote returns a raw structure as YAML, this needs to be processed into a fuller description
+        # that tpm2_print returns
+        #Maybe use pytss?
+
+        try:
+            cmdwtcti = cmd.split()+["-T",self.getTCTI()]
+            print("Trying ",cmdwtcti)
+
+            out = subprocess.check_output(cmdwtcti, stderr=subprocess.STDOUT, timeout=self.getTimeout()) 
+            print("OUT=",out)
+        except subprocess.CalledProcessError as exc:
+            print("Status : FAIL", exc)
+            claim['payload']={"msg":"Command failed to execute","exc":str(exc)}
+        except subprocess.TimeoutExpired as exc:
+            claim['payload']={"msg":"Connection and/or processing timedout after "+str(self.getTimeout())+"seconds"} 
+        else:
+            claim['payload']['quote']=yaml.load(out, Loader=yaml.BaseLoader)
+
+        # and return
+
+        claim["header"]["ta_complete"] = str(datetime.datetime.now(datetime.timezone.utc))
+
+        return a10.structures.returncode.ReturnCode(
+                a10.structures.constants.PROTOCOLSUCCESS, (claim,{})
+            )    
+
+
+
+
     def tpm2pcrs(self):
         claim = { "header": {
                 "ta_received": str(datetime.datetime.now(datetime.timezone.utc)),
