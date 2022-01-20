@@ -4,6 +4,7 @@ Description=Nokia Trust Agent Service
 #edit as required for the given machine
 #tpm2tools + abrmd machines require the following
 #tpm2tools *without* abrmd machines require both lines to be commented out
+
 Wants=tpm2-abrmd.service
 After=tpm2-abrmd.service
 

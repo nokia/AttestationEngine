@@ -8,7 +8,7 @@ from endpoints.tpm2_endpoint import tpm2_endpoint
 from endpoints.uefi_endpoint import uefi_endpoint
 from endpoints.ima_endpoint import ima_endpoint
 from endpoints.inteltxt_endpoint import inteltxt_endpoint
-from endpoints.sysinfo import sysinfo_endpoint
+from endpoints.sysinfo_endpoint import sysinfo_endpoint
 
 
 import requests
@@ -17,7 +17,7 @@ import sys
 import os
 import signal
 
-VERSION = "0.3.1.nu"
+VERSION = "0.3.2.nu"
 ASVRS = []
 ASVRS_RESP = []
 

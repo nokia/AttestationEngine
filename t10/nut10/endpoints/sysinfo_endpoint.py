@@ -21,7 +21,13 @@ def returnSYSINFO():
     
     si = { "os": os.name,
               "system": platform.system(),
-              "release": platfor.release()
+              "release": platform.release(),
+              "version": platform.version(),
+              "machine": platform.machine(),
+              "processor": platform.processor(),
+              "uname": platform.uname(),
+              "node": platform.node()
+
     }
 
     c.addPayloadItem("systeminfo", si )
