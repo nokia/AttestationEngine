@@ -13,10 +13,18 @@ Claim: <a href=/claim/{{ cla.itemid }}>{{ cla.itemid }}</a>
 <div>
    
     
-    <h5>Quote</h5>
-    {{ cla }}
+   {{cla.payload.payload.systeminfo}}
     
-  
+ <table class="table table-striped .table-sm">
+        <tbody>
+    {% for i in  cla.payload.payload.systeminfo %}
+      <tr><td>  {{ i }}</td><td> {{ i }}</td></tr>
+    {% endfor %}
+ 
+                            </hr>
+
+     </tbody>
+     </table>  
             
    
 {% endblock %}
