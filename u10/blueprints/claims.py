@@ -97,6 +97,18 @@ def claimprettyprintQuote(item_id):
        return render_template("claimprettyprint/incorrecttype.html", cla=c, msg="Claim does not appear to be a UEFI Eventlog")        
     else:
        return render_template("claimprettyprint/quote.html", cla=c)  
+
+
+@claims_blueprint.route("/claim/prettyprint/sysinfo/<item_id>", methods=["GET"])
+def claimprettyprintSysinfo(item_id):
+    c = a10.asvr.claims.getClaim(item_id).msg()
+
+        
+    if c.get("payload").get("systeminfo")==None:
+       return render_template("claimprettyprint/incorrecttype.html", cla=c, msg="Claim does not appear to be a UEFI Eventlog")        
+    else:
+       return render_template("claimprettyprint/sysinfo.html", cla=c)  
+
     
      
 @claims_blueprint.route("/claim/prettyprint/uefieventlog/<item_id>", methods=["GET"])

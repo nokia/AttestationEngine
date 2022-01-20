@@ -3,7 +3,6 @@
 #Licensed under the BSD 3-Clause Clear License.
 #SPDX-License-Identifier: BSD-3-Clear
 
-
 import sys
 import yaml
 import json
@@ -13,7 +12,7 @@ import base64
 import subprocess
 import os
 
-print("Enroller start")
+print("Enroller ***********************************************")
 
 enrollmentserver = sys.argv[1]
 jsonfile = open(sys.argv[2])
@@ -127,3 +126,5 @@ if r.status_code != 201:
     sys.exit(1)
 else:
     print("Element with id ", r.text, " created")
+
+print("End of enrollment ****************************************")

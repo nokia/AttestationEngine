@@ -139,7 +139,7 @@
 
 {
 
-    "description": "Obtains system information (uname -a on Linux, systeminfo on Windows)",
+    "description": "Obtains system information, eg: platform, O/S etc",
     "intent": "sys/info",
     "name": "SystemInfo",
     "parameters": {}

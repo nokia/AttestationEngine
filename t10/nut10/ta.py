@@ -17,7 +17,7 @@ import sys
 import os
 import signal
 
-VERSION = "0.3.1.nu"
+VERSION = "0.3.2.nu"
 ASVRS = []
 ASVRS_RESP = []
 
