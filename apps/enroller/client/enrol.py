@@ -13,14 +13,20 @@ import base64
 import subprocess
 import os
 
+print("Enroller start")
+
 enrollmentserver = sys.argv[1]
 jsonfile = open(sys.argv[2])
 jsondata = json.loads(jsonfile.read())
 jsonfile.close()
-tcti=os.environ['TPM2TOOLS_TCTI']
 
-print("Enroller start")
-print("TPM2TOOLS_TCTI is ",tcti)
+tcti=""
+try:
+    tcti=os.environ['TPM2TOOLS_TCTI']
+    print("TPM2TOOLS_TCTI is ",tcti)
+except:
+    print("No TPM2TOOLS_TCTI environment variable set. Using default, probably via abrmd or /dev/tpm0")
+
 
 ekpub = jsondata["tpm2"]["tpm0"]["ekpem"]
 akname = jsondata["tpm2"]["tpm0"]["akname"]

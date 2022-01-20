@@ -7,5 +7,4 @@ with tpm2_pytss.ESAPI("mssim:host=localhost,port=2321") as t:
 	pcrs = tpm2_pytss.TPML_PCR_SELECTION.parse("sha1:0,1,2")
 	s = t.pcr_read(pcrs)
 
-	print("Returned PCR structure is ",str(s[1]))
-	print(inspect.getmembers(s[1]))
+	print(s)	

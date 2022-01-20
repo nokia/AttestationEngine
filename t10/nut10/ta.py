@@ -8,6 +8,7 @@ from endpoints.tpm2_endpoint import tpm2_endpoint
 from endpoints.uefi_endpoint import uefi_endpoint
 from endpoints.ima_endpoint import ima_endpoint
 from endpoints.inteltxt_endpoint import inteltxt_endpoint
+from endpoints.sysinfo import sysinfo_endpoint
 
 
 import requests
@@ -31,7 +32,7 @@ ta.register_blueprint(tpm2_endpoint, url_prefix="/tpm2")
 ta.register_blueprint(uefi_endpoint, url_prefix="/uefi")
 ta.register_blueprint(ima_endpoint, url_prefix="/ima")
 ta.register_blueprint(inteltxt_endpoint, url_prefix="/txt")
-
+ta.register_blueprint(sysinfo_endpoint, url_prefix="/sys")
 
 
 def listroutes():
