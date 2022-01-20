@@ -8,7 +8,7 @@ from endpoints.tpm2_endpoint import tpm2_endpoint
 from endpoints.uefi_endpoint import uefi_endpoint
 from endpoints.ima_endpoint import ima_endpoint
 from endpoints.inteltxt_endpoint import inteltxt_endpoint
-from endpoints.sysinfo import sysinfo_endpoint
+from endpoints.sysinfo_endpoint import sysinfo_endpoint
 
 
 import requests
