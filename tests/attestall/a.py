@@ -21,11 +21,14 @@ for e in es:
 	j["pid"]=pl["itemid"]
 	  
 	cl = requests.post(asvr+"/attest", json=j).text
-
+	print("Claim id ",vr)
 
 	k = { "cid":cl,
-		  "rule":( "nullrules/AlwaysNoResult", {} ) }
-
+		  "rule":( "tpm2rules/PCRsAllUnassigned", {"bank":"sha1"} ) }
 	vr = requests.post(asvr+"/verify", json=k).text
+	print("Result id ",vr)
 
-	print(vr)
+	k = { "cid":cl,
+		  "rule":( "tpm2rules/PCRsAllUnassigned", {"bank":"sha256"} ) }
+	vr = requests.post(asvr+"/verify", json=k).text
+	print("Result id ",vr)

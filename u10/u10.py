@@ -45,6 +45,9 @@ u10.register_blueprint(qrcodes_blueprint)
 # This function is unused but I'll leave it here for documentation and future purposes
 # You can call this function from a template, eg: {{ resolveTheHash }} - use the name in the returned dict
 # Historical fact: I had a use for this function, but didn't need it nor find a convenience place in the end :-)
+#    but, leaving it here means it is documented for when I find a use for it in the future
+#    such as resolving hashes and other identifiers, see the "hashes" table
+#
 # @u10.context_processor
 # def resolveHash():
 #    print("Calling context processor")

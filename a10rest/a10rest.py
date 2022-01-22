@@ -28,6 +28,9 @@ print(sys.path)
 
 a10rest = Flask(__name__)
 
+#
+# This was added for the mobile app...not sure what it does
+#
 
 class A10JSONEncoder(JSONEncoder):
     def default(self,obj):
@@ -44,21 +47,6 @@ a10rest.json_encoder = A10JSONEncoder
 @a10rest.route("/")
 def hello():
     return "Hello from A10REST"
-
-
-#
-# Swagger - documentation for OpenAPI
-#
-
-
-#@a10rest.route("/spec")
-#def spec():
-#    swag = swagger(a10rest)
-#    swag["info"]["version"] = "1.0"
-#    swag["info"]["description"] = "The A10 REST API Server"
-#    swag["info"]["title"] = "A10REST"
-#    swag["title"] = "A10REST"
-#    return jsonify(swag)
 
 
 #
@@ -85,7 +73,6 @@ def getelements():
 @a10rest.route("/elements/types", methods=["GET"])
 def getTypes():
     ts = str(types.getTypes())
-
     return ts, 200
 
 @a10rest.route("/elements/type/<elementtype>", methods=["GET"])
@@ -463,23 +450,28 @@ def receiveMessage():
 #
 
 
-def main(cert, key, config_filename="a10rest.conf"):
-    a10rest.config.from_pyfile(config_filename)
-    if cert and key:
-        a10rest.run(
-            debug=a10rest.config["FLASKDEBUG"],
-            threaded=a10rest.config["FLASKTHREADED"],
-            host=a10rest.config["DEFAULTHOST"],
-            port=a10rest.config["DEFAULTPORT"],
-            ssl_context=(cert, key),
-        )
-    else:
-        a10rest.run(
-            debug=a10rest.config["FLASKDEBUG"],
-            threaded=a10rest.config["FLASKTHREADED"],
-            host=a10rest.config["DEFAULTHOST"],
-            port=a10rest.config["DEFAULTPORT"],
-        )
+# def main(cert, key, config_filename="a10rest.conf"):
+#     a10rest.config.from_pyfile(config_filename)
+#     if cert and key:
+#         a10rest.run(
+#             debug=a10rest.config["FLASKDEBUG"],
+#             threaded=a10rest.config["FLASKTHREADED"],
+#             host=a10rest.config["DEFAULTHOST"],
+#             port=a10rest.config["DEFAULTPORT"],
+#             ssl_context=(cert, key),
+#         )
+#     else:
+#         a10rest.run(
+#             debug=a10rest.config["FLASKDEBUG"],
+#             threaded=a10rest.config["FLASKTHREADED"],
+#             host=a10rest.config["DEFAULTHOST"],
+#             port=a10rest.config["DEFAULTPORT"],
+#         )
+
+#Use this in production
+def main(cert, key):
+   from waitress import serve
+   serve(a10rest, host="0.0.0.0", port=8520, threads=16)
 
 
 if __name__ == "__main__":

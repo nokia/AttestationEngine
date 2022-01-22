@@ -45,12 +45,12 @@ Or, why <em>A10</em>?  There have been various iterations, these are listed belo
     </tr><tr>
     <td>A7</td><td>First properly working attestation server in a very traditional manner (cf: OpenAttestation etc). Written in a mix of python2 and python3. Backend utilised mongodb and assumed the TA talked directly to the tpm2_tools on the client. UI written using python flask. Integrated with OpenStack via a client which was a MITM/hack/kludge to access OpenStack's message bus. This version was demonstrated at ETSI SecurityWeek in 2018 and 2019. Contained quite a lot of technical debt which made integration hard in some cases.</td>
     </tr><tr>
-    <td>A8.1</td><td>Was an aborted attempt to write everything in Erlang.</td>    </tr><tr>
-        <td>A8.2</td><td>Was an aborted attempt to do the same in Python with threads, proceses, MQTT etc.</td>
+    <td>A8.1</td><td>Was an attempt to write everything in Erlang.</td>    </tr><tr>
+        <td>A8.2</td><td>Was an attempt to do the same in Python with threads, proceses, MQTT etc.</td>
     </tr><tr>
-      <td>A9</td><td>Was a experiment to use the ELKS analytics stack and the ELKS UI. Was demonstrated in January 2020 for the first time.</td>
+      <td>A9</td><td>Was a experiment to use the ELKS analytics stack and the ELKS UI. Was demonstrated in January 2020 for the first time and actively developed for about 6 months until we needed to support new features. Much of this work reappears as plugins and data integration (as attesation apps in A10) into ELKS and ELKS-based tools such as Nokia's NetGuard.</td>
     </tr><tr>
-      <td>A10</td><td><i>Today!</i> Much more compliant with IEFT RATS in its data structures. Has a proper protocol backend which takes care of layer 7 and layer 6 of the attestation protocols so we can theoretically support any RoT/auditing system, eg: HSM, UEFI, TPM2.0, TPM1.2 etc. Libraries are much better written with a much more consistent API. UI and interfaces are separate components built on top of libraries. The whole thing is designed to integrate with MQTT, logstash, ELKS, whatever AI/ML analytics and the forensics system that is currently under development. Lots of cool features. Supports the notion of <em>attestation applications</em> for extensibility making integration with other systems such as Edge/NFV MANO very quick and easy.</td>  </tr>
+      <td>A10</td><td><i>Today!</i> Much more compliant with IEFT RATS in its data structures. Has a proper protocol backend which takes care of layer 7 and layer 6 of the attestation protocols so we can theoretically support any RoT/auditing system, eg: HSM, UEFI, TPM2.0, TPM1.2 etc, we can even integrate with other attestation engines' trust agents such as KeyLime, OpenAttestation, Go-Attestation etc. Libraries are much better written with a much more consistent API. UI and interfaces are separate components built on top of libraries. The whole thing is designed to integrate with MQTT, logstash, ELKS, whatever AI/ML analytics and the forensics system that is currently under development. Lots of cool features. Supports the notion of <em>attestation applications</em> for extensibility making integration with other systems such as Edge/NFV MANO very quick and easy.</td>  </tr>
    </tbody>
 </table>
 </p>
