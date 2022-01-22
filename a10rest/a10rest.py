@@ -471,7 +471,7 @@ def receiveMessage():
 #Use this in production
 def main(cert, key):
    from waitress import serve
-   serve(a10rest, host="0.0.0.0", port=8520)
+   serve(a10rest, host="0.0.0.0", port=8520, threads=16)
 
 
 if __name__ == "__main__":
