@@ -6,13 +6,13 @@
    "endpoint": "http://192.168.1.82:8530",
    "hostname": "ubuntu",
    "location": "60.22309,24.75877",
-   "name": "zzzzzzzzzzz",
+   "name": "smallpox_new",
    "protocol": "A10HTTPREST",
    "tpm2": {
       "tpm0": {
          "akhandle": "0x810100aa",
-         "akname": "000b71814fb7635e092f6a17b027d2ff6656afe0be7b0193bef0502a23accdd3025d",
-         "akpem": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA7+LrRLi++HeAYHwSeKhf\nlLwbcibMMKoWq6+Z8POHLXUqLpnc+kMiutjyc46zKq4APinRGAebPSQk86ek8Tu9\n0edreEfJzgpl1pHIoerV+f/HledFbYEws10fshJe4HASXOkvs1lBSgqoJs9D/kA+\njC2+UmQLHUCTwZ+b8FgvYoEOfdTK47eQFWr/g2r289Hv7UTUF9SqmxJKyq8Op08/\nuctdynXg/0cyd+hzwmBfOAzmoquMN0yuonjwk4h0z5txiog9QfnigRj70NL3m58w\nGfAfC0Z02xOIQI+IrMgmU1kA7xo4cFlaBsz0Zb8VesJl9ACIq/3IScaIo/RaNHXo\niQIDAQAB\n-----END PUBLIC KEY-----\n",
+         "akname": "000beb146529c4a2df296107fc9eee31f61f0ef4c9cd0c6fb933b2e2fe6154599282",
+         "akpem": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAq8C0nzge8h/Q4JgU1MU/\noQ+uvd96LuKqqEO8fcqriKPCD/tY7X4fRfjXMZvkW5W7eeci6Eea/EmLMTvbK15D\nNzHarYZ8oBX6QTt6xA99O+TiywSTYxL/8nWR2ljOOHYkbquZOq6RelsL3iFioXDO\n6T/hZMJdGX2HAjlUN1RpWD/eOcbKjLHBlBtzWnFFQj9Dc8He0KBzZoSsOisXtkwJ\nPxelO71RWl50hLxxFSAzd2WPJ38wj0AWTkm9KGxvyr53+pldiqor/2nn0oIcecmV\nNmCeKxOdEmPJJvB9g9WytmqD1smSdWkSrm/mGCtbvy3LdJXH6z2nBSl5in8LTo3W\nUQIDAQAB\n-----END PUBLIC KEY-----\n",
          "ekhandle": "0x810100ee",
          "ekname": "000b4f279620694b1f1ae0810723d34269d83b25bbb709af24f2044baa94ee738208",
          "ekpem": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA3KmMswd6f/6pNu0VydtJ\n6r7Qk2TricuPhxLnV0cR58iImgGH365MMVLqiw/7vYQgHUMO5pDmg67fdxxVZcRU\ncU18UYeremN33UmhAkqoJuouNkNzpkOC4aGn8UgnXbBa7HaE0Hxv427TDsKrS5QY\nHVnFdPBRQZMA/+/Bm2ILZmAs4jpymztjAXKy/Al+5elC2IVS8gpj2stlY9ZEIhqA\nW3ywsuqc9ignhjibxDQ5O2/Xfw+MYqPXwyCdkCUcNSrMgKmlaROO54LxAolnFF8M\nFcqcw74+CfSK1C8Po+ECVgQxp3G9k/m/Z48dNAJrANktcrzTfw8nMrVhDEflMnGW\nAwIDAQAB\n-----END PUBLIC KEY-----\n"

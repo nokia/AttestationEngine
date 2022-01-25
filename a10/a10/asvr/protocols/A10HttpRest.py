@@ -23,6 +23,7 @@ class A10HttpRest(a10.asvr.protocols.A10ProtocolBase.A10ProtocolBase):
         super().__init__(endpoint, policyintent, policyparameters, callparameters)
 
     def exec(self):
+        print("1¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤")
 
         # see the makecredential example for how to use this.
         # basically to store data that shouldn't be transmitted to the element
@@ -53,7 +54,7 @@ class A10HttpRest(a10.asvr.protocols.A10ProtocolBase.A10ProtocolBase):
             c = self.makecredential()
             if c==None:
                 return a10.structures.returncode.ReturnCode(
-                    a10.structures.constants.PROTOCOLEXECUTIONFAILURE, "Makecredential failed"
+                    a10.structures.constants.PROTOCOLEXECUTIONFAILURE, {"msg": "Makecredential failed","transientdata":transientdata}
                 )
             cred,secret = self.makecredential()
             self.callparameters["credential"] = cred
@@ -81,7 +82,7 @@ class A10HttpRest(a10.asvr.protocols.A10ProtocolBase.A10ProtocolBase):
         except requests.exceptions.ConnectionError as e:
             return a10.structures.returncode.ReturnCode(
                 a10.structures.constants.PROTOCOLNETWORKFAILURE,
-                {"message": "Network failure " + str(e)},
+                {"msg": "Network failure " + str(e),"transientdata":transientdata},
             )
 
         # This is already in JSON so ok
@@ -91,17 +92,17 @@ class A10HttpRest(a10.asvr.protocols.A10ProtocolBase.A10ProtocolBase):
         #  so we need to convert (load) it into a python dictionary if things went well
 
         j = json.loads(r.text)
-
+        print("2¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤")
         #
         # Note we return a tuple of the data back from the element and the transient data
         #
         if r.status_code == 200:
             return a10.structures.returncode.ReturnCode(
-                a10.structures.constants.PROTOCOLSUCCESS, (json.loads(r.text),transientdata)
+                a10.structures.constants.PROTOCOLSUCCESS, {"claim":json.loads(r.text),"transientdata":transientdata}
             )
         else:
             return a10.structures.returncode.ReturnCode(
-                a10.structures.constants.PROTOCOLEXECUTIONFAILURE, (json.loads(r.text),transientdata)
+                a10.structures.constants.PROTOCOLEXECUTIONFAILURE, {"msg":json.loads(r.text),"transientdata":transientdata}
             )
 
     def makecredential(self):
