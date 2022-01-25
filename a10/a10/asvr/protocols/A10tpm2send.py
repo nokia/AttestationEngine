@@ -25,13 +25,13 @@ class A10tpm2send(a10.asvr.protocols.A10ProtocolBase.A10ProtocolBase):
     def exec(self):
         transientdata = {}
 
-        print(
-            "Calling protocol A10TPMSENDSSL ",
-            self.endpoint,
-            self.policyintent,
-            self.policyparameters,
-            self.callparameters,
-        )
+        #print(
+        #    "Calling protocol A10TPMSENDSSL ",
+        #    "endpoint ",self.endpoint,"\n",
+        #    "intent ",self.policyintent,"\n",
+        #    "polparams ",self.policyparameters,"\n",
+        #    "cpsparams ",self.callparameters,"\n"
+        #)
         
         rc = None
         
@@ -40,9 +40,11 @@ class A10tpm2send(a10.asvr.protocols.A10ProtocolBase.A10ProtocolBase):
         elif self.policyintent=="tpm2/quote":
             rc = self.tpm2quote()
         else:
+            print(" Intent not understood")
             rc = a10.structures.returncode.ReturnCode(
-                a10.structures.constants.UNSUPPORTEDPROTOCOLINTENT, ({"msg":"unsupported intent -> "+self.policyintent},transientdata)
+                a10.structures.constants.UNSUPPORTEDPROTOCOLINTENT, {"msg":"unsupported intent -> "+self.policyintent,"transientdata":transientdata}
             )
+            print(" rc object ",rc)
        
         return rc
       
@@ -126,7 +128,7 @@ class A10tpm2send(a10.asvr.protocols.A10ProtocolBase.A10ProtocolBase):
         claim["header"]["ta_complete"] = str(datetime.datetime.now(datetime.timezone.utc))
 
         return a10.structures.returncode.ReturnCode(
-                a10.structures.constants.PROTOCOLSUCCESS, (claim,{})
+                a10.structures.constants.PROTOCOLSUCCESS, {"claim":claim,"transientdata":{}}
             )    
 
 
@@ -165,5 +167,5 @@ class A10tpm2send(a10.asvr.protocols.A10ProtocolBase.A10ProtocolBase):
         claim["header"]["ta_complete"] = str(datetime.datetime.now(datetime.timezone.utc))
 
         return a10.structures.returncode.ReturnCode(
-                a10.structures.constants.PROTOCOLSUCCESS, (claim,{})
+                a10.structures.constants.PROTOCOLSUCCESS, {"claim":claim,"transientdata":{}}
             )    

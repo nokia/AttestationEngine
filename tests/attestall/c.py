@@ -3,12 +3,12 @@ import ast
 
 asvr = "http://192.168.1.82:8520"
 
-es = ast.literal_eval(requests.get(asvr+"/elements/type/pi").text)
+es = ast.literal_eval(requests.get(asvr+"/elements/type/pi2").text)
 
 for e in es:
     el = ast.literal_eval(requests.get(asvr+"/element/"+e).text)
     pl = ast.literal_eval(requests.get(asvr+"/policy/name/Check Credentials").text)
-    print("Attesting ",el["name"],el["protocol"]," with ",pl["name"])
+    print("\n\nAttesting ",el["name"],el["protocol"]," with ",pl["name"])
 
     j={ "eid":"", "pid":"", "cps":{} }
 
@@ -35,13 +35,16 @@ for e in es:
 
 
     cl = requests.post(asvr+"/attest", json=j)
-    print("   Attest response is ",cl.status_code)
+    cid = cl.text
+
 
     if cl.status_code == 201:
-        k = { "cid":cl.text,
-          "rule":( "tpm2rules/TPM2CredentialVerify", {} ) }
+        k = { "cid":cid,"rule":( "tpm2rules/TPM2CredentialVerify", {} ) }
+
+        print("   k=",k)
+
         vr = requests.post(asvr+"/verify", json=k).text
         print("   Verify result is ",vr)
     else:
-        print("   Failed to get a claim")
+        print("   Failed to get a claim because ",cl.text)
         

@@ -374,23 +374,27 @@ def getresultslatestlimit(itemid):
 @a10rest.route("/attest", methods=["POST"])
 def attest():
     content = request.json
-    print("content", content)
+    print("\n\n****\n")
     eid = content["eid"]
     pid = content["pid"]
     cps = content["cps"]
 
     e = attestation.attest(eid, pid, cps)
+    
+    print("\nreturn from attest ",e,e.rc(),e.msg())
 
     if e.rc() != constants.SUCCESS:
+        print(" returning 400")
         return e.msg(), 400
     else:
+        print(" returning 201")
         return e.msg(), 201
 
 
 @a10rest.route("/verify", methods=["POST"])
 def verify():
     content = request.json
-    print("content", content)
+    #print("content", content)
     cid = content["cid"]
     rul = content["rule"]
 

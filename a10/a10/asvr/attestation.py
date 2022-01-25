@@ -43,8 +43,7 @@ def attest(e, p, aps):
     # 4. get the result and add it to the claims
     #       -- generate a claim ID (aid is the standard term we are using for all objects) and push it into the database and return the claim ID
     if result.rc() == a10.structures.constants.PROTOCOLSUCCESS:
-        addClaimResult = claims.addClaim(result.msg())
-        return addClaimResult
+        return claims.addClaim(result.msg())
     else:
         return result
 
@@ -95,6 +94,7 @@ def resolvePolicyIntent(element, policy, additionalparameters):
         return handler_return  # this is a return structure anyway :)
 
     protocol_handler = handler_return.msg()  # this is the actual class instance
+
     handler_instance = protocol_handler(
         endpoint, policyintent, policyparameters, additionalparameters
     )
@@ -104,17 +104,20 @@ def resolvePolicyIntent(element, policy, additionalparameters):
     #
 
     exec_result = handler_instance.exec()
-    print("EXEC RESULT IS ",exec_result)
+    print("EXEC RESULT IS ",exec_result.rc(),exec_result.msg())
 
     if exec_result.rc() != a10.structures.constants.PROTOCOLSUCCESS:
+        print("Returning attestation protocol error")
         return exec_result  # this is a ResultCode already
 
     # Into this variable is where we write the finalised JSON result
     # Remeber this is a 2-tuple
     # actually it is a python dict and we convert afterwards
 
-    resultStructure = exec_result.msg()[0]
-    returnedtransientdata = exec_result.msg()[1]
+
+
+    resultStructure = exec_result.msg()["claim"]
+    returnedtransientdata = exec_result.msg()["transientdata"]
 
     receivedTime = a10.structures.timestamps.now()
     theClaim = a10.structures.claim.Claim(
@@ -129,8 +132,10 @@ def resolvePolicyIntent(element, policy, additionalparameters):
 
     # If we get here then everything has gone well - we got something. If the network failed then we still get a claim
     if exec_result.rc() != a10.structures.constants.PROTOCOLSUCCESS:
+        print("wasn't a protocol success because rc is",exec_result.rc())
         return exec_result  # this is a ResultCode already
     else:
+        print("is a success! Claim object is ",theClaim.asDict())
         return a10.structures.returncode.ReturnCode(
             a10.structures.constants.PROTOCOLSUCCESS, theClaim.asDict()
         )
