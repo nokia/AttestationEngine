@@ -6,7 +6,7 @@ asvr = "http://192.168.1.82:8520/v2"
 
 # Get the list of all elements and display the results
 r = requests.get(asvr+"/elements")
-print("Returns ",r)
+print("ES returns ",r)
 print("   status code ",r.status_code)
 print("   JSON        ",r.json())
 
