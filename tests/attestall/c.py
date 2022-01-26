@@ -3,7 +3,7 @@ import ast
 
 asvr = "http://192.168.1.82:8520"
 
-es = ast.literal_eval(requests.get(asvr+"/elements/type/pi2").text)
+es = ast.literal_eval(requests.get(asvr+"/elements/type/tpm2").text)
 
 for e in es:
     el = ast.literal_eval(requests.get(asvr+"/element/"+e).text)

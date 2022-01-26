@@ -104,10 +104,9 @@ def resolvePolicyIntent(element, policy, additionalparameters):
     #
 
     exec_result = handler_instance.exec()
-    print("EXEC RESULT IS ",exec_result.rc(),exec_result.msg())
+    #print("EXEC RESULT IS ",exec_result.rc(),exec_result.msg())
 
     if exec_result.rc() != a10.structures.constants.PROTOCOLSUCCESS:
-        print("Returning attestation protocol error")
         return exec_result  # this is a ResultCode already
 
     # Into this variable is where we write the finalised JSON result
@@ -132,10 +131,8 @@ def resolvePolicyIntent(element, policy, additionalparameters):
 
     # If we get here then everything has gone well - we got something. If the network failed then we still get a claim
     if exec_result.rc() != a10.structures.constants.PROTOCOLSUCCESS:
-        print("wasn't a protocol success because rc is",exec_result.rc())
         return exec_result  # this is a ResultCode already
     else:
-        print("is a success! Claim object is ",theClaim.asDict())
         return a10.structures.returncode.ReturnCode(
             a10.structures.constants.PROTOCOLSUCCESS, theClaim.asDict()
         )
