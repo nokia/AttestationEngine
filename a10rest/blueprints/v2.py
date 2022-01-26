@@ -143,35 +143,31 @@ def updateElement():
 #
 @v2_blueprint.route("/policies", methods=["GET"])
 def getpolicies():
-
     ps = [x["itemid"] for x in policies.getPolicies()]
-    print("ES is ", ps)
-    return str(ps), 200
+    print("PS",ps)
+    return jsonify({"policies":ps,"count":len(ps)}), 200
 
 
 @v2_blueprint.route("/policy/<itemid>", methods=["GET"])
 def getpolicy(itemid):
-
-    print("itemid", itemid)
     e = policies.getPolicy(itemid)
-
-    if elem.rc() != constants.SUCCESS:
-        return jsonify({"msg":elem.msg()}), 404
+    
+    if e.rc() != constants.SUCCESS:
+        return jsonify({"msg":e.msg()}), 404
     else:
-        return jsonify(elem.msg()), 200
+        return jsonify(e.msg()), 200
 
 
 
 
 @v2_blueprint.route("/policy/name/<policyname>", methods=["GET"])
 def getpolicybyname(policyname):
-   
     pol = policies.getPolicyByName(policyname)
 
-    if elem.rc() != constants.SUCCESS:
-        return jsonify({"msg":elem.msg()}), 404
+    if pol.rc() != constants.SUCCESS:
+        return jsonify({"msg":pol.msg()}), 404
     else:
-        return jsonify(elem.msg()), 200
+        return jsonify(pol.msg()), 200
 
 
 
@@ -182,10 +178,10 @@ def addPolicy():
 
     e = policies.addPolicy(content)
 
-    if elem.rc() != constants.SUCCESS:
-        return jsonify({"msg":elem.msg()}), 400
+    if e.rc() != constants.SUCCESS:
+        return jsonify({"msg":e.msg()}), 400
     else:
-        return jsonify(elem.msg()), 201
+        return jsonify(e.msg()), 201
 
 
 @v2_blueprint.route("/policy", methods=["DELETE"])
@@ -194,10 +190,10 @@ def deletePolicy():
     print("itemid", itemid)
     e = policies.deletePolicy(itemid)
 
-    if elem.rc() != constants.SUCCESS:
-        return jsonify({"msg":elem.msg()}), 404
+    if e.rc() != constants.SUCCESS:
+        return jsonify({"msg":e.msg()}), 404
     else:
-        return jsonify(elem.msg()), 200
+        return jsonify(e.msg()), 200
 
 
 @v2_blueprint.route("/policy", methods=["PUT"])
@@ -207,10 +203,10 @@ def updatePolicy():
 
     e = policies.updatePolicy(content)
 
-    if elem.rc() != constants.SUCCESS:
-        return jsonify({"msg":elem.msg()}), 404
+    if e.rc() != constants.SUCCESS:
+        return jsonify({"msg":e.msg()}), 404
     else:
-        return jsonify(elem.msg()), 200
+        return jsonify(e.msg()), 200
 
 
 #
@@ -223,10 +219,10 @@ def getEV(itemid):
     print("itemid", itemid)
     e = expectedValues.getExpectedValue(itemid)
 
-    if elem.rc() != constants.SUCCESS:
-        return jsonify({"msg":elem.msg()}), 404
+    if e.rc() != constants.SUCCESS:
+        return jsonify({"msg":e.msg()}), 404
     else:
-        return jsonify(elem.msg()), 200
+        return jsonify(e.msg()), 200
 
 
 @v2_blueprint.route("/expectedvalue/<eid>/<pid>", methods=["GET"])
@@ -235,10 +231,10 @@ def getEVep(eid, pid):
     print(" eid", eid, " pid", pid)
     e = expectedValues.getExpectedValueByElementPolicyIDs(typ, eid, pid)
 
-    if elem.rc() != constants.SUCCESS:
-        return jsonify({"msg":elem.msg()}), 404
+    if e.rc() != constants.SUCCESS:
+        return jsonify({"msg":e.msg()}), 404
     else:
-        return jsonify(elem.msg()), 200
+        return jsonify(e.msg()), 200
 
 
 @v2_blueprint.route("/expectedvalue", methods=["POST"])
@@ -248,10 +244,10 @@ def addEV():
 
     e = expectedValues.addExpectedValue(content)
 
-    if elem.rc() != constants.SUCCESS:
-        return jsonify({"msg":elem.msg()}), 404
+    if e.rc() != constants.SUCCESS:
+        return jsonify({"msg":e.msg()}), 404
     else:
-        return jsonify(elem.msg()), 201
+        return jsonify(e.msg()), 201
 
 
 @v2_blueprint.route("/expectedvalue/<itemid>", methods=["DELETE"])
@@ -259,10 +255,10 @@ def deleteEV(itemid):
     print("itemid", itemid)
     e = expectedValues.deleteExpectedValue(itemid)
 
-    if elem.rc() != constants.SUCCESS:
-        return jsonify({"msg":elem.msg()}), 404
+    if e.rc() != constants.SUCCESS:
+        return jsonify({"msg":e.msg()}), 404
     else:
-        return jsonify(elem.msg()), 200
+        return jsonify(e.msg()), 200
 
 
 @v2_blueprint.route("/expectedvalue", methods=["PUT"])
@@ -272,10 +268,10 @@ def updateEV():
 
     e = expectedValues.updateExpectedValue(content)
 
-    if elem.rc() != constants.SUCCESS:
-        return jsonify({"msg":elem.msg()}), 404
+    if e.rc() != constants.SUCCESS:
+        return jsonify({"msg":e.msg()}), 404
     else:
-        return jsonify(elem.msg()), 200
+        return jsonify(e.msg()), 200
 
 
 #
@@ -288,10 +284,10 @@ def getclaim(itemid):
     print("itemid", itemid)
     e = claims.getClaim(itemid)
 
-    if elem.rc() != constants.SUCCESS:
-        return jsonify({"msg":elem.msg()}), 404
+    if e.rc() != constants.SUCCESS:
+        return jsonify({"e":elem.msg()}), 404
     else:
-        return jsonify(elem.msg()), 200
+        return jsonify(e.msg()), 200
 
 
 #
@@ -304,10 +300,10 @@ def getresult(itemid):
     print("itemid", itemid)
     e = results.getResult(itemid)
 
-    if elem.rc() != constants.SUCCESS:
-        return jsonify({"msg":elem.msg()}), 404
+    if e.rc() != constants.SUCCESS:
+        return jsonify({"msg":e.msg()}), 404
     else:
-        return jsonify(elem.msg()), 200
+        return jsonify(e.msg()), 200
 
 
 @v2_blueprint.route("/results/latest", methods=['GET'])
@@ -363,10 +359,10 @@ def attest():
     
     print("\nreturn from attest ",e,e.rc(),e.msg())
 
-    if elem.rc() != constants.SUCCESS:
-        return jsonify({"msg":elem.msg()}), 400
+    if e.rc() != constants.SUCCESS:
+        return jsonify({"msg":e.msg()}), 400
     else:
-        return jsonify(elem.msg()), 200
+        return jsonify(e.msg()), 200
 
 
 @v2_blueprint.route("/verify", methods=["POST"])
@@ -378,10 +374,10 @@ def verify():
 
     e = attestation.verify(cid, rul)
 
-    if elem.rc() != constants.SUCCESS:
-        return jsonify({"msg":elem.msg()}), 404
+    if e.rc() != constants.SUCCESS:
+        return jsonify({"msg":e.msg()}), 404
     else:
-        return jsonify(elem.msg()), 201
+        return jsonify(e.msg()), 201
 
 
 
