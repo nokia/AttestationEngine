@@ -20,7 +20,7 @@ from a10.structures import constants
 from a10.asvr.db import announce
 import a10.asvr.rules.rule_dispatcher
 
-from flask import Blueprint, jsonify
+from flask import Blueprint, jsonify, request
 
 v2_blueprint = Blueprint(
     "home", __name__, static_folder="../static", template_folder="../templates/",url_prefix='/v2'
@@ -54,12 +54,12 @@ def getelements():
 @v2_blueprint.route("/elements/types", methods=["GET"])
 def getTypes():
     ts = list(types.getTypes())
-    return jsonify({"types:":ts}), 200
+    return jsonify({"types":ts}), 200
 
 @v2_blueprint.route("/elements/type/<elementtype>", methods=["GET"])
 def getElementsByType(elementtype):
     es = [x["itemid"] for x in elements.getElementsByType(elementtype)]
-    return jsonify({"elements:":es,"count":len(es),"type":elementtype}), 200
+    return jsonify({"elements":es,"count":len(es),"type":elementtype}), 200
 
 #
 # ELEMENT (SINGULAR)
@@ -103,40 +103,43 @@ def getelementbyname(elementname):
 
 @v2_blueprint.route("/element", methods=["POST"])
 def addElement():
-    content = request.json
-    print("content", content)
+    content=request.json
 
     e = elements.addElement(content)
 
-    if elem.rc() != constants.SUCCESS:
-        return jsonify({"msg":elem.msg()}), 400
+    if e.rc() != constants.SUCCESS:
+        return jsonify({"msg":e.msg()}), 400
     else:
-        return jsonify(elem.msg()), 200
+        return jsonify({"itemid":e.msg()}), 201
 
 
-@v2_blueprint.route("/element", methods=["DELETE"])
-def deleteElement():
-    itemid = request.args.get("itemid")
+@v2_blueprint.route("/element/<itemid>", methods=["DELETE"])
+def deleteElement(itemid):
+    #itemid = request.args.get("itemid")
     print("itemid", itemid)
     e = elements.deleteElement(itemid)
 
-    if elem.rc() != constants.SUCCESS:
-        return jsonify({"msg":elem.msg()}), 404
+    if e.rc() != constants.SUCCESS:
+        return jsonify({"msg":e.msg()}), 404
     else:
-        return jsonify(elem.msg()), 200
+        return jsonify({"msg":e.msg()}), 200
 
 
-@v2_blueprint.route("/element", methods=["PUT"])
-def updateElement():
+@v2_blueprint.route("/element/<itemid>", methods=["PUT","PATCH"])
+def updateElement(itemid):
+    print("HERE PUT")
     content = request.json
-    print("content", content)
-
+    print("PUT parameter",itemid)
+    print("PUT content", content)
+    
     e = elements.updateElement(content)
+    print(e)
+    print(e.rc(),e.msg())
 
-    if elem.rc() != constants.SUCCESS:
-        return jsonify({"msg":elem.msg()}), 400
+    if e.rc() != constants.SUCCESS:
+        return jsonify({"msg":e.msg()}), 400
     else:
-        return jsonify(elem.msg()), 200
+        return jsonify({"msg":e.msg()}), 200
 
 #
 # POLICIES
@@ -305,7 +308,9 @@ def getresult(itemid):
     else:
         return jsonify(e.msg()), 200
 
-
+#
+# FIXME
+#
 @v2_blueprint.route("/results/latest", methods=['GET'])
 def getresultslatest():
     args = request.args
@@ -326,6 +331,9 @@ def getresultslatest():
 
     return jsonify(out), 200
 
+#
+# FIXME
+#
 @v2_blueprint.route("/results/element/latest/<itemid>", methods=['GET'])
 def getresultslatestlimit(itemid):
     args = request.args
@@ -350,27 +358,40 @@ def getresultslatestlimit(itemid):
 @v2_blueprint.route("/attest", methods=["POST"])
 def attest():
     content = request.json
-    print("\n\n****\n")
-    eid = content["eid"]
-    pid = content["pid"]
-    cps = content["cps"]
+
+    eid=None
+    pid=None
+    cps=None
+
+    try:
+        eid = content["eid"]
+        pid = content["pid"]
+        cps = content["cps"]
+    except:
+        return jsonify({"msg":"Missing one or more of eid,pid and/or cps"}),400
 
     e = attestation.attest(eid, pid, cps)
     
     print("\nreturn from attest ",e,e.rc(),e.msg())
 
     if e.rc() != constants.SUCCESS:
-        return jsonify({"msg":e.msg()}), 400
+        return jsonify({"msg":e.msg()}), 404
     else:
-        return jsonify(e.msg()), 200
+        return jsonify(e.msg()), 201
 
 
 @v2_blueprint.route("/verify", methods=["POST"])
 def verify():
     content = request.json
-    #print("content", content)
-    cid = content["cid"]
-    rul = content["rule"]
+
+    cid=None
+    rul=None
+
+    try:
+        cid = content["cid"]
+        rul = content["rule"]
+    except:
+        return jsonify({"msg":"Missing cid and/or rule"}),400
 
     e = attestation.verify(cid, rul)
 
