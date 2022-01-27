@@ -67,7 +67,7 @@ def getResult(i):
         return a10.structures.returncode.ReturnCode(a10.structures.constants.SUCCESS, e)
 
 
-def getResults(n):
+def getResults(n=500):
     rs = list(a10.asvr.db.core.getResults(n))
     return rs
 
@@ -80,7 +80,7 @@ def getResultsSince(t):
     rs = a10.asvr.db.core.getResultsSince(t)
     return rs
 
-def getLatestResults(e, n=10):
+def getLatestResults(e, n=100):
     """
 	Returns the latest n results for an element sorted by the verifiedAt property of the results
 
@@ -93,7 +93,7 @@ def getLatestResults(e, n=10):
     return rs
 
 
-def getLatestResultsForElementAndPolicy(e, p, n=10):
+def getLatestResultsForElementAndPolicy(e, p, n=100):
     """
 	Returns the latest n results for an element sorted by the verifiedAt property of the results
 

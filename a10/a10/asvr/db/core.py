@@ -24,10 +24,10 @@ asdb = asclient[a10.asvr.db.configuration.MONGODBNAME]
 def getDatabaseStatus():
     """ Returns information on the state of the database
 
-	:return: a structure containing information about the number of items stored in the database and other meta-data
-	:rtype: dict
+    :return: a structure containing information about the number of items stored in the database and other meta-data
+    :rtype: dict
 
-	"""
+    """
 
     dbstatus = {}
 
@@ -57,11 +57,11 @@ def getDatabaseStatus():
 def writeLogEntry(t, ch, op, data):
     """ Writes an entry to the logging table
 
-	:params str t: timestamp
-	:params str ch: channel
-	:params str op: operation
-	:params dict data: associated data
-	"""
+    :params str t: timestamp
+    :params str ch: channel
+    :params str op: operation
+    :params dict data: associated data
+    """
 
     collection = asdb["log"]
 
@@ -73,10 +73,10 @@ def writeLogEntry(t, ch, op, data):
 def getLatestLogEntries(n):
     """ Returns the latest log entries 
 
-	:params int n: number of entries to return
-	:returns: list of log entries
-	:rtype: list dict
-	"""
+    :params int n: number of entries to return
+    :returns: list of log entries
+    :rtype: list dict
+    """
 
     collection = asdb["log"]
     ls = collection.find({}, {"_id": False}).sort("t", pymongo.DESCENDING)
@@ -86,9 +86,9 @@ def getLatestLogEntries(n):
 def getLogEntryCount():
     """ Returns the number of log entries
 
-	:returns: number of log entries
-	:rtype: int
-	"""
+    :returns: number of log entries
+    :rtype: int
+    """
     collection = asdb["log"]
     return collection.estimated_document_count()
 
@@ -103,15 +103,15 @@ def getLogEntryCount():
 def addElement(e):
     """ Adds an entry to the elements collection.
 
-	First this outputs the element as JSON and then tries to insert it into the database.
-	MongoDB returns an inserted_id - which is a mongo ObjectID - if this is successful.
+    First this outputs the element as JSON and then tries to insert it into the database.
+    MongoDB returns an inserted_id - which is a mongo ObjectID - if this is successful.
 
-	:param dict e: the element to be added
-	:return: the success or failure of the operation
-	:rtype: Bool
+    :param dict e: the element to be added
+    :return: the success or failure of the operation
+    :rtype: Bool
 
 
-	"""
+    """
 
     collection = asdb["elements"]
     r = collection.insert_one(e)
@@ -125,10 +125,10 @@ def addElement(e):
 def getElement(i):
     """ Returns an element with the given itemid
 
-	:param str i: ItemID of the element
-	:return: the returned object from Monogo less the mongo object ID
-	:rtype: dict or None
-	"""
+    :param str i: ItemID of the element
+    :return: the returned object from Monogo less the mongo object ID
+    :rtype: dict or None
+    """
 
     collection = asdb["elements"]
     e = collection.find_one({"itemid": i}, {"_id": False})
@@ -138,10 +138,10 @@ def getElement(i):
 def getElementByName(n):
     """ Returns an element with the given name
 
-	:param str n: name of the element
-	:return: the returned object from Monogo less the mongo object ID
-	:rtype: dict or None
-	"""
+    :param str n: name of the element
+    :return: the returned object from Monogo less the mongo object ID
+    :rtype: dict or None
+    """
 
     collection = asdb["elements"]
     e = collection.find_one({"name": n}, {"_id": False})
@@ -151,10 +151,10 @@ def getElementByName(n):
 def getElements():
     """ Returns an element with the given itemid
 
-	:param str i: ItemID of the element
-	:return: the returned object from Monogo less the mongo object ID
-	:rtype: dict or None
-	"""
+    :param str i: ItemID of the element
+    :return: the returned object from Monogo less the mongo object ID
+    :rtype: dict or None
+    """
 
     collection = asdb["elements"]
     e = collection.find({}, {"_id": False, "itemid": True})
@@ -182,10 +182,10 @@ def getElementsByType(t):
 def getElementsFull():
     """ Returns an element with the given itemid
 
-	:param str i: ItemID of the element
-	:return: the returned object from Monogo less the mongo object ID
-	:rtype: dict or None
-	"""
+    :param str i: ItemID of the element
+    :return: the returned object from Monogo less the mongo object ID
+    :rtype: dict or None
+    """
 
     collection = asdb["elements"]
     e = collection.find({}, {"_id": False})
@@ -222,15 +222,15 @@ def updateElement(e):
 def addPolicy(e):
     """ Adds an entry to the elements collection.
 
-	First this outputs the element as JSON and then tries to insert it into the database.
-	MongoDB returns an inserted_id - which is a mongo ObjectID - if this is successful.
+    First this outputs the element as JSON and then tries to insert it into the database.
+    MongoDB returns an inserted_id - which is a mongo ObjectID - if this is successful.
 
-	:param dict e: the element to be added
-	:return: the success or failure of the operation
-	:rtype: Bool
+    :param dict e: the element to be added
+    :return: the success or failure of the operation
+    :rtype: Bool
 
 
-	"""
+    """
     collection = asdb["policies"]
 
     r = collection.insert_one(e)
@@ -244,10 +244,10 @@ def addPolicy(e):
 def getPolicy(i):
     """ Returns an element with the given itemid
 
-	:param str i: ItemID of the element
-	:return: the returned object from Monogo less the mongo object ID
-	:rtype: dict or None
-	"""
+    :param str i: ItemID of the element
+    :return: the returned object from Monogo less the mongo object ID
+    :rtype: dict or None
+    """
 
     collection = asdb["policies"]
     e = collection.find_one({"itemid": i}, {"_id": False})
@@ -257,10 +257,10 @@ def getPolicy(i):
 def getPolicyByName(n):
     """ Returns a policy with the given name
 
-	:param str n: name of the policy
-	:return: the returned object from Monogo less the mongo object ID
-	:rtype: dict or None
-	"""
+    :param str n: name of the policy
+    :return: the returned object from Monogo less the mongo object ID
+    :rtype: dict or None
+    """
 
     collection = asdb["policies"]
     e = collection.find_one({"name": n}, {"_id": False})
@@ -270,10 +270,10 @@ def getPolicyByName(n):
 def getPolicies():
     """ Returns an element with the given itemid
 
-	:param str i: ItemID of the element
-	:return: the returned object from Monogo less the mongo object ID
-	:rtype: dict or None
-	"""
+    :param str i: ItemID of the element
+    :return: the returned object from Monogo less the mongo object ID
+    :rtype: dict or None
+    """
 
     collection = asdb["policies"]
     e = collection.find({}, {"_id": False, "itemid": True})
@@ -283,10 +283,10 @@ def getPolicies():
 def getPoliciesFull():
     """ Returns an element with the given itemid
 
-	:param str i: ItemID of the element
-	:return: the returned object from Monogo less the mongo object ID
-	:rtype: dict or None
-	"""
+    :param str i: ItemID of the element
+    :return: the returned object from Monogo less the mongo object ID
+    :rtype: dict or None
+    """
 
     collection = asdb["policies"]
     e = collection.find({}, {"_id": False})
@@ -323,15 +323,15 @@ def updatePolicy(e):
 def addHash(h):
     """ Adds an entry to the elements collection.
 
-	First this outputs the element as JSON and then tries to insert it into the database.
-	MongoDB returns an inserted_id - which is a mongo ObjectID - if this is successful.
+    First this outputs the element as JSON and then tries to insert it into the database.
+    MongoDB returns an inserted_id - which is a mongo ObjectID - if this is successful.
 
-	:param dict e: the element to be added
-	:return: the success or failure of the operation
-	:rtype: Bool
+    :param dict e: the element to be added
+    :return: the success or failure of the operation
+    :rtype: Bool
 
 
-	"""
+    """
     collection = asdb["hashes"]
     r = collection.insert_one(h)
 
@@ -344,10 +344,10 @@ def addHash(h):
 def getHash(h):
     """ Returns an element with the given itemid
 
-	:param str h: the hash to search for
-	:return: the returned object from Monogo less the mongo object ID
-	:rtype: dict or None
-	"""
+    :param str h: the hash to search for
+    :return: the returned object from Monogo less the mongo object ID
+    :rtype: dict or None
+    """
 
     collection = asdb["hashes"]
     e = collection.find_one({"hash": h}, {"_id": False})
@@ -357,10 +357,10 @@ def getHash(h):
 def getHashes():
     """ Returns an element with the given itemid
 
-	:param str i: ItemID of the element
-	:return: the returned object from Monogo less the mongo object ID
-	:rtype: dict or None
-	"""
+    :param str i: ItemID of the element
+    :return: the returned object from Monogo less the mongo object ID
+    :rtype: dict or None
+    """
 
     collection = asdb["hashes"]
     e = collection.find({}, {"_id": False, "hash": True})
@@ -370,10 +370,10 @@ def getHashes():
 def getHashesFull():
     """ Returns an element with the given itemid
 
-	:param str i: ItemID of the element
-	:return: the returned object from Monogo less the mongo object ID
-	:rtype: dict or None
-	"""
+    :param str i: ItemID of the element
+    :return: the returned object from Monogo less the mongo object ID
+    :rtype: dict or None
+    """
 
     collection = asdb["hashes"]
     e = collection.find({}, {"_id": False})
@@ -390,15 +390,15 @@ def getHashesFull():
 def addExpectedValue(e):
     """ Adds an entry to the elements collection.
 
-	First this outputs the element as JSON and then tries to insert it into the database.
-	MongoDB returns an inserted_id - which is a mongo ObjectID - if this is successful.
+    First this outputs the element as JSON and then tries to insert it into the database.
+    MongoDB returns an inserted_id - which is a mongo ObjectID - if this is successful.
 
-	:param dict e: the element to be added
-	:return: the success or failure of the operation
-	:rtype: Bool
+    :param dict e: the element to be added
+    :return: the success or failure of the operation
+    :rtype: Bool
 
 
-	"""
+    """
     collection = asdb["expectedvalues"]
 
     r = collection.insert_one(e)
@@ -412,10 +412,10 @@ def addExpectedValue(e):
 def getExpectedValue(i):
     """ Returns an element with the given itemid
 
-	:param str i: ItemID of the element
-	:return: the returned object from Monogo less the mongo object ID
-	:rtype: dict or None
-	"""
+    :param str i: ItemID of the element
+    :return: the returned object from Monogo less the mongo object ID
+    :rtype: dict or None
+    """
 
     collection = asdb["expectedvalues"]
     e = collection.find_one({"itemid": i}, {"_id": False})
@@ -425,10 +425,10 @@ def getExpectedValue(i):
 def getExpectedValues():
     """ Returns an element with the given itemid
 
-	:param str i: ItemID of the element
-	:return: the returned object from Monogo less the mongo object ID
-	:rtype: dict or None
-	"""
+    :param str i: ItemID of the element
+    :return: the returned object from Monogo less the mongo object ID
+    :rtype: dict or None
+    """
 
     collection = asdb["expectedvalues"]
     e = collection.find({}, {"_id": False, "itemid": True})
@@ -438,10 +438,10 @@ def getExpectedValues():
 def getExpectedValuesFull():
     """ Returns an element with the given itemid
 
-	:param str i: ItemID of the element
-	:return: the returned object from Monogo less the mongo object ID
-	:rtype: dict or None
-	"""
+    :param str i: ItemID of the element
+    :return: the returned object from Monogo less the mongo object ID
+    :rtype: dict or None
+    """
 
     collection = asdb["expectedvalues"]
     e = collection.find({}, {"_id": False})
@@ -451,10 +451,10 @@ def getExpectedValuesFull():
 def getExpectedValuesForElement(i):
     """ Returns a expected values for given elementID
 
-	:param str i: ItemID of the element
-	:return: the returned objects from Monogo less the mongo object ID
-	:rtype: list
-	"""
+    :param str i: ItemID of the element
+    :return: the returned objects from Monogo less the mongo object ID
+    :rtype: list
+    """
 
     collection = asdb["expectedvalues"]
     e = collection.find({"elementID": i}, {"_id": False})
@@ -464,10 +464,10 @@ def getExpectedValuesForElement(i):
 def getExpectedValuesForPolicy(i):
     """ Returns a expected values for given policyID
 
-	:param str i: ItemID of the element
-	:return: the returned objects from Monogo less the mongo object ID
-	:rtype: list
-	"""
+    :param str i: ItemID of the element
+    :return: the returned objects from Monogo less the mongo object ID
+    :rtype: list
+    """
 
     collection = asdb["expectedvalues"]
     e = collection.find({"policyID": i}, {"_id": False})
@@ -477,11 +477,11 @@ def getExpectedValuesForPolicy(i):
 def getExpectedValueForElementAndPolicy(e, p):
     """ Returns a expected value for given elementID and policyID
 
-	:param str e: ItemID of the element
-	:param str p: ItemID of the policy    
-	:return: the returned objects from Monogo less the mongo object ID
-	:rtype: list
-	"""
+    :param str e: ItemID of the element
+    :param str p: ItemID of the policy    
+    :return: the returned objects from Monogo less the mongo object ID
+    :rtype: list
+    """
 
     collection = asdb["expectedvalues"]
     e = collection.find_one({"elementID": e, "policyID": p}, {"_id": False})
@@ -518,15 +518,15 @@ def updateExpectedValue(e):
 def addClaim(e):
     """ Adds an entry to the elements collection.
 
-	First this outputs the element as JSON and then tries to insert it into the database.
-	MongoDB returns an inserted_id - which is a mongo ObjectID - if this is successful.
+    First this outputs the element as JSON and then tries to insert it into the database.
+    MongoDB returns an inserted_id - which is a mongo ObjectID - if this is successful.
 
-	:param dict e: the element to be added
-	:return: the success or failure of the operation
-	:rtype: Bool
+    :param dict e: the element to be added
+    :return: the success or failure of the operation
+    :rtype: Bool
 
 
-	"""
+    """
     collection = asdb["claims"]
 
     r = collection.insert_one(e)
@@ -540,10 +540,10 @@ def addClaim(e):
 def getClaim(i):
     """ Returns an element with the given itemid
 
-	:param str i: ItemID of the element
-	:return: the returned object from Monogo less the mongo object ID
-	:rtype: dict or None
-	"""
+    :param str i: ItemID of the element
+    :return: the returned object from Monogo less the mongo object ID
+    :rtype: dict or None
+    """
 
     collection = asdb["claims"]
     e = collection.find_one({"itemid": i}, {"_id": False})
@@ -553,11 +553,11 @@ def getClaim(i):
 def getClaims(n=1000):
     """ Returns an element with the given itemid
 
-	:param str i: ItemID of the element
+    :param str i: ItemID of the element
     :param int n: number of claims to obtain
-	:return: the returned object from Monogo less the mongo object ID
-	:rtype: dict or None
-	"""
+    :return: the returned object from Monogo less the mongo object ID
+    :rtype: dict or None
+    """
 
     collection = asdb["claims"]
     e = collection.find({}, {"_id": False, "itemid": True}).sort(
@@ -569,10 +569,10 @@ def getClaims(n=1000):
 def getClaimsFull(n):
     """ Returns an element with the given itemid
 
-	:param str i: ItemID of the element
-	:return: the returned object from Monogo less the mongo object ID
-	:rtype: dict or None
-	"""
+    :param str i: ItemID of the element
+    :return: the returned object from Monogo less the mongo object ID
+    :rtype: dict or None
+    """
 
     collection = asdb["claims"]
     e = (
@@ -595,7 +595,7 @@ def getClaimsForElement(eid,n=1000):
     """
 
     collection = asdb["claims"]
-    e = collection.find({"itemid":eid}, {"_id": False, "itemid": True}).sort(
+    e = collection.find({"header.element.itemid":eid}, {"_id": False, "itemid": True}).sort(
         "header.as_requested", pymongo.DESCENDING
     ).limit(n)
     return list(e)
@@ -610,11 +610,8 @@ def getClaimsFullForElement(eid,n):
     """
 
     collection = asdb["claims"]
-    e = (
-        collection.find({"itemid":eid}, {"_id": False})
-        .sort("header.as_requested", pymongo.DESCENDING)
-        .limit(n)
-    )
+    e = collection.find({"header.element.itemid":eid}, {"_id": False}).sort("header.as_requested", pymongo.DESCENDING).limit(n)
+    
     return list(e)
 
 
@@ -624,10 +621,10 @@ def getClaimsFullForElement(eid,n):
 def getAssociatedResults(i):
     """ Returns the set of results associated with the given claim
 
-	:param str i: ItemID of the claim
-	:return: a list of result item IDs
-	:rtype: list 
-	"""
+    :param str i: ItemID of the claim
+    :return: a list of result item IDs
+    :rtype: list 
+    """
 
     collection = asdb["results"]
     rs = collection.find({"claimID": i}, {"_id": False}).sort(
@@ -646,15 +643,15 @@ def getAssociatedResults(i):
 def addResult(e):
     """ Adds an entry to the elements collection.
 
-	First this outputs the element as JSON and then tries to insert it into the database.
-	MongoDB returns an inserted_id - which is a mongo ObjectID - if this is successful.
+    First this outputs the element as JSON and then tries to insert it into the database.
+    MongoDB returns an inserted_id - which is a mongo ObjectID - if this is successful.
 
-	:param dict e: the element to be added
-	:return: the success or failure of the operation
-	:rtype: Bool
+    :param dict e: the element to be added
+    :return: the success or failure of the operation
+    :rtype: Bool
 
 
-	"""
+    """
     collection = asdb["results"]
 
     r = collection.insert_one(e)
@@ -668,41 +665,41 @@ def addResult(e):
 def getResult(i):
     """ Returns an element with the given itemid
 
-	:param str i: ItemID of the element
-	:return: the returned object from Monogo less the mongo object ID
-	:rtype: dict or None
-	"""
+    :param str i: ItemID of the element
+    :return: the returned object from Monogo less the mongo object ID
+    :rtype: dict or None
+    """
 
     collection = asdb["results"]
     e = collection.find_one({"itemid": i}, {"_id": False})
     return e
 
 
-def getResults():
+def getResults(n=500):
     """ Returns an element with the given itemid
 
-	:param str i: ItemID of the element
-	:return: the returned object from Monogo less the mongo object ID
-	:rtype: dict or None
-	"""
+    :param str i: ItemID of the element
+    :return: the returned object from Monogo less the mongo object ID
+    :rtype: dict or None
+    """
 
     collection = asdb["results"]
-    e = collection.find({}, {"_id": False, "itemid": True})
+    e = collection.find({}, {"_id": False, "itemid": True}).sort("verifiedAt", pymongo.DESCENDING).limit(n)
     return list(e)
 
 def getResultsSince(t):
     
     """ Returns results since t timestamp
 
-	:param str t: float timestamp
-	:return: the list of results
-	:rtype: list dict or None
-	"""
+    :param str t: float timestamp
+    :return: the list of results
+    :rtype: list dict or None
+    """
     
     out = []
 
     collection = asdb["results"]
-    e = collection.find({}, {'_id': False}).sort("verifiedAt", pymongo.DESCENDING)
+    e = collection.find({}, {'_id': False,'itemid':True,'claimID':True,'result':True,'elementID':True,'policyID':True,'ruleName':True,'verifiedAt':True}).sort("verifiedAt", pymongo.DESCENDING)
     ## Mongodb (3.6) does not support casting string verifiedAt for comparison with timestamp, filtering must be done manually. 
 
     for i in e:
@@ -716,10 +713,10 @@ def getResultsSince(t):
 def getResultsFull(n):
     """ Returns an element with the given itemid
 
-	:param str i: ItemID of the element
-	:return: the returned object from Monogo less the mongo object ID
-	:rtype: dict or None
-	"""
+    :param str i: ItemID of the element
+    :return: the returned object from Monogo less the mongo object ID
+    :rtype: dict or None
+    """
 
     collection = asdb["results"]
     e = (
@@ -730,19 +727,19 @@ def getResultsFull(n):
     return list(e)
 
 
-def getLatestResults(e, n):
+def getLatestResults(e, n=500):
     """ Returns the latest n results for a given element sorted by verifiedAt.
-		  We let the underlying database to do the sorting for efficiency reasons.
+          We let the underlying database to do the sorting for efficiency reasons.
 
-	:param str e: ItemID of the element
-	:param int n: Maximum number of items to return, defaults to 10
-	:return: the list of results
-	:rtype: list dict or None
-	"""
+    :param str e: ItemID of the element
+    :param int n: Maximum number of items to return, defaults to 10
+    :return: the list of results
+    :rtype: list dict or None
+    """
 
     collection = asdb["results"]
     rs = list(
-        collection.find({"elementID": e},{'_id': False})
+        collection.find({"elementID": e},{'_id': False,'itemid':True,'claimID':True,'result':True,'elementID':True,'policyID':True,'ruleName':True,'verifiedAt':True})
         .sort("verifiedAt", pymongo.DESCENDING)
         .limit(n)
     )
@@ -751,14 +748,14 @@ def getLatestResults(e, n):
 
 def getLatestResultsForElementAndPolicy(e, p, n):
     """ Returns the latest n results for a given element sorted by verifiedAt.
-		  We let the underlying database to do the sorting for efficiency reasons.
+          We let the underlying database to do the sorting for efficiency reasons.
 
-	:param str e: ItemID of the element
-	:param str p: ItemID of the policy    
-	:param int n: Maximum number of items to return, defaults to 10
-	:return: the list of results
-	:rtype: list dict or None
-	"""
+    :param str e: ItemID of the element
+    :param str p: ItemID of the policy    
+    :param int n: Maximum number of items to return, defaults to 10
+    :return: the list of results
+    :rtype: list dict or None
+    """
 
     collection = asdb["results"]
     rs = list(
