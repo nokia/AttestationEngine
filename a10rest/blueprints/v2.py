@@ -281,6 +281,33 @@ def updateEV():
 # CLAIMS - decided not to allow writing claims for the moment as the ASVR libraires do this during attestation
 #
 
+@v2_blueprint.route("/claims", methods=["GET"])
+def getclaims():
+    if("limit" in request.args):
+        try:
+            lim = int(request.args["limit"])
+        except ValueError:
+            lim = 10
+    else:
+        lim = 10
+    cs = [x["itemid"] for x in claims.getClaims(lim)]
+    return jsonify({"claims":cs,"count":len(cs),"limit":lim}), 200
+   
+
+@v2_blueprint.route("/claims/element/<itemid>", methods=["GET"])
+def getclaimsforelement(itemid):
+    if("limit" in request.args):
+        try:
+            lim = int(request.args["limit"])
+        except ValueError:
+            lim = 100
+    else:
+        lim = 100
+
+
+    cs = [x["itemid"] for x in claims.getClaimsForElement(itemid,lim)]
+    return jsonify({"claims":cs,"count":len(cs),"limit":lim}), 200
+
 
 @v2_blueprint.route("/claim/<itemid>", methods=["GET"])
 def getclaim(itemid):
@@ -297,6 +324,12 @@ def getclaim(itemid):
 # RESULTS - decided not to allow writing claims for the moment as the ASVR libraires do this during attestation
 #
 
+@v2_blueprint.route("/results", methods=["GET"])
+def getResults():
+    rs = [x["itemid"] for x in claims.getResults(itemid)]
+    return jsonify({"results":rs,"count":len(rs)}), 200
+   
+   
 
 @v2_blueprint.route("/result/<itemid>", methods=["GET"])
 def getresult(itemid):
@@ -329,7 +362,7 @@ def getresultslatest():
                 out.append(r[0])
 
 
-    return jsonify(out), 200
+    return jsonify({"count":len(out),"results":out}), 200
 
 #
 # FIXME
@@ -348,7 +381,7 @@ def getresultslatestlimit(itemid):
         lim = 10
     
     rs = results.getLatestResults(itemid, lim)
-    return jsonify(rs), 200
+    return jsonify({"count":len(rs),"results":rs}), 200
 
 #
 # ATTESTATION and VERIFICATION

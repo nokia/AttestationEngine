@@ -550,16 +550,19 @@ def getClaim(i):
     return e
 
 
-def getClaims():
+def getClaims(n=1000):
     """ Returns an element with the given itemid
 
 	:param str i: ItemID of the element
+    :param int n: number of claims to obtain
 	:return: the returned object from Monogo less the mongo object ID
 	:rtype: dict or None
 	"""
 
     collection = asdb["claims"]
-    e = collection.find({}, {"_id": False, "itemid": True})
+    e = collection.find({}, {"_id": False, "itemid": True}).sort(
+        "header.as_requested", pymongo.DESCENDING
+    ).limit(n)
     return list(e)
 
 
@@ -578,6 +581,44 @@ def getClaimsFull(n):
         .limit(n)
     )
     return list(e)
+
+
+
+
+def getClaimsForElement(eid,n=1000):
+    """ Returns an element with the given itemid
+
+    :param str i: ItemID of the element
+    :param int n: number of claims to obtain
+    :return: the returned object from Monogo less the mongo object ID
+    :rtype: dict or None
+    """
+
+    collection = asdb["claims"]
+    e = collection.find({"itemid":eid}, {"_id": False, "itemid": True}).sort(
+        "header.as_requested", pymongo.DESCENDING
+    ).limit(n)
+    return list(e)
+
+
+def getClaimsFullForElement(eid,n):
+    """ Returns an element with the given itemid
+
+    :param str i: ItemID of the element
+    :return: the returned object from Monogo less the mongo object ID
+    :rtype: dict or None
+    """
+
+    collection = asdb["claims"]
+    e = (
+        collection.find({"itemid":eid}, {"_id": False})
+        .sort("header.as_requested", pymongo.DESCENDING)
+        .limit(n)
+    )
+    return list(e)
+
+
+
 
 
 def getAssociatedResults(i):

@@ -80,7 +80,7 @@ def getClaim(i):
         return a10.structures.returncode.ReturnCode(a10.structures.constants.SUCCESS, e)
 
 
-def getClaims(n):
+def getClaims(n=50):
     """
     Gets a list of claim itemids from the database 
 
@@ -103,6 +103,31 @@ def getClaimsFull(n=50):
 
     cs = a10.asvr.db.core.getClaimsFull(n)
     return cs
+
+
+def getClaimsForElement(eid,n=50):
+    """
+    Gets a list of claim itemids from the database 
+
+    :return: the claim itemids as a list
+    :rtype: list str
+    """
+
+    cs = a10.asvr.db.core.getClaimsForElement(eid,n)
+    return cs
+
+
+def getClaimsFullForElement(eid,n=50):
+    """
+    Gets a list of claims from the database 
+
+    :params int n: limit to n results
+    :return: list of claim structures as a dict
+    :rtype: list dict
+    """
+
+    cs = a10.asvr.db.core.getClaimsFullForElement(eid,n)
+    return cs    
 
 
 def getAssociatedResults(i):
