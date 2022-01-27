@@ -184,7 +184,7 @@ def addPolicy():
     if e.rc() != constants.SUCCESS:
         return jsonify({"msg":e.msg()}), 400
     else:
-        return jsonify(e.msg()), 201
+        return jsonify({"policy":e.msg()}), 201
 
 
 @v2_blueprint.route("/policy", methods=["DELETE"])
@@ -196,10 +196,10 @@ def deletePolicy():
     if e.rc() != constants.SUCCESS:
         return jsonify({"msg":e.msg()}), 404
     else:
-        return jsonify(e.msg()), 200
+        return jsonify({"msg":e.msg()}), 200
 
 
-@v2_blueprint.route("/policy", methods=["PUT"])
+@v2_blueprint.route("/policy", methods=["PUT","PATCH"])
 def updatePolicy():
     content = request.json
     print("content", content)
@@ -209,7 +209,7 @@ def updatePolicy():
     if e.rc() != constants.SUCCESS:
         return jsonify({"msg":e.msg()}), 404
     else:
-        return jsonify(e.msg()), 200
+        return jsonify({"msg":e.msg()}), 200
 
 
 #
@@ -225,7 +225,7 @@ def getEV(itemid):
     if e.rc() != constants.SUCCESS:
         return jsonify({"msg":e.msg()}), 404
     else:
-        return jsonify(e.msg()), 200
+        return jsonify({"expectedvalue":e.msg()}), 200
 
 
 @v2_blueprint.route("/expectedvalue/<eid>/<pid>", methods=["GET"])
@@ -237,7 +237,7 @@ def getEVep(eid, pid):
     if e.rc() != constants.SUCCESS:
         return jsonify({"msg":e.msg()}), 404
     else:
-        return jsonify(e.msg()), 200
+        return jsonify({"expectedvalue":e.msg()}), 200
 
 
 @v2_blueprint.route("/expectedvalue", methods=["POST"])
@@ -250,7 +250,7 @@ def addEV():
     if e.rc() != constants.SUCCESS:
         return jsonify({"msg":e.msg()}), 404
     else:
-        return jsonify(e.msg()), 201
+        return jsonify({"expectedvalue":e.msg()}), 201
 
 
 @v2_blueprint.route("/expectedvalue/<itemid>", methods=["DELETE"])
@@ -261,10 +261,10 @@ def deleteEV(itemid):
     if e.rc() != constants.SUCCESS:
         return jsonify({"msg":e.msg()}), 404
     else:
-        return jsonify(e.msg()), 200
+        return jsonify({"msg":e.msg()}), 200
 
 
-@v2_blueprint.route("/expectedvalue", methods=["PUT"])
+@v2_blueprint.route("/expectedvalue", methods=["PUT","PATCH"])
 def updateEV():
     content = request.json
     print("content", content)
@@ -274,12 +274,39 @@ def updateEV():
     if e.rc() != constants.SUCCESS:
         return jsonify({"msg":e.msg()}), 404
     else:
-        return jsonify(e.msg()), 200
+        return jsonify({"msg":e.msg()}), 200
 
 
 #
 # CLAIMS - decided not to allow writing claims for the moment as the ASVR libraires do this during attestation
 #
+
+@v2_blueprint.route("/claims", methods=["GET"])
+def getclaims():
+    if("limit" in request.args):
+        try:
+            lim = int(request.args["limit"])
+        except ValueError:
+            lim = 10
+    else:
+        lim = 10
+    cs = [x["itemid"] for x in claims.getClaims(lim)]
+    return jsonify({"claims":cs,"count":len(cs),"limit":lim}), 200
+   
+
+@v2_blueprint.route("/claims/element/<itemid>", methods=["GET"])
+def getclaimsforelement(itemid):
+    if("limit" in request.args):
+        try:
+            lim = int(request.args["limit"])
+        except ValueError:
+            lim = 100
+    else:
+        lim = 100
+
+
+    cs = [x["itemid"] for x in claims.getClaimsForElement(itemid,lim)]
+    return jsonify({"claims":cs,"count":len(cs),"limit":lim}), 200
 
 
 @v2_blueprint.route("/claim/<itemid>", methods=["GET"])
@@ -290,12 +317,43 @@ def getclaim(itemid):
     if e.rc() != constants.SUCCESS:
         return jsonify({"e":elem.msg()}), 404
     else:
-        return jsonify(e.msg()), 200
+        return jsonify({"claim":e.msg()}), 200
 
 
 #
-# RESULTS - decided not to allow writing claims for the moment as the ASVR libraires do this during attestation
+# RESULTS - decided not to allow writing claims for the moment as the ASVR libraries do this during attestation
 #
+
+@v2_blueprint.route("/results", methods=["GET"])
+def getResults():
+    """
+       Returns the latest x results
+    """
+    if("limit" in request.args):
+        try:
+            lim = int(request.args["limit"])
+        except ValueError:
+            lim = 500
+    else:
+        lim = 500
+    rs = [x["itemid"] for x in results.getResults(lim)]
+    return jsonify({"results":rs,"count":len(rs),"limit":lim}), 200
+   
+ 
+@v2_blueprint.route("/results/latest", methods=['GET'])
+def getresultslatest():
+    """
+        get the the results since a given point in time
+    """    
+    if("timestamp" not in request.args): # All results since timestamp
+        return jsonify({"msg":"value error in timestamp"}), 400
+
+    out = results.getResultsSince(float(request.args["timestamp"]))
+
+    return jsonify({"results":out,"since":request.args["timestamp"],"count":len(out)}), 200
+
+
+
 
 
 @v2_blueprint.route("/result/<itemid>", methods=["GET"])
@@ -306,49 +364,48 @@ def getresult(itemid):
     if e.rc() != constants.SUCCESS:
         return jsonify({"msg":e.msg()}), 404
     else:
-        return jsonify(e.msg()), 200
-
-#
-# FIXME
-#
-@v2_blueprint.route("/results/latest", methods=['GET'])
-def getresultslatest():
-    args = request.args
-    out = list()
-    
-    if("timestamp" in args): # All results since timestamp
-        try:
-            out = results.getResultsSince(float(args["timestamp"]))
-        except ValueError:
-            return jsonify(out), 200
-    else: ## First latest result of each element
-        elems = elements.getElements()
-        for i in range(len(elems)):
-            r = results.getLatestResults(elems[i]['itemid'],1)
-            if(r and r[0]):
-                out.append(r[0])
+        return jsonify({"result":e.msg()}), 200
 
 
-    return jsonify(out), 200
 
-#
-# FIXME
-#
 @v2_blueprint.route("/results/element/latest/<itemid>", methods=['GET'])
-def getresultslatestlimit(itemid):
-    args = request.args
-    print("itemid", itemid)
-
-    if("limit" in args):
+def getresultslatestforelement(itemid):
+    """
+        get the the results since a given point in time for a given element
+    """    
+    if ("timestamp" not in request.args): # All results since timestamp
+        return jsonify({"msg":"value error in timestamp"}), 400
+    if ("limit" in request.args):
         try:
-            lim = int(args["limit"])
+            lim = int(request.args["limit"])
         except ValueError:
-            lim = 10
+            return jsonify({"msg":"value error in limit"}), 400
     else:
-        lim = 10
-    
+        lim = 500
     rs = results.getLatestResults(itemid, lim)
-    return jsonify(rs), 200
+    return jsonify({"count":len(rs),"results":rs, "limit":lim, "elementID":itemid}), 200
+
+
+
+@v2_blueprint.route("/results/element/latest/<eid>/<pid>", methods=['GET'])
+def getresultslatestforelementandpolicy(eid,pid):
+    """
+        get the the results since a given point in time for a given element
+    """    
+    #if ("timestamp" not in request.args): # All results since timestamp
+    #    return jsonify({"msg":"value error in timestamp"}), 400
+    if ("limit" in request.args):
+        try:
+            lim = int(request.args["limit"])
+        except ValueError:
+            return jsonify({"msg":"value error in limit"}), 400
+    else:
+        lim = 500
+    rs = results.getLatestResultsForElementAndPolicy(eid,pid, lim)
+    return jsonify({"count":len(rs),"results":rs, "limit":lim, "elementID":eid, "policyID":pid}), 200
+
+
+
 
 #
 # ATTESTATION and VERIFICATION
@@ -377,7 +434,7 @@ def attest():
     if e.rc() != constants.SUCCESS:
         return jsonify({"msg":e.msg()}), 404
     else:
-        return jsonify(e.msg()), 201
+        return jsonify({"claim",e.msg()}), 201
 
 
 @v2_blueprint.route("/verify", methods=["POST"])
@@ -398,7 +455,7 @@ def verify():
     if e.rc() != constants.SUCCESS:
         return jsonify({"msg":e.msg()}), 404
     else:
-        return jsonify(e.msg()), 201
+        return jsonify({"result",e.msg()}), 201
 
 
 

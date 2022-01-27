@@ -456,28 +456,28 @@ def receiveMessage():
 #
 
 
-# def main(cert, key, config_filename="a10rest.conf"):
-#     a10rest.config.from_pyfile(config_filename)
-#     if cert and key:
-#         a10rest.run(
-#             debug=a10rest.config["FLASKDEBUG"],
-#             threaded=a10rest.config["FLASKTHREADED"],
-#             host=a10rest.config["DEFAULTHOST"],
-#             port=a10rest.config["DEFAULTPORT"],
-#             ssl_context=(cert, key),
-#         )
-#     else:
-#         a10rest.run(
-#             debug=a10rest.config["FLASKDEBUG"],
-#             threaded=a10rest.config["FLASKTHREADED"],
-#             host=a10rest.config["DEFAULTHOST"],
-#             port=a10rest.config["DEFAULTPORT"],
-#         )
+def main(cert, key, config_filename="a10rest.conf"):
+    a10rest.config.from_pyfile(config_filename)
+    if cert and key:
+        a10rest.run(
+            debug=a10rest.config["FLASKDEBUG"],
+            threaded=a10rest.config["FLASKTHREADED"],
+            host=a10rest.config["DEFAULTHOST"],
+            port=a10rest.config["DEFAULTPORT"],
+            ssl_context=(cert, key),
+        )
+    else:
+        a10rest.run(
+            debug=a10rest.config["FLASKDEBUG"],
+            threaded=a10rest.config["FLASKTHREADED"],
+            host=a10rest.config["DEFAULTHOST"],
+            port=a10rest.config["DEFAULTPORT"],
+        )
 
 #Use this in production
-def main(cert, key):
-   from waitress import serve
-   serve(a10rest, host="0.0.0.0", port=8520, threads=16)
+# def main(cert, key):
+#    from waitress import serve
+#    serve(a10rest, host="0.0.0.0", port=8520, threads=16)
 
 
 if __name__ == "__main__":
