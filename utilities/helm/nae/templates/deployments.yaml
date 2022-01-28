@@ -1,0 +1,147 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: eclipse-mosquitto
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: eclipse-mosquitto
+spec:
+  selector:
+    matchLabels:
+      app: eclipse-mosquitto
+  template:
+    metadata:
+      labels:
+        app: eclipse-mosquitto
+    spec:
+      containers:
+      - name: eclipse-mosquitto
+        image: eclipse-mosquitto:latest
+        volumeMounts:
+        - name: mosquitto-config
+          mountPath: /mosquitto/config/mosquitto.conf
+          subPath: mosquitto.conf
+        ports:
+        - containerPort: 1883
+        - containerPort: 9000
+      volumes:
+      - name: mosquitto-config
+        configMap:
+          name: mosquitto-conf
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: a10rest
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: a10rest
+spec:
+  selector:
+    matchLabels:
+      app: a10rest
+  template:
+    metadata:
+      labels:
+        app: a10rest
+    spec:
+      containers:
+      - name: a10rest
+        image: a10rest:latest
+        imagePullPolicy: Never
+        volumeMounts:
+        - name: a10-config
+          mountPath: /etc/a10.conf
+          subPath: a10.conf
+        ports:
+        - containerPort: 8520
+      volumes:
+        - name: a10-config
+          configMap:
+            name: a10-conf
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: u10
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: u10
+spec:
+  selector:
+    matchLabels:
+      app: u10
+  template:
+    metadata:
+      labels:
+        app: u10
+    spec:
+      containers:
+      - name: u10
+        image: u10:latest
+        imagePullPolicy: Never
+        volumeMounts:
+        - name: a10-config
+          mountPath: /etc/a10.conf
+          subPath: a10.conf
+        ports:
+        - containerPort: 8540
+      volumes:
+        - name: a10-config
+          configMap:
+            name: a10-conf
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongo-express
+  namespace: {{ .Values.namespace }}
+  labels:
+    app: mongo-express
+spec:
+  selector:
+    matchLabels:
+      app: mongo-express
+  template:
+    metadata:
+      labels:
+        app: mongo-express
+    spec:
+      containers:
+      - name: mongo-express
+        image: mongo-express:latest
+        ports:
+        - containerPort: 8081
+        env:
+        - name: ME_CONFIG_MONGODB_SERVER
+          value: mongo.{{ .Values.namespace }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongo
+  namespace: {{ .Values.namespace }}
+  labels:
+    app.kubernetes.io/name: mongo
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: mongo
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: mongo
+    spec:
+      containers:
+      - name: mongo
+        image: mongo:latest
+        args:
+          - --bind_ip
+          - 0.0.0.0
+        resources:
+          requests:
+            cpu: 100m
+            memory: 100Mi
+        ports:
+        - containerPort: 27017
