@@ -9,12 +9,12 @@ spec:
   ports:
     - protocol: TCP
       name: listener
-      port: 8560
-      targetPort: 1883
+      port: {{ .Values.eclipseMosquitto.mqttServicePort }}
+      targetPort: {{ .Values.eclipseMosquitto.mqttPort }}
     - protocol: TCP
       name: websocket
-      port: 8561
-      targetPort: 9000
+      port: {{ .Values.eclipseMosquitto.webSocketPort }}
+      targetPort: {{ .Values.eclipseMosquitto.webSocketServicePort }}
 ---
 apiVersion: v1
 kind: Service
@@ -29,6 +29,7 @@ spec:
     - protocol: TCP
       port: 8555
       targetPort: 8081
+      nodePort: {{ .Values.mongoExpress.nodePort }}
 ---
 apiVersion: v1
 kind: Service
@@ -50,13 +51,14 @@ metadata:
   name: u10
   namespace: {{ .Values.namespace }}
 spec:
-  type: LoadBalancer
+  type: NodePort
   selector: 
     app: u10
   ports:
     - protocol: TCP
       targetPort: 8540
       port: 8541
+      nodePort: {{ .Values.u10.nodePort }}
 ---
 apiVersion: v1
 kind: Service

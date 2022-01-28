@@ -30,7 +30,7 @@ try:
 
     MQTTCLIENTNAME = config["mqtt"]["mqttclientname"]
     MQTTADDRESS = config["mqtt"]["mqttaddress"]
-    MQTTPORT = config["mqtt"]["mqttport"]
+    MQTTPORT = int(config["mqtt"]["mqttport"])
     MQTTKEEPALIVEPING = config["mqtt"]["keepaliveping"]
 
     MONGODBURL = config["mongo"]["mongodburl"]

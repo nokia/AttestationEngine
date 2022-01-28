@@ -64,7 +64,7 @@ id = (
 print("mqtt client id is ", id)
 mqttc = mqtt.Client(id)
 mqttc.on_connect = on_connect
-mqttc.connect(a10.asvr.db.configuration.MQTTADDRESS)
+mqttc.connect(a10.asvr.db.configuration.MQTTADDRESS, port=a10.asvr.db.configuration.MQTTPORT)
 
 
 # KEEP ALIVE PING

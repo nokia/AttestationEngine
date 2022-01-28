@@ -1,0 +1,26 @@
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+ name: mongo-pv
+ labels:
+  type: local
+spec:
+ storageClassName: manual
+ capacity:
+  storage: 1Gi
+ accessModes:
+  - ReadWriteOnce
+ hostPath:
+  path: "/mnt/mongo_data"
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+ name: mongo-pv-claim
+spec:
+ storageClassName: manual
+ accessModes:
+  - ReadWriteOnce
+ resources:
+  requests:
+   storage: 1Gi

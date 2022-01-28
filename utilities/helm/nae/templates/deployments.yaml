@@ -15,15 +15,15 @@ spec:
         app: eclipse-mosquitto
     spec:
       containers:
-      - name: eclipse-mosquitto
-        image: eclipse-mosquitto:latest
+      - name: {{ .Values.eclipseMosquitto.name }}
+        image: {{ .Values.eclipseMosquitto.image.repository }}:{{ .Values.eclipseMosquitto.image.version }}
         volumeMounts:
         - name: mosquitto-config
           mountPath: /mosquitto/config/mosquitto.conf
           subPath: mosquitto.conf
         ports:
-        - containerPort: 1883
-        - containerPort: 9000
+        - containerPort: {{ .Values.eclipseMosquitto.mqttPort }}
+        - containerPort: {{ .Values.eclipseMosquitto.webSocketPort }}
       volumes:
       - name: mosquitto-config
         configMap:
@@ -77,8 +77,8 @@ spec:
         app: u10
     spec:
       containers:
-      - name: u10
-        image: u10:latest
+      - name: {{ .Values.u10.name }}
+        image: {{ .Values.u10.image.repository }}:{{ .Values.u10.image.version }}
         imagePullPolicy: Never
         volumeMounts:
         - name: a10-config
@@ -108,8 +108,8 @@ spec:
         app: mongo-express
     spec:
       containers:
-      - name: mongo-express
-        image: mongo-express:latest
+      - name: {{ .Values.mongoExpress.name }}
+        image: {{ .Values.mongoExpress.image.repository }}:{{ .Values.mongoExpress.image.version }}
         ports:
         - containerPort: 8081
         env:
@@ -145,3 +145,6 @@ spec:
             memory: 100Mi
         ports:
         - containerPort: 27017
+        volumeMounts:
+        - name: mongo-pv
+          mountPath: /data/db
