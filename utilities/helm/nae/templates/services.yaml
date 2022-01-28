@@ -1,0 +1,72 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: messagebus
+  namespace: {{ .Values.namespace }}
+spec:
+  selector:
+    app: eclipse-mosquitto
+  ports:
+    - protocol: TCP
+      name: listener
+      port: 8560
+      targetPort: 1883
+    - protocol: TCP
+      name: websocket
+      port: 8561
+      targetPort: 9000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo-express
+  namespace: {{ .Values.namespace }}
+spec:
+  type: NodePort
+  selector: 
+    app: mongo-express
+  ports:
+    - protocol: TCP
+      port: 8555
+      targetPort: 8081
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo
+  namespace: {{ .Values.namespace }}
+  labels:
+    app.kubernetes.io/name: mongo
+spec:
+  ports:
+  - port: 27017
+    targetPort: 27017
+  selector:
+    app.kubernetes.io/name: mongo
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: u10
+  namespace: {{ .Values.namespace }}
+spec:
+  type: LoadBalancer
+  selector: 
+    app: u10
+  ports:
+    - protocol: TCP
+      targetPort: 8540
+      port: 8541
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: a10rest
+  namespace: {{ .Values.namespace }}
+spec:
+  selector: 
+    app: a10rest
+  ports:
+    - protocol: TCP
+      targetPort: 8520  
+      port: 8521
