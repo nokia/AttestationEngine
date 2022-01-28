@@ -458,7 +458,6 @@ def verify():
         return jsonify({"claim",e.msg()}), 201
 
 
-
 #
 # Rules
 #

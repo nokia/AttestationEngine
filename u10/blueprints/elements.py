@@ -103,7 +103,7 @@ def element(item_id):
                 "pname": pname,
                 "res": r["result"],
                 "rul": r["ruleName"],
-#                "msg": r["message"],
+                "msg": r["message"],
                 "rid": r["itemid"],
             }
         )

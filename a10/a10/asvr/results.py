@@ -96,7 +96,7 @@ def getLatestResults(e, n=100):
 def getLatestResultsForElementAndPolicy(e, p, n=100):
     """
 	Returns the latest n results for an element sorted by the verifiedAt property of the results
-
+    
 	:params str e: the element id
 	:params str p: the policy id	
 	:params int n: the number of elements, defaults to 10
