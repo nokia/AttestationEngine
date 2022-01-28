@@ -15,9 +15,9 @@ data:
     logfile = /tmp/a10.log
 
     [mqtt]
-    mqttclientname= a10mqtt
+    mqttclientname=a10mqtt
     mqttaddress=messagebus.nae
-    mqttport=8560
+    mqttport={{ .Values.eclipseMosquitto.mqttServicePort }}
     keepaliveping=15
 
     [mongo]
@@ -31,5 +31,5 @@ metadata:
   namespace: {{ .Values.namespace }}
 data:
   mosquitto.conf: |
-    listener 1883
+    listener {{ .Values.eclipseMosquitto.mqttPort }}
     allow_anonymous true
