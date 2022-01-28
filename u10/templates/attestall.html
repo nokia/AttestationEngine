@@ -23,6 +23,8 @@
                         <th>Exp.Value</th>
                         <th>Operation</th>
                         <th>Rule</th>
+                        <th>Call Parameters</th>
+                        <th>Rule Parameters</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -48,7 +50,7 @@
 
 
                         <td> 
-                            <textarea class="form-control" rows="1" name="{{ loop.index }}__cp">{}</textarea>
+                            <textarea class="form-control" rows="1" name="{{ loop.index }}__cp">{{ cps }}</textarea>
                         </td>
                         <td> 
                             <textarea class="form-control" rows="1" name="{{ loop.index }}__rp">{}</textarea>

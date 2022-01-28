@@ -21,13 +21,45 @@ secret = secrets.token_urlsafe(64)
 attestation_blueprint.secret_key = secret
 
 
+#
+# Default Parameters
+#
+
+
+def getDefaultTPMSENDSSLparamters(e):
+    # if e contains a10_tpm_send_ssl  structure
+    # return that
+    try:
+        return {"a10_tpm_send_ssl":e["a10_tpm_send_ssl"]}
+    except:
+        return {}
+
+
+def generateDefaultCPS(e):
+    #build the default call parameters structure
+    #start with a blank dictionary
+    cps = {}
+
+    #Now check the TPMSENDSSLparameters -- basically a10_tpm_send_ssl structure
+    #This is how you do dictionary union in python   dict(x,**y)  where x and y are dictionaries
+    cps = dict( {}, **getDefaultTPMSENDSSLparamters(e) )
+
+    print("CPS is ",cps)    
+    return cps
+#
+# Endpoints
+#
+
 @attestation_blueprint.route("/attestverify/<itemid>", methods=["GET"])
 def attestverify_get(itemid):
-    e = elements.getElement(itemid)
+    e = elements.getElement(itemid).msg()
     ps = policies.getPoliciesFull()
     rs = rule_dispatcher.getRegisteredRules()
-    pp = json.dumps(e.msg(), sort_keys=True, indent=4)
-    return render_template("attest.html", e=e.msg(), pp=pp, ps=ps, rs=rs)
+    pp = json.dumps(e, sort_keys=True, indent=4)
+    
+    cps = generateDefaultCPS(e)
+
+    return render_template("attest.html", e=e, pp=pp, ps=ps, rs=rs, cps=cps)
 
 
 @attestation_blueprint.route("/attestverify", methods=["POST"])
@@ -81,7 +113,7 @@ def attestverify_post():
 
 @attestation_blueprint.route("/attestverifyall/<itemid>", methods=["GET"])
 def attestverifyall_get(itemid):
-    e = elements.getElement(itemid)
+    e = elements.getElement(itemid).msg()
     evs = expectedvalues.getExpectedValuesForElement(itemid)
     for i in evs:
         p = a10.asvr.policies.getPolicy(i["policyID"])
@@ -90,8 +122,9 @@ def attestverifyall_get(itemid):
         else:
             i["policyname"] = "POLICY DELETED"
     rs = rule_dispatcher.getRegisteredRules()
+    cps = generateDefaultCPS(e)
 
-    return render_template("attestall.html", e=e.msg(), evs=evs, rs=rs, lenevs=len(evs))
+    return render_template("attestall.html", e=e, evs=evs, rs=rs, lenevs=len(evs),cps=cps)
 
 
 @attestation_blueprint.route("/attestverifyall", methods=["POST"])
