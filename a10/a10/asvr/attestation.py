@@ -164,6 +164,7 @@ def verify(cid, rule):
     #
 
     application_result = handler_instance.apply()
+    print("APPLICATION RESULT ",application_result)
 
     # Into this variable is where we write the finalised JSON result
     # actually it is a python dict and we convert afterwards
