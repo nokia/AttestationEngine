@@ -27,7 +27,8 @@ class MeasuredBootLaunch(baserule.BaseRule):
         except KeyError:
             bootvalue = "TRUE"
 
-        print(self.claim)
+        #print(self.claim)
+
         try:
             txtlog = str(
                 self.claim["payload"]["payload"]["stat"]
@@ -35,7 +36,7 @@ class MeasuredBootLaunch(baserule.BaseRule):
         except Exception as e:
             return self.returnMessage(
             a10.structures.constants.VERIFYNORESULT,
-            "Exception gettinv TXT status"+str(e),
+            "Exception getting TXT status"+str(e),
             [],
             )            
 

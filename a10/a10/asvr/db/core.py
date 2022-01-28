@@ -739,7 +739,7 @@ def getLatestResults(e, n=500):
 
     collection = asdb["results"]
     rs = list(
-        collection.find({"elementID": e},{'_id': False,'itemid':True,'claimID':True,'result':True,'elementID':True,'policyID':True,'ruleName':True,'verifiedAt':True})
+        collection.find({"elementID": e},{'_id': False})
         .sort("verifiedAt", pymongo.DESCENDING)
         .limit(n)
     )

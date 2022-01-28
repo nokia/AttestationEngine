@@ -95,7 +95,7 @@ def element(item_id):
         else:
             pname=pol.msg()['name']
 
-
+        #print("RES",r)
         resultsummary.append(
             {
                 "verifiedAt": formatting.futc(r["verifiedAt"]),
@@ -103,7 +103,7 @@ def element(item_id):
                 "pname": pname,
                 "res": r["result"],
                 "rul": r["ruleName"],
-                "msg": r["message"],
+#                "msg": r["message"],
                 "rid": r["itemid"],
             }
         )
