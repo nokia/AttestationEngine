@@ -9,7 +9,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="a10",
-    version="2022.1.28.1",
+    version="2022.1.28.2",
     author="Ian Oliver",
     author_email="ian.oliver@nokia-bell-labs.com",
     description="Attestation Services Engine and Libraries",
