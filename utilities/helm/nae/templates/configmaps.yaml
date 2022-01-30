@@ -41,6 +41,8 @@ metadata:
   namespace: {{ .Values.namespace }}
 data:
   mongod.conf: |
+    # for documentation of all options, see:
+    # https://docs.mongodb.com/manual/reference/configuration-options/
     # where and how to store data
     storage:
       dbPath: /data/db
