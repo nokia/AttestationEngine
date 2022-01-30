@@ -15,6 +15,7 @@ RUN cd a10 && pip3 install -r requirements.txt && python setup.py install
 ADD a10rest/requirements.txt .
 RUN pip3 install -r requirements.txt
 
+ADD a10rest/blueprints ./blueprints/
 ADD a10rest/a10rest.py .
 ADD a10rest/a10rest.conf .
 # ADD a10rest/static/* ./static/

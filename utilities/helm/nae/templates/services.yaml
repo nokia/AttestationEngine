@@ -48,7 +48,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: u10
+  name: {{ .Values.u10.name }}
   namespace: {{ .Values.namespace }}
 spec:
   type: NodePort
@@ -63,12 +63,14 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: a10rest
+  name: {{ .Values.a10rest.name }}
   namespace: {{ .Values.namespace }}
 spec:
+  type: NodePort
   selector: 
     app: a10rest
   ports:
     - protocol: TCP
       targetPort: 8520  
       port: 8521
+      nodePort: {{ .Values.a10rest.nodePort }}

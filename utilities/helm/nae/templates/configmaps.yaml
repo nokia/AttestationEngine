@@ -33,3 +33,20 @@ data:
   mosquitto.conf: |
     listener {{ .Values.eclipseMosquitto.mqttPort }}
     allow_anonymous true
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mongo-conf
+  namespace: {{ .Values.namespace }}
+data:
+  mongod.conf: |
+    # where and how to store data
+    storage:
+      dbPath: /data/db
+      journal:
+          enabled: true
+    # network settings      
+    net:
+      bindIp: 0.0.0.0
+      port: 27017

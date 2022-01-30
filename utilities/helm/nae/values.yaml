@@ -14,6 +14,12 @@ eclipseMosquitto:
   webSocketPort: 9000
   webSocketServicePort: 8561
 
+mongo:
+  name: mongo
+  volume:
+    size: 1Gi
+    hostPath: "/mnt/mongo_db"
+
 mongoExpress:
   name: mongo-express
   image:
@@ -31,3 +37,14 @@ u10:
   # Port which exposes u10 on host
   # needs to be in range [30000,32767]
   nodePort: 30000
+
+a10rest:
+  name: a10rest
+  image:
+    repository: a10rest
+    version: latest
+  # Port which exposes a10rest on host
+  # needs to be in range [30000,32767]
+  nodePort: 30002
+
+

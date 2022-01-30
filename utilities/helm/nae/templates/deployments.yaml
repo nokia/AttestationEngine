@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: eclipse-mosquitto
+  name: {{ .Values.eclipseMosquitto.name }}
   namespace: {{ .Values.namespace }}
   labels:
     app: eclipse-mosquitto
@@ -32,7 +32,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: a10rest
+  name: {{ .Values.a10rest.name }}
   namespace: {{ .Values.namespace }}
   labels:
     app: a10rest
@@ -46,8 +46,8 @@ spec:
         app: a10rest
     spec:
       containers:
-      - name: a10rest
-        image: a10rest:latest
+      - name: {{ .Values.a10rest.name }}
+        image: {{ .Values.a10rest.image.repository }}:{{ .Values.a10rest.image.version }}
         imagePullPolicy: Never
         volumeMounts:
         - name: a10-config
@@ -63,7 +63,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: u10
+  name: {{ .Values.u10.name }}
   namespace: {{ .Values.namespace }}
   labels:
     app: u10
@@ -119,7 +119,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: mongo
+  name: {{ .Values.mongo.name }}
   namespace: {{ .Values.namespace }}
   labels:
     app.kubernetes.io/name: mongo
@@ -133,12 +133,19 @@ spec:
       labels:
         app.kubernetes.io/name: mongo
     spec:
+      volumes:
+        - name: mongo-config
+          configMap:
+            name: mongo-conf
+        - name: mongo-volume
+          persistentVolumeClaim:
+            claimName: mongo-pv-claim
       containers:
       - name: mongo
         image: mongo:latest
         args:
-          - --bind_ip
-          - 0.0.0.0
+          - --config
+          - /etc/mongod.conf
         resources:
           requests:
             cpu: 100m
@@ -146,5 +153,8 @@ spec:
         ports:
         - containerPort: 27017
         volumeMounts:
-        - name: mongo-pv
+        - name: mongo-volume
           mountPath: /data/db
+        - name: mongo-config
+          mountPath: /etc/mongod.conf
+          subPath: mongod.conf
