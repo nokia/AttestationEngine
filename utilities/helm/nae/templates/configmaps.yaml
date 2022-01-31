@@ -1,0 +1,54 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: a10-conf
+  namespace: {{ .Values.namespace }}
+data:
+  a10.conf: |
+    [Identification]
+    asvrname = A10_local
+
+    [Debugging]
+    debug=on
+
+    [Logging]
+    logfile = /tmp/a10.log
+
+    [mqtt]
+    mqttclientname=a10mqtt
+    mqttaddress=messagebus.nae
+    mqttport={{ .Values.eclipseMosquitto.mqttServicePort }}
+    keepaliveping=15
+
+    [mongo]
+    mongodburl=mongodb://mongo.nae:27017/
+    mongodbname=asvrlocal
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mosquitto-conf
+  namespace: {{ .Values.namespace }}
+data:
+  mosquitto.conf: |
+    listener {{ .Values.eclipseMosquitto.mqttPort }}
+    allow_anonymous true
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mongo-conf
+  namespace: {{ .Values.namespace }}
+data:
+  mongod.conf: |
+    # for documentation of all options, see:
+    # https://docs.mongodb.com/manual/reference/configuration-options/
+    # where and how to store data
+    storage:
+      dbPath: /data/db
+      journal:
+          enabled: true
+    # network settings      
+    net:
+      bindIp: 0.0.0.0
+      port: 27017
