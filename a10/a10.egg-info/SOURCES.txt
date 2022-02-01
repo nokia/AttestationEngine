@@ -12,6 +12,7 @@ a10/asvr/claims.py
 a10/asvr/elements.py
 a10/asvr/expectedvalues.py
 a10/asvr/hashes.py
+a10/asvr/pcrschemas.py
 a10/asvr/policies.py
 a10/asvr/results.py
 a10/asvr/types.py
