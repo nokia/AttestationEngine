@@ -764,3 +764,71 @@ def getLatestResultsForElementAndPolicy(e, p, n):
         .limit(n)
     )
     return rs
+
+
+
+##################################################
+#
+# PCR Schemas
+#
+##################################################
+
+
+def addPCRSchema(h):
+    """ Adds an entry to the elements collection.
+
+    First this outputs the element as JSON and then tries to insert it into the database.
+    MongoDB returns an inserted_id - which is a mongo ObjectID - if this is successful.
+
+    :param dict e: the element to be added
+    :return: the success or failure of the operation
+    :rtype: Bool
+
+
+    """
+    collection = asdb["pcrschemas"]
+    r = collection.insert_one(h)
+
+    if r.inserted_id == None:
+        return False
+    else:
+        return True
+
+
+def getPCRSchema(h):
+    """ Returns an element with the given itemid
+
+    :param str h: the hash to search for
+    :return: the returned object from Monogo less the mongo object ID
+    :rtype: dict or None
+    """
+
+    collection = asdb["pcrschemas"]
+    e = collection.find_one({"name": h}, {"_id": False})
+    return e
+
+
+def getPCRSchemas():
+    """ Returns an element with the given itemid
+
+    :param str i: ItemID of the element
+    :return: the returned object from Monogo less the mongo object ID
+    :rtype: dict or None
+    """
+
+    collection = asdb["pcrschemas"]
+    e = collection.find({}, {"_id": False, "itemid": True, "name": True})
+    return list(e)
+
+
+def getPCRSchemasFull():
+    """ Returns an element with the given itemid
+
+    :param str i: ItemID of the element
+    :return: the returned object from Monogo less the mongo object ID
+    :rtype: dict or None
+    """
+
+    collection = asdb["pcrschemas"]
+    e = collection.find({}, {"_id": False})
+    return list(e)

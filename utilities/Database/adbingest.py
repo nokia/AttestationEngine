@@ -16,7 +16,7 @@ colls = sys.argv[1]
 jfile = sys.argv[2]
 a10ep = sys.argv[3]
 
-if not (colls == "hashes" or colls == "policies"):
+if not (colls == "hashes" or colls == "policies" or colls=="pcrschemas"):
     print("Incorrect type: hashes or policies only")
     sys.exit(1)
 
@@ -41,9 +41,11 @@ report = []
 for i in j:
     print("Progress :", (n + 1) / len(j) * 100, "%")
     if colls == "policies":
-        r = requests.post(a10ep + "/policy", json=i)
+        r = requests.post(a10ep + "/v2/policy", json=i)
     elif colls == "hashes":
-        r = requests.post(a10ep + "/hash", json=i)
+        r = requests.post(a10ep + "/v2/hash", json=i)
+    elif colls == "pcrschemas":
+        r = requests.post(a10ep + "/v2/pcrschema", json=i)
     else:
         print("Something has gone really badly wrong as this is unreachable code!")
         sys.exit(2)

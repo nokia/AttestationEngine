@@ -15,6 +15,8 @@ from a10.asvr import (
     expectedvalues,
     results,
     types,
+    hashes,
+    pcrschemas
 )
 from a10.structures import constants
 from a10.asvr.db import announce
@@ -479,6 +481,37 @@ def getRules():
     return jsonify(rsl), 200
 
 
+
+#
+# Hashes and PCRSchemas
+#
+
+
+@v2_blueprint.route("/hash", methods=["POST"])
+def addHash():
+    content = request.json
+    print("content", content)
+
+    e = hashes.addHash(content)
+
+    if e.rc() != constants.SUCCESS:
+        return jsonify({"msg":e.msg()}), 400
+    else:
+        return jsonify({"hash":e.msg()}), 201
+
+
+
+@v2_blueprint.route("/pcrschema", methods=["POST"])
+def addPCRSchema():
+    content = request.json
+    print("content", content)
+
+    e = pcrschemas.addPCRSchema(content)
+
+    if e.rc() != constants.SUCCESS:
+        return jsonify({"msg":e.msg()}), 400
+    else:
+        return jsonify({"prcschema":e.msg()}), 201 
 
 
 
