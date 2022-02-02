@@ -3,21 +3,17 @@
 #Licensed under the BSD 3-Clause Clear License.
 #SPDX-License-Identifier: BSD-3-Clear
 -->
-
 {% extends "base.html" %}
 {% block content %}
 <h2>Claim</h2>
-
 <span>
-<b>Pretty Printers</b>: 
-<a href=/claim/prettyprint/pcrs/{{ cla.itemid }} target="_blank" rel="noopener noreferrer"><button type="button" class="btn btn-primary btn-sm">PCRs</button></a>
-<a href=/claim/prettyprint/quote/{{ cla.itemid }} target="_blank" rel="noopener noreferrer"><button type="button" class="btn btn-primary btn-sm">Quote</button></a>
-<a href=/claim/prettyprint/uefieventlog/{{ cla.itemid }} target="_blank" rel="noopener noreferrer"><button type="button" class="btn btn-primary btn-sm">UEFI EventLog</button></a>
-<a href=/claim/prettyprint/imalog/{{ cla.itemid }} target="_blank" rel="noopener noreferrer"><button type="button" class="btn btn-primary btn-sm">IMA Log</button></a>
-<a href=/claim/prettyprint/sysinfo/{{ cla.itemid }} target="_blank" rel="noopener noreferrer"><button type="button" class="btn btn-primary btn-sm">Sysinfo</button></a>
-
+    <b>Pretty Printers</b>:
+    <a href=/claim/prettyprint/pcrs/{{ cla.itemid }} target="_blank" rel="noopener noreferrer"><button type="button" class="btn btn-primary btn-sm">PCRs</button></a>
+    <a href=/claim/prettyprint/quote/{{ cla.itemid }} target="_blank" rel="noopener noreferrer"><button type="button" class="btn btn-primary btn-sm">Quote</button></a>
+    <a href=/claim/prettyprint/uefieventlog/{{ cla.itemid }} target="_blank" rel="noopener noreferrer"><button type="button" class="btn btn-primary btn-sm">UEFI EventLog</button></a>
+    <a href=/claim/prettyprint/imalog/{{ cla.itemid }} target="_blank" rel="noopener noreferrer"><button type="button" class="btn btn-primary btn-sm">IMA Log</button></a>
+    <a href=/claim/prettyprint/sysinfo/{{ cla.itemid }} target="_blank" rel="noopener noreferrer"><button type="button" class="btn btn-primary btn-sm">Sysinfo</button></a>
 </span>
-
 <hr />
 <div>
     <h5>Information</h5>
@@ -42,6 +38,14 @@
                     ta processing <b>{{ cla.timedifference }}s</b> <span class="fa fa-long-arrow-right"></span> received
                     <b> {{ cla.receivedUTC }} </b>
                 </td>
+            <tr>
+                <td><b>Payload Keys</b></td>
+                <td>
+                    <h5>{% for k in cla.payload.payload.keys() %}
+                        <span class="badge bg-secondary">{{ k }}</span>
+                        {% endfor %}</h5>
+                </td>
+            </tr>
             </tr>
         </tbody>
     </table>
@@ -75,14 +79,13 @@
                     <i class="fa fa-exclamation-triangle" style="font-size:20px;color:yellow"></i>
                     {% endif %}
                 </td>
-                <td><a href=/result/{{ e.itemid }}><span class="fa fa-check-square-o">  </span>     </a>    
+                <td><a href=/result/{{ e.itemid }}><span class="fa fa-check-square-o"> </span> </a>
                 <td>{{ e.verifiedAtUTC }}</td>
                 <td>{{ e.difference }}</td>
                 <td>{{ e.ruleName }}</td>
                 <td>{{ e.message }}</td>
             </tr>
-                            {% endfor %}
-
+            {% endfor %}
         </tbody>
     </table>
     <hr />
