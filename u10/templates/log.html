@@ -88,9 +88,9 @@ Page loaded at <b>{{ ltutc }}</b> ( {{ lt }} ). Showing <b>{{ lrs }}</b> of <b>{
                   <i class="fa fa-flag-o" style="font-size:20px;color:green"></i> Element <a href=/element/{{ l.data.elementid }}>{{ l.data.elementid}}</a>
                  {% elif l.op == "ta_signal" %}
                   <i class="fa fa-flag-checkered" style="font-size:20px;color:black"></i> Element <a href=/element/{{ l.data.elementid }}>{{ l.data.elementid}}</a>, message: {{ l.data.msg }}
-
+                
                 {% else %}
-                 Unknown type: {{ l.data }}
+                 Unknown type {{ l.type }} : {{ l.data }} 
                 {% endif %}
             </td>
         </tr>

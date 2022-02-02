@@ -18,6 +18,7 @@
         <thead>
             <tr>
                 <th>Claim ID</th>
+                <th>Payload Keys</th>
                 <th>Element</th>               
                 <th>Policy</th>      
 
@@ -34,7 +35,14 @@
           <td>             
             <a href=/claim/{{ c.itemid }}>{{ c.itemid }}         </a>
           </td>
-       
+ 
+          <td>          
+           <h5>{% for k in c.payload.payload.keys() %}
+    <span class="badge bg-secondary">{{ k }}</span>
+    {% endfor %}</h5>
+    
+          </td>
+
           <td>   
             <a href=/element/{{ c.header.element.itemid }}>{{ c.header.element.name }}</a></a>
           </td>
