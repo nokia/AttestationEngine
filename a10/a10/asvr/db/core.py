@@ -528,7 +528,7 @@ def addClaim(e):
 
     """
     collection = asdb["claims"]
-
+    print("\n*************\n",e,"\n=========\n")
     r = collection.insert_one(e)
 
     if r.inserted_id == None:
