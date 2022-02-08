@@ -59,9 +59,6 @@ def elements():
                 "rid": r["itemid"],
             }
 
-            if archived==True:
-                summarystr["archived":r["archived"]]
-
             resultsummary.append(summarystr)
 
         e["summary"] = resultsummary
@@ -70,8 +67,11 @@ def elements():
 
     ts = a10.asvr.types.getTypes()
 
-    return render_template("elements.html", elements=es_sorted, ts=ts)
-
+    if archived==False:
+        return render_template("elements.html", elements=es_sorted, ts=ts)
+    else:
+        return render_template("elements_archived.html", elements=es_sorted, ts=ts)
+ 
 
 @elements_blueprint.route("/element/<item_id>", methods=["GET"])
 def element(item_id):

@@ -44,6 +44,9 @@ def getDatabaseStatus():
         count = collection.estimated_document_count()
         dbstatus[c] = str(count)
 
+    dbstatus["elements_current"] = len(getElements(archived=False))
+    dbstatus["elements_archived"] = len(getElements(archived=True))
+
     return dbstatus
 
 
