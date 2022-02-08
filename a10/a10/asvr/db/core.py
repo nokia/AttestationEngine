@@ -44,6 +44,9 @@ def getDatabaseStatus():
         count = collection.estimated_document_count()
         dbstatus[c] = str(count)
 
+    dbstatus["elements_current"] = len(getElements(archived=False))
+    dbstatus["elements_archived"] = len(getElements(archived=True))
+
     return dbstatus
 
 
@@ -148,7 +151,7 @@ def getElementByName(n):
     return e
 
 
-def getElements():
+def getElements(archived=False):
     """ Returns an element with the given itemid
 
     :param str i: ItemID of the element
@@ -157,11 +160,11 @@ def getElements():
     """
 
     collection = asdb["elements"]
-    e = collection.find({}, {"_id": False, "itemid": True})
+    e = collection.find({ "archived":{"$exists":archived}}, {"_id": False, "itemid": True})
     return list(e)
 
 
-def getElementsByType(t):
+def getElementsByType(t,archived=False):
     """ Returns an element with the given itemid
 
     :param str t: The type to filter by
@@ -170,7 +173,7 @@ def getElementsByType(t):
     """
 
     collection = asdb["elements"]
-    es = list(collection.find({}, {"_id": False, "itemid": True, "type": True}))
+    es = list(collection.find({ "archived":{"$exists":archived}}, {"_id": False, "itemid": True, "type": True}))
     print("\nES with TYPE is ", type(es), es,"\n")
     fs = list(filter(
             lambda x: t in x["type"], es
@@ -179,7 +182,7 @@ def getElementsByType(t):
     return list(fs)
 
 
-def getElementsFull():
+def getElementsFull(archived=False):
     """ Returns an element with the given itemid
 
     :param str i: ItemID of the element
@@ -188,15 +191,32 @@ def getElementsFull():
     """
 
     collection = asdb["elements"]
-    e = collection.find({}, {"_id": False})
+    e = collection.find({ "archived":{"$exists":archived}}, {"_id": False})
     return list(e)
 
 
-def deleteElement(e):
+def deleteElementPermanently(e):
     collection = asdb["elements"]
     r = collection.delete_one({"itemid": e})
 
     if r.deleted_count == 1:
+        return True
+    else:
+        return False
+
+
+def deleteElement(e,t):
+    """
+        e is an element id
+        t is a timestamp
+    """
+    collection = asdb["elements"]
+
+    u = { "archived": t }
+
+    r = collection.update_one({"itemid": e}, {"$set": u})
+
+    if r.matched_count == 1:
         return True
     else:
         return False

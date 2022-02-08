@@ -27,11 +27,16 @@ elements_blueprint.secret_key = secret
 @elements_blueprint.route("/elements", methods=["GET"])
 def elements():
     lrs = 5  # default number of latest results if nothing else is specified
+    archived=False
 
     if "lrs" in request.args:
         lrs = int(request.args["lrs"])
 
-    es = a10.asvr.elements.getElementsFull()
+    if "archived" in request.args:
+        if int(request.args["archived"])==1:
+            archived=True
+
+    es = a10.asvr.elements.getElementsFull(archived=archived)
 
     for e in es:
         res = a10.asvr.results.getLatestResults(e["itemid"], lrs)
@@ -44,8 +49,6 @@ def elements():
                 pname = "?"
             else:
                 pname=pol.msg()['name']
-
-
 
             summarystr = {
                 "verifiedAt": formatting.futc(r["verifiedAt"]),
@@ -64,8 +67,11 @@ def elements():
 
     ts = a10.asvr.types.getTypes()
 
-    return render_template("elements.html", elements=es_sorted, ts=ts)
-
+    if archived==False:
+        return render_template("elements.html", elements=es_sorted, ts=ts)
+    else:
+        return render_template("elements_archived.html", elements=es_sorted, ts=ts)
+ 
 
 @elements_blueprint.route("/element/<item_id>", methods=["GET"])
 def element(item_id):

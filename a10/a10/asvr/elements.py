@@ -5,6 +5,7 @@
 import a10.structures.constants
 import a10.structures.identity
 import a10.structures.returncode
+import a10.structures.timestamps
 import a10.asvr.db.core
 import a10.asvr.db.announce
 
@@ -86,27 +87,27 @@ def getElementByName(n):
         return a10.structures.returncode.ReturnCode(a10.structures.constants.SUCCESS, e)
 
 
-def getElements():
+def getElements(archived=False):
     """Returns a list of elementIDs
 
     :return: a list of elementIDs
     :rtype: str list
 	"""
-    es = a10.asvr.db.core.getElements()
+    es = a10.asvr.db.core.getElements(archived=archived)
     return es
 
 
-def getElementsFull():
+def getElementsFull(archived=False):
     """Returns a list of everything in the database.
 
     :return: a list of elementIDs
     :rtype: str list
 	"""
-    es = a10.asvr.db.core.getElementsFull()
+    es = a10.asvr.db.core.getElementsFull(archived=archived)
     return es
 
 
-def getElementsByType(t):
+def getElementsByType(t,archived=False):
     """Gets a list of elements from the database by their itemID filtered by the given type t
 
     :param str t: the type
@@ -114,7 +115,7 @@ def getElementsByType(t):
     :rtype: ResultCode
     """
 
-    es = a10.asvr.db.core.getElementsByType(t)
+    es = a10.asvr.db.core.getElementsByType(t,archived=archived)
     return es
   
 
@@ -128,6 +129,7 @@ def updateElement(e):
 	"""
     r = a10.asvr.db.core.updateElement(e)
     if r == True:
+        # need to check if this an archived element
         a10.asvr.db.announce.announceItemManagement(
             "update", {"type": "element", "itemid": e["itemid"]}
         )
@@ -147,8 +149,12 @@ def deleteElement(i):
 	:return: return code structure
 	:rtype: ResultCode
 	"""
-    e = a10.asvr.db.core.deleteElement(i)
+
+    t = a10.structures.timestamps.now()
+
+    e = a10.asvr.db.core.deleteElement(i,t)
     if e is True:
+        # Need to check if this is an archived element
         a10.asvr.db.announce.announceItemManagement(
             "delete", {"type": "element", "itemid": i}
         )

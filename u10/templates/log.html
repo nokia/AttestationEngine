@@ -43,6 +43,7 @@ Page loaded at <b>{{ ltutc }}</b> ( {{ lt }} ). Showing <b>{{ lrs }}</b> of <b>{
             <th>Time</th>
             <th>Channel</th>
             <th>Operation</th>
+            <th>Summary</th>
             <th>Data</th>
         </tr>
     </thead>
@@ -93,7 +94,10 @@ Page loaded at <b>{{ ltutc }}</b> ( {{ lt }} ). Showing <b>{{ lrs }}</b> of <b>{
                  Unknown type {{ l.type }} : {{ l.data }} 
                 {% endif %}
             </td>
+                            <td>{{ l }}</td>
+
         </tr>
+
         {% endfor %}
     </tbody>
 </table>
