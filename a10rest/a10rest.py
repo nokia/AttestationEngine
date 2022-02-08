@@ -68,7 +68,14 @@ def getelements():
                 application/json:
                     schema: list itemid
     """
-    es = [x["itemid"] for x in elements.getElements()]
+
+    archived=False
+    if "archived" in request.args:
+        if int(request.args["archived"])==1:
+            archived=True
+
+
+    es = [x["itemid"] for x in elements.getElements(archived=archived)]
     return str(es), 200
 
 
@@ -79,7 +86,12 @@ def getTypes():
 
 @a10rest.route("/elements/type/<elementtype>", methods=["GET"])
 def getElementsByType(elementtype):
-    es = [x["itemid"] for x in elements.getElementsByType(elementtype)]
+    archived=False
+    if "archived" in request.args:
+        if int(request.args["archived"])==1:
+            archived=True
+
+    es = [x["itemid"] for x in elements.getElementsByType(elementtype,archived=archived)]
     return str(es), 200
 
 #
