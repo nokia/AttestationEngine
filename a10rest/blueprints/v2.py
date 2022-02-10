@@ -7,7 +7,7 @@
 #import sys
 import secrets
 
-from a10.asvr import (S
+from a10.asvr import (
     elements,
     policies,
     attestation,
