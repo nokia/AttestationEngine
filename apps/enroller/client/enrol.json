@@ -2,12 +2,12 @@
    "asurl": [
       "http://10.144.176.154:8510"
    ],
-   "description": "to lazy to write this",
-   "endpoint": "http://192.168.1.82:8530",
-   "hostname": "ubuntu",
+   "description": "Smallpox",
+   "endpoint": "http://192.168.1.92:8530",
+   "hostname": "smallpox",
    "location": "60.22309,24.75877",
-   "name": "smallpox_new",
-   "protocol": "A10HTTPREST",
+   "name": "smallpox",
+   "protocol": "A10TPMSENDSSL",
    "tpm2": {
       "tpm0": {
          "akhandle": "0x810100aa",

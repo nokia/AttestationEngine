@@ -118,11 +118,43 @@ def enrolelement(sessionid):
         return "Incorrect secret", 400
 
     # Now call the attestation engine API to add an element
-    r = requests.post(aerestendpoint + "/element", json=eelement)
+    r = requests.post(aerestendpoint + "/v2/element", json=eelement)
     print("RETURN=", r.status_code, r.text, r.json)
 
     if r.status_code == 201:
         return r.text, 201
+    else:
+        return "Communication with AE failed " + r.text + "," + str(r.json) + ".", 503
+
+
+
+
+
+@eapp.route("/enrol/element/<sessionid>", methods=["PUT"])
+def enrolelementupdate(sessionid):
+    # First check if there is a valid session id
+    sessionsecret = ""
+    try:
+        sessionsecret = enrollmentdb[sessionid]
+    except:
+        return "Invalid Session", 422
+
+    content = request.json
+    esecret = content["secret"]
+    eelement = content["element"]
+
+    # test if the given secret is the same as the expected secret
+    if esecret != sessionsecret:
+        return "Incorrect secret", 400
+
+    print("Updating element on AE ", eelement["itemid"])
+
+    # Now call the attestation engine API to add an element
+    r = requests.put(aerestendpoint + "/v2/element/"+eelement["itemid"], json=eelement)
+    print("RETURN=", r.status_code, r.text, r.json)
+
+    if r.status_code == 200:
+        return r.text, 200
     else:
         return "Communication with AE failed " + r.text + "," + str(r.json) + ".", 503
 
