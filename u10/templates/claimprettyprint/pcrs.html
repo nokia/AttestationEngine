@@ -7,20 +7,44 @@ SPDX-License-Identifier: BSD-3-Clear
 {% block content %}
 <h2>PCRs Pretty Print</h2>
 Claim: <a href=/claim/{{ cla.itemid }}>{{ cla.itemid }}</a>
-<hr />
+
+
+<hr/>
+<h4>PCR Banks utilised: {% for b in pcrlist.keys() %}
+                    <span class="badge bg-primary">{{ b }}</span>
+                    {% endfor %}</h4>
+
+<hr/>
+
 <div>
     {% for b in pcrlist.keys() %}
-    <h5>{{ b }}</h5>
+    <h3>Bank: {{ b }}</h3>
     <table class="table table-striped .table-sm">
-        <tbody>
+        <tbody id="pcrtable">
             {% for r in pcrlist[b] %}
             <tr>
-                <td> {{ r[0] }}</td>
-                <td> {{ r[1] }}</td>
+                <td> <b>{{ r[0] }}</b></td>
+                {% set h = resolveHash( r[1] ) %}
+                <td>
+                    {% if h == "-" %}
+                    -
+                    {% else %}
+                       {{ h.short }}
+                    {% endif %}
+                </td>
+                <td> <i>{{ r[1] }}</i></td>
+                               <td>
+                    {% if h == "-" %}
+                    -
+                    {% else %}
+                      {{ h.long }}
+                    {% endif %}
+                </td>
             </tr>
             {% endfor %}
             </hr>
         </tbody>
     </table>
     {% endfor %}
+
     {% endblock %}

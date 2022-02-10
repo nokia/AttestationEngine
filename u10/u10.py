@@ -22,6 +22,9 @@ from blueprints.ping import ping_blueprint
 from blueprints.qrcodes import qrcodes_blueprint
 from blueprints.pcrschemas import pcrschemas_blueprint
 
+import a10.structures.constants
+import a10.asvr.hashes
+
 u10 = Flask(__name__)
 
 secret = secrets.token_urlsafe(64)
@@ -45,16 +48,20 @@ u10.register_blueprint(qrcodes_blueprint)
 u10.register_blueprint(pcrschemas_blueprint)
 
 
-# This function is unused but I'll leave it here for documentation and future purposes
-# You can call this function from a template, eg: {{ resolveTheHash }} - use the name in the returned dict
-# Historical fact: I had a use for this function, but didn't need it nor find a convenience place in the end :-)
-#    but, leaving it here means it is documented for when I find a use for it in the future
-#    such as resolving hashes and other identifiers, see the "hashes" table
 #
-# @u10.context_processor
-# def resolveHash():
-#    print("Calling context processor")
-#    return dict(resolveTheHash='Shw Mae!')
+# Context Processor Functions
+#
+
+@u10.context_processor
+def resolveHash_processor():
+    def resolveHash(h):
+        #print("Calling context processor with ",h)
+        r =  a10.asvr.hashes.getHash(h)
+        if r.rc()==a10.structures.constants.SUCCESS:
+            return a10.asvr.hashes.getHash(h).msg()
+        else:
+            return "-"
+    return dict(resolveHash=resolveHash)
 
 #
 # Handle errors, censorship and cups to tea
