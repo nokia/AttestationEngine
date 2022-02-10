@@ -39,6 +39,8 @@ class A10tpm2send(a10.asvr.protocols.A10ProtocolBase.A10ProtocolBase):
             rc = self.tpm2pcrs()
         elif self.policyintent=="tpm2/quote":
             rc = self.tpm2quote()
+        elif self.policyintent=="sys/info":
+            rc = self.sysinfo()
         else:
             print(" Intent not understood")
             rc = a10.structures.returncode.ReturnCode(
@@ -78,6 +80,21 @@ class A10tpm2send(a10.asvr.protocols.A10ProtocolBase.A10ProtocolBase):
 
         return tcti
 
+    def getSSH(self):
+        #
+        # This is the structure used for the SSH command
+        #    
+        # eg: ssh <username>@<ip| -i <key>
+        #
+        key = self.callparameters["a10_tpm_send_ssl"]["key"]
+        username = self.callparameters["a10_tpm_send_ssl"]["username"]
+        ip = urlparse(self.endpoint).hostname   # we need just the IP address, ssh does the rest
+
+        ssh = "ssh "+username+"@"+ip+" -i "+key+" "
+        print("CONSTRUCTED SSH IS ",ssh)
+        
+        return ssh
+    
     #
     # These functions implement the specific commands by calling out to tpm2_tools installed locally
     #
@@ -169,3 +186,43 @@ class A10tpm2send(a10.asvr.protocols.A10ProtocolBase.A10ProtocolBase):
         return a10.structures.returncode.ReturnCode(
                 a10.structures.constants.PROTOCOLSUCCESS, {"claim":claim,"transientdata":{}}
             )    
+
+    def sysinfo(self):
+        claim = { "header": {
+                "ta_received": str(datetime.datetime.now(datetime.timezone.utc)),
+                "ssl_tpm2send_timeout":str(self.getTimeout())
+             },
+             "payload":{},
+             "signature":{}
+           }
+
+        # Now create the command
+
+        cmd = 'uname -a'
+
+        #TODO: this is a bit odd because the protocol returns always success...fix later
+
+        try:
+            cmdwtcti = (self.getSSH()+cmd).split()
+            print("Trying ",cmdwtcti)
+
+            out = subprocess.check_output(cmdwtcti, stderr=subprocess.STDOUT, timeout=self.getTimeout()) 
+
+        except subprocess.CalledProcessError as exc:
+            print("Status : FAIL", exc)
+            claim['payload']={"msg":"Command failed to execute","exc":str(exc)}
+        except subprocess.TimeoutExpired as exc:
+            claim['payload']={"msg":"Connection and/or processing timedout after "+str(self.getTimeout())+"seconds"} 
+        else:
+            claim['payload']['systeminfo']={'uname':out.decode("utf-8")}
+            print("PAYLOAD=",claim['payload'])
+            
+
+        # and return
+
+        claim["header"]["ta_complete"] = str(datetime.datetime.now(datetime.timezone.utc))
+
+        return a10.structures.returncode.ReturnCode(
+                a10.structures.constants.PROTOCOLSUCCESS, {"claim":claim,"transientdata":{}}
+            )    
+    
