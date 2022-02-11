@@ -27,7 +27,7 @@ Claim: <a href=/claim/{{ cla.itemid }}>{{ cla.itemid }}</a>
                 {% set h = resolveHash( r[1] ) %}
                 <td>
                     {% if h == "-" %}
-                    -
+                    <a href="/new/hash/{{ r[1] }}"> <i class="fa fa-user-plus"></i> </a>
                     {% else %}
                        {{ h.short }}
                     {% endif %}

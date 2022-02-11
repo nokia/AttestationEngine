@@ -34,12 +34,12 @@ a10rest.register_blueprint(v2_blueprint)
 # This was added for the mobile app...not sure what it does
 #
 
-class A10JSONEncoder(JSONEncoder):
-    def default(self,obj):
-        if isinstance(obj,ObjectId):
-            return str(obj)
-        return JSONEncoder.default(self, obj)
-a10rest.json_encoder = A10JSONEncoder
+# class A10JSONEncoder(JSONEncoder):
+#     def default(self,obj):
+#         if isinstance(obj,ObjectId):
+#             return str(obj)
+#         return JSONEncoder.default(self, obj)
+# a10rest.json_encoder = A10JSONEncoder
 
 #
 # Home

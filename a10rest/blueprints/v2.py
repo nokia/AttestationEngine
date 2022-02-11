@@ -431,12 +431,12 @@ def attest():
 
     e = attestation.attest(eid, pid, cps)
     
-    print("\nreturn from attest ",e,e.rc(),e.msg())
+    print("\nreturn from attest ",e,e.rc(),e.msg(),type(e.msg()))
 
     if e.rc() != constants.SUCCESS:
         return jsonify({"msg":e.msg()}), 404
     else:
-        return jsonify({"claim",e.msg()}), 201
+        return jsonify({"claim":e.msg()}), 201
 
 
 @v2_blueprint.route("/verify", methods=["POST"])
@@ -457,7 +457,7 @@ def verify():
     if e.rc() != constants.SUCCESS:
         return jsonify({"msg":e.msg()}), 404
     else:
-        return jsonify({"claim",e.msg()}), 201
+        return jsonify({"result":e.msg()}), 201
 
 
 #
@@ -511,7 +511,7 @@ def addPCRSchema():
     if e.rc() != constants.SUCCESS:
         return jsonify({"msg":e.msg()}), 400
     else:
-        return jsonify({"prcschema":e.msg()}), 201 
+        return jsonify({"pcrschema":e.msg()}), 201 
 
 
 
