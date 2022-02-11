@@ -13,7 +13,7 @@ import a10.structures.identity
 import a10.asvr.elements
 import a10.asvr.policies
 import a10.asvr.expectedvalues
-
+import a10.asvr.hashes
 
 edit_blueprint = Blueprint(
     "edit", __name__, static_folder="../static", template_folder="../templates/"
@@ -53,7 +53,7 @@ def edit_element(item_id):
 
     pp = json.dumps(element_data.msg(), sort_keys=True, indent=4)
 
-    return render_template("editraw.html", t="element", e=element_data.msg(), pp=pp)
+    return render_template("editraw.html", t="element", e=element_data.msg()["itemid"], pp=pp)
 
 
 @edit_blueprint.route("/new/element", methods=["GET"])
@@ -127,7 +127,7 @@ def edit_policy(item_id):
     # print("element data ",element_data)
     pp = json.dumps(element_data, sort_keys=True, indent=4)
 
-    return render_template("editraw.html", t="policy", e=element_data, pp=pp)
+    return render_template("editraw.html", t="policy", e=element_data["itemid"], pp=pp)
 
 
 @edit_blueprint.route("/new/policy", methods=["GET"])
@@ -206,7 +206,7 @@ def edit_expected_value(item_id):
     else:
         pp = json.dumps(element_data.msg(), sort_keys=True, indent=4)
         return render_template(
-            "editraw.html", t="expectedvalue", e=element_data.msg(), pp=pp
+            "editraw.html", t="expectedvalue", e=element_data.msg()["itemid"], pp=pp
         )
 
 
@@ -250,3 +250,91 @@ def delete_expected_value(item_id):
     r = a10.asvr.expectedvalues.deleteExpectedValue(item_id)
     flash("Deleted expectedvalue result: " + str(r.rc()) + " " + str(r.msg()), "info")
     return redirect("/expectedvalues")
+
+
+
+
+#
+# Hashes
+#
+
+
+@edit_blueprint.route("/new/hash/<hashvalue>", methods=["GET"])
+def new_hash(hashvalue):
+    hashstruct = { "hash":hashvalue, "type":"HASH TYPE, eg: one of sha1/sha256/sha384/sha512/sha3-225/other", 
+                   "short":"ENTER SHORT DESCRIPTION HERE", 
+                   "long":"ENTER LONG DESCRIPTION HERE"}
+
+    pp = json.dumps( hashstruct, sort_keys=True, indent=4)
+
+    return render_template("newraw.html", t="hash", e=hashvalue, pp=pp)
+
+@edit_blueprint.route("/new/hash", methods=["POST"])
+def post_new_hash():
+    j = json.loads(request.form["j"])
+
+    print(j)
+
+    r = a10.asvr.hashes.addHash(j)
+    print("Return code ",r)
+    if r.rc() != a10.structures.constants.SUCCESS:
+        flash(
+            "Database update error code " + str(r.rc()) + " " + str(r.msg()), "danger"
+        )
+        return redirect("/hashes")
+    else:
+        flash("The hash "+j["hash"]+" has been created successfully", "success")
+        print("Here ",r.msg())
+    return redirect("/hashes")
+
+
+
+
+@edit_blueprint.route("/edit/hash", methods=["POST"])
+def post_hash():
+    j = json.loads(request.form["j"])
+    i = request.form["i"]
+    # print("J",type(j),j,"\n","I",i,"\n")
+    if j["hash"] != i:
+        flash(
+            "Attempt to modify hash in raw JSON form ignored - do not try to do this again OK!",
+            "warning",
+        )
+        j["itemid"] = i
+
+    r = a10.asvr.hashes.updateHash(j)
+    # print("Return code ",r)
+    if r.rc() != a10.structures.constants.SUCCESS:
+        flash(
+            "Database update error code " + str(r.rc()) + " " + str(r.msg()), "danger"
+        )
+    else:
+        flash("The hash has been updated successfully", "success")
+
+    return redirect("/hashes")
+
+
+@edit_blueprint.route("/edit/hash/<hashvalue>", methods=["GET"])
+def edit_hash(hashvalue):
+    # print("editing ",itemid)
+    element_data = a10.asvr.hashes.getHash(hashvalue)
+
+    if element_data.rc() != 0:
+        flash(
+            "Hash does not exist " + itemid + " code is " + element_data.rc(),
+            "danger",
+        )
+    else:
+        pp = json.dumps(element_data.msg(), sort_keys=True, indent=4)
+        return render_template(
+            "editraw.html", t="hash", e=element_data.msg()["hash"], pp=pp
+        )
+
+
+@edit_blueprint.route("/delete/hash/<hashvalue>", methods=["GET"])
+def delete_hash(hashvalue):
+    r = a10.asvr.hashes.deleteHash(hashvalue)
+    flash("Deleted hash result: " + str(r.rc()) + " " + str(r.msg()), "info")
+    return redirect("/hashes")
+
+

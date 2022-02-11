@@ -400,6 +400,35 @@ def getHashesFull():
     return list(e)
 
 
+
+
+def deleteHash(h):
+    collection = asdb["hashes"]
+ 
+    r = collection.delete_one({"hash": h})
+
+    if r.deleted_count == 1:
+        return True
+    else:
+        return False
+
+
+    if r.matched_count == 1:
+        return True
+    else:
+        return False
+
+
+def updateHash(h):
+    collection = asdb["hashes"]
+    r = collection.update_one({"hash": h["hash"]}, {"$set": h})
+
+    if r.matched_count == 1:
+        return True
+    else:
+        return False
+
+
 ##################################################
 #
 # Expected Values

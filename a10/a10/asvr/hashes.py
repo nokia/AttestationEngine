@@ -71,3 +71,34 @@ def getHashes():
 def getHashesFull():
     hs = a10.asvr.db.core.getHashesFull()
     return hs
+
+def deleteHash(h):
+    r = a10.asvr.db.core.deleteHash(h)
+
+    if r == True:
+        a10.asvr.db.announce.announceItemManagement(
+            "delete", {"type": "hash", "hash": h}
+        )
+        return a10.structures.returncode.ReturnCode(
+            a10.structures.constants.SUCCESS, "Successfully deleted hash"
+        )
+    else:
+        return a10.structures.returncode.ReturnCode(
+            a10.structures.constants.DELETEITEMFAIL, "Deletion failed."
+        )
+
+
+def updateHash(h):   
+    r = a10.asvr.db.core.updateHash(h)
+
+    if r == True:
+        a10.asvr.db.announce.announceItemManagement(
+            "update", {"type": "hash", "hash": h["hash"]}
+        )
+        return a10.structures.returncode.ReturnCode(
+            a10.structures.constants.SUCCESS, "Hash updated"
+        )
+    else:
+        return a10.structures.returncode.ReturnCode(
+            a10.structures.constants.UPDATEITEMFAIL, "Hash not modified"
+        )        

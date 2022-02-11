@@ -41,6 +41,9 @@
             </td>
             <td>{{ h.short }}</td>
             <td>{{ h.long }}</td>
+            <td>
+                <a href="/edit/hash/{{ h.hash }}"><i class="fa fa-edit"></i></a> &nbsp; | &nbsp; 
+        <a href="/delete/hash/{{ h.hash }}"><i class="fa fa-remove" style="color:red"></i></a> </td>
         </tr>
         {% endfor %}
     </tbody>

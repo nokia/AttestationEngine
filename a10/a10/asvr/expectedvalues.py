@@ -117,7 +117,7 @@ def deleteExpectedValue(i):
             "delete", {"type": "ev", "itemid": i}
         )
         return a10.structures.returncode.ReturnCode(
-            a10.structures.constants.SUCCESS, "Successfully deleted policy"
+            a10.structures.constants.SUCCESS, "Successfully deleted expected value"
         )
     else:
         return a10.structures.returncode.ReturnCode(

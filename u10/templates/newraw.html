@@ -15,13 +15,13 @@
  
 
   <label for="itemdata">Item Data in raw JSON:</label>
-  <textarea class="form-control" rows="20" name="j" id="rawdatabocy">{{ pp }}</textarea>
+  <textarea class="form-control" rows="20" name="j" id="rawdatabody">{{ pp }}</textarea>
 </div> 
 <input type="submit" value="Submit">
    
 </form>
 <hr/>
 
-NB: DO NOT include an <em>itemid</em> entry - this will be automatically generated after submission
+NB: DO NOT include an <em>itemid</em> (elements, policies, evs) or <em>hash</em> (hashes) entry - this will be automatically generated after submission
 
 {% endblock %}
