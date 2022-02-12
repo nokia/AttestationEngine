@@ -84,10 +84,22 @@ def claimprettyprintPCRs(item_id):
           	pcrlist[p]=ps
        
      
-       
-       return render_template("claimprettyprint/pcrs.html", cla=c,pcrlist=pcrlist)  
+       #get the pcr schema, we check that
+       #claim.header.element.tpm2.tpm0.pcrschema exists
+       #this returns None if no schema is included
+
+       pcrschema=c.get("header").get("element").get("tpm2").get("tpm0").get("pcrschema")
+       if pcrschema==None:
+          pcrschema="-"
+
+       return render_template("claimprettyprint/pcrs.html", cla=c,pcrlist=pcrlist,pcrschema=pcrschema)  
     
     
+
+
+
+
+
 @claims_blueprint.route("/claim/prettyprint/quote/<item_id>", methods=["GET"])
 def claimprettyprintQuote(item_id):
     c = a10.asvr.claims.getClaim(item_id).msg()
