@@ -24,6 +24,7 @@ from blueprints.pcrschemas import pcrschemas_blueprint
 
 import a10.structures.constants
 import a10.asvr.hashes
+import a10.asvr.pcrschemas
 
 u10 = Flask(__name__)
 
@@ -62,6 +63,18 @@ def resolveHash_processor():
         else:
             return "-"
     return dict(resolveHash=resolveHash)
+
+@u10.context_processor
+def resolvePCRSchema_processor():
+    def resolvePCRSchema(n):
+        #print("Calling context processor with ",n,b,p)
+        r =  a10.asvr.pcrschemas.getPCRSchema(n)
+        print("pcrschema ",r.rc())
+        if r.rc()==a10.structures.constants.SUCCESS:
+            return r.msg()
+        else:
+            return "-"
+    return dict(resolvePCRSchema=resolvePCRSchema)
 
 #
 # Handle errors, censorship and cups to tea
