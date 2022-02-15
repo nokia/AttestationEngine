@@ -2,35 +2,28 @@
 # Licensed under the BSD 3-Clause License.
 # SPDX-License-Identifier: BSD-3-Clause
 
-FROM python:3.8-slim
+FROM docker.io/ubuntu:18.04
 
+LABEL version="1.0"
+
+ENV LC_ALL C.UTF-8
+ENV LANG C.UTF-8
+ENV LANGUAGE C.UTF-8
 ENV PYTHONDONTWRITEBYTECODE=1
 
 
-# Extra step to silence deps that don't obey simple "apt install -yq"
-# instructions.
-RUN DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
-    apt update -yq && \
-    DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
-    apt install -y \
-    -o Dpkg::Options::="--force-confdef" \
-    -o Dpkg::Options::="--force-confold" \
-    tzdata
 
 
 ################################################################################
 #
-# Build tpm2-tss/abrmd/tools
+# Build TPMs tools:  TPM2-TSS, ABRMD, TPM2-TOOLS
 #
 ################################################################################
 
-# Part 1: bring in the required packages
-#         NB: the apt update statments here could be optimised 
-# Each of these RUN statements corresponds to the tss, abrmd and tools respectively
+RUN apt update
 
-RUN apt update -yq && \
-    DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
-  apt -y install \
+
+RUN apt -y install \
   autoconf-archive \
   libcmocka0 \
   libcmocka-dev \
@@ -49,31 +42,11 @@ RUN apt update -yq && \
   libjson-c-dev \
   libini-config-dev \
   libcurl4-openssl-dev \
-  acl
-
-RUN apt update -yq && \
-    DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
-  apt -y install \
-    libglib2.0-dev
-
-RUN apt update -yq && \
-    DEBIAN_FRONTEND=noninteractive DEBCONF_NONINTERACTIVE_SEEN=true \
-  apt -y install \
-    autoconf automake libtool pkg-config gcc \
-    libssl-dev libcurl4-gnutls-dev uuid-dev python-yaml
-
-
-# Part 2: create a tss user for abrmd
-
-RUN useradd --system --user-group tss
-
-
-# Part 3: setup the working directory
+  libltdl-dev \
+  libglib2.0-dev
 
 RUN mkdir tpm2
-
-
-# Part 4: buld tpm2-tss
+WORKDIR /tpm2
 
 WORKDIR /tpm2
 RUN git clone https://github.com/tpm2-software/tpm2-tss.git && \
@@ -83,32 +56,24 @@ RUN git clone https://github.com/tpm2-software/tpm2-tss.git && \
 WORKDIR /tpm2/tpm2-tss
 RUN ./bootstrap && \
     ./configure --with-udevrulesprefix && \
-    make -j$(nproc) && \
+    make -j4 && \
     make install
 
-RUN ldconfig
-
-
-# Part 5: buld tpm2-abrmd
 
 WORKDIR /tpm2/tpm2-abrmd
 RUN ./bootstrap && \
-    ./configure --with-dbuspolicydir=/etc/dbus-1/system.d  && \
-    make -j$(nproc) && \
+    ./configure --with-dbuspolicydir=/etc/dbus-1/system.d && \
+    make -j4 && \
     make install
 
-RUN ldconfig
-
-
-# Part 6: buld tpm2-tools
 
 WORKDIR /tpm2/tpm2-tools
 RUN ./bootstrap && \
     ./configure && \
-    make -j$(nproc) && \
+    make -j4 && \
     make install
 
-RUN ldconfig
+
 
 
 ################################################################################
@@ -117,6 +82,7 @@ RUN ldconfig
 #
 ################################################################################
 
+RUN apt install wget
 
 #
 # Part 7: build Linux IMA tools
@@ -124,11 +90,13 @@ RUN ldconfig
 #
 # NB: these will not be relevant on some systems, eg: Windows, Linux without IMA etc
 #
+# Make install doesn't work because cp -t doesn't work under Alpine Linux's BusyBox, hence the explicit cp statements
+#
 
 WORKDIR /ima
 RUN wget -O ltp-ima-standalone-v2.tar.gz http://downloads.sf.net/project/linux-ima/linux-ima/ltp-ima-standalone-v2.tar.gz
 RUN tar -xvzf ltp-ima-standalone-v2.tar.gz
-RUN cd ima-tests
+WORKDIR /ima/ima-tests
 RUN make
 RUN make install
 
@@ -145,10 +113,9 @@ RUN make install
 WORKDIR /txt
 RUN wget https://sourceforge.net/projects/tboot/files/tboot/tboot-1.10.3.tar.gz
 RUN tar -xzvf tboot-1.10.3.tar.gz
+WORKDIR /txt/tboot-1.10.3
 RUN make
-RUN cd tboot-1.10.2/utils
-RUN make
-RUN make install
+#RUN make install
 
 
 ################################################################################
@@ -158,15 +125,17 @@ RUN make install
 ################################################################################
 
 
-WORKDIR NUT10
+RUN apt -y install python3 python3-pip 
+
+WORKDIR /nut10
 
 RUN pip3 install flask
 RUN pip3 install pyyaml
+RUN pip3 install requests
 
 ADD endpoints/ ./endpoints
 ADD claims ./claims
 ADD tpm ./tpm
-ADD tpm2interface ./tpm2interface
 
 
 

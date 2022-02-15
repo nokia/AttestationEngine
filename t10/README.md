@@ -7,11 +7,28 @@ This is the code for the *reference* trust agent. It basically supports EVERY AP
 
    * In the `py` directory is the Python3 POC TA.   <--- don't use this
    * In the `nut10` directory is the better Python3 POC TA   <--- USE THIS   
-   * In the `go` directory is the GoLang POC TA.   
+   * In the `go` directory is the GoLang POC TA.      <--- incomplete
    * In the `systemd` directory are the templates for the systemd services and the start and stop scripts
    
+
  
 ## Installation
+
+### Podman (and Docker)
+
+In the nut10 directory there is a `Dockerfile` which can be used. Build and running commands below (select which ones you need - don't try to run all of them)
+
+If you're running against a software TPM, eg: IBM's swtpm where the TCTI is set to mssim, then I'm not sure how to run this - probably use bare metal instead.
+
+```bash
+cd nut10
+podman build -t nut10 .
+docker run -p 8530:8530 --device=/dev/tpm0 nut10
+podman run -p 8530:8530 --device=/dev/tpm0 nut10
+```
+
+
+### Bare Metal
 
 Easier method is to download the code , eg: git pull, and then do this - it installed the python version. I am assuming you are in the t10 directory.
 
