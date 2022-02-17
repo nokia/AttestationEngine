@@ -119,6 +119,104 @@
    "type":"sha3-224",
    "short":"Example SHA3",
    "long":"Example of a SHA3-224 hash generated  sha3-225(0)"
+},
+
+{
+   "hash": "9069ca78e7450a285173431b3e52c5c25299e473",
+   "type": "sha1",
+   "short": "EV_SEPARATOR",
+   "long": "00000000 EV_SEPARATOR in UEFI log. Extended to PCR 0-7"
+},
+{
+   "hash": "df3f619804a92fdb4057192dc43dd748ea778adc52bc498ce80524c014b81119",
+   "type": "sha256",
+   "short": "EV_SEPARATOR",
+   "long": "00000000 EV_SEPARATOR in UEFI log. Extended into PCR 0-7"
+},
+{
+   "hash": "d9be6524a5f5047db5866813acf3277892a7a30a", 
+   "type": "sha1",
+   "short": "EV_SEPARATOR",
+   "long": "FFFFFFFF EV_SEPARATOR in UEFI log."
+},
+{
+   "hash": "ad95131bc0b799c0b1af477fb14fcf26a6a9f76079e48bf090acb7e8367bfd0e",
+   "type": "sha256",
+   "short": "EV_SEPARATOR",
+   "long": "FFFFFFFF EV_SEPARATOR in UEFI log."
+},
+
+{
+   "hash": "cd0fdb4531a6ec41be2753ba042637d6e5f7f256",
+   "type": "sha1",
+   "short": "EV_EFI_ACTION",
+   "long": "EV_EFI_ACTION: Calling EFI Application from Boot Option. Extended into PCR 4"
+},
+{
+   "hash": "3d6772b4f84ed47595d72a2c4c5ffd15f5bb72c7507fe26f2aaee2c69d5633ba",
+   "type": "sha256",
+   "short": "EV_EFI_ACTION",
+   "long": "EV_EFI_ACTION: Calling EFI Application from Boot Option. Extended into PCR 4"
+},
+{
+   "hash": "b6ae9742d3936a4291cfed8df775bc4657e368c0",
+   "type": "sha1",
+   "short": "EV_EFI_ACTION",
+   "long": "EV_EFI_ACTION: Returning from EFI Application from Boot Option. Extended into PCR 4"
+},
+{
+   "hash": "7044f06303e54fa96c3fcd1a0f11047c03d209074470b1fd60460c9f007e28a6",
+   "type": "sha256",
+   "short": "EV_EFI_ACTION",
+   "long": "EV_EFI_ACTION: Returning from EFI Application from Boot Option. Extended into PCR 4"
+},
+{
+   "hash": "443a6b7b82b7af564f2e393cd9d5a388b7fa4a98",
+   "type": "sha1",
+   "short": "EV_EFI_ACTION",
+   "long": "EV_EFI_ACTION: Exit Boot Services Invocation. Extended into PCR 5"
+},
+{
+   "hash": "d8043d6b7b85ad358eb3b6ae6a873ab7ef23a26352c5dc4faa5aeedacf5eb41b",
+   "type": "sha256",
+   "short": "EV_EFI_ACTION",
+   "long": "EV_EFI_ACTION: Exit Boot Services Invocation. Extended into PCR 5"
+},
+{
+   "hash": "b14c5fbdc7cd971636a0e54fec1a56d6da849512",
+   "type": "sha1",
+   "short": "EV_EFI_ACTION",
+   "long": "EV_EFI_ACTION: Exit Boot Services Returned with Failure. Extended into PCR 5"
+},
+{
+   "hash": "23ddecbc32ea9e91ffc984b55d9fb34b24f61fd6d95d5d33dd95e824415fdd4f",
+   "type": "sha256",
+   "short": "EV_EFI_ACTION",
+   "long": "EV_EFI_ACTION: Exit Boot Services Returned with Failure. Extended into PCR 5"
+},
+{
+   "hash": "475545ddc978d7bfd036facc7e2e987f48189f0d",
+   "type": "sha1",
+   "short": "EV_EFI_ACTION",
+   "long": "EV_EFI_ACTION: Exit Boot Services Returned with Success. Extended into PCR 5"
+},
+{
+   "hash": "b54f7542cbd872a81a9d9dea839b2b8d747c7ebd5ea6615c40f42f44a6dbeba0",
+   "type": "sha256",
+   "short": "EV_EFI_ACTION",
+   "long": "EV_EFI_ACTION: Exit Boot Services Returned with Success. Extended into PCR 5"
+},
+{
+   "hash": "6d0b57fe501bda330db55b3203d206025e8364b1",
+   "type": "sha1",
+   "short": "EV_EFI_ACTION",
+   "long": "EV_EFI_ACTION: UEFI Debug Mode. Extended into PCR 6"
+},
+{
+   "hash": "a62bd67b2cc295976651b354468c0047f8d1547d25056ded5952aaf5991762a3",
+   "type": "sha256",
+   "short": "EV_EFI_ACTION",
+   "long": "EV_EFI_ACTION: UEFI Debug Mode. Extended into PCR 6"
 }
 
 
