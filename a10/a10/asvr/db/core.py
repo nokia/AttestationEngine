@@ -37,7 +37,9 @@ def getDatabaseStatus():
         "expectedvalues",
         "claims",
         "results",
+        "sessions",
         "hashes",
+        "pcrschemas",
         "log",
     ]:
         collection = asdb[c]
@@ -95,6 +97,58 @@ def getLogEntryCount():
     collection = asdb["log"]
     return collection.estimated_document_count()
 
+
+
+##################################################
+#
+# Sessions
+#
+##################################################
+
+def openSession(s):
+    """
+    Opens a session and returns an itemid for that session
+    """
+    collection = asdb["sessions"]
+    r = collection.insert_one(s)
+
+    if r.inserted_id == None:
+        return False
+    else:
+        return True
+
+def closeSession(s):
+    """
+    Closes a session
+    """
+    collection = asdb["sessions"]
+    r = collection.update_one({"itemid": s["itemid"]}, {"$set": s})
+
+    if r.matched_count == 1:
+        return True
+    else:
+        return False
+
+
+def getSessions(closed=False):
+    """
+    Returns all - by default - open sessions
+    """
+    collection = asdb["sessions"]
+    es = collection.find({ "closed":{"$exists":closed}}, {"_id": False, "itemid": True})
+    return list(es)
+
+def getSession(s):
+    """ Returns an element with the given itemid
+
+    :param str i: ItemID of the element
+    :return: the returned object from Monogo less the mongo object ID
+    :rtype: dict or None
+    """
+
+    collection = asdb["sessions"]
+    e = collection.find_one({"itemid": s}, {"_id": False})
+    return e
 
 ##################################################
 #
