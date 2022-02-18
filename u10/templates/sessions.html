@@ -1,0 +1,56 @@
+<!--
+#Copyright 2021 Nokia
+#Licensed under the BSD 3-Clause Clear License.
+#SPDX-License-Identifier: BSD-3-Clear
+-->
+
+{% extends "base.html" %}
+{% block content %}
+<hr />
+<input class="form-control" id="elementsearch" type="text" placeholder="Search...">
+<br>
+
+
+<table class="table .table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Opened</th>
+            <th>Closed</th>
+            <th># Claims</th>
+            <th># Results</th>
+        </tr>
+    </thead>
+    <tbody id="elementtable">
+        {% for s in sessions %}
+        {% if s.closed is defined %}
+        <tr class="table-success">
+        {% else %}
+        <tr class="table-light">
+        {% endif %}
+            <td><a href=/session/{{ s.itemid }}>{{ s.itemid }}</td>
+            <td>{{ s.openedUTC }} {{ s.opened }}</td>
+            <td>{{ s.closedUTC }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+
+<script>
+$(document).ready(function() {
+    $("#elementsearch").on("keyup", function() {
+        var value = $(this).val().toLowerCase();
+        $("#elementtable tr").filter(function() {
+            $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+        });
+    });
+});
+</script>
+<script>
+var popoverTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="popover"]'))
+var popoverList = popoverTriggerList.map(function(popoverTriggerEl) {
+    return new bootstrap.Popover(popoverTriggerEl)
+})
+</script>
+{% endblock %}

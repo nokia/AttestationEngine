@@ -21,6 +21,8 @@ from blueprints.log import log_blueprint
 from blueprints.ping import ping_blueprint
 from blueprints.qrcodes import qrcodes_blueprint
 from blueprints.pcrschemas import pcrschemas_blueprint
+from blueprints.sessions import sessions_blueprint
+
 
 import a10.structures.constants
 import a10.asvr.hashes
@@ -47,6 +49,7 @@ u10.register_blueprint(log_blueprint)
 u10.register_blueprint(ping_blueprint)
 u10.register_blueprint(qrcodes_blueprint)
 u10.register_blueprint(pcrschemas_blueprint)
+u10.register_blueprint(sessions_blueprint)
 
 
 #
