@@ -49,13 +49,12 @@ def closeSession(sid):
 
     ses = s.msg()
 
-    try:
-        x=ses["closed"]
-    except KeyError:
-        # Key Error hopefully
+    print("ses=",type(ses),ses)
+
+    if "closed" in ses:
         return a10.structures.returncode.ReturnCode(
             a10.structures.constants.SESSIONALREADYCLOSED, "Session already closed"
-        )
+        )      
 
 
     ses["closed"] = a10.structures.timestamps.now()
