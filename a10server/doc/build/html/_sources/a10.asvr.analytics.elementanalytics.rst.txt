@@ -1,0 +1,7 @@
+a10.asvr.analytics.elementanalytics module
+==========================================
+
+.. automodule:: a10.asvr.analytics.elementanalytics
+    :members:
+    :undoc-members:
+    :show-inheritance:

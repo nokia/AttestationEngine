@@ -1,0 +1,924 @@
+<!--
+ Copyright 2021 Nokia
+ Licensed under the BSD 3-Clause License.
+ SPDX-License-Identifier: BSD-3-Clause
+-->
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>a10.asvr.db package &#8212; A10 2021.9 documentation</title>
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+  </head><body>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">A10 2021.9 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="a10-asvr-db-package">
+<h1>a10.asvr.db package<a class="headerlink" href="#a10-asvr-db-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-a10.asvr.db.announce">
+<span id="a10-asvr-db-announce-module"></span><h2>a10.asvr.db.announce module<a class="headerlink" href="#module-a10.asvr.db.announce" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="a10.asvr.db.announce.announceClaim">
+<code class="descclassname">a10.asvr.db.announce.</code><code class="descname">announceClaim</code><span class="sig-paren">(</span><em>op</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#a10.asvr.db.announce.announceClaim" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="a10.asvr.db.announce.announceItemManagement">
+<code class="descclassname">a10.asvr.db.announce.</code><code class="descname">announceItemManagement</code><span class="sig-paren">(</span><em>op</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#a10.asvr.db.announce.announceItemManagement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="a10.asvr.db.announce.announceResult">
+<code class="descclassname">a10.asvr.db.announce.</code><code class="descname">announceResult</code><span class="sig-paren">(</span><em>op</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#a10.asvr.db.announce.announceResult" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="a10.asvr.db.announce.getLatestLogEntries">
+<code class="descclassname">a10.asvr.db.announce.</code><code class="descname">getLatestLogEntries</code><span class="sig-paren">(</span><em>n=250</em><span class="sig-paren">)</span><a class="headerlink" href="#a10.asvr.db.announce.getLatestLogEntries" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the latest log entries</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Params int n:</th><td class="field-body">number of entries to return, defaults to 250</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">list of log entries</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list dict or None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="a10.asvr.db.announce.getLogEntryCount">
+<code class="descclassname">a10.asvr.db.announce.</code><code class="descname">getLogEntryCount</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#a10.asvr.db.announce.getLogEntryCount" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the number of log entries</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">number of log entries</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">int</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-a10.asvr.db.configuration">
+<span id="a10-asvr-db-configuration-module"></span><h2>a10.asvr.db.configuration module<a class="headerlink" href="#module-a10.asvr.db.configuration" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="a10.asvr.db.configuration.getConfiguration">
+<code class="descclassname">a10.asvr.db.configuration.</code><code class="descname">getConfiguration</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#a10.asvr.db.configuration.getConfiguration" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-a10.asvr.db.core">
+<span id="a10-asvr-db-core-module"></span><h2>a10.asvr.db.core module<a class="headerlink" href="#module-a10.asvr.db.core" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="a10.asvr.db.core.addClaim">
+<code class="descclassname">a10.asvr.db.core.</code><code class="descname">addClaim</code><span class="sig-paren">(</span><em>e</em><span class="sig-paren">)</span><a class="headerlink" href="#a10.asvr.db.core.addClaim" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds an entry to the elements collection.</p>
+<p>First this outputs the element as JSON and then tries to insert it into the database.
+MongoDB returns an inserted_id - which is a mongo ObjectID - if this is successful.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>e</strong> (<em>dict</em>) – the element to be added</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the success or failure of the operation</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">Bool</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="a10.asvr.db.core.addElement">
+<code class="descclassname">a10.asvr.db.core.</code><code class="descname">addElement</code><span class="sig-paren">(</span><em>e</em><span class="sig-paren">)</span><a class="headerlink" href="#a10.asvr.db.core.addElement" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds an entry to the elements collection.</p>
+<p>First this outputs the element as JSON and then tries to insert it into the database.
+MongoDB returns an inserted_id - which is a mongo ObjectID - if this is successful.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>e</strong> (<em>dict</em>) – the element to be added</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the success or failure of the operation</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">Bool</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="a10.asvr.db.core.addExpectedValue">
+<code class="descclassname">a10.asvr.db.core.</code><code class="descname">addExpectedValue</code><span class="sig-paren">(</span><em>e</em><span class="sig-paren">)</span><a class="headerlink" href="#a10.asvr.db.core.addExpectedValue" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds an entry to the elements collection.</p>
+<p>First this outputs the element as JSON and then tries to insert it into the database.
+MongoDB returns an inserted_id - which is a mongo ObjectID - if this is successful.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>e</strong> (<em>dict</em>) – the element to be added</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the success or failure of the operation</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">Bool</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="a10.asvr.db.core.addHash">
+<code class="descclassname">a10.asvr.db.core.</code><code class="descname">addHash</code><span class="sig-paren">(</span><em>h</em><span class="sig-paren">)</span><a class="headerlink" href="#a10.asvr.db.core.addHash" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds an entry to the elements collection.</p>
+<p>First this outputs the element as JSON and then tries to insert it into the database.
+MongoDB returns an inserted_id - which is a mongo ObjectID - if this is successful.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>e</strong> (<em>dict</em>) – the element to be added</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the success or failure of the operation</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">Bool</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="a10.asvr.db.core.addPolicy">
+<code class="descclassname">a10.asvr.db.core.</code><code class="descname">addPolicy</code><span class="sig-paren">(</span><em>e</em><span class="sig-paren">)</span><a class="headerlink" href="#a10.asvr.db.core.addPolicy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds an entry to the elements collection.</p>
+<p>First this outputs the element as JSON and then tries to insert it into the database.
+MongoDB returns an inserted_id - which is a mongo ObjectID - if this is successful.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>e</strong> (<em>dict</em>) – the element to be added</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the success or failure of the operation</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">Bool</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="a10.asvr.db.core.addResult">
+<code class="descclassname">a10.asvr.db.core.</code><code class="descname">addResult</code><span class="sig-paren">(</span><em>e</em><span class="sig-paren">)</span><a class="headerlink" href="#a10.asvr.db.core.addResult" title="Permalink to this definition">¶</a></dt>
+<dd><p>Adds an entry to the elements collection.</p>
+<p>First this outputs the element as JSON and then tries to insert it into the database.
+MongoDB returns an inserted_id - which is a mongo ObjectID - if this is successful.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>e</strong> (<em>dict</em>) – the element to be added</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the success or failure of the operation</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">Bool</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="a10.asvr.db.core.deleteElement">
+<code class="descclassname">a10.asvr.db.core.</code><code class="descname">deleteElement</code><span class="sig-paren">(</span><em>e</em><span class="sig-paren">)</span><a class="headerlink" href="#a10.asvr.db.core.deleteElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="a10.asvr.db.core.deleteExpectedValue">
+<code class="descclassname">a10.asvr.db.core.</code><code class="descname">deleteExpectedValue</code><span class="sig-paren">(</span><em>i</em><span class="sig-paren">)</span><a class="headerlink" href="#a10.asvr.db.core.deleteExpectedValue" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="a10.asvr.db.core.deletePolicy">
+<code class="descclassname">a10.asvr.db.core.</code><code class="descname">deletePolicy</code><span class="sig-paren">(</span><em>i</em><span class="sig-paren">)</span><a class="headerlink" href="#a10.asvr.db.core.deletePolicy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="a10.asvr.db.core.getAssociatedResults">
+<code class="descclassname">a10.asvr.db.core.</code><code class="descname">getAssociatedResults</code><span class="sig-paren">(</span><em>i</em><span class="sig-paren">)</span><a class="headerlink" href="#a10.asvr.db.core.getAssociatedResults" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the set of results associated with the given claim</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>i</strong> (<em>str</em>) – ItemID of the claim</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">a list of result item IDs</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="a10.asvr.db.core.getClaim">
+<code class="descclassname">a10.asvr.db.core.</code><code class="descname">getClaim</code><span class="sig-paren">(</span><em>i</em><span class="sig-paren">)</span><a class="headerlink" href="#a10.asvr.db.core.getClaim" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an element with the given itemid</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>i</strong> (<em>str</em>) – ItemID of the element</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the returned object from Monogo less the mongo object ID</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict or None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="a10.asvr.db.core.getClaims">
+<code class="descclassname">a10.asvr.db.core.</code><code class="descname">getClaims</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#a10.asvr.db.core.getClaims" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an element with the given itemid</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>i</strong> (<em>str</em>) – ItemID of the element</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the returned object from Monogo less the mongo object ID</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict or None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="a10.asvr.db.core.getClaimsFull">
+<code class="descclassname">a10.asvr.db.core.</code><code class="descname">getClaimsFull</code><span class="sig-paren">(</span><em>n</em><span class="sig-paren">)</span><a class="headerlink" href="#a10.asvr.db.core.getClaimsFull" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an element with the given itemid</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>i</strong> (<em>str</em>) – ItemID of the element</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the returned object from Monogo less the mongo object ID</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict or None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="a10.asvr.db.core.getDatabaseStatus">
+<code class="descclassname">a10.asvr.db.core.</code><code class="descname">getDatabaseStatus</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#a10.asvr.db.core.getDatabaseStatus" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns information on the state of the database</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">a structure containing information about the number of items stored in the database and other meta-data</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">dict</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="a10.asvr.db.core.getElement">
+<code class="descclassname">a10.asvr.db.core.</code><code class="descname">getElement</code><span class="sig-paren">(</span><em>i</em><span class="sig-paren">)</span><a class="headerlink" href="#a10.asvr.db.core.getElement" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an element with the given itemid</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>i</strong> (<em>str</em>) – ItemID of the element</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the returned object from Monogo less the mongo object ID</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict or None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="a10.asvr.db.core.getElementByName">
+<code class="descclassname">a10.asvr.db.core.</code><code class="descname">getElementByName</code><span class="sig-paren">(</span><em>n</em><span class="sig-paren">)</span><a class="headerlink" href="#a10.asvr.db.core.getElementByName" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an element with the given name</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>n</strong> (<em>str</em>) – name of the element</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the returned object from Monogo less the mongo object ID</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict or None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="a10.asvr.db.core.getElements">
+<code class="descclassname">a10.asvr.db.core.</code><code class="descname">getElements</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#a10.asvr.db.core.getElements" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an element with the given itemid</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>i</strong> (<em>str</em>) – ItemID of the element</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the returned object from Monogo less the mongo object ID</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict or None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="a10.asvr.db.core.getElementsFull">
+<code class="descclassname">a10.asvr.db.core.</code><code class="descname">getElementsFull</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#a10.asvr.db.core.getElementsFull" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an element with the given itemid</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>i</strong> (<em>str</em>) – ItemID of the element</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the returned object from Monogo less the mongo object ID</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict or None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="a10.asvr.db.core.getExpectedValue">
+<code class="descclassname">a10.asvr.db.core.</code><code class="descname">getExpectedValue</code><span class="sig-paren">(</span><em>i</em><span class="sig-paren">)</span><a class="headerlink" href="#a10.asvr.db.core.getExpectedValue" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an element with the given itemid</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>i</strong> (<em>str</em>) – ItemID of the element</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the returned object from Monogo less the mongo object ID</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict or None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="a10.asvr.db.core.getExpectedValueForElementAndPolicy">
+<code class="descclassname">a10.asvr.db.core.</code><code class="descname">getExpectedValueForElementAndPolicy</code><span class="sig-paren">(</span><em>e</em>, <em>p</em><span class="sig-paren">)</span><a class="headerlink" href="#a10.asvr.db.core.getExpectedValueForElementAndPolicy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a expected value for given elementID and policyID</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>e</strong> (<em>str</em>) – ItemID of the element</li>
+<li><strong>p</strong> (<em>str</em>) – ItemID of the policy</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">the returned objects from Monogo less the mongo object ID</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">list</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="a10.asvr.db.core.getExpectedValues">
+<code class="descclassname">a10.asvr.db.core.</code><code class="descname">getExpectedValues</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#a10.asvr.db.core.getExpectedValues" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an element with the given itemid</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>i</strong> (<em>str</em>) – ItemID of the element</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the returned object from Monogo less the mongo object ID</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict or None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="a10.asvr.db.core.getExpectedValuesForElement">
+<code class="descclassname">a10.asvr.db.core.</code><code class="descname">getExpectedValuesForElement</code><span class="sig-paren">(</span><em>i</em><span class="sig-paren">)</span><a class="headerlink" href="#a10.asvr.db.core.getExpectedValuesForElement" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a expected values for given elementID</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>i</strong> (<em>str</em>) – ItemID of the element</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the returned objects from Monogo less the mongo object ID</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="a10.asvr.db.core.getExpectedValuesForPolicy">
+<code class="descclassname">a10.asvr.db.core.</code><code class="descname">getExpectedValuesForPolicy</code><span class="sig-paren">(</span><em>i</em><span class="sig-paren">)</span><a class="headerlink" href="#a10.asvr.db.core.getExpectedValuesForPolicy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a expected values for given policyID</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>i</strong> (<em>str</em>) – ItemID of the element</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the returned objects from Monogo less the mongo object ID</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="a10.asvr.db.core.getExpectedValuesFull">
+<code class="descclassname">a10.asvr.db.core.</code><code class="descname">getExpectedValuesFull</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#a10.asvr.db.core.getExpectedValuesFull" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an element with the given itemid</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>i</strong> (<em>str</em>) – ItemID of the element</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the returned object from Monogo less the mongo object ID</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict or None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="a10.asvr.db.core.getHash">
+<code class="descclassname">a10.asvr.db.core.</code><code class="descname">getHash</code><span class="sig-paren">(</span><em>h</em><span class="sig-paren">)</span><a class="headerlink" href="#a10.asvr.db.core.getHash" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an element with the given itemid</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>h</strong> (<em>str</em>) – the hash to search for</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the returned object from Monogo less the mongo object ID</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict or None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="a10.asvr.db.core.getHashes">
+<code class="descclassname">a10.asvr.db.core.</code><code class="descname">getHashes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#a10.asvr.db.core.getHashes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an element with the given itemid</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>i</strong> (<em>str</em>) – ItemID of the element</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the returned object from Monogo less the mongo object ID</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict or None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="a10.asvr.db.core.getHashesFull">
+<code class="descclassname">a10.asvr.db.core.</code><code class="descname">getHashesFull</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#a10.asvr.db.core.getHashesFull" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an element with the given itemid</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>i</strong> (<em>str</em>) – ItemID of the element</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the returned object from Monogo less the mongo object ID</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict or None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="a10.asvr.db.core.getLatestLogEntries">
+<code class="descclassname">a10.asvr.db.core.</code><code class="descname">getLatestLogEntries</code><span class="sig-paren">(</span><em>n</em><span class="sig-paren">)</span><a class="headerlink" href="#a10.asvr.db.core.getLatestLogEntries" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the latest log entries</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Params int n:</th><td class="field-body">number of entries to return</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">list of log entries</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">list dict</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="a10.asvr.db.core.getLatestResults">
+<code class="descclassname">a10.asvr.db.core.</code><code class="descname">getLatestResults</code><span class="sig-paren">(</span><em>e</em>, <em>n</em><span class="sig-paren">)</span><a class="headerlink" href="#a10.asvr.db.core.getLatestResults" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Returns the latest n results for a given element sorted by verifiedAt.</dt>
+<dd>We let the underlying database to do the sorting for efficiency reasons.</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>e</strong> (<em>str</em>) – ItemID of the element</li>
+<li><strong>n</strong> (<em>int</em>) – Maximum number of items to return, defaults to 10</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">the list of results</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">list dict or None</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="a10.asvr.db.core.getLatestResultsForElementAndPolicy">
+<code class="descclassname">a10.asvr.db.core.</code><code class="descname">getLatestResultsForElementAndPolicy</code><span class="sig-paren">(</span><em>e</em>, <em>p</em>, <em>n</em><span class="sig-paren">)</span><a class="headerlink" href="#a10.asvr.db.core.getLatestResultsForElementAndPolicy" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="docutils">
+<dt>Returns the latest n results for a given element sorted by verifiedAt.</dt>
+<dd>We let the underlying database to do the sorting for efficiency reasons.</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>e</strong> (<em>str</em>) – ItemID of the element</li>
+<li><strong>p</strong> (<em>str</em>) – ItemID of the policy</li>
+<li><strong>n</strong> (<em>int</em>) – Maximum number of items to return, defaults to 10</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first">the list of results</p>
+</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">list dict or None</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="a10.asvr.db.core.getLogEntryCount">
+<code class="descclassname">a10.asvr.db.core.</code><code class="descname">getLogEntryCount</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#a10.asvr.db.core.getLogEntryCount" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns the number of log entries</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">number of log entries</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">int</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="a10.asvr.db.core.getPolicies">
+<code class="descclassname">a10.asvr.db.core.</code><code class="descname">getPolicies</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#a10.asvr.db.core.getPolicies" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an element with the given itemid</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>i</strong> (<em>str</em>) – ItemID of the element</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the returned object from Monogo less the mongo object ID</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict or None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="a10.asvr.db.core.getPoliciesFull">
+<code class="descclassname">a10.asvr.db.core.</code><code class="descname">getPoliciesFull</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#a10.asvr.db.core.getPoliciesFull" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an element with the given itemid</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>i</strong> (<em>str</em>) – ItemID of the element</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the returned object from Monogo less the mongo object ID</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict or None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="a10.asvr.db.core.getPolicy">
+<code class="descclassname">a10.asvr.db.core.</code><code class="descname">getPolicy</code><span class="sig-paren">(</span><em>i</em><span class="sig-paren">)</span><a class="headerlink" href="#a10.asvr.db.core.getPolicy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an element with the given itemid</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>i</strong> (<em>str</em>) – ItemID of the element</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the returned object from Monogo less the mongo object ID</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict or None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="a10.asvr.db.core.getPolicyByName">
+<code class="descclassname">a10.asvr.db.core.</code><code class="descname">getPolicyByName</code><span class="sig-paren">(</span><em>n</em><span class="sig-paren">)</span><a class="headerlink" href="#a10.asvr.db.core.getPolicyByName" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns a policy with the given name</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>n</strong> (<em>str</em>) – name of the policy</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the returned object from Monogo less the mongo object ID</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict or None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="a10.asvr.db.core.getResult">
+<code class="descclassname">a10.asvr.db.core.</code><code class="descname">getResult</code><span class="sig-paren">(</span><em>i</em><span class="sig-paren">)</span><a class="headerlink" href="#a10.asvr.db.core.getResult" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an element with the given itemid</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>i</strong> (<em>str</em>) – ItemID of the element</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the returned object from Monogo less the mongo object ID</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict or None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="a10.asvr.db.core.getResults">
+<code class="descclassname">a10.asvr.db.core.</code><code class="descname">getResults</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#a10.asvr.db.core.getResults" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an element with the given itemid</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>i</strong> (<em>str</em>) – ItemID of the element</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the returned object from Monogo less the mongo object ID</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict or None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="a10.asvr.db.core.getResultsFull">
+<code class="descclassname">a10.asvr.db.core.</code><code class="descname">getResultsFull</code><span class="sig-paren">(</span><em>n</em><span class="sig-paren">)</span><a class="headerlink" href="#a10.asvr.db.core.getResultsFull" title="Permalink to this definition">¶</a></dt>
+<dd><p>Returns an element with the given itemid</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>i</strong> (<em>str</em>) – ItemID of the element</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">the returned object from Monogo less the mongo object ID</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">dict or None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="a10.asvr.db.core.updateElement">
+<code class="descclassname">a10.asvr.db.core.</code><code class="descname">updateElement</code><span class="sig-paren">(</span><em>e</em><span class="sig-paren">)</span><a class="headerlink" href="#a10.asvr.db.core.updateElement" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="a10.asvr.db.core.updateExpectedValue">
+<code class="descclassname">a10.asvr.db.core.</code><code class="descname">updateExpectedValue</code><span class="sig-paren">(</span><em>e</em><span class="sig-paren">)</span><a class="headerlink" href="#a10.asvr.db.core.updateExpectedValue" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="a10.asvr.db.core.updatePolicy">
+<code class="descclassname">a10.asvr.db.core.</code><code class="descname">updatePolicy</code><span class="sig-paren">(</span><em>e</em><span class="sig-paren">)</span><a class="headerlink" href="#a10.asvr.db.core.updatePolicy" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="a10.asvr.db.core.writeLogEntry">
+<code class="descclassname">a10.asvr.db.core.</code><code class="descname">writeLogEntry</code><span class="sig-paren">(</span><em>t</em>, <em>ch</em>, <em>op</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#a10.asvr.db.core.writeLogEntry" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes an entry to the logging table</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Params str t:</th><td class="field-body">timestamp</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Params str ch:</th><td class="field-body">channel</td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Params str op:</th><td class="field-body">operation</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">Params dict data:</th></tr>
+<tr class="field-even field"><td>&#160;</td><td class="field-body">associated data</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-a10.asvr.db.log">
+<span id="a10-asvr-db-log-module"></span><h2>a10.asvr.db.log module<a class="headerlink" href="#module-a10.asvr.db.log" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="a10.asvr.db.log.writelog">
+<code class="descclassname">a10.asvr.db.log.</code><code class="descname">writelog</code><span class="sig-paren">(</span><em>t</em>, <em>ch</em>, <em>op</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#a10.asvr.db.log.writelog" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-a10.asvr.db.mqtt">
+<span id="a10-asvr-db-mqtt-module"></span><h2>a10.asvr.db.mqtt module<a class="headerlink" href="#module-a10.asvr.db.mqtt" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="a10.asvr.db.mqtt.on_connect">
+<code class="descclassname">a10.asvr.db.mqtt.</code><code class="descname">on_connect</code><span class="sig-paren">(</span><em>client</em>, <em>metadata</em>, <em>flags</em>, <em>rc</em><span class="sig-paren">)</span><a class="headerlink" href="#a10.asvr.db.mqtt.on_connect" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="a10.asvr.db.mqtt.on_disconnect">
+<code class="descclassname">a10.asvr.db.mqtt.</code><code class="descname">on_disconnect</code><span class="sig-paren">(</span><em>client</em>, <em>metadata</em>, <em>flags</em>, <em>rc</em><span class="sig-paren">)</span><a class="headerlink" href="#a10.asvr.db.mqtt.on_disconnect" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="a10.asvr.db.mqtt.publish">
+<code class="descclassname">a10.asvr.db.mqtt.</code><code class="descname">publish</code><span class="sig-paren">(</span><em>ch</em>, <em>t</em>, <em>op</em>, <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#a10.asvr.db.mqtt.publish" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="a10.asvr.db.mqtt.sendKeepAlive">
+<code class="descclassname">a10.asvr.db.mqtt.</code><code class="descname">sendKeepAlive</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#a10.asvr.db.mqtt.sendKeepAlive" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+<div class="section" id="module-a10.asvr.db">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-a10.asvr.db" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">a10.asvr.db package</a><ul>
+<li><a class="reference internal" href="#submodules">Submodules</a></li>
+<li><a class="reference internal" href="#module-a10.asvr.db.announce">a10.asvr.db.announce module</a></li>
+<li><a class="reference internal" href="#module-a10.asvr.db.configuration">a10.asvr.db.configuration module</a></li>
+<li><a class="reference internal" href="#module-a10.asvr.db.core">a10.asvr.db.core module</a></li>
+<li><a class="reference internal" href="#module-a10.asvr.db.log">a10.asvr.db.log module</a></li>
+<li><a class="reference internal" href="#module-a10.asvr.db.mqtt">a10.asvr.db.mqtt module</a></li>
+<li><a class="reference internal" href="#module-a10.asvr.db">Module contents</a></li>
+</ul>
+</li>
+</ul>
+
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/a10.asvr.db.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="index.html">A10 2021.9 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2021, Ian.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.8.5.
+    </div>
+  </body>
+</html>

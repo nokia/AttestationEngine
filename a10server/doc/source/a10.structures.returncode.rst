@@ -1,0 +1,7 @@
+a10.structures.returncode module
+================================
+
+.. automodule:: a10.structures.returncode
+    :members:
+    :undoc-members:
+    :show-inheritance:

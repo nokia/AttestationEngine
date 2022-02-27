@@ -114,8 +114,8 @@ def receiveSignal(signalNumber, frame):
 
 def main(cert, key, config_filename="ta_config.cfg"):
     listroutes()
-    getconfiguration("/etc/t10.conf")
-    announce("ta_startup")
+    #getconfiguration("/etc/t10.conf")
+    #announce("ta_startup")
 
     ta.config.from_pyfile(config_filename)
     if cert and key:
@@ -150,5 +150,5 @@ if __name__ == "__main__":
     #GO!
     main("", "")
     #if we can ever get here
-    announce("ta_stop")
+    #announce("ta_stop")
 

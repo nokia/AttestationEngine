@@ -1,0 +1,7 @@
+a10.asvr.rules.uefi module
+==========================
+
+.. automodule:: a10.asvr.rules.uefi
+    :members:
+    :undoc-members:
+    :show-inheritance:

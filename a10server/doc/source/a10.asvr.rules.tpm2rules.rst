@@ -1,0 +1,7 @@
+a10.asvr.rules.tpm2rules module
+===============================
+
+.. automodule:: a10.asvr.rules.tpm2rules
+    :members:
+    :undoc-members:
+    :show-inheritance:

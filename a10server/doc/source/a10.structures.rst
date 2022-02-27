@@ -1,0 +1,70 @@
+a10.structures package
+======================
+
+Submodules
+----------
+
+a10.structures.claim module
+---------------------------
+
+.. automodule:: a10.structures.claim
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+a10.structures.constants module
+-------------------------------
+
+.. automodule:: a10.structures.constants
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+a10.structures.convenience module
+---------------------------------
+
+.. automodule:: a10.structures.convenience
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+a10.structures.identity module
+------------------------------
+
+.. automodule:: a10.structures.identity
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+a10.structures.result module
+----------------------------
+
+.. automodule:: a10.structures.result
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+a10.structures.returncode module
+--------------------------------
+
+.. automodule:: a10.structures.returncode
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+a10.structures.timestamps module
+--------------------------------
+
+.. automodule:: a10.structures.timestamps
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+
+Module contents
+---------------
+
+.. automodule:: a10.structures
+    :members:
+    :undoc-members:
+    :show-inheritance:
