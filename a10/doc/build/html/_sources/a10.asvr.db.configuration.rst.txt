@@ -1,7 +1,0 @@
-a10.asvr.db.configuration module
-================================
-
-.. automodule:: a10.asvr.db.configuration
-    :members:
-    :undoc-members:
-    :show-inheritance:
