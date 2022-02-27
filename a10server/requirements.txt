@@ -1,0 +1,8 @@
+a10structures
+flask
+requests
+pymongo
+paho-mqtt
+pyserial
+pyyaml
+dictdiffer

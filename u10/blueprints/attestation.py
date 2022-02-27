@@ -8,7 +8,7 @@ import secrets
 
 import a10.structures.constants
 import a10.structures.identity
-from a10.asvr import rules, attestation, elements, policies, expectedvalues
+from a10.asvr import rules, attestation, elements, policies, expectedvalues, sessions
 from a10.asvr.rules import rule_dispatcher
 from flask import Blueprint, request, render_template, flash, redirect, Markup
 
@@ -156,9 +156,21 @@ def attestverifyall_post():
     print("lenattreqs is ", len(attreqs))
     # call attest
 
-    sessionstring = a10.structures.identity.generateID()
+    # generate a session first
+
+    arsession = a10.asvr.sessions.openSession()
+
+    if arsession.rc() != a10.structures.constants.SUCCESS:
+        print("Failed to open a session !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n")
+        flash("Failed to open a session ", "danger")
+
+        return redirect("/results")
+
+    sessionid = arsession.msg()
+    
+
     flash(
-        "Attesting " + str(lev) + " elements with session string " + sessionstring,
+        "Attesting " + str(lev) + " elements with session string " + sessionid,
         "primary",
     )
 
@@ -171,7 +183,7 @@ def attestverifyall_post():
                 "secondary",
             )
         else:
-            a["cp"]["attestAllSessionString"] = sessionstring
+            a["cp"]["attestAllSessionString"] = sessionid
             cres = attestation.attest(eid, a["policyid"], a["cp"])
             if cres.rc() != a10.structures.constants.SUCCESS:
                 flash(
@@ -209,5 +221,12 @@ def attestverifyall_post():
                             + "</a> successfully obtained"
                         )
                         flash(message, "success")
+    
+
+    arsession = a10.asvr.sessions.closeSession(sessionid)
+
+    if arsession.rc() != a10.structures.constants.SUCCESS:
+        print("Failed to close a session !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n")
+        flash("Failed to close the session with ID "+sessionid+", "+arsession.msg(), "danger")
 
     return redirect("/results")

@@ -41,7 +41,10 @@ def sessions():
 
     for s in cs:
         ses = a10.asvr.sessions.getSession(s["itemid"]).msg()
+        ses["openedUTC"] = formatting.futc(ses["opened"])
         ses["closedUTC"] = formatting.futc(ses["closed"])
+        dur = float(ses["closed"]) - float(ses["opened"])
+        ses["duration"] = f'{dur:.4f}' 
         sessions.append(ses)
 
     sessions_sorted = sorted(sessions, key=lambda i: (i["opened"]),reverse=True)

@@ -17,20 +17,23 @@
             <th>ID</th>
             <th>Opened</th>
             <th>Closed</th>
+            <th>Duration</th>
             <th># Claims</th>
             <th># Results</th>
         </tr>
     </thead>
     <tbody id="elementtable">
         {% for s in sessions %}
+        <!-- colour the table row for closed vs opened -->
         {% if s.closed is defined %}
         <tr class="table-success">
         {% else %}
         <tr class="table-light">
         {% endif %}
             <td><a href=/session/{{ s.itemid }}>{{ s.itemid }}</td>
-            <td>{{ s.openedUTC }} {{ s.opened }}</td>
-            <td>{{ s.closedUTC }}</td>
+            <td>{{ s.openedUTC }} </td>
+            <td>{{ s.closedUTC }} </td> 
+            <td>{{ s.duration }}</td>
         </tr>
         {% endfor %}
     </tbody>
