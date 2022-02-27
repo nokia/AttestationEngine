@@ -191,6 +191,8 @@ Now point your browser at the machine running u10, for example as below - note, 
 
 ### Install a Trust Agent
 
+NB: while the trust agent will run, how functional it will be depends upon your system. See the notes at the end.
+
 Go to the t10 directory and pick a suitable trust agent from there. For the quick start however we'll use `nut10`  (nu, as in new, and t10 as in, well t10...yes I know it looks like nut 10).
 
 Go to the nut10 directory and edit the file `ta_config.cfg` which used by the python flask libraries. The default contents are below:
@@ -273,3 +275,26 @@ ian@ubuntu:~/AttestationEngine/a10rest$ curl -X GET http://127.0.0.1:8520/v2/
 
 Note there are two APIs present, a version 1 and a version 2.  DO NOT USE the version 1 APIs as these are deprecated and contain errors. All calls to A10REST must use the `/v2` prefix to the requested HTTP endpoint.
 
+
+
+## Trust Agents
+The trust agent provides the link between the attestation engine and the attestation capabilities of the device. Nut10 is designed as a reference for x86 systems - though it will work on others but not all functionality will be available. It also assumes that certain tools will be available.
+
+Nut10 requires:
+
+   * tpm2 tools v5 (including abrmd and tpm2_tss) are installed, and the user running nut10 has access to a TPM 2.0 device ( /dev/tpm0 )
+   * access to the UEFI eventlog
+   * access to the TXT commands: txt-stat, which in turn requires access to /dev/mem
+   * access to the IMA log
+
+While /dev/tpm0 can be configured to be readable by a normal user, the rest require sudo, which may introduce some serious security holes.
+
+Further to this, not all systems support the range of functionalities which nut10 can access. For example, on ARM based systems (eg: Raspberry PI), UEFI and TXT are not available.
+
+IMA needs to be configured - again not all kernel will have IMA running
+
+TXT is Intel CPUs only, and then, only *some* Intel CPUs support the TXT instructions. Furthermore tboot is required.
+
+Another alternative is to use tpm2_send with tpm2_tss and access that over ssh. This only gives access to TPM commands but will suffice for IoT cases.
+
+A Keylime base trust agent is also possible.
