@@ -186,7 +186,7 @@ To stop u10, hit Ctrl-C a few times to kill u10 and the mqtt keep alive thread.
 
 Now point your browser at the machine running u10, for example as below - note, this is showing a populated system.
 
-[U10running](u10running.png)
+![U10running](u10running.png)
 
 
 ### Install a Trust Agent
@@ -252,7 +252,7 @@ Defined Endpoints
 
 You can check the status of nut10 by pointing your browser at port 8530 on this machine, for example:
 
-[NUT10running](nut10running.png)
+![NUT10running](nut10running.png)
 
 Normally you'd never interact with a trust agent like this, but nut10 provides some JSON output about itself for convenience.
 
