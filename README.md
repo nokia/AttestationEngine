@@ -26,7 +26,10 @@ Each directory contains a local README.md file with more information
 
 
 ## Installation and Running
-Refer to the main documentation directory for more information
+Refer to the main documentation directory for more information.
+
+   * [Start Here](./docs/STARTHERE.md)
+   * [Quickstart Installation](./docs/quickstart/installation.md)
 
 ## Prerequisites
 An A10 server requires mongodb and mosquitto to be available.
