@@ -1,7 +1,0 @@
-a10.asvr.attestation module
-===========================
-
-.. automodule:: a10.asvr.attestation
-    :members:
-    :undoc-members:
-    :show-inheritance:

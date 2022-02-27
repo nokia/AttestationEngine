@@ -1,4 +1,0 @@
-[distutils]
-index-servers = local
-[local]
-repository: https://artifactory-espoo2.int.net.nokia.com/artifactory/api/pypi/nbl-nae-pypi-local

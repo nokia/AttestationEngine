@@ -1,5 +1,0 @@
-#!/bin/sh
-find . | grep -E "(__pycache__|\.pyc|\.pyo$)" | xargs rm -rf
-sudo pip3 uninstall a10
-sudo python3 setup.py sdist bdist_wheel
-sudo python3 setup.py install
