@@ -1,2 +1,4 @@
-a10
-flask-swagger
+a10structures
+a10server
+flask
+requests
