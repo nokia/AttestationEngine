@@ -16,7 +16,8 @@ from a10.asvr import (
     results,
     types,
     hashes,
-    pcrschemas
+    pcrschemas,
+    sessions
 )
 from a10.structures import constants
 from a10.asvr.db import announce
@@ -142,6 +143,50 @@ def updateElement(itemid):
         return jsonify({"msg":e.msg()}), 400
     else:
         return jsonify({"msg":e.msg()}), 200
+
+#
+# SESSIONS
+#
+
+
+@v2_blueprint.route("/session/<itemid>", methods=["GET"])
+def getsession(itemid):
+    s = sessions.getSession(itemid)
+
+    if s.rc() != constants.SUCCESS:
+        return jsonify({"msg":s.msg()}), 404
+    else:
+        return jsonify(s.msg()), 200
+
+
+@v2_blueprint.route("/sessions/open", methods=["GET"])
+def getsessionsopen():
+    ss = [x["itemid"] for x in sessions.getOpenSessions()]
+    return jsonify({"sessions":ss,"count":len(ss),"sessionstate":"opened"}), 200
+
+@v2_blueprint.route("/sessions/closed", methods=["GET"])
+def getsessionsclosed():
+    ss = [x["itemid"] for x in sessions.getClosedSessions()]
+    return jsonify({"sessions":ss,"count":len(ss),"sessionstate":"closed"}), 200
+
+
+@v2_blueprint.route("/sessions/open", methods=["POST"])
+def opensession():
+    s = sessions.openSession()
+    if s.rc() != constants.SUCCESS:
+        return jsonify({"msg":s.msg()}), 400
+    else:
+        return jsonify({"itemid":s.msg()}), 201  
+
+@v2_blueprint.route("/session/<itemid>", methods=["DELETE"])
+def closesession(itemid):
+    s = sessions.closeSession(itemid)
+    if s.rc() != constants.SUCCESS:
+        return jsonify({"msg":s.msg()}), 400
+    else:
+        return jsonify({"msg":s.msg()}), 200 
+
+
 
 #
 # POLICIES

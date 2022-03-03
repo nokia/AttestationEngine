@@ -34,9 +34,10 @@ services:
    database:
      image: "mongo"
      links:
-       - databaseui
+#       - databaseui
+       - a10rest
        - u10
-     container_name: mongo
+     #container_name: mongo
      volumes:
       - attestationdata:/data/db
      networks:
@@ -47,13 +48,13 @@ services:
 #
 # Mongoexpress listens normally on port 8081, we expose this on 8555
 #
-   databaseui:
-     image: "mongo-express"
-     restart: always #  This fail most likely on first startup because the DB is not yet running
-     ports: 
-       - 8555:8081                          # !!!
-     networks:
-      - attestationnetwork
+#   databaseui:
+#     image: "mongo-express"
+#     restart: always #  This fail most likely on first startup because the DB is not yet running
+#     ports: 
+#       - 8555:8081                          # !!!
+#     networks:
+#      - attestationnetwork
 
 #
 # Mosquitto for the MQTT channels
