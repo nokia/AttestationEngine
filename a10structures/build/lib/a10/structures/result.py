@@ -4,7 +4,7 @@
 
 
 class Result:
-    def __init__(self, res, msg, add, eid, pid, cid, vat, par, rn, ev):
+    def __init__(self, res, msg, add, eid, pid, cid, vat, par, rn, ev, sessionid):
         self.s = {}
         self.s["result"] = res
         self.s["message"] = msg
@@ -16,6 +16,11 @@ class Result:
         self.s["ruleParameters"] = par
         self.s["ruleName"] = rn
         self.s["ev"] = ev
+
+        if sessionid==None:
+            self.s["session"] = ""       
+        else:
+            self.s["session"] = sessionid
 
     def asDict(self):
         return self.s
