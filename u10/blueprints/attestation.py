@@ -207,7 +207,8 @@ def attestverifyall_post():
                         "info",
                     )
                 else:
-                    a["rp"]["attestAllSessionString"] = sessionstring
+                    a["rp"]["attestAllSessionString"] = sessionid
+
                     rule = (a["rule"], a["rp"])
                     v = attestation.verify(cres.msg(), rule)
                     if v.rc() != a10.structures.constants.RESULTSUCCESSFUL:
