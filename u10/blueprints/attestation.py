@@ -71,8 +71,8 @@ def attestverify_post():
     cp = ast.literal_eval(request.form["cp"])  # needed to make sure that cp is a DICT
     rp = ast.literal_eval(request.form["rp"])  # needed to make sure that rp is a DICT
 
-    # so try to get a claim
-    cres = attestation.attest(i, p, cp)
+    # so try to get a claim - no session here
+    cres = attestation.attest(i, p, cp, None)
     if cres.rc() != a10.structures.constants.SUCCESS:
         flash(
             "Error obtaining claim: " + str(cres.msg()) + " " + str(cres.rc()), "danger"
@@ -94,7 +94,8 @@ def attestverify_post():
             return redirect("/claim/" + cres.msg())
         else:
             rule = (r, rp)
-            v = attestation.verify(cres.msg(), rule)
+            # verify - no session
+            v = attestation.verify(cres.msg(), rule, None)
             if v.rc() != a10.structures.constants.RESULTSUCCESSFUL:
                 flash("Error applying the verification rule: " + r, "danger")
                 return redirect("/claim/" + cres.msg())
@@ -183,8 +184,7 @@ def attestverifyall_post():
                 "secondary",
             )
         else:
-            a["cp"]["attestAllSessionString"] = sessionid
-            cres = attestation.attest(eid, a["policyid"], a["cp"])
+            cres = attestation.attest(eid, a["policyid"], a["cp"], sessionid)
             if cres.rc() != a10.structures.constants.SUCCESS:
                 flash(
                     "Error obtaining claim: " + str(cres.msg()) + " " + str(cres.rc()),
@@ -207,10 +207,8 @@ def attestverifyall_post():
                         "info",
                     )
                 else:
-                    a["rp"]["attestAllSessionString"] = sessionid
-
                     rule = (a["rule"], a["rp"])
-                    v = attestation.verify(cres.msg(), rule)
+                    v = attestation.verify(cres.msg(), rule, sessionid)
                     if v.rc() != a10.structures.constants.RESULTSUCCESSFUL:
                         flash("Error applying the verification rule: " + r, "danger")
                     else:

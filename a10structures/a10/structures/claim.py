@@ -6,7 +6,7 @@ import a10.structures.timestamps
 
 
 class Claim:
-    def __init__(self, e_struct, p_struct, treq, trec, payload, aps, td):
+    def __init__(self, e_struct, p_struct, treq, trec, payload, aps, td, sessionid):
         self.s = {}
         self.s["header"] = {}
 
@@ -17,6 +17,11 @@ class Claim:
         self.s["header"]["additionalparameters"] = aps
         self.s["header"]["transientdata"]= td 
         self.s["payload"] = payload
+
+        if sessionid==None:
+            self.s["header"]["session"] = ""       
+        else:
+            self.s["header"]["session"]= sessionid
 
     def asDict(self):
         return self.s

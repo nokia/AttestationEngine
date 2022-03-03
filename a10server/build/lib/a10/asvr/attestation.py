@@ -16,13 +16,14 @@ import a10.asvr.rules.rule_dispatcher
 from a10.asvr import elements, policies, expectedvalues, claims, results
 
 
-def attest(e, p, aps):
+def attest(e, p, aps, sessionid):
     """
     This is the attestation process. Adds the claim if not an error to the database - well depends upon the kind of error, eg: network timeout, 404 etc
     
     :params uuid4 e: The item id of the elent
-    :params uui4 p: The itemi do the policy
+    :params uuid4 p: The itemi do the policy
     :params dict aps: the additional paraeters to be used
+    :params uuid4 sessionid: an optional session argument
     :returns ResultCode:
     :rtype: ResultCode
     """
@@ -38,7 +39,7 @@ def attest(e, p, aps):
     # 3. call the element at the correct endpoint -- using POST (to be HTTP standard compliant because stuff goes in the body)
     #       -- all sorts of stuff can happen here depending upon the type, eg: tpms_attest requires a certain kind of nonce etc
 
-    result = resolvePolicyIntent(element, policy, aps)
+    result = resolvePolicyIntent(element, policy, aps, sessionid)
 
     # 4. get the result and add it to the claims
     #       -- generate a claim ID (aid is the standard term we are using for all objects) and push it into the database and return the claim ID
@@ -48,9 +49,9 @@ def attest(e, p, aps):
         return result
 
 
-def resolvePolicyIntent(element, policy, additionalparameters):
+def resolvePolicyIntent(element, policy, additionalparameters, sessionid):
     """
-      The type are STR, STR and DICT (!!! <- dict is really important!!!)
+      The type are STR, STR and DICT and STR (!!! <- dict is really important!!!)
     
     
       This function actually resolves the policy intent
@@ -126,7 +127,8 @@ def resolvePolicyIntent(element, policy, additionalparameters):
         receivedTime,
         resultStructure,
         additionalparameters,
-        returnedtransientdata
+        returnedtransientdata,
+        sessionid
     )
 
     # If we get here then everything has gone well - we got something. If the network failed then we still get a claim
@@ -138,15 +140,15 @@ def resolvePolicyIntent(element, policy, additionalparameters):
         )
 
 
-def verify(cid, rule):
+def verify(cid, rule, sessionid):
     # cid is a claim ID
-    # r is a structure of rules   -  this must be a DICT
-
-    # Verify the claim according to rule r
+   
 
     # A rule is a 2-tuple  ( rule name, parameters )
     # Where the parameters is a json document that may be understood by the receiving rule
     # The claim contains the eid and pid, for example: ("tpm2_firmwareVersion", {} )
+
+    # ses is a session ID if presented 
 
     rule_name = rule[0]
     rule_parameters = rule[1]
@@ -199,6 +201,7 @@ def verify(cid, rule):
         rule_parameters,
         rule_name,
         application_result["ev"],
+        sessionid
     )
 
     # and add the result to the database and return the result
