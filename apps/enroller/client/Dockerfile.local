@@ -1,0 +1,24 @@
+# Copyright 2021 Nokia
+# Licensed under the BSD 3-Clause License.
+# SPDX-License-Identifier: BSD-3-Clause
+
+FROM python:3.8-slim
+
+WORKDIR /enrollerserver
+
+RUN apt-get update && apt-get install --yes tpm2-tools
+
+ADD requirements.txt .
+
+RUN pip3 install -r requirements.txt
+ 
+ADD tenrollserver.py .
+ADD penrollserver.py .
+ADD eapp.conf .
+
+# Disable the creation of Python bytecode creation and the creations of `__pycache__` directories
+ENV PYTHONDONTWRITEBYTECODE=1
+
+EXPOSE 8521
+
+ENTRYPOINT [ "python3", "tenrollserver.py"]
