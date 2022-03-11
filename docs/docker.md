@@ -1,6 +1,6 @@
 # Running with Docker
 
-These instructions tell how to build the components as docker containers
+These instructions tell how to build the core components as docker containers
 
 ## Pre-requisites
 
