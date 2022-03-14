@@ -1,6 +1,7 @@
 # Running with Docker 2
 
-Read the section on building the core components first, then move to this which describes everything in turn
+Read the section on building the components first, then move to this which describes everything in turn.
+
 
 # Building
 
@@ -20,6 +21,10 @@ docker build -t enrolserver -f Dockerfile.local .
 # Running
 To run use the following - with local modifications if necessary. Docker usually requires sudo.
 
+Ensure mongodb and mosquitto are available and `/etc/a10.conf` has been configured accordingly. 
+
+In the examples below we have included the option `--network="host"` this may or might not be necessary depending upon the usage of these containers. Typically it is required when trying to access local resources, eg: the monogo and mosquitto components running "bare metal".
+
 
 ## Core + Enrollment Server
 
@@ -28,7 +33,7 @@ To run the core + enrollment server if using a local TPM (for the enrolment serv
 ```bash
 docker run -v /etc/a10.conf:/etc/a10.conf:ro -p 8540:8540 --network="host" u10
 docker run -v /etc/a10.conf:/etc/a10.conf:ro -p 8520:8520 --network="host" a10rest
-docker run -p 8521:8521 --network "host" --device=/dev/tpm0 nut10
+docker run -p 8521:8521 --network "host" --device=/dev/tpm0 enrolserver http://127.0.0.1:8520
 ```
 
 Or if using, eg: a SWTPM 
@@ -56,8 +61,16 @@ docker run -p 8530:8530 --network "host" -e TPM2TOOLS_TCTI='mssim:host=localhost
 
 ## Provisioning/updating nodes
 
-To provision use the interactive mode for the provision client. To update an element, similarly:
+To provision or update use the interactive mode and the required container respectively. For example to access the local TPM
 
 ```bash
+docker run -it --device=/dev/tpm0 provision
+docker run -it --device=/dev/tpm0 update
+```
 
+or a SWTPM:
+
+```bash
+docker run -it --device=/dev/tpm0 -e TPM2TOOLS_TCTI='mssim:host=localhost,port=2321' provision
+docker run -it --device=/dev/tpm0 -e TPM2TOOLS_TCTI='mssim:host=localhost,port=2321' update
 ```
