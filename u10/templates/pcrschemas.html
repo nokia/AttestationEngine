@@ -9,6 +9,13 @@
 <hr />
 <input class="form-control" id="hashsearch" type="text" placeholder="Search...">
 <br>
+<h4>Contents</h4>
+<ul>
+        {% for p in pcrs %}
+            <li><b><a href="#{{p.name}}">{{ p.name }}</a></b></li>
+        {% endfor %}
+</ul>
+
 <hr />
 <table class="table .table-striped">
     <thead>
@@ -20,7 +27,7 @@
     <tbody id="hashtable">
         {% for p in pcrs %}
         <tr>
-            <td><b>{{ p.name }}</b></br>{{ p.description }}</td>
+            <td id="{{p.name}}"><b>{{ p.name }}</b></br>{{ p.description }}</td>
             <td>
 <table class="table .table-striped">
 

@@ -71,6 +71,6 @@ docker run -it --device=/dev/tpm0 enrolclientupdateelement
 or a SWTPM:
 
 ```bash
-docker run -it --device=/dev/tpm0 -e TPM2TOOLS_TCTI='mssim:host=localhost,port=2321' provision
-docker run -it --device=/dev/tpm0 -e TPM2TOOLS_TCTI='mssim:host=localhost,port=2321' update
+docker run -it --device=/dev/tpm0 -e TPM2TOOLS_TCTI='mssim:host=localhost,port=2321' enrolclientprovision
+docker run -it --device=/dev/tpm0 -e TPM2TOOLS_TCTI='mssim:host=localhost,port=2321' enrolclientupdateelement
 ```
