@@ -64,8 +64,8 @@ docker run -p 8530:8530 --network "host" -e TPM2TOOLS_TCTI='mssim:host=localhost
 To provision or update use the interactive mode and the required container respectively. For example to access the local TPM
 
 ```bash
-docker run -it --device=/dev/tpm0 provision
-docker run -it --device=/dev/tpm0 update
+docker run -it --device=/dev/tpm0 enrolclientprovision
+docker run -it --device=/dev/tpm0 enrolclientupdateelement
 ```
 
 or a SWTPM:
