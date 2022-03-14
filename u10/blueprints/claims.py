@@ -87,10 +87,12 @@ def claimprettyprintPCRs(item_id):
        #get the pcr schema, we check that
        #claim.header.element.tpm2.tpm0.pcrschema exists
        #this returns None if no schema is included
-
-       pcrschema=c.get("header").get("element").get("tpm2").get("tpm0").get("pcrschema")
-       if pcrschema==None:
-          pcrschema="-"
+       pcrschema=None
+       try:
+            pcrschema=c.get("header").get("element").get("tpm2").get("tpm0").get("pcrschema")
+       except:
+            pcrschema=="-"
+          
 
        return render_template("claimprettyprint/pcrs.html", cla=c,pcrlist=pcrlist,pcrschema=pcrschema)  
     
