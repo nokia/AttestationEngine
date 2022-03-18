@@ -18,8 +18,7 @@
             <th>Opened</th>
             <th>Closed</th>
             <th>Duration</th>
-            <th># Claims</th>
-            <th># Results</th>
+            <th># Claims/Results/Sessions</th>
         </tr>
     </thead>
     <tbody id="elementtable">
@@ -34,6 +33,8 @@
             <td>{{ s.openedUTC }} </td>
             <td>{{ s.closedUTC }} </td> 
             <td>{{ s.duration }}</td>
+            <td>{{ s.numclaims }}&nbsp;/&nbsp;{{ s.numresults }}&nbsp;/&nbsp;{{ s.numsessions }}</td>
+
         </tr>
         {% endfor %}
     </tbody>

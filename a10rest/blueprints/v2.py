@@ -152,7 +152,6 @@ def updateElement(itemid):
 @v2_blueprint.route("/session/<itemid>", methods=["GET"])
 def getsession(itemid):
     s = sessions.getSession(itemid)
-
     if s.rc() != constants.SUCCESS:
         return jsonify({"msg":s.msg()}), 404
     else:
@@ -186,8 +185,29 @@ def closesession(itemid):
     else:
         return jsonify({"msg":s.msg()}), 200 
 
+@v2_blueprint.route("/session/<itemid>/claim/<claimid>", methods=["POST"])
+def sessionassociateclaim(itemid,claimid):
+    s = sessions.associateClaim(itemid,claimid)
+    if s.rc() != constants.SUCCESS:
+        return jsonify({"msg":s.msg()}), 400
+    else:
+        return jsonify({"msg":s.msg()}), 200 
 
+@v2_blueprint.route("/session/<itemid>/result/<resultid>", methods=["POST"])
+def sessionassociateresult(itemid,resultid):
+    s = sessions.associateResult(itemid,resultid)
+    if s.rc() != constants.SUCCESS:
+        return jsonify({"msg":s.msg()}), 400
+    else:
+        return jsonify({"msg":s.msg()}), 200 
 
+@v2_blueprint.route("/session/<outersessionid>/subsession/<innersessionid>", methods=["POST"])
+def sessionassociatesession(outersessionid,innersessionid):
+    s = sessions.associateSession(outersessionid,innersessionid)
+    if s.rc() != constants.SUCCESS:
+        return jsonify({"msg":s.msg()}), 400
+    else:
+        return jsonify({"msg":s.msg()}), 200         
 #
 # POLICIES
 #
@@ -471,10 +491,11 @@ def attest():
         eid = content["eid"]
         pid = content["pid"]
         cps = content["cps"]
+        sid = content["sid"]
     except:
         return jsonify({"msg":"Missing one or more of eid,pid and/or cps"}),400
 
-    e = attestation.attest(eid, pid, cps)
+    e = attestation.attest(eid, pid, cps, sid)
     
     print("\nreturn from attest ",e,e.rc(),e.msg(),type(e.msg()))
 
@@ -494,10 +515,12 @@ def verify():
     try:
         cid = content["cid"]
         rul = content["rule"]
-    except:
-        return jsonify({"msg":"Missing cid and/or rule"}),400
+        sid = content["sid"]
 
-    e = attestation.verify(cid, rul)
+    except:
+        return jsonify({"msg":"Missing cid, sessionID and/or rule"}),400
+
+    e = attestation.verify(cid, rul, sid)
 
     if e.rc() != constants.SUCCESS:
         return jsonify({"msg":e.msg()}), 404

@@ -21,7 +21,8 @@ def openSession():
 
     s={ "itemid":i, "opened": a10.structures.timestamps.now(),
         "claims":[], 
-        "results":[] }
+        "results":[],
+        "sessions":[] }
 
     r = a10.asvr.db.core.openSession(s)
 
@@ -107,5 +108,38 @@ def associateClaim(s,c):
     """
     Associates a claim with an open session
     """
-    pass
+    e = a10.asvr.db.core.associateClaim(s,c)
+    
+    if e is None:
+        return a10.structures.returncode.ReturnCode(
+            a10.structures.constants.ITEMDOESNOTEXIST, "Failed to add claim to session"
+        )
+    else:
+        return a10.structures.returncode.ReturnCode(a10.structures.constants.SUCCESS, e)
 
+def associateResult(s,r):
+    """
+    Associates a claim with an open session
+    """
+    e = a10.asvr.db.core.associateResult(s,r)
+    
+    if e is None:
+        return a10.structures.returncode.ReturnCode(
+            a10.structures.constants.ITEMDOESNOTEXIST, "Failed to add result to session"
+        )
+    else:
+        return a10.structures.returncode.ReturnCode(a10.structures.constants.SUCCESS, e)
+
+
+def associateSession(s,ss):
+    """
+    Associates a claim with an open session
+    """
+    e = a10.asvr.db.core.associateSession(s,ss)
+    
+    if e is None:
+        return a10.structures.returncode.ReturnCode(
+            a10.structures.constants.ITEMDOESNOTEXIST, "Failed to add subsession to session"
+        )
+    else:
+        return a10.structures.returncode.ReturnCode(a10.structures.constants.SUCCESS, e)

@@ -13,6 +13,8 @@ Set up a10.conf in a suitable place. Both a10rest and u10 expect it to be in `/e
 
 ## Building and Running a10rest
 
+NB: This applies to all docker build, but it might be required to add `--network=host` to the build commands to allow pip3 to run correctly. No idea, just copied and pasted it from Stackexchange
+
 ```bash
 ~/AttestationEngine$ docker build -t a10rest -f a10rest/Dockerfile.local .
 ~/AttestationEngine$ docker run -v /etc/a10.conf:/etc/a10.conf:ro -p 8520:8520 --network="host" a10rest

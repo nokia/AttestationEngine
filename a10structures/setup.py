@@ -9,7 +9,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="a10structures",
-    version="2022.3.3.1",
+    version="2022.3.18",
     author="Ian Oliver",
     author_email="ian.oliver@nokia-bell-labs.com",
     description="Attestation Services Structure Libraries",

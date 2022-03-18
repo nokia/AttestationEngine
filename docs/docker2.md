@@ -3,7 +3,9 @@
 Read the section on building the components first, then move to this which describes everything in turn.
 
 
+
 # Building
+NB: This applies to all docker build, but it might be required to add `--network=host` to the build commands to allow pip3 to run correctly. No idea, just copied and pasted it from Stackexchange
 
 Start from the root directory of the NAE installation.
 

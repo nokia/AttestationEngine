@@ -37,6 +37,9 @@ def sessions():
         ses = a10.asvr.sessions.getSession(s["itemid"]).msg()
         print(ses["opened"]," ", formatting.futc(ses["opened"]))
         ses["openedUTC"] = formatting.futc(ses["opened"])
+        ses["numclaims"] = len(ses["claims"])
+        ses["numresults"] = len(ses["results"])
+        ses["numsessions"] = len(ses["sessions"])        
         sessions.append(ses)
 
     for s in cs:
@@ -45,6 +48,10 @@ def sessions():
         ses["closedUTC"] = formatting.futc(ses["closed"])
         dur = float(ses["closed"]) - float(ses["opened"])
         ses["duration"] = f'{dur:.4f}' 
+        ses["numclaims"] = len(ses["claims"])
+        ses["numresults"] = len(ses["results"])
+        ses["numsessions"] = len(ses["sessions"])
+
         sessions.append(ses)
 
     sessions_sorted = sorted(sessions, key=lambda i: (i["opened"]),reverse=True)
@@ -52,3 +59,20 @@ def sessions():
 
     return render_template("sessions.html", sessions=sessions_sorted)
    
+
+
+@sessions_blueprint.route("/session/<itemid>", methods=["GET"])
+def session(itemid):
+    s= a10.asvr.sessions.getSession(itemid)  
+
+    ses=s.msg()
+
+    ses["openedUTC"] = formatting.futc(ses["opened"])
+    ses["closedUTC"] = formatting.futc(ses["closed"])
+    dur = float(ses["closed"]) - float(ses["opened"])
+    ses["duration"] = f'{dur:.4f}' 
+    ses["numclaims"] = len(ses["claims"])
+    ses["numresults"] = len(ses["results"])
+    ses["numsessions"] = len(ses["sessions"])
+    
+    return render_template("session.html", ses=ses) 
