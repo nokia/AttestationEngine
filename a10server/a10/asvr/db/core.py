@@ -150,6 +150,22 @@ def getSession(s):
     e = collection.find_one({"itemid": s}, {"_id": False})
     return e
 
+#These need to be modified to ensure we do not update closed sessions
+def associateClaim(s,c):
+    collection = asdb["sessions"]
+    e = collection.update({"itemid": s}, {'$push': {'claims': c}})
+    return e
+
+def associateResult(s,r):
+    collection = asdb["sessions"]
+    e = collection.update({"itemid": s}, {'$push': {'results': r}})
+    return e
+
+def associateSession(s,ss):
+    collection = asdb["sessions"]
+    e = collection.update({"itemid": s}, {'$push': {'sessions': ss}})
+    return e
+
 ##################################################
 #
 # Elements
