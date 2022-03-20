@@ -204,6 +204,7 @@ def sessionassociateresult(itemid,resultid):
 @v2_blueprint.route("/session/<outersessionid>/subsession/<innersessionid>", methods=["POST"])
 def sessionassociatesession(outersessionid,innersessionid):
     s = sessions.associateSession(outersessionid,innersessionid)
+    print(s.rc(),s.msg())
     if s.rc() != constants.SUCCESS:
         return jsonify({"msg":s.msg()}), 400
     else:
@@ -521,6 +522,8 @@ def verify():
         return jsonify({"msg":"Missing cid, sessionID and/or rule"}),400
 
     e = attestation.verify(cid, rul, sid)
+
+    print("Result fom verify is ",e.rc(),e.msg())
 
     if e.rc() != constants.SUCCESS:
         return jsonify({"msg":e.msg()}), 404
