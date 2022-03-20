@@ -153,18 +153,30 @@ def getSession(s):
 #These need to be modified to ensure we do not update closed sessions
 def associateClaim(s,c):
     collection = asdb["sessions"]
-    e = collection.update({"itemid": s}, {'$push': {'claims': c}})
-    return e
+    e = collection.update_one({"itemid": s}, {'$push': {'claims': c}})
+    if e.matched_count == 1:
+        return True
+    else:
+        return False
+
 
 def associateResult(s,r):
     collection = asdb["sessions"]
-    e = collection.update({"itemid": s}, {'$push': {'results': r}})
-    return e
+    e = collection.update_one({"itemid": s}, {'$push': {'results': r}})
+    if e.matched_count == 1:
+        return True
+    else:
+        return False
+
 
 def associateSession(s,ss):
     collection = asdb["sessions"]
-    e = collection.update({"itemid": s}, {'$push': {'sessions': ss}})
-    return e
+    e = collection.update_one({"itemid": s}, {'$push': {'sessions': ss}})
+    if e.matched_count == 1:
+        return True
+    else:
+        return False
+
 
 ##################################################
 #

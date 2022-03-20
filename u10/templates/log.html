@@ -59,6 +59,8 @@ Page loaded at <b>{{ ltutc }}</b> ( {{ lt }} ). Showing <b>{{ lrs }}</b> of <b>{
             <td>
                 {% if l.data.type == "element" %}
                   <a href=/element/{{ l.data.itemid }}>{{ l.data.type }}</a>
+                {% elif l.data.type == "session" %}
+                  <a href=/session/{{ l.data.itemid }}>{{ l.data.type }}</a>                  
                 {% elif l.data.type == "policy" %}
                   <a href=/policy/{{ l.data.itemid }}>{{ l.data.type }}</a>
                 {% elif l.data.type == "claim" %}
