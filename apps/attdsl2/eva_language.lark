@@ -1,0 +1,32 @@
+start: evaluate+
+
+evaluate: "evaluate" selectexpression "using" templatename		-> evaluatething
+
+selectexpression : "name" "=" ELEMENTNAME 								-> selectexpressionname
+              	 | "type" ":" typelist							-> selectexpressiontype
+              	 | "eid"  "=" UUIDNAME								-> selectexpressionelementid
+
+
+templatename : NAME 											-> templatenamething				
+
+tlist : "[" [NAME ("," NAME)*] "]"
+typelist: tlist
+
+
+ELEMENTNAME : (LETTER+|DIGIT+|"-"|"_")+
+UUIDNAME : (LETTER+|DIGIT+|"-")+
+
+
+%import common.CNAME -> NAME
+%import common.LETTER
+%import common.WORD
+%import common.NUMBER
+%import common.DIGIT
+%import common.STRING
+%import common.WS_INLINE
+%import common.WS
+%import common.ESCAPED_STRING   -> STRING
+%ignore WS_INLINE
+%ignore WS
+
+

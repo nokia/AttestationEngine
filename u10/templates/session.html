@@ -8,16 +8,31 @@
 {% block content %}
 <h2><b>Session</b> </h2>
 
+                    {% if ses.closed is  defined %}
+                      <p class="bg-success text-white">This session has been closed.</p>
+                            {% else %}
+                      <p class="bg-warning text-white">This session is still open.</p>
+                    {% endif %}
+
 <h4>Basic Data </h4>
 <div id="basicdata">
     <table class="table table-striped table-sm">
         <tbody>
             <tr>
                 <td><b>Session ID</b></td> <td>{{ ses.itemid }}</td> </tr>
-                <td><b>Opened</b></td> <td>{{ ses.openedUTC }} &nbsp; ({{ ses.opened }})</td> </tr>
-                <td><b>Closed</b></td> <td>{{ ses.closedUTC }} &nbsp; ({{ ses.closed }})</td> </tr>
-                <td><b>Duration</b></td> <td>{{ ses.duration }}</td> </tr>
-                <td><b>Contents C/R/S</b></td> <td>{{ ses.numclaims }}&nbsp;/&nbsp;{{ ses.numresults }}&nbsp;/&nbsp;{{ ses.numsessions }}</td> </tr>
+                <tr><td><b>Opened</b></td> <td>{{ ses.openedUTC }} &nbsp; ({{ ses.opened }})</td> </tr>
+
+                        {% if ses.closed is defined %}
+                <tr><td><b>Closed</b></td> <td>{{ ses.closedUTC }} &nbsp; ({{ ses.closed }})</td> </tr>
+                <tr><td><b>Duration</b></td> <td>{{ ses.duration }}</td> </tr>
+                       {% endif %}
+
+                <tr><td><b>Claims</b></td><td>{{ ses.numclaims }}</td></tr>
+                <tr><td><b>Results</b></td><td>{{ ses.numresults }}</td></tr>
+                <tr><td><b>Subsessions</b></td><td>{{ ses.numsessions }}</td></tr>
+
+                <tr><td><b>Parent Session</b></td> <td><a href=/session/{{ ses.parentSession }}>{{ ses.parentSession }}</a></td> </tr>
+
         </tbody>
     </table>
 </div>

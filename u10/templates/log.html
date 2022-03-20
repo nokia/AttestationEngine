@@ -40,10 +40,11 @@ Page loaded at <b>{{ ltutc }}</b> ( {{ lt }} ). Showing <b>{{ lrs }}</b> of <b>{
 <table class="table table-condensed table-hover .table-striped">
     <thead>
         <tr>
-            <th>Time</th>
+            <th>Time UTC</th>
+            <th>Time Epoch</th>            
             <th>Channel</th>
             <th>Operation</th>
-            <th>Summary</th>
+            <th>Item</th>
             <th>Data</th>
         </tr>
     </thead>
@@ -52,8 +53,9 @@ Page loaded at <b>{{ ltutc }}</b> ( {{ lt }} ). Showing <b>{{ lrs }}</b> of <b>{
         {% for l in ls %}
         <tr>
 
-            <td>{{ l.tUTC }} &nbsp; ({{ l.t }}) </td>
-            <td>{{ l.ch }} </td>
+            <td>{{ l.tUTC }}</td>
+            <td>{{ l.t }} </td>
+            <td><b>{{ l.ch }}</b> </td>
             <td>{{ l.op }} </td>
 
             <td>

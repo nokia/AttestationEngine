@@ -35,7 +35,6 @@ def sessions():
 
     for s in os:
         ses = a10.asvr.sessions.getSession(s["itemid"]).msg()
-        print(ses["opened"]," ", formatting.futc(ses["opened"]))
         ses["openedUTC"] = formatting.futc(ses["opened"])
         ses["numclaims"] = len(ses["claims"])
         ses["numresults"] = len(ses["results"])
@@ -66,13 +65,18 @@ def session(itemid):
     s= a10.asvr.sessions.getSession(itemid)  
 
     ses=s.msg()
+    dur=0
 
     ses["openedUTC"] = formatting.futc(ses["opened"])
-    ses["closedUTC"] = formatting.futc(ses["closed"])
-    dur = float(ses["closed"]) - float(ses["opened"])
-    ses["duration"] = f'{dur:.4f}' 
     ses["numclaims"] = len(ses["claims"])
     ses["numresults"] = len(ses["results"])
     ses["numsessions"] = len(ses["sessions"])
     
+    try:
+        ses["closedUTC"] = formatting.futc(ses["closed"])
+        dur = float(ses["closed"]) - float(ses["opened"])
+        ses["duration"] = f'{dur:.4f}' 
+    except:
+        pass
+        
     return render_template("session.html", ses=ses) 

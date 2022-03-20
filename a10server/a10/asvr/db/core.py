@@ -171,7 +171,11 @@ def associateResult(s,r):
 
 def associateSession(s,ss):
     collection = asdb["sessions"]
-    e = collection.update_one({"itemid": s}, {'$push': {'sessions': ss}})
+    e = collection.update_one({"itemid": s}, {'$push': {'sessions': ss} })
+    if e.matched_count != 1:
+        return False
+    
+    e = collection.update_one({"itemid": ss}, {'$set': {'parentSession':s}})
     if e.matched_count == 1:
         return True
     else:

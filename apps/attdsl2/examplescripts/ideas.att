@@ -1,0 +1,79 @@
+template test
+ attest
+   PCRread,{}
+
+template test2
+ attest
+   PCRread,{}
+      [[
+         ans1 <- nullrules/AlwaysSuccess ,{}
+         ans2 <- nullrules/AlwaysFail ,{}
+         ans3 <- nullrules/AlwaysError ,{}
+         ans4 <- nullrules/AlwaysNoResult ,{}         
+      ]]
+
+template test3
+ attest
+   PCRread,{}
+      [[
+         ans1 <- nullrules/AlwaysSuccess ,{}
+         ans2 <- nullrules/AlwaysFail ,{}
+      ]]
+
+template test4
+ attest
+   PCRread,{}
+      [[
+         ans3 <- nullrules/AlwaysError ,{}
+         ans4 <- nullrules/AlwaysNoResult ,{}         
+      ]]      
+
+
+template testx86
+ attest
+   SRTM-SHA256,{}  
+   CheckCredentials,{},copycredentials
+
+
+
+template x86
+ attest
+    pcrs, {}
+    idcheck, {}
+      [[
+        r0 <- test, {}
+      ]]
+    crtm,{ "name":"fred" } 
+      [[
+       r1 <- testa,  { "name":"fred" } 
+       r2 <- testb2, {}
+      ]]
+    srtm,{ "name":"fred" } 
+      [[ 
+       r3 <- testx,  { "name":"fred" } 
+       r4 <- testx2, {}
+      ]]
+    drtm,{ "name":"fred" } 
+      [[
+       txtresult <- test,  { "name":"fred" } 
+       txtmeasure <- test2, {}
+      ]]      
+ decision
+  r0 && (
+  ( r1 && r2 && r3 && r4 ) ||
+     txtresult => txtmeasure )
+
+
+template arm
+ attest
+    pcrs, {}
+      [[
+        r1 <- allUnassigned1, { "bank":"sha256" }
+        r2 <- allUnassigned2, { "bank":"sha1" }
+      ]]
+    idcheck, {}
+      [[
+        ri <- testC, {}
+      ]]
+ decision
+  r0 && ( r1 && r2 )
