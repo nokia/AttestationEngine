@@ -18,7 +18,8 @@
             <th>Opened</th>
             <th>Closed</th>
             <th>Duration</th>
-            <th># Claims/Results/Sessions</th>
+            <th># C/R/S</th>
+            <th>Parent Session</th>
         </tr>
     </thead>
     <tbody id="elementtable">
@@ -34,7 +35,9 @@
             <td>{{ s.closedUTC }} </td> 
             <td>{{ s.duration }}</td>
             <td>{{ s.numclaims }}&nbsp;/&nbsp;{{ s.numresults }}&nbsp;/&nbsp;{{ s.numsessions }}</td>
-
+            <td><a href=/session/{{ s.parentSession }}><span class="d-inline-block text-truncate" style="max-width: 100px;">
+  {{ s.parentSession }}
+</span>   </a></td>
         </tr>
         {% endfor %}
     </tbody>

@@ -1,0 +1,68 @@
+start: template+ 
+
+
+value: dict
+         | list
+         | STRING
+         | NUMBER
+         | "true" | "false" | "null"
+
+list : "[" [value ("," value)*] "]"
+dict : "{" [pair ("," pair)*] "}"
+pair : STRING ":" value
+
+tlist : "[" [NAME ("," NAME)*] "]"
+
+
+template:  "template" templatename attestsection decisionsection?        -> templatething
+templatename: NAME                                                      -> templatenamething
+
+attestsection: "attest" policy+       
+policy: policyname "," callparams ["," paramfunction ]+ rulesection?                          -> policything
+policyname: POLICYNAME                                                        -> policynamething  
+paramfunction: NAME   -> paramfunctionnamething
+callparams: dict                                                        -> policycpthing
+
+rulesection: "[[" rule+ "]]"             
+rule: rulevariablemame "<-" rulename "," ruleparams                     -> rulething
+rulevariablemame : RULEVARIABLENAME                                                 -> rulevariablenamething  
+rulename : RULENAME                                                         -> rulenamething  
+ruleparams: dict                                                        -> rulerpsthing
+
+decisionsection: "decision" evalexpr                                    -> decisionthing
+
+
+
+evalexpr: "true"                                    
+         | "false"
+         | "(" evalexpr ")"
+         | impliesexpr
+         | andexpr
+         | orexpr
+         | notexpr
+         | NAME                                                          -> namething
+
+impliesexpr : evalexpr "=>" evalexpr
+andexpr : evalexpr "&&" evalexpr
+orexpr : evalexpr "||" evalexpr
+notexpr : "!" evalexpr
+
+RULEVARIABLENAME : (LETTER+|DIGIT+|"-"|"_"|"/")+
+
+POLICYNAME : (LETTER+|DIGIT+|"-"|"_"|"/")+
+ELEMENTNAME : (LETTER+|DIGIT+|"-"|"_"|"/")+
+RULENAME : (LETTER+|DIGIT+|"-"|"_"|"/")+
+UUIDNAME : (LETTER+|DIGIT+|"-")+
+
+%import common.CNAME -> NAME
+%import common.LETTER
+%import common.WORD
+%import common.NUMBER
+%import common.DIGIT
+%import common.STRING
+%import common.WS_INLINE
+%import common.WS
+%import common.ESCAPED_STRING   -> STRING
+%ignore WS_INLINE
+%ignore WS
+

@@ -1,0 +1,39 @@
+template test
+ attest
+   PCRread,{}
+
+template test2
+ attest
+   PCRread,{}
+      [[
+         ans1 <- nullrules/AlwaysSuccess ,{}
+         ans2 <- nullrules/AlwaysFail ,{}
+         ans3 <- nullrules/AlwaysError ,{}
+         ans4 <- nullrules/AlwaysNoResult ,{}         
+      ]]
+  
+
+
+template testx86
+ attest
+   SystemInfo, {}
+   SRTM-SHA1,{}   
+      [[
+         q1_1 <- tpm2rules/TPM2FirmwareVersion, {}
+         q1_1 <- tpm2rules/TPM2QuoteAttestedValue, {}
+         q1_1 <- tpm2rules/TPM2QuoteStandardVerify, {}         
+      ]]
+   SRTM-SHA256,{}  
+      [[
+         q256_1 <- tpm2rules/TPM2FirmwareVersion, {}
+         q256_1 <- tpm2rules/TPM2QuoteAttestedValue, {}
+         q256_1 <- tpm2rules/TPM2QuoteStandardVerify, {}         
+      ]]
+   CheckCredentials,{},copycredentials
+      [[
+         id <-  tpm2rules/TPM2CredentialVerify  ,{}
+      ]]
+  decision
+    ( q1_1 && q1_2 && q1_3 ) &&
+    ( q256_1 && q256_2 && q256_3 ) &&
+     id
