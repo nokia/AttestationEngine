@@ -1,5 +1,5 @@
 from lark import Lark
-from lark.visitors import Interpreter, Visitor
+from lark.visitors import Interpreter, Visitor, Transformer
 
 import requests
 
@@ -177,6 +177,44 @@ class InterpretEvalation(Interpreter):
   def templatenamething(self,tree):
     self.ep.setTemplateName(tree.children[0].value)
 
+
+
+#
+# Decision Transformer
+#
+
+class CalculateDecision(Transformer):
+  def __init__(self,t,v):
+     self.variables = v
+     self.tree = t
+
+  def result(self):
+    r = self.transform(self.tree)
+    print("\nResult = ",r.children[0].children[0],"\n")
+    return r.children[0]
+
+  def decand(self,tree):
+    #print("decAnd ",type(tree[0].children[0]), tree[1].children[0] )
+    lhs = tree[0].children[0]
+    rhs = tree[1].children[0]
+    return lhs & rhs
+
+  def decor(self,tree):
+    lhs = tree[0].children[0]
+    rhs = tree[1].children[0]
+    return lhs | rhs 
+  
+  def decneg(self,tree):
+    val = tree[0].children[0]
+    return not(val)
+
+  def decvariable(self,tree):
+    print("decVariable ",tree[0].value)
+    value = self.variables[tree[0].value]
+    if value == 0:
+      return True 
+    else:  
+      return False
 #
 # Atteststion Executor
 #
@@ -188,7 +226,7 @@ class AttestationExecutor():
       print("AE Initiated: ",self.a10restEndpoint)
 
       attlanguage=None
-      attinstructions=None
+      self.attinstructions=None
 
       evalanguage=None
       evainstructions=None
@@ -221,6 +259,14 @@ class AttestationExecutor():
             print("    +- ",r.rulename,r.variablename)
       
       print("Interpreting EvaluationProcessor\n EPLIST ",self.eva.eplist)            
+
+    def calculateDecision(self,t,v):
+       # t is the decision tree and v is the dictionary of variables
+       print("Calculating")
+       c = CalculateDecision(t,v).result()
+       print("Calculated Result is ",c)
+
+       return c
 
     def resolveSSHProtocolCPS(self,r):
       """ 
@@ -372,8 +418,10 @@ class AttestationExecutor():
 
           # here we call the decision function
           print("variables for this element are ",variables)
-          print("decision tree is", template.decisionexpression )
+          #print("decision tree is", template.decisionexpression )
 
+          d = self.calculateDecision(template.decisionexpression,variables)
+          print("Final Decision is ",d)
           #self.makeDecision(variables)
 
           session = requests.delete(self.a10restEndpoint+"/session/"+sessionInner)
