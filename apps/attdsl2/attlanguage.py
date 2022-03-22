@@ -1,4 +1,4 @@
-from lark import Lark
+from lark import Lark, v_args
 from lark.visitors import Interpreter, Visitor, Transformer
 
 import requests
@@ -22,7 +22,8 @@ class TemplateProcessor():
     self.attestPolicies.append(p)
   def setDecisionExpression(self,d):
     self.decisionexpression = d
-
+  def setDecisionStrictness(self,d):
+    print("Strictness set to ",d)
 
 class PolicyProcessor():
   def __init__(self):
@@ -104,7 +105,10 @@ class InterpretTemplate(Interpreter):
     self.visit_children(tree)
 
   def decisionthing(self,tree):
+    print("Decision thing ",tree)
     self.template.setDecisionExpression(tree)
+
+  
 
 #
 # EVA Interpreter
@@ -182,39 +186,38 @@ class InterpretEvalation(Interpreter):
 #
 # Decision Transformer
 #
-
+@v_args(inline=True) 
 class CalculateDecision(Transformer):
+  from operator import and_, or_, not_
+
   def __init__(self,t,v):
      self.variables = v
      self.tree = t
+     print("Tree\n",t.pretty())
 
   def result(self):
     r = self.transform(self.tree)
-    print("\nResult = ",r.children[0].children[0],"\n")
+    print("Transformed\n",r.pretty())
+    print("\nResult = ",r.children[0],"\n")
     return r.children[0]
 
-  def decand(self,tree):
-    #print("decAnd ",type(tree[0].children[0]), tree[1].children[0] )
-    lhs = tree[0].children[0]
-    rhs = tree[1].children[0]
-    return lhs & rhs
+  def decimpl(self,ltree,rtree):
+    #print("impl ",ltree,"=>",rtree,"=", not(ltree) or rtree)
+    return not(ltree) or rtree
 
-  def decor(self,tree):
-    lhs = tree[0].children[0]
-    rhs = tree[1].children[0]
-    return lhs | rhs 
-  
-  def decneg(self,tree):
-    val = tree[0].children[0]
-    return not(val)
+  def decequiv(self,ltree,rtree):
+    v = self.decimpl(ltree,rtree) and self.decimpl(rtree,ltree)
+    print("equiv ",ltree,"<=>",rtree,"=", v)
+    return v
 
   def decvariable(self,tree):
-    print("decVariable ",tree[0].value)
-    value = self.variables[tree[0].value]
+    value = self.variables[tree]
     if value == 0:
       return True 
     else:  
       return False
+
+
 #
 # Atteststion Executor
 #
