@@ -105,7 +105,6 @@ class InterpretTemplate(Interpreter):
     self.visit_children(tree)
 
   def decisionthing(self,tree):
-    print("Decision thing ",tree)
     self.template.setDecisionExpression(tree)
 
   
@@ -193,21 +192,16 @@ class CalculateDecision(Transformer):
   def __init__(self,t,v):
      self.variables = v
      self.tree = t
-     print("Tree\n",t.pretty())
 
   def result(self):
     r = self.transform(self.tree)
-    print("Transformed\n",r.pretty())
-    print("\nResult = ",r.children[0],"\n")
     return r.children[0]
 
   def decimpl(self,ltree,rtree):
-    #print("impl ",ltree,"=>",rtree,"=", not(ltree) or rtree)
     return not(ltree) or rtree
 
   def decequiv(self,ltree,rtree):
     v = self.decimpl(ltree,rtree) and self.decimpl(rtree,ltree)
-    print("equiv ",ltree,"<=>",rtree,"=", v)
     return v
 
   def decvariable(self,tree):
@@ -265,10 +259,7 @@ class AttestationExecutor():
 
     def calculateDecision(self,t,v):
        # t is the decision tree and v is the dictionary of variables
-       print("Calculating")
        c = CalculateDecision(t,v).result()
-       print("Calculated Result is ",c)
-
        return c
 
     def resolveSSHProtocolCPS(self,r):
@@ -412,20 +403,20 @@ class AttestationExecutor():
 
                 vrr = requests.get(self.a10restEndpoint+"/result/"+resultid)
                 resultvalue = vrr.json()["result"]["result"]
-                print("result value is ",resultvalue)
-                print("rule processor variable name is ",ru.variablename," <-- ",resultvalue )
+                #print("result value is ",resultvalue)
+                #print("rule processor variable name is ",ru.variablename," <-- ",resultvalue )
                 variables[ru.variablename]=resultvalue
 
             else:
               print("Unknown Policy")
 
-          # here we call the decision function
-          print("variables for this element are ",variables)
-          #print("decision tree is", template.decisionexpression )
-
-          d = self.calculateDecision(template.decisionexpression,variables)
-          print("Final Decision is ",d)
-          #self.makeDecision(variables)
+        
+          if progress>0:
+            print("Decision Expression ",template.decisionexpression)
+          if template.decisionexpression!=None:
+            d = self.calculateDecision(template.decisionexpression,variables)
+            if progress>0:
+              print("Final Decision is ",d,r,template.name)
 
           session = requests.delete(self.a10restEndpoint+"/session/"+sessionInner)
           if session.status_code != 200:
