@@ -18,7 +18,7 @@ ap.add_argument('-p', '--progress', help="Show progress, 0=none, 1=a little",  t
 
 args = ap.parse_args()
 
-print(args.template, args.elements, args.restendpoint, args.prettyprint, args.progress)
+#print(args.template, args.elements, args.restendpoint, args.prettyprint, args.progress)
 
 
 ae = attlanguage.AttestationExecutor(args.template,args.elements,args.restendpoint)

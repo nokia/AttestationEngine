@@ -20,20 +20,20 @@ template testx86
    SRTM-SHA1,{}   
       [[
          q1_1 <- tpm2rules/TPM2FirmwareVersion, {}
-         q1_1 <- tpm2rules/TPM2QuoteAttestedValue, {}
-         q1_1 <- tpm2rules/TPM2QuoteStandardVerify, {}         
+         q1_2 <- tpm2rules/TPM2QuoteAttestedValue, {}
+         q1_3 <- tpm2rules/TPM2QuoteStandardVerify, {}         
       ]]
    SRTM-SHA256,{}  
       [[
          q256_1 <- tpm2rules/TPM2FirmwareVersion, {}
-         q256_1 <- tpm2rules/TPM2QuoteAttestedValue, {}
-         q256_1 <- tpm2rules/TPM2QuoteStandardVerify, {}         
+         q256_2 <- tpm2rules/TPM2QuoteAttestedValue, {}
+         q256_3 <- tpm2rules/TPM2QuoteStandardVerify, {}         
       ]]
    CheckCredentials,{},copycredentials
       [[
          id <-  tpm2rules/TPM2CredentialVerify  ,{}
       ]]
   decision
-    ( q1_1 && q1_2 && q1_3 ) &&
-    ( q256_1 && q256_2 && q256_3 ) &&
+    ( q1_1 ^ q1_2 ^ q1_3 ) ^
+    ( q256_1 ^ q256_2 ^ q256_3 ) ^
      id
