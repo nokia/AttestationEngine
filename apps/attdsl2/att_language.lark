@@ -29,19 +29,18 @@ rulevariablemame : RULEVARIABLENAME                                             
 rulename : RULENAME                                                         -> rulenamething  
 ruleparams: dict                                                        -> rulerpsthing
 
-decisionsection: "decision" formula                                    -> decisionthing
+decisionsection: "decision" logicexpr                           -> decisionthing
 
+strictness: "strict" | "flexible" | "loose"                               
 
-formula  : disjunction
-         | conjunction
-         | negation
-         | exprvariable
+?logicexpr:  logicexpr "^" logicexpr -> and_
+          |  logicexpr "v" logicexpr -> or_
+          |  logicexpr "=>" logicexpr -> decimpl
+          |  logicexpr "<=>" logicexpr -> decequiv         
+          |  "!" logicexpr -> not_
+          |  "(" logicexpr ")"
+          |   RULEVARIABLENAME  -> decvariable
 
-disjunction : formula "||" formula    -> decor
-conjunction : formula "&&" formula    -> decand
-negation :    "!" formula             -> decneg
-
-exprvariable : RULEVARIABLENAME       -> decvariable
 
 RULEVARIABLENAME : (LETTER+|DIGIT+|"-"|"_"|"/")+
 

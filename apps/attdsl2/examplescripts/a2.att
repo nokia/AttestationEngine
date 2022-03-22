@@ -11,4 +11,4 @@ template testx86
          id <-  tpm2rules/TPM2CredentialVerify  ,{}
       ]]
   decision
-    !q1firmware || id
+    q1firmware ^ id <=> !id
