@@ -345,8 +345,10 @@ class AttestationExecutor():
 
       session = requests.post(self.a10restEndpoint+"/sessions/open")
       if session.status_code != 201:
-        print("Failed to open a new session")
-        return 1
+        self.report.adderr("Failed to open a new session")
+        self.report.close()
+        return self.report
+
       sessionOuter = session.json()["itemid"]
 
       counter=1
@@ -371,6 +373,9 @@ class AttestationExecutor():
           session = requests.post(self.a10restEndpoint+"/sessions/open") 
           if session.status_code != 201:
             self.report.adderr("Failed to open a new inner session")
+            self.report.close()
+            return self.report
+
 
           sessionInner = session.json()["itemid"]     
           #Associate inner session with outer session
@@ -378,6 +383,8 @@ class AttestationExecutor():
           session = requests.post(self.a10restEndpoint+"/session/"+sessionOuter+"/subsession/"+sessionInner)
           if session.status_code != 200:
             self.report.adderr("Failed to associate with outer session")
+            self.report.close()
+            return self.report
 
 
           for ap in template.attestPolicies:
@@ -455,15 +462,19 @@ class AttestationExecutor():
           session = requests.delete(self.a10restEndpoint+"/session/"+sessionInner)
           if session.status_code != 200:
             self.report.adderr("Failed to close session "+sessionOuter)
-           
+            self.report.close()
+            return self.report
+
 
 
       session = requests.delete(self.a10restEndpoint+"/session/"+sessionOuter)
       if session.status_code != 200:
         self.report.adderr("Failed to close session "+sessionOuter)
-      
-      self.report.close()
+        self.report.close()
+        return self.report
 
+
+      self.report.close()
       return self.report
 
 

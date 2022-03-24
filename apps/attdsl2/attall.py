@@ -41,7 +41,6 @@ if args.prettyprint==True:
 
 report = ae.execute(progress=args.progress)
 
-print("of",args.outputfile)
 if args.outputfile!=None:
     with open(args.outputfile,"w") as f:
         f.write(str(report.getReport()))
