@@ -31,8 +31,6 @@ ruleparams: dict                                                        -> ruler
 
 decisionsection: "decision" logicexpr                           -> decisionthing
 
-strictness: "strict" | "flexible" | "loose"                               
-
 ?logicexpr:  logicexpr "^" logicexpr -> and_
           |  logicexpr "v" logicexpr -> or_
           |  logicexpr "=>" logicexpr -> decimpl

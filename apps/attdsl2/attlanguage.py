@@ -1,6 +1,8 @@
 from lark import Lark, v_args
 from lark.visitors import Interpreter, Visitor, Transformer
 
+import attreport
+
 import requests
 
 #
@@ -108,7 +110,6 @@ class InterpretTemplate(Interpreter):
     self.template.setDecisionExpression(tree)
 
   
-
 #
 # EVA Interpreter
 #
@@ -160,11 +161,15 @@ class InterpretEvalation(Interpreter):
   def __init__(self,ep):
     self.eplist = []
     self.a10restEndpoint = ep
+    self.logic = "strict"
 
   def evaluatething(self,tree):
     self.ep=EvaluationProcessor(self.a10restEndpoint)
     self.visit_children(tree)
     self.eplist.append(self.ep)
+
+  def selectstrictness(self,tree):
+    self.logic = tree.children[0].value
 
   def selectexpressionname(self,tree):
     self.ep=EvaluationProcessorByName(tree.children[0].value,self.a10restEndpoint)
@@ -189,13 +194,14 @@ class InterpretEvalation(Interpreter):
 class CalculateDecision(Transformer):
   from operator import and_, or_, not_
 
-  def __init__(self,t,v):
+  def __init__(self,t,v,l):
      self.variables = v
      self.tree = t
+     self.logic = l
 
   def result(self):
     r = self.transform(self.tree)
-    return r.children[0]
+    return r
 
   def decimpl(self,ltree,rtree):
     return not(ltree) or rtree
@@ -206,11 +212,36 @@ class CalculateDecision(Transformer):
 
   def decvariable(self,tree):
     value = self.variables[tree]
-    if value == 0:
-      return True 
-    else:  
-      return False
 
+    #Logics here
+    # From a10.structures
+    # Verification code
+    #SUCCESS = 0
+    #VERIFYSUCCEED = SUCCESS
+    #VERIFYFAIL = 9001
+    #VERIFYERROR = 9002
+    #VERIFYNORESULT = 9100
+
+    if self.logic == "strict":
+      if value == 0:
+        return True 
+      else:  
+        return False  
+
+    if self.logic == "flexible":
+      if (value == 0 or value==9002):
+        return True 
+      else:  
+        return False 
+
+    if self.logic == "loose":
+      if (value == 0 or value==9002 or value==9100):
+        return True 
+      else:  
+        return False 
+
+    print("\n********************\nSomehow an unknown logic slipped through the interpreter - probably the lark description is broken")
+    return False
 
 #
 # Atteststion Executor
@@ -218,9 +249,11 @@ class CalculateDecision(Transformer):
 
 
 class AttestationExecutor():
-    def __init__(self,templatefile,evalfile,restendpoint):
+    def __init__(self,attdata,evadata,restendpoint):
+      self.report=attreport.Report()
+
+
       self.a10restEndpoint = restendpoint+"/v2"
-      print("AE Initiated: ",self.a10restEndpoint)
 
       attlanguage=None
       self.attinstructions=None
@@ -230,18 +263,19 @@ class AttestationExecutor():
 
       with open('att_language.lark','r') as f:
         attlanguage = Lark(f.read())
-      with open(templatefile,'r') as f:
-        attinstructions = attlanguage.parse(f.read())
 
       with open('eva_language.lark','r') as f:
         evalanguage = Lark(f.read())
-      with open(evalfile,'r') as f:
-        evainstructions = evalanguage.parse(f.read())
+
+      attinstructions = attlanguage.parse(attdata)
+      evainstructions = evalanguage.parse(evadata)
 
       self.att = InterpretTemplate()
       self.att.visit(attinstructions)  
+
       self.eva = InterpretEvalation(restendpoint)
       self.eva.visit(evainstructions)
+
 
     def prettyprint(self):
       print("Interpreting Template")
@@ -259,7 +293,8 @@ class AttestationExecutor():
 
     def calculateDecision(self,t,v):
        # t is the decision tree and v is the dictionary of variables
-       c = CalculateDecision(t,v).result()
+       #print("Strictness is ",self.eva.logic)
+       c = CalculateDecision(t.children[0],v,self.eva.logic).result()
        return c
 
     def resolveSSHProtocolCPS(self,r):
@@ -306,10 +341,14 @@ class AttestationExecutor():
       #
       # Good luck, this is a mess
       #
+      self.report.open()
+
       session = requests.post(self.a10restEndpoint+"/sessions/open")
       if session.status_code != 201:
-        print("Failed to open a new session")
-        return 1
+        self.report.adderr("Failed to open a new session")
+        self.report.close()
+        return self.report
+
       sessionOuter = session.json()["itemid"]
 
       counter=1
@@ -320,10 +359,10 @@ class AttestationExecutor():
           print("Processing",counter,"of",elementlen)
         counter=counter+1
 
-        rs = e.resolveElements()
-        for r in rs:
+        eids = e.resolveElements()
+        for eid in eids:
           if progress>0:
-            print("   Element",r,"of length",len(rs))          
+            print("   Element",eid,"of length",len(eids))          
           # This is used to store the variables for each element being processed
           variables={}
 
@@ -333,15 +372,19 @@ class AttestationExecutor():
           # Setup the inner session
           session = requests.post(self.a10restEndpoint+"/sessions/open") 
           if session.status_code != 201:
-            print("Failed to open a new inner session")
-            return 1
+            self.report.adderr("Failed to open a new inner session")
+            self.report.close()
+            return self.report
+
+
           sessionInner = session.json()["itemid"]     
           #Associate inner session with outer session
 
           session = requests.post(self.a10restEndpoint+"/session/"+sessionOuter+"/subsession/"+sessionInner)
           if session.status_code != 200:
-            print("Failed to associate with outer session")
-            return 1
+            self.report.adderr("Failed to associate with outer session")
+            self.report.close()
+            return self.report
 
 
           for ap in template.attestPolicies:
@@ -353,27 +396,21 @@ class AttestationExecutor():
             if pr.status_code == 200:
               
               # now make a claim
-              eid = r
               pid = pr.json()["itemid"]
 
               cps = {}
               # Do all necessary preprocessing for the CPS structure here
 
-
               sshans = self.resolveSSHProtocolCPS(eid)
               if sshans != None:
                 cps['a10_tpm_send_ssl']= sshans
-              
-              # Check if a policy param function is set
-              #print("POLICY PARAM F is ",ap.paramFunction)
 
               #There's a much easier way of doing this I am sure, but for the moment
               #with a single convenience function it's fine
 
               if ap.paramFunction=="copycredentials":
                   pfr = self.applyCopyCredentials(eid)
-                  if r!=None:
-                    #print("   +-- applying copycrednentials with ",pfr)
+                  if pfr!=None:
                     cps["akname"]=pfr["akname"]
                     cps["ekpub"]=pfr["ekpub"]
                   else:
@@ -403,31 +440,41 @@ class AttestationExecutor():
 
                 vrr = requests.get(self.a10restEndpoint+"/result/"+resultid)
                 resultvalue = vrr.json()["result"]["result"]
-                #print("result value is ",resultvalue)
-                #print("rule processor variable name is ",ru.variablename," <-- ",resultvalue )
                 variables[ru.variablename]=resultvalue
 
+                self.report.addECRV(eid,cid,resultid,resultvalue)
+
             else:
-              print("Unknown Policy")
+              self.report.adderr("Unknown Policy eid="+eid)
 
         
-          if progress>0:
+          if progress>1:
             print("Decision Expression ",template.decisionexpression)
+
           if template.decisionexpression!=None:
             d = self.calculateDecision(template.decisionexpression,variables)
+
+            self.report.addDecision(d,eid,template.name)
+
             if progress>0:
-              print("Final Decision is ",d,r,template.name)
+              print("Final Decision is ",d,eid,template.name)
 
           session = requests.delete(self.a10restEndpoint+"/session/"+sessionInner)
           if session.status_code != 200:
-            print("Failed to close session "+sessionOuter)
-            return 1
+            self.report.adderr("Failed to close session "+sessionOuter)
+            self.report.close()
+            return self.report
+
 
 
       session = requests.delete(self.a10restEndpoint+"/session/"+sessionOuter)
       if session.status_code != 200:
-        print("Failed to close session "+sessionOuter)
-        return 1
-      return 0
+        self.report.adderr("Failed to close session "+sessionOuter)
+        self.report.close()
+        return self.report
+
+
+      self.report.close()
+      return self.report
 
 

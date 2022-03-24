@@ -1,6 +1,7 @@
 start: evaluate+
 
-evaluate: "evaluate" selectexpression "using" templatename		-> evaluatething
+evaluate: "evaluate" selectexpression "using" templatename [("," strictness )]		-> evaluatething
+
 
 selectexpression : "name" "=" ELEMENTNAME 								-> selectexpressionname
               	 | "type" ":" typelist							-> selectexpressiontype
@@ -8,6 +9,11 @@ selectexpression : "name" "=" ELEMENTNAME 								-> selectexpressionname
 
 
 templatename : NAME 											-> templatenamething				
+
+strictness : "logic" "=" SVALUE  -> selectstrictness
+ 
+SVALUE :  "strict" | "flexible" | "loose" 
+
 
 tlist : "[" [NAME ("," NAME)*] "]"
 typelist: tlist
