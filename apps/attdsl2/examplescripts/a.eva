@@ -3,4 +3,4 @@ evaluate name=hanta using test2
 evaluate name=cholera using test2
 evaluate name=smallpox using test2
 
-evaluate name=ubuntu using testx86
+evaluate name=ubuntu using testx86 , logic = strict

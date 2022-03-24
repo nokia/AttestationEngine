@@ -108,7 +108,6 @@ class InterpretTemplate(Interpreter):
     self.template.setDecisionExpression(tree)
 
   
-
 #
 # EVA Interpreter
 #
@@ -160,11 +159,15 @@ class InterpretEvalation(Interpreter):
   def __init__(self,ep):
     self.eplist = []
     self.a10restEndpoint = ep
+    self.logic = "strict"
 
   def evaluatething(self,tree):
     self.ep=EvaluationProcessor(self.a10restEndpoint)
     self.visit_children(tree)
     self.eplist.append(self.ep)
+
+  def selectstrictness(self,tree):
+    self.logic = tree.children[0].value
 
   def selectexpressionname(self,tree):
     self.ep=EvaluationProcessorByName(tree.children[0].value,self.a10restEndpoint)
@@ -189,13 +192,14 @@ class InterpretEvalation(Interpreter):
 class CalculateDecision(Transformer):
   from operator import and_, or_, not_
 
-  def __init__(self,t,v):
+  def __init__(self,t,v,l):
      self.variables = v
      self.tree = t
+     self.logic = l
 
   def result(self):
     r = self.transform(self.tree)
-    return r.children[0]
+    return r
 
   def decimpl(self,ltree,rtree):
     return not(ltree) or rtree
@@ -206,11 +210,36 @@ class CalculateDecision(Transformer):
 
   def decvariable(self,tree):
     value = self.variables[tree]
-    if value == 0:
-      return True 
-    else:  
-      return False
 
+    #Logics here
+    # From a10.structures
+    # Verification code
+    #SUCCESS = 0
+    #VERIFYSUCCEED = SUCCESS
+    #VERIFYFAIL = 9001
+    #VERIFYERROR = 9002
+    #VERIFYNORESULT = 9100
+
+    if self.logic == "strict":
+      if value == 0:
+        return True 
+      else:  
+        return False  
+
+    if self.logic == "flexible":
+      if (value == 0 or value==9002):
+        return True 
+      else:  
+        return False 
+
+    if self.logic == "loose":
+      if (value == 0 or value==9002 or value==9100):
+        return True 
+      else:  
+        return False 
+
+    print("\n********************\nSomehow an unknown logic slipped through the interpreter - probably the lark description is broken")
+    return False
 
 #
 # Atteststion Executor
@@ -259,7 +288,8 @@ class AttestationExecutor():
 
     def calculateDecision(self,t,v):
        # t is the decision tree and v is the dictionary of variables
-       c = CalculateDecision(t,v).result()
+       #print("Strictness is ",self.eva.logic)
+       c = CalculateDecision(t.children[0],v,self.eva.logic).result()
        return c
 
     def resolveSSHProtocolCPS(self,r):
@@ -411,8 +441,9 @@ class AttestationExecutor():
               print("Unknown Policy")
 
         
-          if progress>0:
+          if progress>1:
             print("Decision Expression ",template.decisionexpression)
+            
           if template.decisionexpression!=None:
             d = self.calculateDecision(template.decisionexpression,variables)
             if progress>0:
