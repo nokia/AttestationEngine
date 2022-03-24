@@ -1,6 +1,8 @@
 from lark import Lark, v_args
 from lark.visitors import Interpreter, Visitor, Transformer
 
+import attreport
+
 import requests
 
 #
@@ -247,9 +249,11 @@ class CalculateDecision(Transformer):
 
 
 class AttestationExecutor():
-    def __init__(self,templatefile,evalfile,restendpoint):
+    def __init__(self,attdata,evadata,restendpoint):
+      self.report=attreport.Report()
+
+
       self.a10restEndpoint = restendpoint+"/v2"
-      print("AE Initiated: ",self.a10restEndpoint)
 
       attlanguage=None
       self.attinstructions=None
@@ -259,18 +263,19 @@ class AttestationExecutor():
 
       with open('att_language.lark','r') as f:
         attlanguage = Lark(f.read())
-      with open(templatefile,'r') as f:
-        attinstructions = attlanguage.parse(f.read())
 
       with open('eva_language.lark','r') as f:
         evalanguage = Lark(f.read())
-      with open(evalfile,'r') as f:
-        evainstructions = evalanguage.parse(f.read())
+
+      attinstructions = attlanguage.parse(attdata)
+      evainstructions = evalanguage.parse(evadata)
 
       self.att = InterpretTemplate()
       self.att.visit(attinstructions)  
+
       self.eva = InterpretEvalation(restendpoint)
       self.eva.visit(evainstructions)
+
 
     def prettyprint(self):
       print("Interpreting Template")
@@ -336,6 +341,8 @@ class AttestationExecutor():
       #
       # Good luck, this is a mess
       #
+      self.report.open()
+
       session = requests.post(self.a10restEndpoint+"/sessions/open")
       if session.status_code != 201:
         print("Failed to open a new session")
@@ -350,10 +357,10 @@ class AttestationExecutor():
           print("Processing",counter,"of",elementlen)
         counter=counter+1
 
-        rs = e.resolveElements()
-        for r in rs:
+        eids = e.resolveElements()
+        for eid in eids:
           if progress>0:
-            print("   Element",r,"of length",len(rs))          
+            print("   Element",eid,"of length",len(eids))          
           # This is used to store the variables for each element being processed
           variables={}
 
@@ -363,15 +370,14 @@ class AttestationExecutor():
           # Setup the inner session
           session = requests.post(self.a10restEndpoint+"/sessions/open") 
           if session.status_code != 201:
-            print("Failed to open a new inner session")
-            return 1
+            self.report.adderr("Failed to open a new inner session")
+
           sessionInner = session.json()["itemid"]     
           #Associate inner session with outer session
 
           session = requests.post(self.a10restEndpoint+"/session/"+sessionOuter+"/subsession/"+sessionInner)
           if session.status_code != 200:
-            print("Failed to associate with outer session")
-            return 1
+            self.report.adderr("Failed to associate with outer session")
 
 
           for ap in template.attestPolicies:
@@ -383,27 +389,21 @@ class AttestationExecutor():
             if pr.status_code == 200:
               
               # now make a claim
-              eid = r
               pid = pr.json()["itemid"]
 
               cps = {}
               # Do all necessary preprocessing for the CPS structure here
 
-
               sshans = self.resolveSSHProtocolCPS(eid)
               if sshans != None:
                 cps['a10_tpm_send_ssl']= sshans
-              
-              # Check if a policy param function is set
-              #print("POLICY PARAM F is ",ap.paramFunction)
 
               #There's a much easier way of doing this I am sure, but for the moment
               #with a single convenience function it's fine
 
               if ap.paramFunction=="copycredentials":
                   pfr = self.applyCopyCredentials(eid)
-                  if r!=None:
-                    #print("   +-- applying copycrednentials with ",pfr)
+                  if pfr!=None:
                     cps["akname"]=pfr["akname"]
                     cps["ekpub"]=pfr["ekpub"]
                   else:
@@ -433,32 +433,37 @@ class AttestationExecutor():
 
                 vrr = requests.get(self.a10restEndpoint+"/result/"+resultid)
                 resultvalue = vrr.json()["result"]["result"]
-                #print("result value is ",resultvalue)
-                #print("rule processor variable name is ",ru.variablename," <-- ",resultvalue )
                 variables[ru.variablename]=resultvalue
 
+                self.report.addECRV(eid,cid,resultid,resultvalue)
+
             else:
-              print("Unknown Policy")
+              self.report.adderr("Unknown Policy eid="+eid)
 
         
           if progress>1:
             print("Decision Expression ",template.decisionexpression)
-            
+
           if template.decisionexpression!=None:
             d = self.calculateDecision(template.decisionexpression,variables)
+
+            self.report.addDecision(d,eid,template.name)
+
             if progress>0:
-              print("Final Decision is ",d,r,template.name)
+              print("Final Decision is ",d,eid,template.name)
 
           session = requests.delete(self.a10restEndpoint+"/session/"+sessionInner)
           if session.status_code != 200:
-            print("Failed to close session "+sessionOuter)
-            return 1
+            self.report.adderr("Failed to close session "+sessionOuter)
+           
 
 
       session = requests.delete(self.a10restEndpoint+"/session/"+sessionOuter)
       if session.status_code != 200:
-        print("Failed to close session "+sessionOuter)
-        return 1
-      return 0
+        self.report.adderr("Failed to close session "+sessionOuter)
+      
+      self.report.close()
+
+      return self.report
 
 
