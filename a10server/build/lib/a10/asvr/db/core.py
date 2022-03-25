@@ -225,7 +225,8 @@ def getElement(i):
 
 
 def getElementByName(n):
-    """ Returns an element with the given name
+    """ Returns an element with the given name 
+     ONLY from the unarchived list ... 
 
     :param str n: name of the element
     :return: the returned object from Monogo less the mongo object ID
