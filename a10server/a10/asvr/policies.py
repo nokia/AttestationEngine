@@ -47,6 +47,7 @@ def getPolicy(i):
 
 def getPolicyByName(n):
     """Gets a single policy from the database by its name.
+       Can only be used to get UNARCHIVED policies
 
     :param str n: the policy's name
     :return: return code structure

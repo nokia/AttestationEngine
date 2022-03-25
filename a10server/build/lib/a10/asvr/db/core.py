@@ -225,7 +225,8 @@ def getElement(i):
 
 
 def getElementByName(n):
-    """ Returns an element with the given name
+    """ Returns an element with the given name 
+     ONLY from the unarchived list ... 
 
     :param str n: name of the element
     :return: the returned object from Monogo less the mongo object ID
@@ -233,7 +234,9 @@ def getElementByName(n):
     """
 
     collection = asdb["elements"]
-    e = collection.find_one({"name": n}, {"_id": False})
+    e = collection.find_one({"name": n,
+                             "archived":{"$exists":False}
+          }, {"_id": False})
     return e
 
 

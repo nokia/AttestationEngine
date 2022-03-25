@@ -122,6 +122,7 @@ mqttclientname=a10mqtt
 mqttaddress=127.0.0.1
 mqttport=1883
 keepaliveping=45
+keepalivethread=0
 
 [mongo]
 mongodburl=mongodb://localhost:27017/
@@ -130,6 +131,8 @@ mongodbname=asvr
 ```
 
 The most important lines relate to the addresses and ports of the mqtt server (usually Mosquitto) and Mongo database. We assume here these are running on 127.0.0.1 or localhost, whichever is appropriate.
+
+Note, if you find that Mosquitto forgets the MQTT connection then edit the keepalivethread configuration option to `keepalivethread=1`
 
 
 ### Running the U10 User Interface

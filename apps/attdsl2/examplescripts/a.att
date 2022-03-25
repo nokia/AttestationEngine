@@ -1,17 +1,13 @@
-template test
- attest
-   PCRread,{}
-
 template test2
  attest
    PCRread,{}
+   PiFakeBoot,{}
       [[
-         ans1 <- nullrules/AlwaysSuccess ,{}
-         ans2 <- nullrules/AlwaysFail ,{}
-         ans3 <- nullrules/AlwaysError ,{}
-         ans4 <- nullrules/AlwaysNoResult ,{}         
+         r1 <- tpm2rules/TPM2FirmwareVersion, {}
+         r2 <- tpm2rules/TPM2QuoteAttestedValue, {}
       ]]
-  
+  decision
+    r1 ^ r2
 
 
 template testx86
@@ -34,6 +30,4 @@ template testx86
          id <-  tpm2rules/TPM2CredentialVerify  ,{}
       ]]
   decision
-    ( q1_1 ^ q1_2 ^ q1_3 ) ^
-    ( q256_1 ^ q256_2 ^ q256_3 ) ^
-     id
+     id ^ (( q256_1 ^ q256_2 ^ q256_3 ) => ( q1_1 ^ q1_2 ^ q1_3 ))

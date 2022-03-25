@@ -32,6 +32,7 @@ try:
     MQTTADDRESS = config["mqtt"]["mqttaddress"]
     MQTTPORT = int(config["mqtt"]["mqttport"])
     MQTTKEEPALIVEPING = config["mqtt"]["keepaliveping"]
+    MQTTKEEPALIVETHREAD = config["mqtt"]["keepalivethread"]   # 1=on, any other value is off. Gets cast to an int
 
     MONGODBURL = config["mongo"]["mongodburl"]
     MONGODBNAME = config["mongo"]["mongodbname"]

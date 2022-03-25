@@ -2,12 +2,12 @@
 #Licensed under the BSD 3-Clause Clear License.
 #SPDX-License-Identifier: BSD-3-Clear
 
-#import json
-#import requests
 import subprocess
-#import string
 import datetime
 import yaml
+import binascii
+import tempfile
+
 from urllib.parse import urlparse
 
 import a10.asvr.protocols.A10ProtocolBase
@@ -103,6 +103,19 @@ class A10tpm2send(a10.asvr.protocols.A10ProtocolBase.A10ProtocolBase):
     # Each will return a ReturnCode complete with a Claim structure, if successful
     #  
       
+    def processQuote(self,h):
+        j = {}
+        print("Quote part is ",h["quoted"])
+        with tempfile.NamedTemporaryFile() as tf:
+            b = binascii.a2b_hex(h["quoted"])
+            tf.write(b)
+            cmd = ["tpm2_print","-t","TPMS_ATTEST",tf.name]
+            tf.seek(0)
+            p = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE) 
+            o = p.communicate(input=b)[0]
+            j = yaml.load(o, Loader=yaml.BaseLoader)
+        print("processed as ",type(j),j)
+        return j
 
     def tpm2quote(self):
         claim = { "header": {
@@ -128,6 +141,7 @@ class A10tpm2send(a10.asvr.protocols.A10ProtocolBase.A10ProtocolBase):
 
         try:
             cmdwtcti = cmd.split()+["-T",self.getTCTI()]
+
             print("Trying ",cmdwtcti)
 
             out = subprocess.check_output(cmdwtcti, stderr=subprocess.STDOUT, timeout=self.getTimeout()) 
@@ -138,7 +152,10 @@ class A10tpm2send(a10.asvr.protocols.A10ProtocolBase.A10ProtocolBase):
         except subprocess.TimeoutExpired as exc:
             claim['payload']={"msg":"Connection and/or processing timedout after "+str(self.getTimeout())+"seconds"} 
         else:
-            claim['payload']['quote']=yaml.load(out, Loader=yaml.BaseLoader)
+            quoteyaml = yaml.load(out, Loader=yaml.BaseLoader)
+            claim['payload']['hexquote']=quoteyaml
+            claim['payload']['quote']=self.processQuote(quoteyaml)
+
 
         # and return
 
