@@ -233,7 +233,9 @@ def getElementByName(n):
     """
 
     collection = asdb["elements"]
-    e = collection.find_one({"name": n}, {"_id": False})
+    e = collection.find_one({"name": n,
+                             "archived":{"$exists":False}
+          }, {"_id": False})
     return e
 
 

@@ -14,11 +14,10 @@ ap = argparse.ArgumentParser(description='Attest Elements Command Line Utility')
 ap.add_argument('template', help="Location of the template file")
 ap.add_argument('evaluation', help="Location of the evaluation file")
 ap.add_argument('-r', '--restendpoint', help="Address of an A10REST endpoint", default="http://127.0.0.1:8520")
-ap.add_argument('-P', '--prettyprint', help="Pretty print the report output",  action='store_true')
-ap.add_argument('-p', '--progress', help="Show progress, 0=none, 1=a little,..., 5=lots",  type=int, default=0)
+ap.add_argument('-PP', '--prettyprint', help="Pretty print the report output",  action='store_true')
+ap.add_argument('-S', '--summary', help="Print summary of decisions",  action='store_true')
+ap.add_argument('-p', '--progress', help="Show progress, 1=none, 2=a little,..., 5=lots",  type=int, default=0)
 ap.add_argument('-o', '--outputfile', help="Write the output to the given file",  type=str)
-
-
 args = ap.parse_args()
 
 attf = None
@@ -35,10 +34,6 @@ if (attf==None or evaf==None):
     sys.exit(1)
 
 ae = attlanguage.AttestationExecutor(attf,evaf,args.restendpoint)
-
-if args.prettyprint==True:
-    ae.prettyprint()
-
 report = ae.execute(progress=args.progress)
 
 if args.outputfile!=None:
@@ -49,3 +44,11 @@ if args.prettyprint==True:
     pretty = json.dumps(report.getReport(), indent=4)
     print(pretty)
 
+if args.summary==True:
+    r = report.getReport()
+    print("Element".ljust(40),"Result".ljust(8),"Template")
+    print("-"*60)
+    for d in r["decisions"]:
+        print(d["eid"].ljust(40),str(d["result"]).ljust(8),d["template"])
+    print("-"*60)
+    

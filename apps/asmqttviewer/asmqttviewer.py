@@ -102,7 +102,7 @@ printm("Using broker at "+broker_url+" on port "+str(broker_port))
 client = mqtt.Client()
 client.on_connect = on_connect
 client.on_message = on_message
-client.connect(broker_url, broker_port)
+client.connect(broker_url, broker_port,keepalive=60, bind_address="")
 
 printm(" +--- MQTT Client connection is "+str(client))
 

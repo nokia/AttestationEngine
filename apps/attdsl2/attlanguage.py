@@ -275,21 +275,7 @@ class AttestationExecutor():
 
       self.eva = InterpretEvalation(restendpoint)
       self.eva.visit(evainstructions)
-
-
-    def prettyprint(self):
-      print("Interpreting Template")
-
-      for x in self.att.templates.keys():
-        u = self.att.templates[x]
-        print(x)
-        print(" -> ",u.decisionexpression)  
-        for p in u.attestPolicies:
-          print(" +- ",p.name, "f:",p.paramFunction)
-          for r in p.attestRules:
-            print("    +- ",r.rulename,r.variablename)
-      
-      print("Interpreting EvaluationProcessor\n EPLIST ",self.eva.eplist)            
+   
 
     def calculateDecision(self,t,v):
        # t is the decision tree and v is the dictionary of variables
@@ -446,10 +432,6 @@ class AttestationExecutor():
 
             else:
               self.report.adderr("Unknown Policy eid="+eid)
-
-        
-          if progress>1:
-            print("Decision Expression ",template.decisionexpression)
 
           if template.decisionexpression!=None:
             d = self.calculateDecision(template.decisionexpression,variables)
