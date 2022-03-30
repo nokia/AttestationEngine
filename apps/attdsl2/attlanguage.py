@@ -4,6 +4,7 @@ from lark.visitors import Interpreter, Visitor, Transformer
 import attreport
 
 import requests
+from functools import reduce
 
 #
 # Template Processing
@@ -118,11 +119,16 @@ class EvaluationProcessor():
   def __init__(self,ep):
     self.templatename=None
     self.a10restEndpoint=ep
+    self.logic="strict"
 
   def getTemplateName(self):
     return self.templatename
   def setTemplateName(self,n):
     self.templatename=n
+  def setLogic(self,l):
+    self.logic=l
+  def getLogic(self):
+    return self.logic
 
 class EvaluationProcessorByName(EvaluationProcessor):
   def __init__(self,n,ep):
@@ -137,13 +143,25 @@ class EvaluationProcessorByName(EvaluationProcessor):
     else:
       return None
 
+
 class EvaluationProcessorByTypes(EvaluationProcessor):
   def __init__(self,ts,ep):
     super().__init__(ep)
     self.types=ts
 
   def resolveElements(self):
-    return self.types
+    esets = []
+    for t in self.types:
+      u = self.a10restEndpoint+"/elements/type/"+t
+      r = requests.get(u)
+
+      if r.status_code == 200:
+        esets.append(set(r.json()["elements"]))
+
+    # Generalised intersection over a list of sets
+    rs = reduce( (lambda x,y: x&y), esets)
+
+    return rs
 
 
 
@@ -157,11 +175,16 @@ class EvaluationProcessorByEID(EvaluationProcessor):
 
 
 
-class InterpretEvalation(Interpreter):
+class InterpretEvaluation(Interpreter):
+  """
+     somehow this class works and resolves things...not 100% sure how :-)
+
+     I'm not proud of this code, but I'm also too scared to correct it
+  """
   def __init__(self,ep):
     self.eplist = []
+    self.ep = None
     self.a10restEndpoint = ep
-    self.logic = "strict"
 
   def evaluatething(self,tree):
     self.ep=EvaluationProcessor(self.a10restEndpoint)
@@ -169,13 +192,20 @@ class InterpretEvalation(Interpreter):
     self.eplist.append(self.ep)
 
   def selectstrictness(self,tree):
-    self.logic = tree.children[0].value
+    self.ep.setLogic(tree.children[0].value)
+    #print("select strictness resolves to ",tree.children[0].value)
 
   def selectexpressionname(self,tree):
+    #print("SEN value is ",tree.children[0].value)
     self.ep=EvaluationProcessorByName(tree.children[0].value,self.a10restEndpoint)
 
   def selectexpressiontype(self,tree):
-    self.ep=EvaluationProcessorByTypes(["a","list","of","things"],self.a10restEndpoint)
+    #print("SET",tree.children,"\n",tree.children[0])
+    # This interprets the actual list of element types
+    InterpretEvaluation.visit_children(self,tree)
+    #print("EPLIST IS ",self.eplist)
+    self.ep=EvaluationProcessorByTypes(self.typelist,self.a10restEndpoint)
+    #print("self.ep is ",self.ep)
     #for this to work we need to resolve the list to a python list
     #self.ep=EvaluationProcessorByTypes(tree.children[0].value)
 
@@ -185,7 +215,10 @@ class InterpretEvalation(Interpreter):
   def templatenamething(self,tree):
     self.ep.setTemplateName(tree.children[0].value)
 
-
+  def selecttypelist(self,tree):
+    # tree children should be a list
+    #print("STL ",tree.children)
+    self.typelist = [ t.value for t in tree.children ]
 
 #
 # Decision Transformer
@@ -197,6 +230,7 @@ class CalculateDecision(Transformer):
   def __init__(self,t,v,l):
      self.variables = v
      self.tree = t
+     #print("Setting logic to ",l)
      self.logic = l
 
   def result(self):
@@ -244,7 +278,7 @@ class CalculateDecision(Transformer):
     return False
 
 #
-# Atteststion Executor
+# Attestsation Executor
 #
 
 
@@ -273,14 +307,13 @@ class AttestationExecutor():
       self.att = InterpretTemplate()
       self.att.visit(attinstructions)  
 
-      self.eva = InterpretEvalation(restendpoint)
+      self.eva = InterpretEvaluation(self.a10restEndpoint)
       self.eva.visit(evainstructions)
    
 
-    def calculateDecision(self,t,v):
+    def calculateDecision(self,t,v,l):
        # t is the decision tree and v is the dictionary of variables
-       #print("Strictness is ",self.eva.logic)
-       c = CalculateDecision(t.children[0],v,self.eva.logic).result()
+       c = CalculateDecision(t.children[0],v,l).result()
        return c
 
     def resolveSSHProtocolCPS(self,r):
@@ -342,7 +375,7 @@ class AttestationExecutor():
 
       for e in self.eva.eplist:
         if progress>0:
-          print("Processing",counter,"of",elementlen)
+          print("Processing",counter,"of",elementlen,"e is",type(e),"logic is",e.getLogic())
         counter=counter+1
 
         eids = e.resolveElements()
@@ -434,12 +467,13 @@ class AttestationExecutor():
               self.report.adderr("Unknown Policy eid="+eid)
 
           if template.decisionexpression!=None:
-            d = self.calculateDecision(template.decisionexpression,variables)
+            #print("Calculating with ",e.getLogic())
+            d = self.calculateDecision(template.decisionexpression,variables,e.getLogic())
 
-            self.report.addDecision(d,eid,template.name)
+            self.report.addDecision(d,eid,template.name,e.getLogic())
 
             if progress>0:
-              print("Final Decision is ",d,eid,template.name)
+              print("Final Decision is ",d,eid,template.name,e.getLogic())
 
           session = requests.delete(self.a10restEndpoint+"/session/"+sessionInner)
           if session.status_code != 200:

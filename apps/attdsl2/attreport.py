@@ -44,11 +44,12 @@ class Report():
               }
               )
 
-    def addDecision(self,d,e,t):
+    def addDecision(self,d,e,t,l):
         self.data["decisions"].append(
               {"eid":e,
                 "result":d,
-                "template":t
+                "template":t,
+                "logic":l
               }
               )    
 

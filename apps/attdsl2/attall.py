@@ -46,9 +46,9 @@ if args.prettyprint==True:
 
 if args.summary==True:
     r = report.getReport()
-    print("Element".ljust(40),"Result".ljust(8),"Template")
-    print("-"*60)
+    print("Element".ljust(37),"Result".ljust(8),"Logic".ljust(10),"Template")
+    print("-"*78)
     for d in r["decisions"]:
-        print(d["eid"].ljust(40),str(d["result"]).ljust(8),d["template"])
-    print("-"*60)
+        print(d["eid"].ljust(37),str(d["result"]).ljust(8),d["logic"].ljust(10),d["template"])
+    print("-"*78)
     

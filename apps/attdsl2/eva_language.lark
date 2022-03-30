@@ -14,9 +14,7 @@ strictness : "logic" "=" SVALUE  -> selectstrictness
  
 SVALUE :  "strict" | "flexible" | "loose" 
 
-
-tlist : "[" [NAME ("," NAME)*] "]"
-typelist: tlist
+typelist:  "[" [NAME ("," NAME)*] "]"   -> selecttypelist    
 
 
 ELEMENTNAME : (LETTER+|DIGIT+|"-"|"_")+
