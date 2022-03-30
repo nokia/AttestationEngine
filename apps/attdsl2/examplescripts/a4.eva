@@ -1,0 +1,8 @@
+
+evaluate type:[ pi, funny ] using test2 , logic=loose
+evaluate type:[ pi, funny ] using test2 , logic=flexible
+evaluate type:[ pi, funny ] using test2 , logic=strict
+
+evaluate type:[ pi, arm ] using test2 , logic=strict
+
+evaluate type:[ x86, swtpm ] using testx86 , logic=strict
