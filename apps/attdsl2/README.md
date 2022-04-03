@@ -1,11 +1,17 @@
 # Attestation Policy Language DSL
 
-Simplest way of running this is to provide two files with polcies and the elements to be evaluated and point at an A10 REST endpoint
+Simplest way of running this is to provide two files with policies and the elements to be evaluated and point at an A10 REST endpoint
 
-Use the example files below, names f.att and f.eva and run like this against a local endpoint (Actually you can skip that because it defaults to 127.0.0.1:8520), pretty prints, no debug staff and outputs to a file report.dict.
+Use the example files below, names a.att and a.eva and run like this against a local endpoint (Actually you can skip that because it defaults to 127.0.0.1:8520), pretty prints, no debug staff and outputs to a file report.dict.
+
+The other option is to use the UI/REST API which takes the IP address of an A10REST endpoint as a parameter. This might be overridden in any call however.
 
 ```bash
 ./attall.py examplescripts/a.att examplescripts/a.eva -r http://127.0.0.1:8520 -PP -S -p 0 -o rep1
+``` 
+
+```bash
+./attallrest.py http://127.0.0.1:8520
 ```
 
 ## Command Line Options:
@@ -32,6 +38,11 @@ optional arguments:
   -o OUTPUTFILE, --outputfile OUTPUTFILE
                         Write the output to the given file
 ```
+
+
+## UI
+
+The attall UI is found on port 8542 by default
 
 ## Example ATT file
 
@@ -67,6 +78,7 @@ template testx86
 ```
 evaluate name=ubuntu using testx86 , logic = strict
 evaluate name=ubuntu using testx86 , logic = flexible
+evaluate type=[ pi, arm ] using testpi, logic = loose
 ```
 
 ## Example Output
