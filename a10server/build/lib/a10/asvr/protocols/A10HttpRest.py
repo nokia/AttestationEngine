@@ -51,12 +51,11 @@ class A10HttpRest(a10.asvr.protocols.A10ProtocolBase.A10ProtocolBase):
         #
 
         if self.policyintent=="tpm2/credentialcheck":
-            c = self.makecredential()
-            if c==None:
+            cred,secret = self.makecredential()
+            if cred==None:
                 return a10.structures.returncode.ReturnCode(
                     a10.structures.constants.PROTOCOLEXECUTIONFAILURE, {"msg": "Makecredential failed","transientdata":transientdata}
                 )
-            cred,secret = self.makecredential()
             self.callparameters["credential"] = cred
             transientdata["secret"]=secret
 
@@ -106,6 +105,10 @@ class A10HttpRest(a10.asvr.protocols.A10ProtocolBase.A10ProtocolBase):
             )
 
     def makecredential(self):
+        """
+           makes the credential
+           returns a tuple, either the credential and secret or None,None
+        """
         print("\nmakecredential")
 
         try:
@@ -113,7 +116,7 @@ class A10HttpRest(a10.asvr.protocols.A10ProtocolBase.A10ProtocolBase):
             akname = self.callparameters["akname"]
         except:
             print("missing ekpub and/or akname ")
-            return None
+            return None, None
 
         # a bit of housekeeping
         # store ek in temporary file
@@ -158,7 +161,7 @@ class A10HttpRest(a10.asvr.protocols.A10ProtocolBase.A10ProtocolBase):
             out = subprocess.check_output(cmd.split())
         except:
             print("tpm2_makecredential failed "+out)
-            return None
+            return None,None
 
         # read the credential
         credf.seek(0)

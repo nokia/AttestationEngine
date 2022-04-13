@@ -9,7 +9,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="a10server",
-    version="2022.3.25",
+    version="2022.4.13",
     author="Ian Oliver",
     author_email="ian.oliver@nokia-bell-labs.com",
     description="Attestation Services Engine and Libraries",
@@ -17,7 +17,7 @@ setuptools.setup(
     long_description_content_type="text/markdown",
     url="https://github.com/nokia/AttestationEngine",
     packages=setuptools.find_packages(),
-    install_requires=["pymongo", "paho-mqtt", "pyserial", "requests"],
+    install_requires=["pymongo", "paho-mqtt", "pyserial", "requests", "tpm2-pytss"],
     classifiers=["Programming Language :: Python :: 3", "Operating System :: Linux",],
     python_requires=">=3.8",
 )
