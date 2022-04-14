@@ -2,6 +2,7 @@ from lark import Lark, v_args
 from lark.visitors import Interpreter, Visitor, Transformer
 
 import attreport
+from attgrammar import *
 
 import requests
 from functools import reduce
@@ -295,11 +296,14 @@ class AttestationExecutor():
       evalanguage=None
       evainstructions=None
 
-      with open('att_language.lark','r') as f:
-        attlanguage = Lark(f.read())
+      #with open('att_language.lark','r') as f:
+      #  attlanguage = Lark(f.read())
 
-      with open('eva_language.lark','r') as f:
-        evalanguage = Lark(f.read())
+      #with open('eva_language.lark','r') as f:
+      #  evalanguage = Lark(f.read())
+
+      attlanguage = Lark( ATTLANGUAGEDEFINITION )
+      evalanguage = Lark( EVALANGUAGEDEFINITION )  
 
       attinstructions = attlanguage.parse(attdata)
       evainstructions = evalanguage.parse(evadata)

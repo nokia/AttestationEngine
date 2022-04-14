@@ -97,3 +97,6 @@ $ ls -l report.txt
 -rw-rw-r-- 1 ian ian 2885 Maw  25 16:43 report.txt
 
 ```
+
+# Grammar
+The default language grammar is defined in the file `attgrammar.py`. The files `*.lark` are deprecated, but useful as SublimeText 4 has a Lark syntax highlighter.
