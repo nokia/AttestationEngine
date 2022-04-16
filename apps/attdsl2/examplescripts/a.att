@@ -9,6 +9,19 @@ template test2
   decision
     r1 ^ r2
 
+template quickx86
+ attest
+   SystemInfo, {}
+   SRTM-SHA256,{}  
+      [[
+         q <- tpm2rules/TPM2QuoteStandardVerify, {}
+      ]]
+   CheckCredentials,{},copycredentials
+      [[
+         id <-  tpm2rules/TPM2CredentialVerify  ,{}
+      ]]
+  decision
+    id ^ q 
 
 template testx86
  attest

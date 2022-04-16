@@ -264,20 +264,6 @@ class A10tpm2send(a10.asvr.protocols.A10ProtocolBase.A10ProtocolBase):
            }    
         transientdata={}
 
-        # now do the make credential bit locally
-        # this is identical to the code in A10HttpRest.py    
-
-        #cred,secret = self.makecredential()
-        #if cred==None:
-        #    return a10.structures.returncode.ReturnCode(
-        #            a10.structures.constants.PROTOCOLEXECUTIONFAILURE, {"msg": "Makecredential failed","transientdata":transientdata}
-        #        )
-
-        # now call activecredential
-        # see the code in nut10 for example
-
-        #ekpub = self.callparameters["ekpub"]
-        #akname = self.callparameters["akname"]
 
         ak_to_use = "0x810100aa"
         try:
@@ -292,24 +278,22 @@ class A10tpm2send(a10.asvr.protocols.A10ProtocolBase.A10ProtocolBase):
             print("EK Missing , using  default of 0x810100ee")
 
 
-        remote_tpm = ESAPI(tcti=self.getTCTI())
-
-        #print("Just a random number from remote :",remote_tpm.get_random(6))
-
-#
-# We'll ask the remote tpm what its AK and EK are
-#
-# This kind of information in stored in our attestation server elements table
-#
-
-
-        ek_handle =  remote_tpm.tr_from_tpmpublic(int(ek_to_use,16))
-        ak_handle =  remote_tpm.tr_from_tpmpublic(int(ak_to_use,16))
+        try:
+            remote_tpm = ESAPI(tcti=self.getTCTI())
+            ek_handle =  remote_tpm.tr_from_tpmpublic(int(ek_to_use,16))
+            ak_handle =  remote_tpm.tr_from_tpmpublic(int(ak_to_use,16))
+        except:
+            return a10.structures.returncode.ReturnCode(
+                a10.structures.constants.PROTOCOLNETWORKFAILURE, 
+                    {"msg":"failed to communicate with remote TPM. Also EK/AK could be invalid."}
+            )                  
+ 
 
         print("Call params ",self.callparameters)
 
         pem = self.callparameters["ekpub"]
 
+        #This works, but something goes wrong...
         ek_pub = TPM2B_PUBLIC.from_pem(pem.encode('ascii'),
                  objectAttributes=TPMA_OBJECT.DECRYPT,
                  symmetric=TPMT_SYM_DEF_OBJECT(
@@ -322,14 +306,20 @@ class A10tpm2send(a10.asvr.protocols.A10ProtocolBase.A10ProtocolBase):
                  )
 
         # this is a bit horrible but
+        # because we need additional data which is not contained in the PEM
+        # but is contained in the TCG EK Spec, BUT, doen't work as above....
+        # we check and go read what's on the remote TPM
+        # and introduce a huge security issue...but, this is all experimental so I'll fix this later
         rek_pub, rek_name, rek_qname = remote_tpm.read_public(ek_handle)
         ek_pub=rek_pub
         samepem = rek_pub.to_pem()==bytes(pem,'utf-8')
         print("PEMs:\n",samepem)
 
+        # Here we check that what the TPM returns is in accordance with what we have in the attestation database
+        # which is a kludge for the above security issue...
         if samepem==False:
             return a10.structures.returncode.ReturnCode(
-                a10.structures.constants.PROTOCOLFAIL, {"msg":"pems are not the same","transientdata":{}}
+                a10.structures.constants.PROTOCOLEXECUTIONFAILURE, {"msg":"Endorsement keys are diffferent","transientdata":{}}
             ) 
 
         ak_name_str = bytes(self.callparameters["akname"],'utf-8')
@@ -339,6 +329,11 @@ class A10tpm2send(a10.asvr.protocols.A10ProtocolBase.A10ProtocolBase):
         rak_pub, rak_name, rak_qname = remote_tpm.read_public(ak_handle)
         ak_name=rak_name
         print("AKNAMES ",rak_name.__str__() == ak_name.__str__())
+
+        if rak_name.__str__() != ak_name.__str__():
+            return a10.structures.returncode.ReturnCode(
+                a10.structures.constants.PROTOCOLEXECUTIONFAILURE, {"msg":"Attestation key names are diffferent","transientdata":{}}
+            ) 
 
 #
 # On the LOCAL machine, we want to make a credential.
@@ -358,35 +353,52 @@ class A10tpm2send(a10.asvr.protocols.A10ProtocolBase.A10ProtocolBase):
 
         #make credential
         #this is from pytss.utils
-        credentialBlob, secret = make_credential(ek_pub, bytes(credential,'utf-8'), ak_name) 
-        print("Credential types :",type(credentialBlob),type(secret))
-
+        try:
+            credentialBlob, secret = make_credential(ek_pub, bytes(credential,'utf-8'), ak_name) 
+            print("Credential types :",type(credentialBlob),type(secret))
+        except:
+            return a10.structures.returncode.ReturnCode(
+                a10.structures.constants.PROTOCOLEXECUTIONFAILURE, {"msg":"Failed to make credential","transientdata":{}}
+            )  
 
         sym = TPMT_SYM_DEF(algorithm=TPM2_ALG.NULL)
 
-        authsession = remote_tpm.start_auth_session(
-            tpm_key=ek_handle,
-            bind=ESYS_TR.NONE,
-            session_type=TPM2_SE.POLICY,
-            symmetric=sym,
-            auth_hash=TPM2_ALG.SHA256,
-        )
+        try:
+            authsession = remote_tpm.start_auth_session(
+                tpm_key=ek_handle,
+                bind=ESYS_TR.NONE,
+                session_type=TPM2_SE.POLICY,
+                symmetric=sym,
+                auth_hash=TPM2_ALG.SHA256,
+            )
+            print("authorisation session :",type(authsession),authsession)
+        except:
+            return a10.structures.returncode.ReturnCode(
+                a10.structures.constants.PROTOCOLEXECUTIONFAILURE, {"msg":"Failed to make authorisation session","transientdata":{}}
+            )  
 
-        print("authorisation session :",type(authsession),authsession)
 
-        print("\nPolicy Secret")
-        nonce = remote_tpm.trsess_get_nonce_tpm(authsession)
-        expiration = -(10 * 365 * 24 * 60 * 60)
-        timeout, policyTicket = remote_tpm.policy_secret(
-            ESYS_TR.ENDORSEMENT, authsession, nonce, b"", b"", expiration
-        )
+        try:
+            print("\nPolicy Secret")
+            nonce = remote_tpm.trsess_get_nonce_tpm(authsession)
+            expiration = -(10 * 365 * 24 * 60 * 60)
+            timeout, policyTicket = remote_tpm.policy_secret(
+                ESYS_TR.ENDORSEMENT, authsession, nonce, b"", b"", expiration
+            )
+            print("Policy ticket: ",type(policyTicket))
+        except:    
+            return a10.structures.returncode.ReturnCode(
+                a10.structures.constants.PROTOCOLEXECUTIONFAILURE, {"msg":"Failed to make policy secret with authsession "+str(authsession),"transientdata":{}}
+            )  
 
-        print("Policy ticket: ",type(policyTicket))
-
-        print("\nActivating credential")
-        certInfo = remote_tpm.activate_credential( ak_handle, ek_handle, credentialBlob, secret, session2=authsession)
-        print("Returned secret is ",certInfo,type(certInfo))
-
+        try:
+            print("\nActivating credential")
+            certInfo = remote_tpm.activate_credential( ak_handle, ek_handle, credentialBlob, secret, session2=authsession)
+            print("Returned secret is ",certInfo,type(certInfo))
+        except:    
+            return a10.structures.returncode.ReturnCode(
+                a10.structures.constants.PROTOCOLFAIL, {"msg":"Activate credential failed"+str(authsession),"transientdata":{}}
+            )  
 
         remote_tpm.close()
 

@@ -6,7 +6,9 @@ FROM python:3.8-slim
 
 WORKDIR /nae/u10
 
-RUN apt-get update && apt-get install --yes tpm2-tools
+RUN apt-get update
+RUN sudo apt install --yes tpm2-tools libtss2-dev libcurl4-openssl-dev libssl-dev libjson-c-dev libtss2-fapi1
+RUN sudo pip3 install tpm2-pytss
 
 # Install a10 library with all it dependencies
 
