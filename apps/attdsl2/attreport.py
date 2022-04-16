@@ -35,6 +35,10 @@ class Report():
               {"time": self.now(), "err":e}
               )
 
+    def addError(self,d):
+        # d is a dictionary
+        self.data["errors"].append(d)
+
     def addECRV(self,e,c,r,v):
         self.data["ecrv"].append(
               {"e":e,

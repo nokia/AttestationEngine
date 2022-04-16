@@ -7,19 +7,21 @@ Use the example files below, names a.att and a.eva and run like this against a l
 The other option is to use the UI/REST API which takes the IP address of an A10REST endpoint as a parameter. This might be overridden in any call however.
 
 ```bash
-./attall.py examplescripts/a.att examplescripts/a.eva -r http://127.0.0.1:8520 -PP -S -p 0 -o rep1
+attall.py examplescripts/a.att examplescripts/a.eva -r http://127.0.0.1:8520 -PP -S -p 0 -o rep1
 ``` 
 
 ```bash
-./attallrest.py http://127.0.0.1:8520
+attallrest.py http://127.0.0.1:8520
 ```
+
+Note, attall assumes python3 is stored at `/usr/bin/python3` if this is not the case the run using `python3 attall.py`
+
 
 ## Command Line Options:
 
 ```bash
-./attall.py --help
-usage: attall.py [-h] [-r RESTENDPOINT] [-PP] [-S] [-p PROGRESS] [-o OUTPUTFILE]
-                 template evaluation
+$ attall.py --help
+usage: attall.py [-h] [-r RESTENDPOINT] [-pp] [-s] [-e] [-D DEBUG] [-o OUTPUTFILE] template evaluation
 
 Attest Elements Command Line Utility
 
@@ -31,10 +33,11 @@ optional arguments:
   -h, --help            show this help message and exit
   -r RESTENDPOINT, --restendpoint RESTENDPOINT
                         Address of an A10REST endpoint
-  -PP, --prettyprint    Pretty print the report output
-  -S, --summary         Print summary of decisions
-  -p PROGRESS, --progress PROGRESS
-                        Show progress, 1=none, 2=a little,..., 5=lots
+  -pp, --prettyprint    Pretty print the report output
+  -s, --summary         Print summary of decisions
+  -e, --errors          Print a list of any errors recorded
+  -D DEBUG, --debug DEBUG
+                        Show debug output, 1=none, 2=a little,..., 5=lots
   -o OUTPUTFILE, --outputfile OUTPUTFILE
                         Write the output to the given file
 ```

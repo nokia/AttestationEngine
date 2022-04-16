@@ -246,7 +246,10 @@ class CalculateDecision(Transformer):
     return v
 
   def decvariable(self,tree):
-    value = self.variables[tree]
+    try:
+      value = self.variables[tree]
+    except KeyError:
+      value = 9100
 
     #Logics here
     # From a10.structures
@@ -443,32 +446,43 @@ class AttestationExecutor():
 
               req = { "eid":eid, "pid":pid, "cps":cps, "sid":sessionInner }
               cl = requests.post(self.a10restEndpoint+"/attest", json=req)
-              claimid = cl.json()["claim"]
-              sesa = requests.post(self.a10restEndpoint+"/session/"+sessionInner+"/claim/"+claimid)
 
-              # now iterate over any associated rules
-              for ru in ap.attestRules:
-                if progress>2:
-                  print("   +------ ",ru)
-                cid = cl.json()["claim"]
-                rule = [ ru.rulename, {} ]
+              if cl.status_code == 201:
+               claimid = cl.json()["claim"]
 
-                req = { "cid":cid, "rule":rule, "sid":sessionInner }
+               sesa = requests.post(self.a10restEndpoint+"/session/"+sessionInner+"/claim/"+claimid)
 
-                vr = requests.post(self.a10restEndpoint+"/verify", json=req)
-                resultid = vr.json()["result"]
-                sesr = requests.post(self.a10restEndpoint+"/session/"+sessionInner+"/result/"+resultid)
+                # now iterate over any associated rules
+               for ru in ap.attestRules:
+                  if progress>2:
+                    print("   +------ ",ru)
+                  cid = cl.json()["claim"]
+                  rule = [ ru.rulename, {} ]
 
-                #OK, now we have the result id we can store the result code in the associated variable
+                  req = { "cid":cid, "rule":rule, "sid":sessionInner }
 
-                vrr = requests.get(self.a10restEndpoint+"/result/"+resultid)
-                resultvalue = vrr.json()["result"]["result"]
-                variables[ru.variablename]=resultvalue
+                  vr = requests.post(self.a10restEndpoint+"/verify", json=req)
+                  resultid = vr.json()["result"]
+                  sesr = requests.post(self.a10restEndpoint+"/session/"+sessionInner+"/result/"+resultid)
 
-                self.report.addECRV(eid,cid,resultid,resultvalue)
+                  #OK, now we have the result id we can store the result code in the associated variable
+
+                  vrr = requests.get(self.a10restEndpoint+"/result/"+resultid)
+                  resultvalue = vrr.json()["result"]["result"]
+
+                  variables[ru.variablename]=resultvalue
+
+                  self.report.addECRV(eid,cid,resultid,resultvalue)
+              else:
+                self.report.addError( {"eid":eid,"msg":cl.json()} )
 
             else:
               self.report.adderr("Unknown Policy eid="+eid)
+
+
+
+
+
 
           if template.decisionexpression!=None:
             #print("Calculating with ",e.getLogic())
