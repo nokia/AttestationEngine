@@ -7,8 +7,8 @@ FROM python:3.8-slim
 WORKDIR /nae/a10rest
 
 RUN apt-get update
-RUN sudo apt install --yes tpm2-tools libtss2-dev libcurl4-openssl-dev libssl-dev libjson-c-dev libtss2-fapi1
-RUN sudo pip3 install tpm2-pytss
+RUN apt install --yes tpm2-tools libtss2-dev libcurl4-openssl-dev libssl-dev libjson-c-dev libtss2-fapi1
+RUN pip3 install tpm2-pytss
 
 # Install the a10 structures and server libraries 
 

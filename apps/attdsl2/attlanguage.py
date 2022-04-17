@@ -474,7 +474,7 @@ class AttestationExecutor():
 
                   self.report.addECRV(eid,cid,resultid,resultvalue)
               else:
-                self.report.addError( {"eid":eid,"msg":cl.json()} )
+                self.report.addError( {"eid":eid,"msg":cl.json(),"session":sessionInner} )
 
             else:
               self.report.adderr("Unknown Policy eid="+eid)
