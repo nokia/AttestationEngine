@@ -87,19 +87,53 @@ evaluate type=[ pi, arm ] using testpi, logic = loose
 ## Example Output
 
 ```bash
-$ ./attall.py examplescripts/a.att examplescripts/a.eva -S -o report.txt
-Element                                  Result   Template
-------------------------------------------------------------
-cc2029e6-f4d1-4cdf-8172-9659f6b8dfda     False    test2
-df3653d6-ad24-40c0-b438-2e8b7b2b05c9     False    test2
-fc9c02a2-a166-42f0-aa08-ae0b9bee2a02     False    test2
-8843ba90-a4bb-4179-b781-3a2ceedac59f     False    test2
-3963611a-6edc-43b8-bd9c-9dd81b296855     True     testx86
-------------------------------------------------------------
-$ ls -l report.txt
--rw-rw-r-- 1 ian ian 2885 Maw  25 16:43 report.txt
+$python3 ../AttestationEngine/apps/attdsl2/attall.py ./a.att ./q.eva  -s -e -o report.json
+
+**** Summary *****
+50 items,  6 errors 19 decisions
+Element                               Result   Logic      Template
+------------------------------------------------------------------------------
+3963611a-6edc-43b8-bd9c-9dd81b296855  True     strict     quickx86
+cc2029e6-f4d1-4cdf-8172-9659f6b8dfda  True     strict     testpi
+d27e149c-15b8-49a4-9934-7fa33bc6eafb  True     strict     testpi
+abc25c1c-185c-4ea7-a9af-acc99684d4e0  True     strict     testpi
+04b3a481-ec8a-43a9-b262-f84871fc8ccb  False    strict     testpi
+e5a13808-16b0-47a4-910f-9892899d4bd6  False    strict     testpi
+d27e149c-15b8-49a4-9934-7fa33bc6eafb  True     strict     testpi
+cc2029e6-f4d1-4cdf-8172-9659f6b8dfda  True     strict     testpi
+abc25c1c-185c-4ea7-a9af-acc99684d4e0  True     strict     testpi
+04b3a481-ec8a-43a9-b262-f84871fc8ccb  True     loose      testpi
+e5a13808-16b0-47a4-910f-9892899d4bd6  True     loose      testpi
+d27e149c-15b8-49a4-9934-7fa33bc6eafb  True     loose      testpi
+cc2029e6-f4d1-4cdf-8172-9659f6b8dfda  True     loose      testpi
+abc25c1c-185c-4ea7-a9af-acc99684d4e0  True     loose      testpi
+04b3a481-ec8a-43a9-b262-f84871fc8ccb  False    flexible   testpi
+e5a13808-16b0-47a4-910f-9892899d4bd6  False    flexible   testpi
+d27e149c-15b8-49a4-9934-7fa33bc6eafb  True     flexible   testpi
+cc2029e6-f4d1-4cdf-8172-9659f6b8dfda  True     flexible   testpi
+abc25c1c-185c-4ea7-a9af-acc99684d4e0  True     flexible   testpi
+------------------------------------------------------------------------------
+
+**** Errors *****
+50 items,  6 errors 19 decisions
+==============================================================================
+{'eid': '04b3a481-ec8a-43a9-b262-f84871fc8ccb', 'msg': {'msg': {'msg': 'failed to communicate with remote TPM. Also EK/AK could be invalid.'}}}
+------------------------------------------------------------------------------
+{'eid': 'e5a13808-16b0-47a4-910f-9892899d4bd6', 'msg': {'msg': {'msg': 'failed to communicate with remote TPM. Also EK/AK could be invalid.'}}}
+------------------------------------------------------------------------------
+{'eid': '04b3a481-ec8a-43a9-b262-f84871fc8ccb', 'msg': {'msg': {'msg': 'failed to communicate with remote TPM. Also EK/AK could be invalid.'}}}
+------------------------------------------------------------------------------
+{'eid': 'e5a13808-16b0-47a4-910f-9892899d4bd6', 'msg': {'msg': {'msg': 'failed to communicate with remote TPM. Also EK/AK could be invalid.'}}}
+------------------------------------------------------------------------------
+{'eid': '04b3a481-ec8a-43a9-b262-f84871fc8ccb', 'msg': {'msg': {'msg': 'failed to communicate with remote TPM. Also EK/AK could be invalid.'}}}
+------------------------------------------------------------------------------
+{'eid': 'e5a13808-16b0-47a4-910f-9892899d4bd6', 'msg': {'msg': {'msg': 'failed to communicate with remote TPM. Also EK/AK could be invalid.'}}}
+------------------------------------------------------------------------------
+==============================================================================
 
 ```
+
+From the above the file `report.json` will contain the report in JSON format.
 
 # Grammar
 The default language grammar is defined in the file `attgrammar.py`. The files `*.lark` are deprecated, but useful as SublimeText 4 has a Lark syntax highlighter.
