@@ -1,0 +1,27 @@
+template raspberryPiFull
+ attest
+   SystemInfo, {} 
+   PCRread,{}
+   CheckCredentials,{},copycredentials
+      [[
+         id <-  tpm2rules/TPM2CredentialVerify  ,{}
+      ]]      
+  decision
+    id
+
+
+
+
+template x86Full
+ attest
+   SystemInfo, {}
+   SRTM-SHA256,{}  
+      [[
+         q <- tpm2rules/TPM2QuoteStandardVerify, {}
+      ]]
+   CheckCredentials,{},copycredentials
+      [[
+         id <-  tpm2rules/TPM2CredentialVerify  ,{}
+      ]]
+  decision
+    id ^ q 
