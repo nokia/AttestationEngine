@@ -1,0 +1,10 @@
+template testpi
+ attest
+   SystemInfo, {} 
+   PCRREAD,{}
+   TPMIdentityAttestation,{},copycredentials
+      [[
+         id <-  tpm2rules/TPM2CredentialVerify  ,{}
+      ]]      
+  decision
+    id

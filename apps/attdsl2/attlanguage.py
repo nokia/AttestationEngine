@@ -376,6 +376,7 @@ class AttestationExecutor():
         return self.report
 
       sessionOuter = session.json()["itemid"]
+      self.report.addSession(sessionOuter)
 
       counter=1
       elementlen=len(self.eva.eplist)

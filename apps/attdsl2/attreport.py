@@ -6,6 +6,9 @@ class Report():
         self.data={
             "reportID" : str(uuid.uuid4()),
             "created" : self.now(),
+            "opened" : "",
+            "closed" : "",
+            "session" : "",
             "instructions" : {},
             "errors" : [],
             "ecrv" : [],
@@ -56,7 +59,8 @@ class Report():
                 "logic":l
               }
               )    
-
+    def addSession(self,s):
+        self.data["session"]=s
 
     def getReport(self):
         return self.data
