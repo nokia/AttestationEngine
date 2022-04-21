@@ -1,0 +1,3 @@
+evaluate type:[ pi , provisioned ] using testpi, logic = strict 
+evaluate type:[ pi , provisioned ] using testpi, logic = flexible 
+evaluate type:[ pi , provisioned ] using testpi, logic = loose 

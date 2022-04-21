@@ -48,6 +48,8 @@ if args.prettyprint==True:
 if args.summary==True:
     r = report.getReport()
     print("\n**** Summary *****")
+    print("Session:",r["session"])
+    print("Timing:",r["created"],"->",r["opened"],"->",r["closed"],".")
     print(len(r["ecrv"]),"items, ",len(r["errors"]),"errors",len(r["decisions"]),"decisions")
     print("Element".ljust(37),"Result".ljust(8),"Logic".ljust(10),"Template")
     print("-"*78)
