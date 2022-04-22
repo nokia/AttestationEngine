@@ -173,7 +173,7 @@ class TPM2QuoteType(baserule.BaseRule):
 
     def apply(self):
         try:
-            trusted = self.claim["payload"]["payload"]["quote"]["type"] == 8018
+            trusted = str(self.claim["payload"]["payload"]["quote"]["type"]) == "8018"
         except KeyError:
             return self.returnMessage(
                 a10.structures.constants.VERIFYERROR,
