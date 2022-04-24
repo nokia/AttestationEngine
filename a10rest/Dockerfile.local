@@ -20,7 +20,7 @@ RUN ls a10structures
 RUN cd a10structures && pip3 install -r requirements.txt && python setup.py install
 
 ADD a10server/ ./a10server
-RUN cd a10server && pip3 install -r requirements.txt && python setup.py install
+RUN cd a10server && pip3 install -r requirements.txt && python3 setup.py install
 
 # Install a10rest
 
