@@ -7,6 +7,7 @@ FROM docker.io/ubuntu:22.04
 WORKDIR /nae/a10rest
 
 RUN apt-get update
+RUN apt install --yes pkg-config
 RUN apt install --yes tpm2-tools libtss2-dev libcurl4-openssl-dev libssl-dev libjson-c-dev libtss2-fapi1
 RUN apt install --yes python3-pip
 RUN pip3 install tpm2-pytss
