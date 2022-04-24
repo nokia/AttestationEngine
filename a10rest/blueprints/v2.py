@@ -284,11 +284,18 @@ def updatePolicy():
 # EXPECTED VALUES
 #
 
+@v2_blueprint.route("/expectedvalues", methods=["GET"])
+def getEVS():
+    evs = [x["itemid"] for x in expectedvalues.getExpectedValuesFull()]
+    print("EVS",evs)
+    return jsonify({"expectedvalues":evs,"count":len(evs)}), 200
+
+
 
 @v2_blueprint.route("/expectedvalue/<itemid>", methods=["GET"])
 def getEV(itemid):
     print("itemid", itemid)
-    e = expectedValues.getExpectedValue(itemid)
+    e = expectedvalues.getExpectedValue(itemid)
 
     if e.rc() != constants.SUCCESS:
         return jsonify({"msg":e.msg()}), 404
@@ -300,7 +307,7 @@ def getEV(itemid):
 def getEVep(eid, pid):
 
     print(" eid", eid, " pid", pid)
-    e = expectedValues.getExpectedValueByElementPolicyIDs(typ, eid, pid)
+    e = expectedvalues.getExpectedValueByElementPolicyIDs(typ, eid, pid)
 
     if e.rc() != constants.SUCCESS:
         return jsonify({"msg":e.msg()}), 404
@@ -313,7 +320,7 @@ def addEV():
     content = request.json
     print("content", content)
 
-    e = expectedValues.addExpectedValue(content)
+    e = expectedvalues.addExpectedValue(content)
 
     if e.rc() != constants.SUCCESS:
         return jsonify({"msg":e.msg()}), 404
@@ -324,7 +331,7 @@ def addEV():
 @v2_blueprint.route("/expectedvalue/<itemid>", methods=["DELETE"])
 def deleteEV(itemid):
     print("itemid", itemid)
-    e = expectedValues.deleteExpectedValue(itemid)
+    e = expectedvalues.deleteExpectedValue(itemid)
 
     if e.rc() != constants.SUCCESS:
         return jsonify({"msg":e.msg()}), 404
@@ -337,7 +344,7 @@ def updateEV():
     content = request.json
     print("content", content)
 
-    e = expectedValues.updateExpectedValue(content)
+    e = expectedvalues.updateExpectedValue(content)
 
     if e.rc() != constants.SUCCESS:
         return jsonify({"msg":e.msg()}), 404

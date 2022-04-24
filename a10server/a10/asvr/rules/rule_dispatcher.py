@@ -55,6 +55,10 @@ RULEREGISTER = {
         a10.asvr.rules.tpm2rules.TPM2QuoteStandardVerify,
         a10.asvr.rules.tpm2rules.TPM2QuoteStandardVerify.DESCRIPTION,
     ),
+    a10.asvr.rules.tpm2rules.TPM2QuoteStandardVerifyNoSafe.NAME: (
+        a10.asvr.rules.tpm2rules.TPM2QuoteStandardVerifyNoSafe,
+        a10.asvr.rules.tpm2rules.TPM2QuoteStandardVerifyNoSafe.DESCRIPTION,
+    ),    
     a10.asvr.rules.tpm2rules.TPM2CredentialVerify.NAME: (
         a10.asvr.rules.tpm2rules.TPM2CredentialVerify,
         a10.asvr.rules.tpm2rules.TPM2CredentialVerify.DESCRIPTION,
