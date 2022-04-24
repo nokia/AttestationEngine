@@ -8,6 +8,7 @@ WORKDIR /nae/a10rest
 
 RUN apt-get update
 RUN apt install --yes tpm2-tools libtss2-dev libcurl4-openssl-dev libssl-dev libjson-c-dev libtss2-fapi1
+RUN apt install python3-pip
 RUN pip3 install tpm2-pytss
 
 # Install the a10 structures and server libraries 
