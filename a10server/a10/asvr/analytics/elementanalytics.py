@@ -8,7 +8,7 @@ import a10.asvr.results
 from collections import Counter
 
 
-def getResultCounts(e, n=250):
+def getResultCounts(e, n=1000):
     """Returns the counts of result codes for a given element.
 
 
@@ -18,7 +18,7 @@ def getResultCounts(e, n=250):
     return Counter(res)
 
 
-def getResultCountsByPolicy(e, p, n=250):
+def getResultCountsByPolicy(e, p, n=1000):
     """
 	Returns the counts of result codes for a given element and a given policy
 

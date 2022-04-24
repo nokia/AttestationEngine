@@ -10,10 +10,10 @@ import sys
 #
 
 
-ap = argparse.ArgumentParser(description='Attest Elements Command Line Utility')
+ap = argparse.ArgumentParser(description='Attest Elements DSL Command Line Utility')
 ap.add_argument('template', help="Location of the template file")
 ap.add_argument('evaluation', help="Location of the evaluation file")
-ap.add_argument('-r', '--restendpoint', help="Address of an A10REST endpoint", default="http://127.0.0.1:8520")
+ap.add_argument('-r', '--restendpoint', help="Address of an A10REST endpoint in the form http://addr:port. http://Defaults to 127.0.0.1:8520", default="http://127.0.0.1:8520")
 ap.add_argument('-pp', '--prettyprint', help="Pretty print the report output",  action='store_true')
 ap.add_argument('-s', '--summary', help="Print summary of decisions",  action='store_true')
 ap.add_argument('-e', '--errors', help="Print a list of any errors recorded",  action='store_true')

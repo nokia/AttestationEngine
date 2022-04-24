@@ -335,15 +335,7 @@ class A10tpm2send(a10.asvr.protocols.A10ProtocolBase.A10ProtocolBase):
                 a10.structures.constants.PROTOCOLEXECUTIONFAILURE, {"msg":"Attestation key names are diffferent","transientdata":{}}
             ) 
 
-#
-# On the LOCAL machine, we want to make a credential.
-#
-# There are two options, comment one block out depending upon the actions required.
-#
-
-
-# This is out secret that we want to encrypt
-
+        # This is out secret that we want to encrypt
         alphabet = string.ascii_letters + string.digits
         credential = "".join(secrets.choice(alphabet) for i in range(30))
 
@@ -352,7 +344,7 @@ class A10tpm2send(a10.asvr.protocols.A10ProtocolBase.A10ProtocolBase):
         print("The credential secret string is ",credential)
 
         #make credential
-        #this is from pytss.utils
+        #this is the utility function from pytss.utils and does not require a local TPM
         try:
             credentialBlob, secret = make_credential(ek_pub, bytes(credential,'utf-8'), ak_name) 
             print("Credential types :",type(credentialBlob),type(secret))
@@ -402,7 +394,6 @@ class A10tpm2send(a10.asvr.protocols.A10ProtocolBase.A10ProtocolBase):
 
         remote_tpm.close()
 
-        #claim["transientdata"]=transientdata
         claim["header"]["ta_complete"] = str(datetime.datetime.now(datetime.timezone.utc))
         claim["payload"]["secret"] = bytearray.fromhex(certInfo.__str__()).decode()
 
