@@ -7,6 +7,7 @@ import a10.structures.returncode
 
 from . import baserule
 
+print("\n\n****************\nLOADING TPM2RULES\n***************\n\n")
 
 # PCR Rules
 

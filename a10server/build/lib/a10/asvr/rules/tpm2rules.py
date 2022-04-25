@@ -7,6 +7,7 @@ import a10.structures.returncode
 
 from . import baserule
 
+print("\n\n****************\nLOADING TPM2RULES\n***************\n\n")
 
 # PCR Rules
 
@@ -355,6 +356,84 @@ class TPM2QuoteStandardVerify(baserule.BaseRule):
             return self.returnMessage(
                 a10.structures.constants.VERIFYFAIL, msg, subresults
             )
+
+
+
+
+class TPM2QuoteStandardVerifyNoSafe(baserule.BaseRule):
+    NAME = "tpm2rules/TPM2QuoteStandardVerifyNoSafe"
+    DESCRIPTION = "TPM2 Check the quote for its overall integrity, including type, magic number, attestedValue and firmware. Does not check for the safe value - useful for Pis and other devices with no strict TPM shutdown."
+
+    def __init__(self, cid, ps):
+        super().__init__(cid, ps)
+
+    def apply(self):
+        magicRule_result = TPM2QuoteMagicNumber(self.claimID, self.parameters).apply()
+        quoteType_result = TPM2QuoteType(self.claimID, self.parameters).apply()
+        av_result = TPM2QuoteAttestedValue(self.claimID, self.parameters).apply()
+        fw_result = TPM2FirmwareVersion(self.claimID, self.parameters).apply()
+
+        subresults = []
+        subresults.append(magicRule_result)
+        subresults.append(quoteType_result)
+        subresults.append(av_result)
+        subresults.append(fw_result)
+
+        # Check if anything failed = NORESULT
+        # Usually a missing expected value by applying the a wrong policy
+
+        if (
+            (magicRule_result["result"] == a10.structures.constants.VERIFYNORESULT)
+            or (quoteType_result["result"] == a10.structures.constants.VERIFYNORESULT)
+            or (av_result["result"] == a10.structures.constants.VERIFYNORESULT)
+            or (fw_result["result"] == a10.structures.constants.VERIFYNORESULT)
+        ):
+            return self.returnMessage(
+                a10.structures.constants.VERIFYNORESULT,
+                "Subrule failed - see additional section",
+                subresults,
+            )
+
+        # Check if anything failed = ERROR
+        # For some other reason
+
+        if (
+            (magicRule_result["result"] == a10.structures.constants.VERIFYERROR)
+            or (quoteType_result["result"] == a10.structures.constants.VERIFYERROR)
+            or (av_result["result"] == a10.structures.constants.VERIFYERROR)
+            or (fw_result["result"] == a10.structures.constants.VERIFYERROR)
+        ):
+            return self.returnMessage(
+                a10.structures.constants.VERIFYERROR,
+                "Subrule failed - see additional section",
+                subresults,
+            )
+
+        # Ok, now check if everything went well or not, ie: trusted yay or nay!
+
+        trusted = (
+            (magicRule_result["result"] == a10.structures.constants.VERIFYSUCCEED)
+            and (quoteType_result["result"] == a10.structures.constants.VERIFYSUCCEED)
+            and (av_result["result"] == a10.structures.constants.VERIFYSUCCEED)
+            and (fw_result["result"] == a10.structures.constants.VERIFYSUCCEED)
+        )
+
+        msg = (
+            "Additional contains "
+            + str(len(subresults))
+            + " items. Expected value in subrule - see additional section"
+        )
+
+        if trusted == True:
+            return self.returnMessage(
+                a10.structures.constants.VERIFYSUCCEED, msg, subresults
+            )
+        else:
+            return self.returnMessage(
+                a10.structures.constants.VERIFYFAIL, msg, subresults
+            )
+
+
 
 
 #
