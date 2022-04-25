@@ -16,3 +16,8 @@ jobs:
     - uses: actions/checkout@v3
     - name: Build the Docker image
       run: docker build . --file a10rest/Dockerfile.local --tag a10rest:$(date +%s)
+    - uses: slsa-framework/github-actions-demo@v0.1
+      with:
+        artifact_path: a10rest:$(date +%s)
+        output_path: a10rest.provenance
+      continue-on-error: true
