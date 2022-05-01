@@ -19,16 +19,16 @@ def getTypes():
 
     """
 
-    ts = []
+    ts = set()
     es = a10.asvr.elements.getElementsFull()
 
     for e in es:
-        print("type=", e["type"],type(e["type"]))
+        #print("type=", e["type"],type(e["type"]))
         # ugly - we keep everything as a flat list
         for t in e["type"]:
-            ts.append(t)
-        print("ts  =", ts)
+            ts.add(t)
+        #print("ts  =", ts)
         # otherwise the set(List) breaks
         # warned you!
 
-    return set(ts)
+    return ts

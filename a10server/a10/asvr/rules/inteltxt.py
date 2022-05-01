@@ -9,7 +9,7 @@ from . import baserule
 
 
 class MeasuredBootLaunch(baserule.BaseRule):
-    NAME = "inteltxt/MeassuredBootLaunch"
+    NAME = "inteltxt/MeasuredBootLaunch"
     DESCRIPTION = "Success if measured boot launch status is the given value - defaults to True"
 
     def __init__(self, cid, ps):
