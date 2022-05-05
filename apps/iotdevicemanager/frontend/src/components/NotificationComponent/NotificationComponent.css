@@ -1,0 +1,42 @@
+.notification-component {
+  text-align: left;
+  padding-bottom: 1rem;
+  border-bottom: 0.063px solid #6C6C6C;
+  display: flex;
+  margin-bottom: 1rem;
+  align-items: center;
+  width: 100%;
+}
+
+.notification-text-container {
+  margin-left: 2rem;
+  width: 80%;
+}
+
+.bold {
+  font-weight: bold;
+}
+
+.description {
+  font-size: 0.8rem;
+}
+
+.status-dot {
+  position: absolute;
+  left: 1rem;
+  height: 0.8rem;
+  width: 0.8rem;
+  border-radius: 100%;
+}
+
+.delete-single-notification {
+  position: absolute;
+  right: 1rem;
+}
+
+@media only screen and (max-width: 1000px) {
+  .notification-text-container {
+    margin-left: 4rem;
+    width: 70%;
+  }
+}

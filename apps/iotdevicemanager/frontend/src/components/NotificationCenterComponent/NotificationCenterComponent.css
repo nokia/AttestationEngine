@@ -1,0 +1,102 @@
+.notification-center {
+  width: 23rem;
+  height: 28.125rem;
+  background: linear-gradient(180deg, #1E232E 20%, #2A354B 100%);
+  position: absolute;
+  top: 6vh;
+  right: 0.8rem;
+  z-index: 1;
+  border: 0.125rem solid #6C6C6C;
+  box-sizing: border-box;
+  box-shadow: 0px 0.5rem 0.5rem rgba(0, 0, 0, 0.25);
+  border-radius: 0.65rem;
+  color: white;
+  padding: 0 1rem 0 1rem;
+  overflow-y: scroll;
+}
+
+.notification-header {
+  text-align: left;
+  font-weight: bold;
+  padding: 1rem 0 1rem;
+  font-size: 1.25rem;
+  position: sticky;
+  z-index: 10;
+  top:0;
+  background-color: #1E232E;
+  letter-spacing: 0.02rem;
+}
+
+.notification-footer {
+  background-color: #2A354B;
+  bottom: 0;
+  left:0;
+  height: 10%;
+  width: 100%;
+  border-top: 0.063px solid #6C6C6C;
+  display: flex;
+  justify-content: center;
+}
+
+.clear-notifications {
+  background-color: inherit;
+  border: none;
+  color:white;
+  width: 100%;
+}
+
+.clear-notifications:hover {
+  cursor: pointer;
+}
+
+.sticky {
+  position: sticky;
+}
+
+.absolute {
+  position: absolute;
+}
+
+.no-notifications {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.delete-single-notification {
+  width: 2rem;
+  height: 2rem;
+  align-self: center;
+  background: none;
+  color: white;
+  border: none;
+}
+
+.delete-single-notification:hover {
+  cursor: pointer;
+}
+
+@media only screen and (max-width: 1000px) {
+  .notification-center {
+    width: 100vw;
+    height: 95%;
+    background: transparent;
+    top: 0;
+    right: 0;
+    border: none;
+    box-sizing: border-box;
+    box-shadow: none;
+    border-radius: 0;
+    color: white;
+    padding: 0;
+  }
+
+  .notification-header {
+    background-color: #29334A;
+    padding: 1rem;
+  }
+
+  .notification-footer {
+    background-color: #29334A;
+  }
+}

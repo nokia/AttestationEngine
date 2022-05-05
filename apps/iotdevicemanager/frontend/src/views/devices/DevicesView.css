@@ -1,0 +1,25 @@
+.device-list-container {
+  width: 100%;
+}
+
+.device-list-title {
+    font-size: 2rem;
+    font-weight: bold;
+    color: white;
+    text-align: left;
+    padding: 0.75rem;
+    letter-spacing: 0.04rem;
+  }
+
+  .dropdown-base-container {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    flex-direction: column;
+  }
+
+  @media only screen and (min-width: 500px) {
+    .dropdown-base-container {
+      flex-direction: row;
+    }
+  }

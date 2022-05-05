@@ -1,0 +1,47 @@
+.channel-list-component-container {
+  background: rgb(255,255,255);
+  background: linear-gradient(180deg,#2F3E47 0%, #1E232E 100%);
+  height: 5rem;
+  width: 21.938rem;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  border-radius: 1.25rem;
+  color: White;
+  box-shadow:  0 0.25rem 0.625rem -0.125rem #000000;
+}
+
+.channel-list-component-container:hover {
+  background: rgb(255, 255, 255);
+  background: linear-gradient(180deg, #1e232e 0%, #2f3e47 100%);
+}
+
+.channel-list-component-img {
+  max-width: 3.125rem;
+  object-fit: contain;
+  margin-right: 0.625rem;
+}
+
+.channel-list-component-left {
+  width: 65%;
+  display: flex;
+  flex-direction: row;
+  justify-content: start;
+  margin: 1.25rem;
+  align-items: center;
+}
+
+.channel-list-component-right {
+  width: 35%;
+  display: flex;
+  flex-direction: row;
+  justify-content: end;
+  margin: 1.25rem;
+  font-size: 1.375rem;
+  font-weight: bold;
+}
+
+.channel-list-component-label {
+  margin: 0;
+}

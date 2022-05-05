@@ -1,0 +1,27 @@
+.side-menu-container {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.curve {
+    position: absolute;
+    top: 5%;
+    left: 13rem;
+    height: 0.5rem;
+    width: 0.5rem;
+    background-color: #29334A;
+    background: radial-gradient(circle at bottom right, transparent 0.5rem, #29334A 0.5rem)
+}
+
+.menu-container {
+    position: absolute;
+    width: 13rem;
+    height: 95vh;
+    display: flex;
+    background-color: #29334A;
+    background-image: url('../../assets/server.png'), linear-gradient(to bottom, #29334A, #39445f); ;
+    background-size: cover;
+    background-position: center;
+    justify-content: center;
+}
