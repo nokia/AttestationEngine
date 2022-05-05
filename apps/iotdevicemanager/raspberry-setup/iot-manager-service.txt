@@ -1,0 +1,18 @@
+//file = startup.service location= /etc/systemd/system
+
+[Unit]
+Description=startup-Service
+Requires=network.target
+Wants=network-online.target
+
+[Service]
+Type=idle
+User=pi
+ExecStart=/bin/sh /home/pi/iot-device-manager/iotmgrstart.sh
+ExecStop=/bin/sh /home/pi/iot-device-manager/iotmgrstop.sh
+Restart=on-failure
+RestartSec=60
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
