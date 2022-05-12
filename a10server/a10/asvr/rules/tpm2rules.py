@@ -29,7 +29,7 @@ class PCRsAllUnassigned(baserule.BaseRule):
                 [],
             )
 
-        if bank not in ["sha1", "sha256", "sha384", "sha512", "test"]:
+        if bank not in ["sha1", "sha256", "sha384", "sha512"]:
             return self.returnMessage(
                 a10.structures.constants.VERIFYERROR,
                 "Unknown PCR bank, got "
@@ -66,24 +66,31 @@ class PCRsAllUnassigned(baserule.BaseRule):
         else:
             pass  # because we already set sha1 above as the default
 
-        for p in range(0, 17):  # PCRs 0,1,2...16  all should be 0x00:
-            pcrentry = str(pcrs[str(p)])
+        try:
+            for p in range(0, 17):  # PCRs 0,1,2...16  all should be 0x00:
+                pcrentry = str(pcrs[str(p)])
 
+                if pcrentry != zeros:
+                    trusted = False
+                    assigned = assigned + str(p) + " "
+
+            for p in range(17, 23):  # PCRs 17..22  all should be 0xFF:
+                pcrentry = str(pcrs[str(p)])
+                if pcrentry != ffs:
+                    trusted = False
+                    assigned = assigned + str(p) + " "
+
+            # Finally PCR 23 should be 0x00
+            pcrentry = str(pcrs["23"])
             if pcrentry != zeros:
                 trusted = False
-                assigned = assigned + str(p) + " "
+                assigned = assigned + "23 "
 
-        for p in range(17, 23):  # PCRs 17..22  all should be 0xFF:
-            pcrentry = str(pcrs[str(p)])
-            if pcrentry != ffs:
-                trusted = False
-                assigned = assigned + str(p) + " "
+        except Exception as e:
+            return self.returnMessage(
+                a10.structures.constants.VERIFYERROR, "Error reading PCRs. Maybe requested PCR don't exist in this bank? Error was "+str(e), []
+            )       
 
-        # Finally PCR 23 should be 0x00
-        pcrentry = str(pcrs["23"])
-        if pcrentry != zeros:
-            trusted = False
-            assigned = assigned + "23 "
 
         if trusted == True:
             return self.returnMessage(
