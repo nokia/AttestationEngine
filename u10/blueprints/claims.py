@@ -80,8 +80,13 @@ def claimprettyprintPCRs(item_id):
        
        for p in ['sha1','sha256','sha384','sha512']:
           if pcrs.get(p)!=None:
-          	ps = sorted( {int(k) : v for k, v in pcrs.get(p).items()}.items() )
-          	pcrlist[p]=ps
+            print(" CLAIM - getting ",p)
+            print(" PCRS ",type(pcrs.get(p)))
+            #OK, it turns out that if pcrs.get(p) is NOT a dict then it is probably empty
+            #eg: Lenovo T440, reports sha1 and sha256, but no PCRs in the sha256 bank
+            if isinstance(pcrs.get(p),dict):
+                ps = sorted( {int(k) : v for k, v in pcrs.get(p).items()}.items() )
+                pcrlist[p]=ps
        
      
        #get the pcr schema, we check that
@@ -106,7 +111,7 @@ def claimprettyprintPCRs(item_id):
 def claimprettyprintQuote(item_id):
     c = a10.asvr.claims.getClaim(item_id).msg()
 
-    	
+        
     if c.get("payload").get("payload").get("quote")==None:
        return render_template("claimprettyprint/incorrecttype.html", cla=c, msg="Claim does not appear to be a quote")        
     else:
