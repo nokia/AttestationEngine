@@ -180,8 +180,15 @@ def claimprettyprintUEFIEventLog(item_id):
     #
     # Render page
     #
+    print("EVENTLOG")
+    print(tpm2_eventlog_dict)
 
     return render_template("claimprettyprint/uefieventlog.html", cla=c, evdec1= tpm2_eventlog_dict, evdec1len=evdec1len)        
+
+
+
+
+
 
    
 @claims_blueprint.route("/claim/prettyprint/imalog/<item_id>", methods=["GET"])
@@ -235,3 +242,64 @@ def claimprettyprintIMAlog(item_id):
     #
 
     return render_template("claimprettyprint/imalog.html", cla=c, imalog=imalog, es=len(imalog))  
+
+
+
+
+     
+@claims_blueprint.route("/claim/prettyprint/uefieventlograw/<item_id>", methods=["GET"])
+def claimprettyprintUEFIEventLogRAW(item_id):
+    c = a10.asvr.claims.getClaim(item_id).msg()
+
+    # claim body contains a base85 encoded claim
+    if c.get("payload").get("payload").get("encoding")!="base85/utf-8":
+       return render_template("claimprettyprint/incorrecttype.html", cla=c, msg="UEFI Eventlog must be in base/utf-8 encoding")        
+    
+    if c.get("payload").get("payload").get("eventlog")==None:
+       return render_template("claimprettyprint/incorrecttype.html", cla=c, msg="Claim does not appear to be a UEFI Eventlog")        
+
+
+    #
+    # Decode
+    #
+
+    undecoded_eventlog = c.get("payload").get("payload").get("eventlog")
+    decoded_eventlog = base64.b85decode(undecoded_eventlog)
+
+    #
+    # Write to temporary file
+    #
+
+    tf = tempfile.NamedTemporaryFile()
+    tf.write(decoded_eventlog)
+    tf.seek(0)
+
+    #
+    # Process file with tpm2_eventlog
+    #
+    # This command generates yaml which we load and generate a python dict
+    #
+
+    cmd = "tpm2_eventlog " + tf.name
+    tpm2_eventlog_yaml = subprocess.check_output(cmd.split())
+    tpm2_eventlog_dict = yaml.load(tpm2_eventlog_yaml, Loader=yaml.BaseLoader)
+    evdec1len = len(tpm2_eventlog_dict['events'])
+
+    # NB: if we do more processing then we must call tf.seek(0) to reset the file pointer
+    # maybe here goes a call to the IBM tpm tools eventlog reader from Ken
+
+    #
+    # Close file
+    #
+
+    tf.close()
+
+    #
+    # Render page
+    #
+    print("EVENTLOG")
+    print(tpm2_eventlog_dict)
+
+    return render_template("claimprettyprint/uefieventlograw.html", cla=c, evdec1= tpm2_eventlog_dict, evdec1len=evdec1len)        
+
+

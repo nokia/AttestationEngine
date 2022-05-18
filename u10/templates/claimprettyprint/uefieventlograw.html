@@ -5,7 +5,7 @@ SPDX-License-Identifier: BSD-3-Clear
 -->
 {% extends "base.html" %}
 {% block content %}
-<h2>UEFI EventLog Pretty Print</h2>
+<h2>UEFI EventLog Raw Pretty Print</h2>
 Claim: <a href=/claim/{{ cla.itemid }}>{{ cla.itemid }}</a>
 <hr />
 
@@ -36,43 +36,11 @@ Claim: <a href=/claim/{{ cla.itemid }}>{{ cla.itemid }}</a>
 </div>
 <hr />
 <div>
-    <table class="table table-striped .table-sm">
-        <tbody id="uefitable">
-            <tr>
-                <th>#</th>
-                <th>PCRs</th>
-                <th>Event</th>
-                <th>Details</th>
-            </tr>
-            {% for r in evdec1.events %}
-            <tr>
-                <td> {{ r.EventNum }}</td>
-                <td> {{ r.PCRIndex }}</td>
-                <td> {{ r.EventType }}</td>
-                <td>
-                    <table class="table table-striped .table-sm">
-                        <tbody>
-                            {% for k in r.keys() %}
-                            <tr>
-                                <td>{{ k }}</td>
-                                <td>{{ r[k]}}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table> 
-                </td>
-            </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-</div>
-<hr />
-<div>
     <h3>Raw python dict yaml </h3>
     {{ evdec1 }}
     <h3>Base85</h3>
     {{ cla.payload.payload.eventlog }}
-    </div>
+</div>
 
 
         <script>
