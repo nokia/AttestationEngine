@@ -55,4 +55,12 @@
 {% for s in ses.claims %}
 <a href=/claim/{{ s }}>{{ s }}</a></br>
 {% endfor %}
+
+
+<div>
+        <h5>Raw JSON</h5>
+        <textarea readonly class="form-control" rows="12" name="j" id="rawdatabocy">{{ ses }}</textarea>
+    </div>
+
 {% endblock %}
+
