@@ -23,6 +23,7 @@ from blueprints.qrcodes import qrcodes_blueprint
 from blueprints.pcrschemas import pcrschemas_blueprint
 from blueprints.sessions import sessions_blueprint
 
+import argparse
 
 import a10.structures.constants
 import a10.asvr.hashes
@@ -103,9 +104,10 @@ def teapot(e):
 # Use this for development
 #
 
-def main(cert, key, config_filename="u10.conf"):
+def main_debug(cert, key, config_filename="u10.conf"):
     u10.config.from_pyfile(config_filename)
     if cert and key:
+        print("running in secure mode")
         u10.run(
             debug=u10.config["FLASKDEBUG"],
             threaded=u10.config["FLASKTHREADED"],
@@ -114,7 +116,7 @@ def main(cert, key, config_filename="u10.conf"):
             ssl_context=(cert, key),
         )
     else:
-        print("running")
+        print("running in insecure mode")
         u10.run(
             debug=u10.config["FLASKDEBUG"],
             threaded=u10.config["FLASKTHREADED"],
@@ -126,11 +128,21 @@ def main(cert, key, config_filename="u10.conf"):
 #
 # Use this in production
 #
-#def main(cert, key):
-#   from waitress import serve
-#   serve(u10, host="0.0.0.0", port=8540)
+def main_production(cert, key, config_filename="u10.conf", t=16):
+   from waitress import serve
+   u10.config.from_pyfile(config_filename)
+   serve(u10, host=u10.config["DEFAULTHOST"], port=u10.config["DEFAULTPORT"], threads=t)
+
+ap = argparse.ArgumentParser(description='U10 Nokia Attestation Server UI')
+ap.add_argument('-p', '--production', help="Run the web server in production mode (Waitress instread of Flask Debug)",  action='store_true')
+args = ap.parse_args()
 
 
 if __name__ == "__main__":
     print("U10 Starting")
-    main("", "")
+    if args.production==True:
+        print("Running in Production Mode")
+        main_production("", "")
+    else:
+        print("Running in Debug Mode")        
+        main_debug("","")

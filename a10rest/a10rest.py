@@ -6,6 +6,8 @@ import datetime
 import os
 import sys
 
+import argparse
+
 from a10.asvr import (
     elements,
     policies,
@@ -468,9 +470,10 @@ def receiveMessage():
 #
 
 
-def main(cert, key, config_filename="a10rest.conf"):
+def main_debug(cert, key, config_filename="a10rest.conf"):
     a10rest.config.from_pyfile(config_filename)
     if cert and key:
+        print("running in secure mode")        
         a10rest.run(
             debug=a10rest.config["FLASKDEBUG"],
             threaded=a10rest.config["FLASKTHREADED"],
@@ -479,6 +482,7 @@ def main(cert, key, config_filename="a10rest.conf"):
             ssl_context=(cert, key),
         )
     else:
+        print("running in insecure mode")        
         a10rest.run(
             debug=a10rest.config["FLASKDEBUG"],
             threaded=a10rest.config["FLASKTHREADED"],
@@ -486,12 +490,22 @@ def main(cert, key, config_filename="a10rest.conf"):
             port=a10rest.config["DEFAULTPORT"],
         )
 
-#Use this in production
-# def main(cert, key):
-#    from waitress import serve
-#    serve(a10rest, host="0.0.0.0", port=8520, threads=16)
+def main_production(cert, key, config_filename="a10rest.conf", t=16):
+   from waitress import serve
+   a10rest.config.from_pyfile(config_filename)
+   serve(a10rest, host=a10rest.config["DEFAULTHOST"], port=a10rest.config["DEFAULTPORT"], threads=t)
+
+
+ap = argparse.ArgumentParser(description='A10REST Nokia Attestation Server REST API')
+ap.add_argument('-p', '--production', help="Run the REST server in production mode (Waitress instread of Flask Debug)",  action='store_true')
+args = ap.parse_args()
 
 
 if __name__ == "__main__":
     print("A10REST Starting")
-    main("", "")
+    if args.production==True:
+        print("Running in Production Mode")
+        main_production("", "")
+    else:
+        print("Running in Debug Mode")        
+        main_debug("","")

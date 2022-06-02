@@ -395,6 +395,13 @@ def getclaim(itemid):
         return jsonify({"claim":e.msg()}), 200
 
 
+@v2_blueprint.route("/claim/associatedresults/<itemid>", methods=["GET"])
+def getclaimassociatedresults(itemid):
+    print("itemid", itemid)
+    ars = claims.getAssociatedResults(itemid)
+
+    return jsonify({"results":ars,"count":len(ars)}), 200
+
 #
 # RESULTS - decided not to allow writing claims for the moment as the ASVR libraries do this during attestation
 #
