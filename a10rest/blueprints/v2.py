@@ -50,7 +50,36 @@ def hello():
 
 @v2_blueprint.route("/elements", methods=["GET"])
 def getelements():
-    es = [x["itemid"] for x in elements.getElements()]
+    a=request.args.get('archived')
+    if a!=None:
+        archived=True
+    else:
+        archived=False
+
+    es = [x["itemid"] for x in elements.getElements(archived=archived)]
+    return jsonify({"elements":es,"count":len(es)}), 200
+
+@v2_blueprint.route("/elements/summary", methods=["GET"])
+def getelementssummary():
+    print("getelementssummary")
+    a=request.args.get('archived')
+
+    if a!=None:
+        archived=True
+    else:
+        archived=False
+
+    es = [ { "itemid":x["itemid"],
+             "type":x["type"],
+             "name":x["name"],
+             "description":x["description"],
+             "endpoint":x["endpoint"],
+             "protocol":x["protocol"]
+            } 
+            for x in elements.getElementsFull(archived=archived)]
+
+
+
     return jsonify({"elements":es,"count":len(es)}), 200
 
 
@@ -61,7 +90,13 @@ def getTypes():
 
 @v2_blueprint.route("/elements/type/<elementtype>", methods=["GET"])
 def getElementsByType(elementtype):
-    es = [x["itemid"] for x in elements.getElementsByType(elementtype)]
+    a=request.args.get('archived')
+    if a!=None:
+        archived=True
+    else:
+        archived=False
+
+    es = [x["itemid"] for x in elements.getElementsByType(elementtype,archived=archived)]
     return jsonify({"elements":es,"count":len(es),"type":elementtype}), 200
 
 #
