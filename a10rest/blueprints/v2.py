@@ -390,7 +390,7 @@ def getclaim(itemid):
     e = claims.getClaim(itemid)
 
     if e.rc() != constants.SUCCESS:
-        return jsonify({"e":elem.msg()}), 404
+        return jsonify({"e":e.msg()}), 404
     else:
         return jsonify({"claim":e.msg()}), 200
 
