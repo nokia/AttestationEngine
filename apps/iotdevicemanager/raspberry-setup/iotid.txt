@@ -1,5 +1,0 @@
-6d7129b9-ced7-4a4d-a1f9-54219b23c1bb
-sudo touch /etc/systemd/system/iot-manager.service
-sudo nano /etc/systemd/system/iot-manager.service
-systemctl daemon-reload
-systemctl enable iot-manager.service
