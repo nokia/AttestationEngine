@@ -313,7 +313,7 @@ def deleteElement(e,t):
 
 def updateElement(e):
     collection = asdb["elements"]
-    r = collection.update_one({"itemid": e["itemid"]}, {"$set": e})
+    r = collection.replace_one({"itemid": e["itemid"]}, e)
 
     if r.matched_count == 1:
         return True
@@ -414,7 +414,7 @@ def deletePolicy(i):
 
 def updatePolicy(e):
     collection = asdb["policies"]
-    r = collection.update_one({"itemid": e["itemid"]}, {"$set": e})
+    r = collection.replace_one({"itemid": e["itemid"]}, e)
 
     if r.matched_count == 1:
         return True
@@ -510,7 +510,7 @@ def deleteHash(h):
 
 def updateHash(h):
     collection = asdb["hashes"]
-    r = collection.update_one({"hash": h["hash"]}, {"$set": h})
+    r = collection.replace_one({"hash": h["hash"]}, h)
 
     if r.matched_count == 1:
         return True
@@ -638,7 +638,7 @@ def deleteExpectedValue(i):
 
 def updateExpectedValue(e):
     collection = asdb["expectedvalues"]
-    r = collection.update_one({"itemid": e["itemid"]}, {"$set": e})
+    r = collection.replace_one({"itemid": e["itemid"]}, e)
 
     if r.matched_count == 1:
         return True

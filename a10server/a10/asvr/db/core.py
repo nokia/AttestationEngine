@@ -122,7 +122,7 @@ def closeSession(s):
     Closes a session
     """
     collection = asdb["sessions"]
-    r = collection.update_one({"itemid": s["itemid"]}, s)
+    r = collection.update_one({"itemid": s["itemid"]}, {"$set": s})
 
     if r.matched_count == 1:
         return True
