@@ -17,7 +17,8 @@ from a10.asvr import (
     types,
     hashes,
     pcrschemas,
-    sessions
+    sessions,
+    logread
 )
 from a10.structures import constants
 from a10.asvr.db import announce
@@ -633,6 +634,20 @@ def addPCRSchema():
     else:
         return jsonify({"pcrschema":e.msg()}), 201 
 
+
+
+#
+# LOG ENTRIES
+#
+
+
+@v2_blueprint.route("/log/itemid/<itemid>", methods=["GET"])
+def getLogEntriesForItemID(itemid):
+
+    print(" itmeid", itemid)
+    es = logread.getLogEntriesForItemID(itemid)
+
+    return jsonify({"logentries":es,"count":len(es),"itemid":itemid}), 200
 
 
 #

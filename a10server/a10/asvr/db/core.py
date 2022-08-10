@@ -98,6 +98,17 @@ def getLogEntryCount():
     return collection.estimated_document_count()
 
 
+def getLogEntriesForItemID(i):
+    """ Returns the log entries with a field
+         data.itemid == i
+
+    :params str i: itemid
+    :returns: list of log entries
+    :rtype: list dict
+    """
+    collection = asdb["log"]
+    ls = collection.find({"data.itemid": i}, {"_id": False}).sort("t", pymongo.DESCENDING)
+    return list(ls)   
 
 ##################################################
 #

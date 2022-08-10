@@ -62,17 +62,19 @@ id = (
     + a10.structures.identity.generateID()
 )
 print("mqtt client id is ", id)
+print(" +--> ",a10.asvr.db.configuration.MQTTADDRESS,a10.asvr.db.configuration.MQTTPORT,int(a10.asvr.db.configuration.MQTTKEEPALIVEPING))
 mqttc = mqtt.Client(id)
 mqttc.on_connect = on_connect
 mqttc.connect(a10.asvr.db.configuration.MQTTADDRESS, port=a10.asvr.db.configuration.MQTTPORT,
          keepalive=int(a10.asvr.db.configuration.MQTTKEEPALIVEPING), bind_address="")
-
+print(" +--> starting mqtt loop")
+mqttc.loop_start()
 
 # KEEP ALIVE PING
-if int(a10.asvr.db.configuration.MQTTKEEPALIVETHREAD==1):
-    print("Starting keep alive thead")
-    keepalivethread = threading.Thread(target=sendKeepAlive)
-    print("Keep alive thread ID is ", keepalivethread)
-    keepalivethread.start()
-else:
-    print("Keep alive thread disabled")
+#if int(a10.asvr.db.configuration.MQTTKEEPALIVETHREAD==1):
+#    print("Starting keep alive thead")
+#    keepalivethread = threading.Thread(target=sendKeepAlive)
+#    print("Keep alive thread ID is ", keepalivethread)
+#    keepalivethread.start()
+#else:
+#    print("Keep alive thread disabled. Using MQTT keepalive instead.")
