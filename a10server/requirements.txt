@@ -1,4 +1,5 @@
 a10structures
+pkg_config
 flask
 requests
 pymongo
