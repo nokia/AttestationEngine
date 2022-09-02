@@ -128,6 +128,19 @@ def claimprettyprintSysinfo(item_id):
     else:
        return render_template("claimprettyprint/systeminfo.html", cla=c)  
 
+
+
+@claims_blueprint.route("/claim/prettyprint/firmwareinfo/<item_id>", methods=["GET"])
+def claimprettyprintFirmwareinfo(item_id):
+    c = a10.asvr.claims.getClaim(item_id).msg()
+
+        
+    if c.get("payload").get("payload").get("commandsRun")==None:
+       return render_template("claimprettyprint/incorrecttype.html", cla=c, msg="Claim does not appear to be a firmware info structure")        
+    else:
+       return render_template("claimprettyprint/firmwareinfo.html", cla=c)  
+
+    
     
      
 @claims_blueprint.route("/claim/prettyprint/uefieventlog/<item_id>", methods=["GET"])
