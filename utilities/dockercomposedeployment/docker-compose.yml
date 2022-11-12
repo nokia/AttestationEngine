@@ -2,7 +2,7 @@
 # Licensed under the BSD 3-Clause License.
 # SPDX-License-Identifier: BSD-3-Clause
 
-version: "3.9"
+version: "3"
 
 #
 # docker-compoes file to bring up the whole attestation engine
@@ -14,7 +14,7 @@ version: "3.9"
 #  8560 - MQTT Channels
 #  8561 - MQTT Channels (SSH)
 #  8520 - A10REST
-#  8530 - trust agents (on elements to be attested)
+#  8530 - trust agents (on elements to be attested)     # Does not run here - not part of the server
 #  8555 - mongo-express
 #
 # Configuration files
@@ -33,8 +33,6 @@ services:
 #  
    database:
      image: "mongo"
-     links:
-       - databaseui
      container_name: mongo
      volumes:
       - attestationdata:/data/db
@@ -52,7 +50,12 @@ services:
        - 8555:8081                          # !!!
      networks:
       - attestationnetwork
-
+     environment:
+      - ME_CONFIG_MONGODB_SERVER=database
+      - ME_CONFIG_MONGODB_URL="mongodb://database:27017"
+     restart: always
+     depends_on: 
+      - database
 #
 # Mosquitto for the MQTT channels
 #
@@ -65,7 +68,7 @@ services:
      networks:
       - attestationnetwork
      volumes:
-      - /home/ioliver/mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - ./mosquitto.conf:/mosquitto/config/mosquitto.conf
       - /mosquitto/data
       - /mosquitto/log
 
@@ -76,14 +79,14 @@ services:
      image: "u10"
      container_name: u10     
      ports:
-       - 8541:8540                           # !!!
+       - 8540:8540                           # !!!
      depends_on:
        - messagebus
      restart: always
      networks:
       - attestationnetwork
      volumes:
-      - /home/ioliver/a10.conf:/etc/a10.conf      # !!!
+      - ./a10.conf:/etc/a10.conf      # !!!
 
 #
 # A10REST - the REST API to the attestation engine
@@ -92,14 +95,14 @@ services:
     image: "a10rest"
     container_name: a10rest    
     ports:
-      - 8521:8520                                # !!!
+      - 8520:8520                                # !!!
     depends_on:
       - messagebus  
     restart: always
     networks:
       - attestationnetwork
     volumes:
-      - /home/ioliver/a10.conf:/etc/a10.conf      # !!!
+      - ./a10.conf:/etc/a10.conf      # !!!
 
 
 #

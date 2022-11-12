@@ -1,4 +1,3 @@
-a10structures
-a10server
+pkgconfig
 flask
 requests

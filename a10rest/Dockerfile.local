@@ -12,14 +12,13 @@ RUN apt install --yes tpm2-tools libtss2-dev libcurl4-openssl-dev libssl-dev lib
 RUN apt install --yes python3-pip
 RUN pip3 install tpm2-pytss
 
-# Install the a10 structures and server libraries 
+# Install a10 library with all it dependencies
 
-COPY a10structures/* a10structures/
-COPY a10structures/requirements.txt a10structures
-RUN cd a10structures && pip3 install -r requirements.txt && python3 setup.py install
-
+ADD a10structures/ ./a10structures
+RUN cd a10structures && pip3 install -r requirements.txt && pip3 install .
+RUN cd ..
 ADD a10server/ ./a10server
-RUN cd a10server && pip3 install -r requirements.txt && python3 setup.py install
+RUN cd a10server && pip3 install -r requirements.txt && pip3 install .
 
 # Install a10rest
 
