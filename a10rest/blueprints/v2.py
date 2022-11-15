@@ -27,7 +27,7 @@ import a10.asvr.rules.rule_dispatcher
 from flask import Blueprint, jsonify, request
 
 v2_blueprint = Blueprint(
-    "home", __name__, static_folder="../static", template_folder="../templates/",url_prefix='/v2'
+    "v2", __name__, static_folder="../static", template_folder="../templates/",url_prefix='/v2'
 )
 
 secret = secrets.token_urlsafe(64)

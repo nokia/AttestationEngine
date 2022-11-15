@@ -59,6 +59,7 @@ def getConfiguration():
         "mqttaddress": MQTTADDRESS,
         "mqttport": MQTTPORT,
         "mqttkeepaliveping": MQTTKEEPALIVEPING,
+        "keepalivethread": MQTTKEEPALIVETHREAD,        
         "mongodburl": MONGODBURL,
         "mongodbname": MONGODBNAME,
     }
