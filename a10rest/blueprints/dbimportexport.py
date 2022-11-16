@@ -90,7 +90,6 @@ def dbexport():
 
     print("Getting log")
     ls = logread.getLogFull()
-    ls = []
     archive["log"]=ls
 
     print("Getting ancillary structures")

@@ -41,7 +41,7 @@ def addHash(h):
     r = a10.asvr.db.core.addHash(h)
     if r == True:
         a10.asvr.db.announce.announceItemManagement(
-            "add", {"type": "hash", "itemid": h}
+            "add", {"type": "hash", "itemid": h["hash"], "type":h["type"]}
         )
         return a10.structures.returncode.ReturnCode(
             a10.structures.constants.SUCCESS, "Hash " + h["hash"] + " added"
