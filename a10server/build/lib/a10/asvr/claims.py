@@ -92,7 +92,7 @@ def getClaims(n=50):
     return cs
 
 
-def getClaimsFull(n=50):
+def getClaimsFull(n=10000000):
     """
     Gets a list of claims from the database 
 
@@ -101,7 +101,7 @@ def getClaimsFull(n=50):
     :rtype: list dict
     """
 
-    cs = a10.asvr.db.core.getClaimsFull(n)
+    cs = a10.asvr.db.core.getClaimsFull(10000000)
     return cs
 
 

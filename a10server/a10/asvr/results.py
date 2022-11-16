@@ -72,8 +72,8 @@ def getResults(n=500):
     return rs
 
 
-def getResultsFull(n):
-    rs = list(a10.asvr.db.core.getResultsFull(n))
+def getResultsFull(n=10000000):
+    rs = list(a10.asvr.db.core.getResultsFull(10000000))
     return rs
 
 def getResultsSince(t):

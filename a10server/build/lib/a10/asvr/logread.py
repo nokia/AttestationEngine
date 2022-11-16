@@ -16,5 +16,10 @@ def getLogEntriesForItemID(i):
     :returns: list of log entries
     :rtype: list dict
     """
-    es = a10.asvr.db.core.getLogEntriesForItemID(i)
-    return es
+    ls = a10.asvr.db.core.getLogEntriesForItemID(i)
+    return ls
+
+def getLogFull():
+    """ Returns the whole log """
+    ls = a10.asvr.db.core.getLogFull()
+    return ls

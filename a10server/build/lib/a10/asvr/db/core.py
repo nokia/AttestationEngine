@@ -110,6 +110,10 @@ def getLogEntriesForItemID(i):
     ls = collection.find({"data.itemid": i}, {"_id": False}).sort("t", pymongo.DESCENDING)
     return list(ls)   
 
+def getLogFull():
+    collection = asdb["log"]
+    e = collection.find({}, {"_id": False})
+    return list(e)
 ##################################################
 #
 # Sessions

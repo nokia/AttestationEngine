@@ -9,6 +9,9 @@ import secrets
 
 import tempfile
 
+import json
+
+
 from a10.asvr import (
     elements,
     policies,
@@ -22,7 +25,8 @@ from a10.asvr import (
     sessions,
     logread
 )
-from a10.structures import constants
+
+from a10.structures import constants, timestamps
 from a10.asvr.db import announce
 import a10.asvr.rules.rule_dispatcher
 
@@ -40,19 +44,74 @@ dbimportexport_blueprint.secret_key = secret
 # Home
 #
 
-@dbimportexport_blueprint.route("/")
+
+@dbimportexport_blueprint.route("/", methods=["GET"])
 def hello():
     return {"msg":"Hello from A10REST v2 DB API"},200
 
-@dbimportexport_blueprint.route("/import")
-def dbimport():
-    return {"msg":"Hello from A10REST v2 DB API - IMPORT"},200
-
 @dbimportexport_blueprint.route("/export")
 def dbexport():
+    archive = {}
     f = tempfile.NamedTemporaryFile(delete=False)
-    f.write(b"Croeso ffeil")
+    
+    print("Setting metadata")
+    archive["timestamp"]=str(a10.structures.timestamps.now())
+
+
+    print("Getting elements")
+    es  = elements.getElementsFull(archived=False)
+    esa = elements.getElementsFull(archived=True)
+    archive["elements"] = es 
+    archive["elementsArchived"] = esa
+
+    print("Getting policies")
+    ps = policies.getPoliciesFull()
+    archive["policies"] = ps 
+    
+    print("Getting expected values")
+    evs = expectedvalues.getExpectedValuesFull()
+    archive["expectedValues"] = evs 
+
+    print("Getting claims")
+    cs = claims.getClaimsFull()
+    archive["claims"] = cs
+
+    print("Getting results")
+    rs = results.getResultsFull()
+    archive["results"] = rs
+
+
+    print("Getting sessions")
+    so = sessions.getOpenSessions()
+    sc = sessions.getClosedSessions()
+
+    archive["sessionsopen"] = so
+    archive["sessionsclosed"] = sc
+
+    print("Getting log")
+    ls = logread.getLogFull()
+    ls = []
+    archive["log"]=ls
+
+    print("Getting ancillary structures")
+    pcrs = pcrschemas.getPCRSchemasFull()
+    hs = hashes.getHashesFull()
+    archive["pcrschemas"] = pcrs
+    archive["hashes"] = hs
+
+
+
+    f.write( json.dumps(archive).encode() )
     print("temp file name is ",f.name)
     f.close()
     return send_file(f.name)
-    #return {"msg":"Hello from A10REST v2 DB API - EXPORT "+f.name},200    
+
+
+
+
+@dbimportexport_blueprint.route("/import", methods=["POST"])
+def dbimport():
+    content = request.json
+    print("Content timestamp is ",content["timestamp"])
+
+    return {"msg":"Hello from A10REST v2 DB API - IMPORT"},200
