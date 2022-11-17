@@ -1,6 +1,6 @@
 [
 {
-    "description": "Returns the TCG x86 default CRTM PCRs",
+    "description": "Returns the TCG x86 default CRTM PCRs for SHA256 Bank",
     "intent": "tpm2/quote",
     "name": "CRTMx86",
     "parameters": {
@@ -10,7 +10,27 @@
     "type": "tpm2/quote"
 },
 {
-    "description": "Returns the TCG x86 default SRTM PCRs",
+    "description": "Returns the TCG x86 default core CRTM+SRTM PCRs for SHA256 Bank",
+    "intent": "tpm2/quote",
+    "name": "CoreCRTM+SRTMx86",
+    "parameters": {
+        "hashalg": "sha256",
+        "pcrselection": "sha256:0,1,2,3"
+    },
+    "type": "tpm2/quote"
+},
+{
+    "description": "Returns the configuration PCRs for x86 UEFI Systems: CRTM, UEFI Images, Boot loader and UEFI secure boot keys",
+    "intent": "tpm2/quote",
+    "name": "ConfigurationCRTM+SRTMx86",
+    "parameters": {
+        "hashalg": "sha256",
+        "pcrselection": "sha256:0,2,4,7"
+    },
+    "type": "tpm2/quote"
+},
+{
+    "description": "Returns the TCG x86 default SRTM PCRs for SHA256 Bank",
     "intent": "tpm2/quote",
     "name": "SRTMx86",
     "parameters": {
@@ -20,32 +40,23 @@
     "type": "tpm2/quote"
 },
 
+
+
 {
-    "description": "Returns the TCG x86 default full UEFI SRTM PCRs. Note if IMA is running then PCR 10 (by IMA default) may be further extended to!",
+    "description": "Returns the Grub PCRs for SHA256 bank",
     "intent": "tpm2/quote",
-    "name": "SRTMUEFIx86",
+    "name": "GrubPCRs",
     "parameters": {
         "hashalg": "sha256",
-        "pcrselection": "sha256:0,1,2,3,4,5,6,7,8,9,10"
+        "pcrselection": "sha256:8,9"
     },
     "type": "tpm2/quote"
 },
 
 {
-    "description": "Returns the TCG x86 default UEFI SRTM extended PCRs",
+    "description": "Returns the TCG x86 default UEFI Bootloader PCRs for SHA256 bank",
     "intent": "tpm2/quote",
-    "name": "SRTMUEFIextx86",
-    "parameters": {
-        "hashalg": "sha256",
-        "pcrselection": "sha256:8,9,10"
-    },
-    "type": "tpm2/quote"
-},
-
-{
-    "description": "Returns the TCG x86 default SRTM Bootloader PCRs",
-    "intent": "tpm2/quote",
-    "name": "SRTMBootloaderx86",
+    "name": "UEFIBootloaderx86",
     "parameters": {
         "hashalg": "sha256",
         "pcrselection": "sha256:4,5"
@@ -54,7 +65,7 @@
 },
 
 {
-    "description": "Returns the Intel TXT default DRTM PCRs",
+    "description": "Returns the Intel TXT DRTM PCRs",
     "intent": "tpm2/quote",
     "name": "DRTMTXTx86",
     "parameters": {
@@ -65,7 +76,7 @@
 },
 
 {
-    "description": "Returns the Linux Integrity Measurement Architecture default PCR",
+    "description": "Returns the Linux Integrity Measurement Architecture default PCR 10",
     "intent": "tpm2/quote",
     "name": "IMADefault",
     "parameters": {
@@ -79,7 +90,7 @@
 
 {
 
-    "description": "Obtain the PCR Banks",
+    "description": "Obtain the PCR Banks (unsigned)",
     "intent": "tpm2/pcrs",
     "name": "PCRREAD",
     "parameters": {}
@@ -143,7 +154,14 @@
     "intent": "sys/info",
     "name": "SystemInfo",
     "parameters": {}
-} 
+},
 
+{
+
+    "description": "Obtains firmware information, eg: exposed UEFI variables",
+    "intent": "sys/firmwareinfo",
+    "name": "FirmwareInfo",
+    "parameters": {}
+}
 ]
 

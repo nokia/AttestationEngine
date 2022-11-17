@@ -148,8 +148,9 @@ def claimprettyprintUEFIEventLog(item_id):
     c = a10.asvr.claims.getClaim(item_id).msg()
 
     # claim body contains a base85 encoded claim
-    if c.get("payload").get("payload").get("encoding")!="base85/utf-8":
-       return render_template("claimprettyprint/incorrecttype.html", cla=c, msg="UEFI Eventlog must be in base/utf-8 encoding")        
+    payloadencoding = c.get("payload").get("payload").get("encoding")
+    if payloadencoding !="base85/utf-8" and payloadencoding !="base64/utf-8":
+       return render_template("claimprettyprint/incorrecttype.html", cla=c, msg="UEFI Eventlog must be in base85 or base64/utf-8 encoding")        
     
     if c.get("payload").get("payload").get("eventlog")==None:
        return render_template("claimprettyprint/incorrecttype.html", cla=c, msg="Claim does not appear to be a UEFI Eventlog")        
@@ -160,7 +161,15 @@ def claimprettyprintUEFIEventLog(item_id):
     #
 
     undecoded_eventlog = c.get("payload").get("payload").get("eventlog")
-    decoded_eventlog = base64.b85decode(undecoded_eventlog)
+    decoded_eventlog = ""
+
+    if payloadencoding == "base85/utf-8":
+        decoded_eventlog = base64.b85decode(undecoded_eventlog)
+    elif payloadencoding == "base64/utf-8":
+        decoded_eventlog = base64.b64decode(undecoded_eventlog)
+    else:
+        return render_template("claimprettyprint/incorrecttype.html", cla=c, msg="UEFI Eventlog must be in base85 or base64/utf-8 encoding - Secondary Error - should not happen. Bug in code or claim header")        
+
 
     #
     # Write to temporary file

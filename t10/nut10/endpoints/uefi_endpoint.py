@@ -20,8 +20,8 @@ def returnEVENTLOGRREAD():
     try:
         f = open("/sys/kernel/security/tpm0/binary_bios_measurements","rb")
         eventlog = f.read()
-        eventlog_enc = base64.b85encode(eventlog).decode("utf-8")   
-        c.addPayloadItem("encoding", "base85/utf-8")
+        eventlog_enc = base64.b64encode(eventlog).decode("utf-8")   
+        c.addPayloadItem("encoding", "base64/utf-8")
         c.addPayloadItem("eventlog", eventlog_enc)
         c.addPayloadItem("size",len(eventlog))
         c.addPayloadItem("sizeencoded",len(eventlog_enc))

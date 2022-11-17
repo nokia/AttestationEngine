@@ -9,12 +9,20 @@ ian@hitadebian:~/AttestationEngine$ ls
 a10rest  a10server  a10structures  apps  CONTRIBUTING.md  docs  fc10  LICENSE  README.md  t10  tests  u10  utilities
 ```
 
-Then build the three components:
+Then build the three components (if you require sudo for docker use these, otherwise without sudo below)
 
 ```bash
 sudo docker build -t a10rest -f a10rest/Dockerfile.local .
 sudo docker build -t u10 -f u10/Dockerfile.local .
 sudo docker build -t fc10 -f fc10/Dockerfile.local .
+```
+
+and without sudo:
+
+```bash
+docker build -t a10rest -f a10rest/Dockerfile.local .
+docker build -t u10 -f u10/Dockerfile.local .
+docker build -t fc10 -f fc10/Dockerfile.local .
 ```
 
 This takes a while and requires a connection to the internet in order to download the base images and required packages.
@@ -87,3 +95,14 @@ $ curl http://127.0.0.1:8520/v2/
 
 *FC10*'s main page contains a link to then endpoint `http://a10rest:8520/v2` with the name *Docker Compose Installation*, and when accessed should return the current or achived elements as applicable
 
+
+## Further Setup
+
+After starting the system it will be necessary to load the PCR Schemas, Hashes and Policies. These are found in `....\AttestationEngine/utilities/Database`. The format and process for these is decribed in the `README.md` file in that directory. Assuming the IP address of the A10REST API is 127.0.0.1 then the following can be executed from that directory.
+
+```bash
+python3 adbingest.py hashes hashes.json http://127.0.0.1:8520
+python3 adbingest.py policies policies.json http://127.0.0.1:8520
+python3 adbingest.py pcrschemas pcrschemas.json http://127.0.0.1:8520
+
+```
