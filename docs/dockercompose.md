@@ -44,8 +44,8 @@ Attaching to mongo, messagebus, dockercomposedeployment_databaseui_1, a10rest, u
 From a local machine the following should be accessible:
 
    * http://127.0.0.1:8520/v2 - should return a welcome message (See below for a curl example, or use a browser)
-   * http://127.0.0.1:8520/v2 - should return the U10 main page
-   * http://127.0.0.1:8520/v2 - should return the FC10 main page
+   * http://127.0.0.1:8540/v2 - should return the U10 main page
+   * http://127.0.0.1:8542/v2 - should return the FC10 main page
 
 The test for a working *A10REST* component is
 
