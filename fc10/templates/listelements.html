@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container-fluid">
+
+
+<h2>Available Elements for Attestation Engine at {{ asvr }}</h2>
+
+<h4>{{ es.count }} elements available</h4>
+
+{% if arch==1 %}
+<div class="p-3 mb-2 bg-danger text-white">
+   <h4>Warning: These are archived elements</h4></div>
+{% endif %}
+
+<hr />
+<input class="form-control" id="elementsearch" type="text" placeholder="Search...">
+<br>
+
+<table class="table .table-striped">
+    <thead>
+        <tr>
+            <th></th>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Endpoint</th>
+            <th>Protocol</th>
+            <th>Description</th>
+        </tr>
+    </thead>
+    <tbody id="elementtable">
+        {% for e in es.elements %}
+        <tr>
+            <td><a href=/mfd?eid={{e.itemid}}&asvr={{ asvr }}&limit=500>
+                <button type="button" class="btn btn-primary">Forensics</button></a></td>
+            <td><a href={{ asvr }}/element/{{e.itemid}}> <b>{{ e.name }}</b></a></td>
+            <td>
+                <h6>{% for t in e.type %}
+                    <span class="badge bg-secondary">{{ t }}</span>
+                    {% endfor %}</h6>
+            </td>
+            
+            <td><a href={{e.endpoint}} />{{ e.endpoint }}</a> </td>
+            <td><span class="badge bg-secondary">{{ e.protocol }}</span></td>
+            
+            <td>
+                {{ e.description }}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+
+
+<script>
+$(document).ready(function() {
+    $("#elementsearch").on("keyup", function() {
+        var value = $(this).val().toLowerCase();
+        $("#elementtable tr").filter(function() {
+            $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+        });
+    });
+});
+</script>
+
+
+</div>
+{% endblock %}
