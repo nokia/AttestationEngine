@@ -19,7 +19,7 @@ sudo docker build -t fc10 -f fc10/Dockerfile.local .
 
 This takes a while and requires a connection to the internet in order to download the base images and required packages.
 
-## Configuriation
+## Configuration
 
 The directory `..../AttestationEngine/utilities/dockercomposedeployment` contains an example docker-compose setup and the files `a10.conf` and `mosquitto.conf` can be modified accordingly. Usually no changes are required.
 
@@ -27,7 +27,7 @@ If you wish to change the port assignments then edit the ports in `docker-compos
 
 ## Running
 
-To start the containers:
+To start the containers use `sudo docker-compose up` and the following should occur along with more output. For an error regarding volumes see below.
 
 ```bash
 ian@hitadebian:~/AttestationEngine/utilities/dockercomposedeployment$ sudo docker-compose up
@@ -40,6 +40,33 @@ Starting fc10                                 ... done
 Attaching to mongo, messagebus, dockercomposedeployment_databaseui_1, a10rest, u10, fc10
 ...
 ```
+
+### Volumes
+
+THe first time docker-compose is used the system may require a volumne to be created to store persistent data. For example:
+
+```bash
+$ sudo docker-compose up
+Creating network "dockercomposedeployment_attestationnetwork" with driver "bridge"
+ERROR: Volume attestationdata declared as external, but could not be found. Please create the volume manually using `docker volume create --name=attestationdata` and try again.
+```
+
+Run the following command (as suggested above and then re-try docker-compose)
+
+```bash
+sudo docker volume create --name=attestationdata
+attestationdata
+ian@hitadebian:~/AttestationEngine/utilities/dockercomposedeployment$ sudo docker-compose up
+Creating messagebus ... done
+Creating mongo      ... done
+Creating a10rest                              ... done
+Creating u10                                  ... done
+Creating dockercomposedeployment_databaseui_1 ... done
+Creating fc10                                 ... done
+Attaching to messagebus, mongo, u10, dockercomposedeployment_databaseui_1, a10rest, fc10
+```
+
+## Connecting
 
 From a local machine the following should be accessible:
 
