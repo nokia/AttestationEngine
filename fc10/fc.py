@@ -18,7 +18,8 @@ app = Flask(__name__)
 
 
 def getListOfASVRs():
-    l = [  ("Localhost","http://127.0.0.1:8520/v2","Use this for testing locally only"), 
+    l = [  ("DockerCompose Installatíon","http://a10rest:8520/v2","Use this when using docker compose"), 
+           ("Localhost","http://127.0.0.1:8520/v2","Use this for testing locally only"), 
            ("IoT K4 (Ext)","http://194.157.71.11:8520/v2","External access to IoT K4 - requires port forwarding to work"), 
            ("IoT K4 (Int)","http://192.168.11.79:8520/v2","Internal access to IoT K4 - use on local server only"),            
            ("Ian VM","http://192.168.71.128:8520/v2","Private"),

@@ -13,7 +13,7 @@ import json
 
 
 from a10.asvr import (
-    elements,
+    elements,                                                                                                                                                                                                                                                                                                                                                                                                                       
     policies,
     attestation,
     claims,
@@ -55,7 +55,7 @@ def dbexport():
     f = tempfile.NamedTemporaryFile(delete=False)
     
     print("Setting metadata")
-    archive["timestamp"]=str(a10.structures.timestamps.now())
+    archive["timestamp"]=                                               str(a10.structures.timestamps.now())
 
 
     print("Getting elements")

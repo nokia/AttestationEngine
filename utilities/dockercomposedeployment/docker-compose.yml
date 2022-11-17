@@ -11,6 +11,7 @@ version: "3"
 #
 # Defacto ports for A10
 #  8540 - U10
+#  8542 - FC10
 #  8560 - MQTT Channels
 #  8561 - MQTT Channels (SSH)
 #  8520 - A10REST
@@ -103,6 +104,21 @@ services:
       - attestationnetwork
     volumes:
       - ./a10.conf:/etc/a10.conf      # !!!
+
+
+#
+# FC10 - the REST API to the attestation engine
+#       
+   fc10:
+    image: "fc10"
+    container_name: fc10    
+    ports:
+      - 8542:8542                                # !!!
+    depends_on:
+      - a10rest  
+    restart: always
+    networks:
+      - attestationnetwork
 
 
 #
