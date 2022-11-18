@@ -1,0 +1,36 @@
+start: evaluate+
+
+evaluate: "evaluate" selectexpression "using" templatename [("," strictness )]		-> evaluatething
+
+
+selectexpression : "name" "=" ELEMENTNAME 								-> selectexpressionname
+              	 | "type" ":" typelist							-> selectexpressiontype
+              	 | "eid"  "=" UUIDNAME								-> selectexpressionelementid
+
+
+templatename : NAME 											-> templatenamething				
+
+strictness : "logic" "=" SVALUE  -> selectstrictness
+ 
+SVALUE :  "strict" | "flexible" | "loose" 
+
+typelist:  "[" [NAME ("," NAME)*] "]"   -> selecttypelist    
+
+
+ELEMENTNAME : (LETTER+|DIGIT+|"-"|"_")+
+UUIDNAME : (LETTER+|DIGIT+|"-")+
+
+
+%import common.CNAME -> NAME
+%import common.LETTER
+%import common.WORD
+%import common.NUMBER
+%import common.DIGIT
+%import common.STRING
+%import common.WS_INLINE
+%import common.WS
+%import common.ESCAPED_STRING   -> STRING
+%ignore WS_INLINE
+%ignore WS
+
+
