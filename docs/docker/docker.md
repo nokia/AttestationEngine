@@ -1,5 +1,7 @@
 # Running with Docker
 
+DEPRECATED . SEE THE DOCKER COMPOSE INSTRUCTIONS INSTEAD
+
 These instructions tell how to build the core components as docker containers
 
 ## Pre-requisites
