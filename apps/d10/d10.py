@@ -7,12 +7,18 @@ import argparse
 
 from flask import Flask,render_template
 
+from ui import home_blueprint
 
 d10 = Flask(__name__)
 
 secret = secrets.token_urlsafe(64)
 d10.secret_key = secret
 
+#
+# Register blueprints
+#
+
+d10.register_blueprint(home_blueprint)
 
 #
 # Handle errors, censorship and cups to tea
