@@ -1,0 +1,2 @@
+evaluate name=ubuntu using testx86 , logic = strict
+evaluate name=ubuntu using testx86 , logic = flexible

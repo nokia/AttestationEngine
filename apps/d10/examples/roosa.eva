@@ -1,0 +1,2 @@
+evaluate type=[ pi ] using roosaspis , logic = strict
+evaluate name=roosaslaptop using x86test , logic = strict

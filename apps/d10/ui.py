@@ -1,7 +1,7 @@
 
 from flask import Flask, request, send_from_directory, jsonify, Blueprint, render_template
 import secrets
-
+import d10db
 
 home_blueprint = Blueprint(
     "home", __name__, static_folder="../static", template_folder="../templates/"
@@ -20,4 +20,12 @@ def favicon():
 
 @home_blueprint.route("/")
 def hello():
-    return render_template("home.html")
+    dbstatus = d10db.getDatabaseStatus()
+    return render_template("home.html", dbstatus=dbstatus)
+
+@home_blueprint.route("/list")
+def list():
+    atts = d10db.getatts()
+    evas = d10db.getevas()
+
+    return render_template("list.html", atts=atts, evas=evas)

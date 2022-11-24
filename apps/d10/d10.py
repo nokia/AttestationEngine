@@ -8,6 +8,7 @@ import argparse
 from flask import Flask,render_template
 
 from ui import home_blueprint
+from rest import rest_blueprint
 
 d10 = Flask(__name__)
 
@@ -19,6 +20,7 @@ d10.secret_key = secret
 #
 
 d10.register_blueprint(home_blueprint)
+d10.register_blueprint(rest_blueprint)
 
 #
 # Handle errors, censorship and cups to tea
@@ -26,14 +28,14 @@ d10.register_blueprint(home_blueprint)
 
 @d10.errorhandler(404)
 def not_found(e):
-    return render_template("home/404.html")
+    return render_template("404.html")
 
 
 #
 # Use this for development
 #
 
-def main_debug(cert, key, config_filename="d10.conf"):
+def main_debug(cert, key, config_filename="d10flask.conf"):
     d10.config.from_pyfile(config_filename)
     if cert and key:
         print("running in secure mode")

@@ -1,0 +1,14 @@
+
+template testx86
+ attest
+   SRTM-SHA1,{}   
+      [[
+         q1firmware <- tpm2rules/TPM2FirmwareVersion, {}
+      ]]
+
+   CheckCredentials,{},copycredentials
+      [[
+         id <-  tpm2rules/TPM2CredentialVerify  ,{}
+      ]]
+  decision 
+    !q1firmware ^ id
