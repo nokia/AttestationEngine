@@ -87,12 +87,12 @@ $TOUCH $LOG
 date >> $LOG
 
 #List PCRS before 
-echo "200 = START ===========================================================" >> $LOG
+echo "200 = PREMEASUREMENT ===========================================================" >> $LOG
 echo "Premeasurement PCRs" >> $LOG
 tpm2_pcrread >> $LOG
 
 #Generate CRTM by hashing all the tools and the script
-echo "300 = START ===========================================================" >> $LOG
+echo "300 = CRTM ===========================================================" >> $LOG
 echo "CRTM " >> $LOG
 
 hae1 $MEASURE_START_SCRIPT 0 
@@ -118,7 +118,7 @@ hae256 $TPM2_PCRREAD 0
 hae256 $BASH 0
 
 #Generate SRTM by hashing all the files listed in the measured.d directory
-echo "400 = START ===========================================================" >> $LOG
+echo "400 = SHA1 ===========================================================" >> $LOG
 echo "SRTM SHA1" >> $LOG
 
 for MFILE in $MEASURES1DIR/*
@@ -130,7 +130,7 @@ do
     done < $MFILE
 done
 
-echo "450 = START ===========================================================" >> $LOG
+echo "450 = SHA256 ===========================================================" >> $LOG
 echo "SRTM SHA256" >> $LOG
 
 for MFILE in $MEASURES256DIR/*
@@ -145,11 +145,11 @@ done
 
 
 #List PCRS after
-echo "800 = START ===========================================================" >> $LOG
+echo "800 = POSTMEASUREMENT ===========================================================" >> $LOG
 echo "Postmeasurement PCRs" >> $LOG
 tpm2_pcrread >> $LOG
 
-echo "999 = START ===========================================================" >> $LOG
+echo "999 = COMPLETE ===========================================================" >> $LOG
 echo "Measuring Complete" >> $LOG
 date >> $LOG
 echo "============================================================" >> $LOG

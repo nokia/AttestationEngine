@@ -1,0 +1,11 @@
+#!/bin/sh -x
+
+echo "Installing Fake Measured Boot Files for TPM2TOOLS"
+
+mkdir /boot/measuredboot
+cp -r * /boot/measuredboot
+cp measure.service.tpm2tools /etc/systemd/system.tpm2tools
+
+touch /var/log/measuredBootLog
+
+systemctl enable measure.service.tpm2tools

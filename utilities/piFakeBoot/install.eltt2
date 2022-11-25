@@ -1,0 +1,11 @@
+#!/bin/sh -x
+
+echo "Installing Fake Measured Boot Files for ELTT2"
+
+mkdir /boot/measuredboot
+cp -r * /boot/measuredboot
+cp measure.service.eltt2 /etc/systemd/system.eltt2
+
+touch /var/log/measuredBootLog
+
+systemctl enable measure.service.eltt2
