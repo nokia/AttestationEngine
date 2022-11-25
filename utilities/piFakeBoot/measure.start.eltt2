@@ -51,13 +51,13 @@ TPM2_PCRREAD=/usr/bin/eltt2
 
 function hae1 () {
    SHA1=`$SHA1SUM $1 | $AWK '{ print $1 }'`   
-   $TPM2_PCREXTEND -e $2:sha1=$SHA1   
+   $TPM2_PCREXTEND -e $2 $SHA1   
    echo $1 $2 $SHA1 >> $LOG
 }
 
 function hae256 () {   
    SHA256=`$SHA256SUM $1 | $AWK '{ print $1 }'`  
-   $TPM2_PCREXTEND -E $2:sha256=$SHA256
+   $TPM2_PCREXTEND -E $2 $SHA256
    echo $1 $2 $SHA256 >> $LOG
 }
 
