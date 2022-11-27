@@ -1,5 +1,7 @@
 # Running with Docker Compose
 
+NOTE: it appears almost impossible to use ssh-agent inside docker-compose - if you have a SANE solution that allows it to run and add all the keys in the attestationelementkeys volume then please please please let me know
+
 ## Building the components
 
 From the root directory of the attesstation server distribution we need to build the components A10REST, U10 and FC10. Firstly check that everything is there and that you are in the right place:
@@ -51,7 +53,10 @@ Attaching to mongo, messagebus, dockercomposedeployment_databaseui_1, a10rest, u
 
 ### Volumes
 
-THe first time docker-compose is used the system may require a volumne to be created to store persistent data. For example:
+THe first time docker-compose is used the system may require volumnes to be created to store persistent data. Two volumes are required, one for the mongo database and one for a location to place keys used by the attestation server, eg: ssh keys for elements with the TPMSENDSSL protocol.
+
+
+If you see an error similar to this...
 
 ```bash
 $ sudo docker-compose up
@@ -59,20 +64,20 @@ Creating network "dockercomposedeployment_attestationnetwork" with driver "bridg
 ERROR: Volume attestationdata declared as external, but could not be found. Please create the volume manually using `docker volume create --name=attestationdata` and try again.
 ```
 
-Run the following command (as suggested above and then re-try docker-compose)
+...then run the following command (as suggested above and then re-try docker-compose)
 
 ```bash
-sudo docker volume create --name=attestationdata
+$ sudo docker volume create --name=attestationdata
 attestationdata
-ian@hitadebian:~/AttestationEngine/utilities/dockercomposedeployment$ sudo docker-compose up
-Creating messagebus ... done
-Creating mongo      ... done
-Creating a10rest                              ... done
-Creating u10                                  ... done
-Creating dockercomposedeployment_databaseui_1 ... done
-Creating fc10                                 ... done
-Attaching to messagebus, mongo, u10, dockercomposedeployment_databaseui_1, a10rest, fc10
+$ sudo docker volume create --name=attestationelementkeys
+attestationelementkeys
+
 ```
+
+The `attestationdata` volume is mounted as `/data/db` by the mongo component. The `attestationelementkeys` volume is mounted at `/var/attestation/keys` by any component that has direct access to the A10 libraries, ie: U10 and A10REST. This location is used for the storage of SSH keys and is typically referred to in the element description.
+
+Refer to the section below on copying ssh keys to the attestationkeys volume
+
 
 ## Connecting
 
@@ -105,4 +110,99 @@ python3 adbingest.py hashes hashes.json http://127.0.0.1:8520
 python3 adbingest.py policies policies.json http://127.0.0.1:8520
 python3 adbingest.py pcrschemas pcrschemas.json http://127.0.0.1:8520
 
+```
+
+
+### Checking in on a container
+You can connect to a container by creating a  bash shell
+
+For example, find the container ID and connect a bash shell
+
+
+```bash
+ian@:~$ sudo docker ps
+CONTAINER ID   IMAGE               COMMAND                  CREATED          STATUS          PORTS                                                                                  NAMES
+02ec754ebfd8   u10                 "python3 u10.py"         16 seconds ago   Up 14 seconds   0.0.0.0:8540->8540/tcp, :::8540->8540/tcp                                              u10
+f1cfcac21fef   fc10                "python3 fc.py"          21 minutes ago   Up 14 seconds   0.0.0.0:8542->8542/tcp, :::8542->8542/tcp                                              fc10
+8b299168b47b   a10rest             "python3 a10rest.py"     21 minutes ago   Up 14 seconds   0.0.0.0:8520->8520/tcp, :::8520->8520/tcp                                              a10rest
+de6675516ddc   mongo-express       "tini -- /docker-ent…"   9 days ago       Up 14 seconds   0.0.0.0:8555->8081/tcp, :::8555->8081/tcp                                              dockercomposedeployment_databaseui_1
+10de6c735380   mongo               "docker-entrypoint.s…"   9 days ago       Up 16 seconds   27017/tcp                                                                              mongo
+cb8ba5138310   eclipse-mosquitto   "/docker-entrypoint.…"   9 days ago       Up 16 seconds   0.0.0.0:8560->1883/tcp, :::8560->1883/tcp, 0.0.0.0:8561->9000/tcp, :::8561->9000/tcp   messagebus
+ian@:~$ sudo docker exec -it 02ec754ebfd8 /bin/bash
+root@02ec754ebfd8:/nae/u10# pwd
+/nae/u10
+root@02ec754ebfd8:/nae/u10# exit
+exit
+ian@:~$ 
+```
+
+### Attestation Keys
+Attestation keys are kepy in the `attestationelementkeys` volume. To populate this volume with keys follow this procedure:
+
+Firsly create ssh keys for the element in question. Note change a.b.c.d to the correct IP address.  I'm using a pi here wtith default username and password.
+
+```bash
+$ ssh-keygen -t rsa -f ./homepis -b 4096 -C "home pi keys"
+Generating public/private rsa key pair.
+Enter passphrase (empty for no passphrase): 
+Enter same passphrase again: 
+Your identification has been saved in ./homepis
+Your public key has been saved in ./homepis.pub
+The key fingerprint is:
+SHA256:EydQU8NPH9v1lUfuhS+wtNT4yDEEcd9twBcTnPCQS+M home pi keys
+The key's randomart image is:
++---[RSA 4096]----+
+|      ..oo=oo+==*|
+|       . ..+.B=OB|
+|        o .oX.**@|
+|         + +.Eo++|
+|        S   = o o|
+|         .     . |
+|                 |
+|                 |
+|                 |
++----[SHA256]-----+
+$ ls homepis*
+homepis  homepis.pub
+$ ssh-copy-id -i homepis.pub pi@a.b.c.d
+/usr/bin/ssh-copy-id: INFO: Source of key(s) to be installed: "homepis.pub"
+/usr/bin/ssh-copy-id: INFO: attempting to log in with the new key(s), to filter out any that are already installed
+/usr/bin/ssh-copy-id: INFO: 1 key(s) remain to be installed -- if you are prompted now it is to install the new keys
+pi@1a.b.c.d's password: 
+
+Number of key(s) added: 1
+
+Now try logging into the machine, with:   "ssh 'pi@a.b.c.d'"
+and check to make sure that only the key(s) you wanted were added.
+
+$ ssh -i homepis pi@a.b.c.d
+Linux mypi 5.15.32+ #1538 Thu Mar 31 19:37:58 BST 2022 armv6l
+
+The programs included with the Debian GNU/Linux system are free software;
+the exact distribution terms for each program are described in the
+individual files in /usr/share/doc/*/copyright.
+
+Debian GNU/Linux comes with ABSOLUTELY NO WARRANTY, to the extent
+permitted by applicable law.
+Last login: Fri Nov 25 21:56:59 2022 from d.e.f.g
+
+SSH is enabled and the default password for the 'pi' user has not been changed.
+This is a security risk - please login as the 'pi' user and type 'passwd' to set a new password.
+
+pi@mypi$ exit
+logout
+Connection to a.b.c.d closed.
+$ 
+
+```
+
+The keys now need to be copied to the `attestationelementskeys` volume. There are a few ways of doing this:
+
+#### As root
+This is bad
+
+```bash
+$su -
+#cd /var/lib/docker/volumes/attestationelementkeys/_data
+#cp /home/ian/homepi* .
 ```

@@ -2,20 +2,20 @@
    "asurl": [
       "http://10.144.176.154:8510"
    ],
-   "description": "to lazy to write this",
-   "endpoint": "http://192.168.1.218:8530",
-   "hostname": "ioliver-ThinkPad-X1-Carbon-5th",
+   "description": "Littlepi",
+   "endpoint": "http://192.168.1.126:8530",
+   "hostname": "cholera",
    "location": "60.22309,24.75877",
-   "name": "ioliver-ThinkPad-X1-Carbon-5th",
-   "protocol": "A10HTTPREST",
+   "name": "cholera",
+   "protocol": "A10TPMSENDSSL",
    "tpm2": {
       "tpm0": {
          "akhandle": "0x810100aa",
-         "akname": "000bf52e937066642b542b651a73ef0197ccb6c7ab6277ecd7c6fd89437dc15bcd81",
-         "akpem": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEApejr/QJh4DDMI0HfUMyJ\nLR9WDEM6Ge/hMxiYf1sOr/WMAn1EiY6KdUQsaa5+NN+EU3aXneqkFg5ryTnspD+b\n6Eeuf3M2DEOP0kpKZznWd69UeyzY5y5yeYQ1w9+c2ARGlUrqMFGArt8TbydYvBF7\nCWmMYbLqFyA1YqRtfOCaRKKYrswW9R5akq4bC35W47tLpsjq+qYiO9Hfk0hPls9c\nthRqwdln6gfnfdZmI+mKeHsiwv4Yb3Po9UdWLvP5JPHKatG7c0SZEAMzHJSvshAS\nI9+fYR+eGC2IFPul/OiGcPSOrg/LaDVSY0Iy6ypPU7afhVTlx7QWnDjyXTsG34EP\nWwIDAQAB\n-----END PUBLIC KEY-----\n",
+         "akname": "000b0053aae8152e027c5495da17db8d8591390ba10562bb6f8e06dc062f67f2788b",
+         "akpem": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAtzbemumWFzoaYeT6Q8qm\n/7UCyc3V79z9tyb4ueVCWWOlqkXWhbNR/lcIbZHKj3S0cJtnjSPw2caaBzyuW798\n6Bv+tvn6EXV5x6e1pp0LcY1JxX9KY+D5uw/T8ZI72/et0uVmZgOTgj06lb/5wUZI\nWTOoZ3G0m08ucpU43DCP0zHK5sykjnvucE/99LAaQreDfGG0rt9IiuuHWuJ0T6tJ\ngRuAmjl9+acmCBgD1NwfhXUUVm9hens9FIi2HsAMVxu+HAb1BtefM2Gpm8dyMypC\nNeyCR7dqk2AfOA0JbE8+v+4Nn8ReWUzj7clbP8UF0GovZjgB405rVhEVyNT6ekbJ\n4wIDAQAB\n-----END PUBLIC KEY-----\n",
          "ekhandle": "0x810100ee",
-         "ekname": "000b66281d1cd5448bf834d290a8ab736cb15253e305053699155f813b9c57feb366",
-         "ekpem": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAhr1q9uY0qpOaM4Z9i5vn\npVpTIVSey3W3e67LQQJTYaaebj6FkAnrJN3YZ7nYJaQ7ctRmnrXOd0pj9PUHGM+H\nxKTTykHnrkIXxGGc37q9Oix0BiwJmj5rBNE60zZHNOfh5FXh9a8GnhHz7nDPxHqw\nHhoKGwNOVzGVQt/BhFb9Uv5S41yAlBiWCZYiREBVskYnplRDqQL2MELDqm8uL5Dx\nCo1cFC49SszgwHp8IXZyqtTIm9tWQ5jXsrl5inxfxmAJ6s1HrqqJFg1H29GLg3FE\nEyAa07KbEggIxGSUxnZciyc1abd4VN10oXg3rCY+bW4haLmLHRqXVk6BNj7WgDCk\nlwIDAQAB\n-----END PUBLIC KEY-----\n"
+         "ekname": "000bd0e5a08adb2fcdc0e9f08d7ba01ede747cd558652f679c76e235fc1c328294e4",
+         "ekpem": "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAs2Ge+ekF1olAXGpu9kkz\nwZdLTDNoXZcT1ZSomSRqUOM15nxcgOWok0IVmeeNzYjClM7VdyxaU99KRhG+0Azn\n5x5+9jbtbIRKvdQAZbVhPnsvIcAY3+X/BZL6pah961dM4dspJJBT1DcqseWUztxo\n7D2gs6SjuCbyHfPSB8guq9XfDRon9zfHFfejVCToHUbEOSom+s3ClZ/3AoQ4B8D/\n/N1yYBuM/47itAsVOwdZ2BzE56a/QJGRsI4861pgM/+kcyb1SNsrf9cgFPCVM0XY\n84j4a7YnLXcQ9j54gM6i34Uj6omo1XJN9jVd8Jc0r3OCuzr70A237j2RG3sRwm0Z\n+wIDAQAB\n-----END PUBLIC KEY-----\n"
       }
    },
    "type": [

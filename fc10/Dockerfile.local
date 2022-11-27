@@ -6,7 +6,7 @@ FROM docker.io/ubuntu:22.04
 
 WORKDIR /nae/fc10
 
-RUN apt-get update && apt install --yes pkg-config \
+RUN apt-get update && apt install --yes pkg-config ssh \
       tpm2-tools libtss2-dev libcurl4-openssl-dev libssl-dev libjson-c-dev libtss2-fapi1 \
       python3-pip
       

@@ -81,7 +81,7 @@ class A10tpm2send(a10.asvr.protocols.A10ProtocolBase.A10ProtocolBase):
         username = self.callparameters["a10_tpm_send_ssl"]["username"]
         ip = urlparse(self.endpoint).hostname   # we need just the IP address, ssh does the rest
 
-        tcti = "cmd:ssh "+username+"@"+ip+" -i "+key+" tpm2_send"
+        tcti = "\042cmd:ssh "+username+"@"+ip+" -i "+key+" tpm2_send\042"
         print("CONSTRUCTED TCTI IS ",tcti)
 
         return tcti

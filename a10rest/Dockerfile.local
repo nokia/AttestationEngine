@@ -6,7 +6,7 @@ FROM docker.io/ubuntu:22.04
 
 WORKDIR /nae/a10rest
 
-RUN apt-get update && apt install --yes pkg-config \
+RUN apt-get update && apt install --yes pkg-config ssh \
       tpm2-tools libtss2-dev libcurl4-openssl-dev libssl-dev libjson-c-dev libtss2-fapi1 \
       python3-pip
       
@@ -26,6 +26,9 @@ ADD a10rest/blueprints ./blueprints/
 ADD a10rest/a10rest.py .
 ADD a10rest/a10rest.conf .
 # ADD a10rest/static/* ./static/
+
+# Setup the SSH agent and load all private keys from the mounted keys docker volume
+#RUN ssh-add /var/attestation/keys/*
 
 # Disable the creation of Python bytecode creation and the creations of `__pycache__` directories
 ENV PYTHONDONTWRITEBYTECODE=1
