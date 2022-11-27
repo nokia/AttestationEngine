@@ -32,7 +32,6 @@ ADD u10/templates ./templates
 ADD u10/u10.py .
 
 # Setup the SSH agent and load all private keys from the mounted keys docker volume
-#RUN eval $(ssh-agent -s)
 #RUN ssh-add /var/attestation/keys/*
 
 # Disable the creation of Python bytecode creation and the creations of `__pycache__` directories

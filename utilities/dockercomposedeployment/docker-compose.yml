@@ -89,7 +89,15 @@ services:
      volumes:
       - ./a10.conf:/etc/a10.conf      # !!!
       - attestationelementkeys:/var/attestation/keys
+      
+    # This will be needed by u10 and a10rest - anything that requires the a10 libraries
+    # which uses ssh to communicate over the TPM2SENDSSH protocol
+    # but docker and docke-compose make this super impossible to do in any sane manner
+    
 
+      #- $SSH_AUTH_SOCK:$SSH_AUTH_SOCK
+     #environment:
+      #- SSH_AUTH_SOCK
 #
 # A10REST - the REST API to the attestation engine
 #       

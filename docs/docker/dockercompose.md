@@ -1,6 +1,8 @@
 # Running with Docker Compose
 
-NOTE: it appears almost impossible to use ssh-agent inside docker-compose - if you have a SANE solution that allows it to run and add all the keys in the attestationelementkeys volume then please please please let me know
+NOTE: it appears almost impossible to use ssh-agent inside docker-compose - if you have a SANE solution that allows it to run and add all the keys in the attestationelementkeys volume then please please please let me know. 
+
+
 
 ## Building the components
 
@@ -51,6 +53,17 @@ Attaching to mongo, messagebus, dockercomposedeployment_databaseui_1, a10rest, u
 ...
 ```
 
+
+To get this working with SSH, which it doesn't !!!!! DO this:
+
+
+```bash
+$ eval "$(ssh-agent -s)"
+$ SSH_AUTH_SOCK=/tmp/ssh-hNG0vjmnfen6/agent.138563 SSH_AGENT_PID=138564 sudo -E docker-compose up
+```
+
+If you can fix this so passwords are not requested by ssh let me know!
+
 ### Volumes
 
 THe first time docker-compose is used the system may require volumnes to be created to store persistent data. Two volumes are required, one for the mongo database and one for a location to place keys used by the attestation server, eg: ssh keys for elements with the TPMSENDSSL protocol.
@@ -77,6 +90,7 @@ attestationelementkeys
 The `attestationdata` volume is mounted as `/data/db` by the mongo component. The `attestationelementkeys` volume is mounted at `/var/attestation/keys` by any component that has direct access to the A10 libraries, ie: U10 and A10REST. This location is used for the storage of SSH keys and is typically referred to in the element description.
 
 Refer to the section below on copying ssh keys to the attestationkeys volume
+
 
 
 ## Connecting
