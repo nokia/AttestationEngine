@@ -1,0 +1,4 @@
+{
+  "attestation_server_ip": "192.168.0.24",
+  "attestation_server_port": 8520
+}

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <link rel="stylesheet" href="css/index.css" />
+  </head>
+  <body>
+    <div class="hide-div hidden" id="hide-div"></div>
+    <header>
+      <p>Super ultimate system log info</p>
+    </header>
+    <section class="main">
+      <div class="main_content sidebar">
+        <div class="main_content-navbar">
+          <h2>Connected devices</h2>
+          <hr />
+        </div>
+        <div class="main_content-messages" id="main_content-devices"></div>
+      </div>
+      <div class="main_content">
+        <div class="main_content-navbar">
+          <h1>Device Management Log</h1>
+          <button id="hide-button">Show Full History</button>
+          <hr />
+        </div>
+        <table class="main_content-messages">
+          <tr>
+            <th>hostname</th>
+            <th>sensor</th>
+            <th>message</th>
+            <th>timestamp</th>
+            <tbody id="main_content"></tbody>
+            <!-- <th>hostname</th>
+            <th>hostname</th>
+            <th>hostname</th>
+            <th>hostname</th> -->
+          </tr>
+        </table>
+      </div>
+      <div class="log-viewer-container hidden" id="log-viewer-container">
+        <div class="log-viewer-container-control">
+          <button class="log-viewer-hide-button" id="log-viewer-hide-button">
+            X
+          </button>
+        </div>
+        <h2>History</h2>
+        <div class="log-viewer-container-view">
+          <input type="text" placeholder="search" id="log-viewer-search" />
+          <button
+            class="log-viewer-search-button"
+            id="log-viewer-search-button"
+          >
+            search
+          </button>
+        </div>
+        <div style="display: flex; flex-direction: row">
+          <input type="radio" id="filter-sensor" name="filter" value="sensor" />
+          <label for="sensor">sensor</label><br />
+          <input
+            type="radio"
+            id="filter-hostname"
+            name="filter"
+            value="hostname"
+          />
+          <label for="hostname">hostname</label><br />
+          <input
+            type="radio"
+            id="filter-timestamp"
+            name="filter"
+            value="timestamp"
+          />
+          <label for="timestamp">timestamp</label><br />
+          <input
+            type="radio"
+            id="filter-message"
+            name="filter"
+            value="message"
+          />
+          <label for="message">message</label><br />
+        </div>
+        <button class="log-viewer-sort-button" id="log-viewer-sort-button">
+          sort by time
+        </button>
+        <section id="log-viewer" class="log-viewer"></section>
+      </div>
+    </section>
+    <script src="scripts/index.js"></script>
+  </body>
+</html>

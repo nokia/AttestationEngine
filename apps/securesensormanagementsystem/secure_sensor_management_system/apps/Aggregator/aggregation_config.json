@@ -1,0 +1,6 @@
+{
+    "MQTThost": "192.168.0.24",
+    "MQTTport": 1883,
+    "keepalive": 60,
+    "PicRestPath":"http://192.168.11.79:1880/foo"
+}

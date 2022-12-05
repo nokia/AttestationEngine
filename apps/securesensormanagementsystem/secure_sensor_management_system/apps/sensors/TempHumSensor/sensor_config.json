@@ -1,0 +1,5 @@
+{
+  "name": "Temperature / Humidity Sensor",
+  "frequency": 1,
+  "prefix": "TGHPA"
+}

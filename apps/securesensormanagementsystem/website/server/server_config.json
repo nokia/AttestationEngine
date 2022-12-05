@@ -1,0 +1,8 @@
+{
+  "MQTThost": "192.168.0.24",
+  "WEBSOCKEThost": "127.0.0.1",
+  "MQTTport": 1883,
+  "WEBSOCKETport": 5000,
+  "RESTport": 3000,
+  "keepalive": 60
+}

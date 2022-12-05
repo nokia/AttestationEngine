@@ -1,0 +1,5 @@
+{
+  "name": "TempGasHumPresAltSensor",
+  "frequency": 1,
+  "prefix": "TGHPASensor"
+}
