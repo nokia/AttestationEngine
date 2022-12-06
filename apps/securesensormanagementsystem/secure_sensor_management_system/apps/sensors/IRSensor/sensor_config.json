@@ -1,0 +1,5 @@
+{
+  "name": "Infrared Sensor",
+  "frequency": 1,
+  "prefix": "IRSensor"
+}

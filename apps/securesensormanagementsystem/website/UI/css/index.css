@@ -1,0 +1,270 @@
+body {
+  margin: 0;
+  padding: 0;
+}
+header {
+  display: flex;
+  flex-flow: column 0;
+  justify-content: center;
+  align-items: center;
+  min-height: 10vh;
+  background-color: black;
+  color: white;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.main {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  /* align-items: center; */
+  min-height: 80vh;
+}
+
+.main_content {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 80%;
+  /* height: 80%; */
+  border-radius: 15px;
+  height: 79vh;
+  overflow: auto;
+  scroll-behavior: smooth;
+  max-width: 700px;
+  /* max-height: 80%; */
+  margin: 3rem 20px 3rem 5px;
+  word-break: break-all;
+  box-shadow: 1px 1px 1px 1px black;
+  background-color: white;
+}
+.main_content-navbar {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  width: 100%;
+  background-color: white;
+}
+
+.main_content-messages {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  width: 80%;
+  height: 80%;
+  max-width: 700px;
+  /* max-height: 80%; */
+  margin: 1rem 0 1rem 0;
+  word-break: break-all;
+  /* box-shadow: 1px 1px 1px 1px black; */
+}
+
+.main_content-messages-message {
+  border-bottom: 1px solid black;
+  border: 1px solid black;
+}
+
+hr {
+  border: 0;
+  clear: both;
+  display: block;
+  width: 96%;
+  background-color: #ff0000;
+  height: 1px;
+}
+
+.sidebar {
+  position: -webkit-sticky;
+  position: sticky;
+  top: 10vh;
+}
+
+.hero-image {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-image: url("./marc-olivier-jodoin-oThnHPkb3p8-unsplash.jpg");
+  background-size: cover;
+  background-position: center;
+  height: 50vh;
+  color: white;
+}
+
+.hero-image h1 {
+  margin: 0;
+  text-shadow: 2px 2px black;
+}
+
+.active-box {
+  /* background-color: #78e08f; */
+  padding: 10px;
+  margin: 0 0 20px 0;
+  background-color: rgba(26, 243, 178, 0.05);
+  border: 1px solid black;
+}
+
+@keyframes append-animate {
+  0% {
+    /* transform: scale(0); */
+    /* transform: perspective(300px) translate3d(0, 0, 15px); */
+    transform: translateX(-50px);
+
+    opacity: 0.7;
+  }
+  20% {
+    opacity: 0.8;
+    transform: translateX(-15px);
+
+    /* transform: perspective(200px) translate3d(0, 5px, 30px); */
+  }
+  50% {
+    opacity: 0.9;
+    /* transform: perspective(100px); */
+  }
+  100% {
+    /* transform: scale(1); */
+    transform: translateX(0);
+    /* transform: translate3d(0, 0, 0); */
+    opacity: 1;
+    /* background-color: rgba(88, 16, 16, 0.2); */
+  }
+}
+
+.new-box {
+  animation: append-animate 0.4s linear;
+}
+
+.new-new-box {
+  background-color: #e4dcdc;
+}
+
+@media screen and (max-width: 600px) {
+  .hero-image h1 {
+    font-size: 1rem;
+  }
+}
+@media screen and (max-width: 1450px) {
+  header {
+    position: inherit;
+  }
+
+  .main_content {
+    margin-left: 0;
+    margin-right: 0;
+    /* overflow: auto;
+    scroll-behavior: smooth; */
+  }
+
+  .sidebar {
+    position: sticky;
+    /* width: 100%; */
+    /* top: 0; */
+    top: 18vh;
+    margin: 3rem 0 0 0;
+    overflow: auto;
+  }
+}
+
+/* table {
+  border-collapse: collapse;
+  width: 100%;
+}
+th,
+td {
+  text-align: left;
+  padding: 8px;
+}
+tr:nth-child(even) {
+  background-color: #f80000;
+} */
+
+td {
+  border-bottom: 1px solid black;
+  width: 10rem;
+}
+/* tr {
+  border-bottom: 1px solid black;
+} */
+th {
+  width: 10rem;
+  border-bottom: 1px solid black;
+  text-align: left;
+}
+
+.log-viewer-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-shadow: 2px 2px 2px 2px black;
+  background-color: rgb(255, 255, 255);
+  position: fixed;
+  top: 20vh;
+  /* height: 80vh; */
+  max-height: 70%;
+  width: 60rem;
+  overflow: auto;
+  scroll-behavior: smooth;
+  z-index: 300;
+}
+
+.log-viewer {
+  margin: 50px 0 50px 0;
+}
+
+.hide-div {
+  position: fixed;
+  z-index: 200;
+  height: 100vh;
+  width: 100vw;
+  background-color: rgba(51, 58, 56, 0.5);
+}
+
+.hidden {
+  display: none;
+}
+
+.log-viewer-container-control {
+  display: inline-flex;
+  flex-direction: row;
+  justify-content: end;
+  width: 100%;
+}
+
+.log-viewer-hide-button {
+  margin: 0.5rem 0.5rem 0 0;
+  background-color: rgb(23, 20, 46);
+  color: white;
+  border-radius: 50%;
+  padding: 0.8em;
+}
+
+.log-viewer-sort-button {
+  margin: 1rem 0 0 0;
+  background-color: rgb(23, 20, 46);
+  color: white;
+}
+
+.log-viewer-search-button {
+  background-color: rgb(23, 20, 46);
+  color: white;
+}
+
+.log-viewer-container-view {
+  display: flex;
+  flex-direction: row;
+}
+
+.valid {
+  color: green;
+}
+.notvalid {
+  color: red;
+}

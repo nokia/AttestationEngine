@@ -1,0 +1,10 @@
+[Unit]
+Description=Start sensor LuxSensor
+Requires=iot.devices.service
+
+[Service]
+ExecStart=python3 /opt/iot/secure_sensor_management_system/apps/sensors/LuxSensor/LuxSensor.py
+Type=simple
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,5 @@
+{
+  "name": "Luminosity Sensor",
+  "frequency": 1,
+  "prefix": "LuxSensor"
+}
