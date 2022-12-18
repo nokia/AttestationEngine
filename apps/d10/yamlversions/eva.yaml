@@ -1,0 +1,21 @@
+evaluation: Test
+
+attest:
+   - name: fred
+     type: 
+       - a
+       - b
+     template: fred
+     logic: strict
+
+
+   - name: fred
+     name: a
+     template: fred
+     logic: strict      
+
+
+   - name: fred
+     eid: 12312312312312312a3
+     template: fred
+     logic: strict          
