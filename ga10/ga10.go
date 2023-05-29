@@ -43,7 +43,7 @@ func welcomeMessage() {
 	fmt.Printf("|   + version %v, build %v\n", VERSION, BUILD)
 	fmt.Printf("|   + runing with name %v\n", configuration.ConfigData.System.Name)
 	fmt.Printf("|   + session identifier is %v\n", RUNSESSION)
-	fmt.Printf("|  (C)2023 CeffylOpi\n")
+	fmt.Printf("|  (C)2023 Nokia\n")
 	fmt.Printf("+========================================================================================\n\n")
 }
 
