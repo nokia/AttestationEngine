@@ -1,7 +1,6 @@
 {{define "content"}}
 <h3>Expected Value {{ .EV.Name }} </h3>
 
-<h5>Information</h5>
 <table class="table table-sm table-striped">
    <thead>
       <tr>
@@ -17,7 +16,7 @@
       <tr><td scope="col">Element</th> <td scope="col"><a href="/element/{{ .E.ItemID }}">{{ .E.Name }} </a>@ {{ .E.Endpoint }} <span class="badge bg-secondary"> {{ .E.Protocol }}</span></th> </tr>     
       <tr><td scope="col">Policy</th> <td scope="col"><a href="/policy/{{ .P.ItemID }}">{{ .P.Name }}  </a> <span class="badge bg-secondary">{{ .P.Intent }}</span></th> </tr>     
       
-      <tr><td scope="col">EVS Paramteres</th> <td scope="col">{{ template "genericList.html" .EV.EVS }}</th> </tr>     
+      <tr><td scope="col">EVS Parameters</th> <td scope="col">{{ template "genericList.html" .EV.EVS }}</th> </tr>     
 
 
    </tbody>

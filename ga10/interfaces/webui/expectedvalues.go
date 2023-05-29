@@ -45,3 +45,8 @@ func showExpectedValue(c echo.Context) error {
 	evstr := 	evstruct{ ev,e,p}	
 	return c.Render(http.StatusOK, "ev.html",evstr)
 }
+
+
+func newExpectedValue(c echo.Context) error {
+	return c.Render(http.StatusOK, "editexpectedvalue.html",nil)
+}

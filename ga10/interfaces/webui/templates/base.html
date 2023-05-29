@@ -17,7 +17,7 @@
 </head>
 <body>
 
-<nav class="navbar navbar-expand-sm bg-primary navbar-dark justify-content-center">
+<nav class="navbar navbar-expand-sm fixed-top bg-primary navbar-dark justify-content-center">
 
   <div class="container-fluid  justify-content-center">
     <!-- Links -->
@@ -52,6 +52,16 @@
             <li><a class="dropdown-item" href="/log?max=10000">Log (latest 10000 entries)</a></li>            
         </ul>
      </li>
+
+     <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">New</a>
+        <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="/new/element">Element</a></li>            
+            <li><a class="dropdown-item" href="/new/policy">Policy</a></li>
+            <li><a class="dropdown-item" href="/new/expectedvalue">Expected Value</a></li>
+        </ul>
+     </li>
+
 
      <li class="nav-item dropdown">
         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Help</a>

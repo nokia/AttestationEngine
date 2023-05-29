@@ -94,6 +94,8 @@ func StartWebUI() {
 
 
 	templates["editelement.html"] = template.Must(template.ParseFS(WPFS,T+"editelement.html",T+"base.html"))
+	templates["editpolicy.html"] = template.Must(template.ParseFS(WPFS,T+"editpolicy.html",T+"base.html"))
+	templates["editexpectedvalue.html"] = template.Must(template.ParseFS(WPFS,T+"editexpectedvalue.html",T+"base.html"))
 
 	// Create the router
     router := echo.New()
@@ -137,6 +139,9 @@ func StartWebUI() {
 
 func setupEditEndpoints(router *echo.Echo) {
 	router.GET(PREFIX+"/new/element", newElement)
+	router.GET(PREFIX+"/new/policy", newPolicy)
+	router.GET(PREFIX+"/new/expectedvalue", newExpectedValue)
+
 }
 
 

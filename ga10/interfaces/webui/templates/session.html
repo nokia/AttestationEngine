@@ -18,8 +18,7 @@
          <td scope="col">{{ epochToUTC .S.Timing.Closed }}</td>     
       {{ end }}   
       </tr> 
-      <tr><td scope="col">#Claims</td> <td scope="col">{{ len .S.ClaimList }}</td> </tr>     
-      <tr><td scope="col">#Results</td> <td scope="col">{{ len .S.ResultList }}</td> </tr>     
+      <tr><td scope="col">#Claims / #Results</td> <td scope="col">{{ len .S.ClaimList }} / {{ len .S.ResultList }}</td> </tr>     
       <tr><td scope="col">Message</td> <td scope="col">{{ .S.Message }}</td> </tr>     
 
    </tbody>
@@ -27,29 +26,6 @@
 
 <hr/>
 
-<div class="container-md">
-   <div class="row">
-      <div class="col-md-4">
-
-<canvas id="caChart" ></canvas>
-
-      </div>
-
-      <div class="col-md-8">
-
-         <table class="table table-sm table-striped">
-            <tbody>
-               {{ range .CS }}
-               <tr><td><a href="/claim/{{.ItemID}}">{{ .BodyType }}</a></td></tr>
-               {{ end }}
-            </tbody>
-         </table>
-
-      </div>
-   </div>
-</div>
-
-<hr/>
 
 <div class="container-md">
    <div class="row">
@@ -80,6 +56,31 @@
       </div>
    </div>
 </div>
+
+<hr/>
+
+<div class="container-md">
+   <div class="row">
+      <div class="col-md-4">
+
+<canvas id="caChart" ></canvas>
+
+      </div>
+
+      <div class="col-md-8">
+
+         <table class="table table-sm table-striped">
+            <tbody>
+               {{ range .CS }}
+               <tr><td><a href="/claim/{{.ItemID}}">{{ .BodyType }}</a></td></tr>
+               {{ end }}
+            </tbody>
+         </table>
+
+      </div>
+   </div>
+</div>
+
 
 <hr/>
 

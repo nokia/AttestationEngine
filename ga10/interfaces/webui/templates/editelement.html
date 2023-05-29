@@ -1,93 +1,24 @@
 {{define "content"}}
 <h3>Element</h3>
 <div class="container-md">
- <div class="row">
+   <div class="row">
       <div class="col-md-12">
-         <h3>Information</h3>
-         <label for="name" class="form-label"><b>Name</b></label>
-         <input type="text" class="form-control" name="name" id="name">
-
-         <label for="description" class="form-label"><b>Description</b></label>
-         <input type="text" class="form-control" name="description" id="description">
-
-         <label for="endpoint" class="form-label"><b>Endpoint</b></label>
-         <input type="text" class="form-control" name="endpoint" id="endpoint">
-
-         <label for="protocol" class="form-label"><b>Protocol</b></label>
-         <input type="text" class="form-control" name="protocol" id="protocol">
-
-         <label for="tags" class="form-label"><b>Tags</b></label>
-         <input type="text" class="form-control" name="tags" id="tags">                           
-      </div>   
+         <textarea class="form-control" rows=18 id="elementdata" name="elementdata"></textarea>
+      </div>
    </div>
 
+<br/>
+<button type="submit" class="btn btn-primary">Submit</button>
 <hr/>
- <div class="row">
+   <div class="row">
       <div class="col-md-12">
-         <h3>Trusted Platform Module</h3>
-         <label for="tpm2device" class="form-label"><b>Name</b></label>
-         <input type="text" class="form-control" name="tpm2device" id="tpm2device">
+         <h3>Instructions</h3>
+         <p>The above must be valid JSON</p>
+         <p>The protocol must be of a valid type</p>
+         <p>The UEFI, TPM2, IMA and TXT sections can be removed if these do not apply</p>
+         <p>If a new element is being created, then the <em>itemid</em> field will be overwritten and an identifier automatically generated</p>
       </div>
- </div>
- 
- <div class="row">
-      <div class="col-md-6">
-         <label for="tpm2ekpublic" class="form-label"><b>EK Public</b></label>
-         <input type="text" class="form-control" name="tpm2ekpublic" id="tpm2ekpublic">
-
-         <label for="tpm2ekhandle" class="form-label"><b>EK Handle</b></label>
-         <input type="text" class="form-control" name="tpm2ekhandle" id="tpm2ekhandle">
-
-         <label for="tpm2ekname" class="form-label"><b>EK Name</b></label>
-         <input type="text" class="form-control" name="tpm2ekname" id="tpm2ekname">
-      </div>
-      <div class="col-md-6">
-         <label for="tpm2akpublic" class="form-label"><b>AK Public</b></label>
-         <input type="text" class="form-control" name="tpm2akpublic" id="tpm2akpublic">
-
-         <label for="tpm2akhandle" class="form-label"><b>AK Handle</b></label>
-         <input type="text" class="form-control" name="tpm2akhandle" id="tpm2akhandle">
-
-         <label for="tpm2akname" class="form-label"><b>AK Name</b></label>
-         <input type="text" class="form-control" name="tpm2akname" id="tpm2akname">
-      </div>   
- </div>
-
-<hr/>
-
- <div class="row">
-      <div class="col-md-12">
-         <h3>UEFI</h3>
-         <label for="uefieventlog" class="form-label"><b>Eventlog location</b></label>
-         <input type="text" class="form-control" name="uefieventlog" id="uefieventlog">
-      </div>
- </div>
-
-<hr/>
-
- <div class="row">
-      <div class="col-md-12">
-         <h3>IMA</h3>
-         <label for="imaasciilog" class="form-label"><b>IMA ASCII event log location</b></label>
-         <input type="text" class="form-control" name="imaasciilog" id="imaasciilog">
-      </div>
- </div>
-
-<hr/>
-
-
-  <div class="row">
-      <div class="col-md-12">
-         <h3>TXT</h3>
-         <label for="txtlog" class="form-label"><b>TXT log logcation</b></label>
-         <input type="text" class="form-control" name="txtlog" id="txtlog">
-      </div>
- </div>
-
-</div>
-
-
-
+   </div>
 
 </form>
 

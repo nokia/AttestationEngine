@@ -1,0 +1,50 @@
+{{define "content"}}
+<h3>Expected Value</h3>
+<div class="container-md">
+   <div class="row">
+      <div class="col-md-6">
+         <label for="elementselect" class="form-label"><b>Element</b> <i>select one</i></label>
+         <select class="form-select" size=5 name="elementselect" id="elementselect">
+            <option>element 1</option>
+            <option>element 1</option>
+            <option>element 1</option>
+            <option>element 1</option>
+         </select>
+      </div>
+      <div class="col-md-6">
+         <label for="policyselect" class="form-label"><b>Policy</b> <i>select one</i></label>
+         <select class="form-select" size=5 name="elementselect" id="elementselect">
+            <option>policy 1</option>
+            <option>policy 1</option>
+            <option>policy 1</option>
+            <option>policy 1</option>
+         </select>
+      </div>
+      </div>
+   </div>
+   <br/>
+   <div class="row">
+      <div class="col-md-12">
+         <label for="evsparameters" class="form-label"><b>Expected Value Parameters (evs field) in JSON</b></label>
+         <textarea class="form-control" rows=8 id="evsparameters" name="evdata"></textarea>
+      </div>
+   
+   </div>
+
+<br/>
+<button type="submit" class="btn btn-primary">Submit</button>
+<hr/>
+   <div class="row">
+      <div class="col-md-12">
+         <h3>Instructions</h3>
+         <p>The above expected value parameters (evs field) must be valid JSON</p>
+         <p>The expected value for the given element and policy must be unique</p>
+         <p>If a new expected value is being created, then the itemid field will be overwritten and an identifier automatically generated</p>
+      </div>
+   </div>
+
+</form>
+
+
+
+{{end}}
