@@ -1,0 +1,14 @@
+[Unit]
+Description=A10 Attestation Service
+After=network.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User=ian
+ExecStart=/usr/local/bin/a10 -config=/etc/a10config.yaml
+
+[Install]
+WantedBy=multi-user.target

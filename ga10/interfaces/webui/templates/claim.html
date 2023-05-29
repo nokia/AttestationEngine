@@ -1,0 +1,73 @@
+{{define "content"}}
+
+<h3>Claim </h3>
+
+<div class="container-md">
+   <div class="row">
+      <div class="col-md-6">
+
+<h5>Header</h5>
+<table class="table table-sm table-striped">
+   <thead>
+      <tr>
+         <th scope="col">Field</th>    
+         <th scope="col">Value</th>                   
+      </tr>
+   </thead>
+   <tbody>
+      <tr><td scope="col">ItemID</th> <td scope="col">{{ .ItemID }}</th> </tr>      
+      <tr><td scope="col">BodyType</th> <td scope="col">{{ .BodyType }}</th> </tr>           
+      <tr><td scope="col">Element</th> <td scope="col"><a href="/element/{{ .Header.Element.ItemID }}">{{ .Header.Element.Name }}</a></th> </tr> 
+      <tr><td scope="col">-- Protocol</th> <td scope="col">{{ .Header.Element.Protocol }} </th> </tr>            
+      <tr><td scope="col">-- Endpoint</th> <td scope="col">{{ .Header.Element.Endpoint }}</th> </tr>                        
+      <tr><td scope="col">Policy</th> <td scope="col"><a href="/policy/{{ .Header.Policy.ItemID }}">{{ .Header.Policy.Name }}</a></th> </tr>     
+      <tr><td scope="col">-- Intent</th> <td scope="col">{{ .Header.Policy.Intent }}</th> </tr>              
+      <tr><td scope="col">Session</th> <td scope="col"><a href="/session/{{ .Header.Session.ItemID }}">{{ .Header.Session.ItemID }}</a></th> </tr>     
+      <tr><td scope="col">Requested</th> <td scope="col">{{ epochToUTC .Header.Timing.Requested }}</th> </tr>     
+      <tr><td scope="col">Received</th> <td scope="col">{{ epochToUTC .Header.Timing.Received }}</th> </tr>     
+   </tbody>
+</table>
+
+      </div>
+      <div class="col-md-6">
+
+<h5>Footer</h5>
+<table class="table table-sm table-striped">
+   <thead>
+      <tr>
+         <th scope="col">Field</th>    
+         <th scope="col">Value</th>                   
+      </tr>
+   </thead>
+   <tbody>
+      <tr><td scope="col">Hash</th> <td scope="col"  style="word-break: break-all;">{{ encodeAsHexString .Footer.Hash }}</td> </tr>     
+      <tr><td scope="col">Signature</th> <td scope="col" style="word-break: break-all;" >{{ encodeAsHexString .Footer.Signature }}</td> </tr>      
+   </tbody>
+</table>
+
+      </div>
+   </div>
+</div>
+
+<h4>Body:  </span></h4>
+
+{{ if eq .BodyType "*ERROR" }}
+    <p><span class="badge bg-danger"> {{ .BodyType }}</span></p>
+    {{ template "claim_ERROR.html" .Body }}
+{{ end }}
+
+{{ if eq .BodyType "sys/info" }}
+    <p><span class="badge bg-primary"> {{ .BodyType }}</span></p>
+    {{ template "genericList.html" .Body }}
+{{ end }}
+
+{{ if eq .BodyType "ima/asciilog" }}
+    <p><span class="badge bg-primary"> {{ .BodyType }}</span></p>
+    {{ template "claim_ima.html" .Body }}
+{{ end }}
+
+<hr/>
+<h5>Raw</h5>
+{{ .Body }}
+
+{{end}}

@@ -1,0 +1,24 @@
+{{define "content"}}
+<h3>Protocols</h3>
+<table class="table table-striped table-sm">
+   <thead>
+      <tr>
+         <th scope="col">Name</th>    
+         <th scope="col">Description</th>             
+         <th scope="col">Supported Intents</th>                        
+      </tr>
+   </thead>
+   <tbody>
+      {{ range . }} 
+        <tr> <td> {{ .Name }} </td>
+             <td> {{ .Description }} </td>
+             <td>  
+      {{ range .Intents }} 
+        <span class="badge bg-primary"> {{ . }} </span>
+      {{end}}
+             </td></tr>        
+      {{end}}
+   </tbody>
+</table>
+{{end}}
+

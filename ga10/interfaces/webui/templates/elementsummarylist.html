@@ -1,0 +1,11 @@
+{{define "elementsummarylist.html"}}
+<td><a href="/element/{{ .ItemID }}">{{ .Name }}</a></td>
+<td>{{ .Description }}</td>
+<td>  {{ range .Tags }} 
+        <span class="badge bg-secondary"> {{ . }} </span>
+      {{end}}</td>
+<td><span class="badge bg-primary">{{ .Protocol }}</span></td>
+<td>{{ .Endpoint }}</td>
+{{end}}
+
+

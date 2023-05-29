@@ -1,0 +1,63 @@
+{{define "content"}}
+<h3>Element {{ .E.Name }} </h3>
+
+<h5>Element Information</h5>
+<table class="table table-sm table-striped">
+   <thead>
+      <tr>
+         <th scope="col">Field</th>    
+         <th scope="col">Value</th>                   
+      </tr>
+   </thead>
+   <tbody>
+      <tr><td scope="col">Name</th> <td scope="col">{{ .E.Name }}</th> </tr>     
+      <tr><td scope="col">Description</th> <td scope="col">{{ .E.Description }}</th> </tr>     
+      <tr><td scope="col">ItemID</th> <td scope="col">{{ .E.ItemID }}</th> </tr>     
+
+      <tr><td scope="col">Endpoint</th> <td scope="col">{{ .E.Endpoint }}</th> </tr>     
+      <tr><td scope="col">Protocol</th> <td scope="col">{{ .E.Protocol }}</th> </tr>     
+      <tr><td scope="col">Tags</th> <td scope="col">{{ range .E.Tags }} 
+                                                       <span class="badge bg-secondary"> {{ . }} </span>
+                                                    {{end}}</td> </tr>     
+   </tbody>
+</table>
+
+{{ if not .E.TPM2.Device }}
+{{ else }}
+   <hr/>
+   <h5>Trusted Platform Module 2.0 (TPM)</h5>
+    {{ template "tpm2.html" .E.TPM2 }}
+{{ end }}
+
+
+{{ if not .E.UEFI.Eventlog }}
+{{ else }}
+   <hr/>
+
+   <h5>Unified Extensible Firmware Interface (UEFI)</h5>
+    {{ template "uefi.html" .E.UEFI }}
+{{ end }}
+
+
+
+{{ if not .E.IMA.ASCIILog }}
+{{ else }}
+   <hr/>
+
+   <h5>Integrity Measurement Architecture (IMA)</h5>
+    {{ template "ima.html" .E.IMA }}
+{{ end }}
+
+
+{{ if not .E.TXT.Log }}
+{{ else }}
+   <hr/>
+
+   <h5>Intel Trusted Execution Technology (TXT)</h5>
+    {{ template "txt.html" .E.TXT }}
+{{ end }}
+
+
+
+
+{{end}}

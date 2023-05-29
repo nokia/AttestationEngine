@@ -1,0 +1,51 @@
+{{define "content"}}
+<h3>Result </h3>
+
+<h5>Element Information</h5>
+<table class="table table-sm table-striped">
+   <thead>
+      <tr>
+         <th scope="col">Field</th>    
+         <th scope="col">Value</th>                   
+      </tr>
+   </thead>
+   <tbody>
+      <tr><td scope="col">Rule Name</th> <td scope="col">{{ .R.RuleName }}</td> </tr>     
+      <tr><td scope="col">VerifiedAt</th> <td scope="col">{{ epochToUTC .R.VerifiedAt }}</td> </tr>     
+      <tr><td scope="col">Result</th> <td scope="col"> {{ template "resultvalue.html" .R.Result }} </td></tr>     
+      <tr><td scope="col">Expected Value</th> <td scope="col"><a href="/expectedvalue/{{ .R.EV_ItemID }}">{{ .R.EV_Name }}</a></td> </tr>     
+      <tr><td scope="col">Element</th> <td scope="col">{{ .R.EVEName }}</td> </tr>     
+      <tr><td scope="col">Policy</th> <td scope="col">{{ .R.EVPName }}</td> </tr>     
+      <tr><td scope="col">Claim</th> <td scope="col"><a href="/claim/{{ .R.ClaimID }}">{{ .R.ClaimID }}</a></td> </tr>     
+      <tr><td scope="col">Session</th> <td scope="col"><a href="/session/{{ .R.SessionID }}">{{ .R.SessionID }}</a></td> </tr>     
+      <tr><td scope="col">Message</th> <td scope="col">{{ .R.Message }}</td> </tr>     
+   </tbody>
+</table>
+
+
+</hr>
+<h5>Footer</h5>
+
+<div class="container-md">
+   <div class="row">
+      <div class="col-md-12">
+
+<table class="table table-sm table-striped">
+   <thead>
+      <tr>
+         <th scope="col">Field</th>    
+         <th scope="col">Value</th>                   
+      </tr>
+   </thead>
+   <tbody>
+      <tr><td scope="col">Hash</th> <td scope="col" style="word-break: break-all;">{{ encodeAsHexString .R.Footer.Hash }}</td> </tr>     
+      <tr><td scope="col">Signature</th> <td scope="col" style="word-break: break-all;">{{ encodeAsHexString .R.Footer.Signature }}</td> </tr>      
+   </tbody>
+</table>
+
+         </div>
+      </div>
+</div> 
+
+{{end}}
+

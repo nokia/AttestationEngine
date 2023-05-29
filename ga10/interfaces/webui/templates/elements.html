@@ -1,0 +1,20 @@
+{{define "content"}}
+<h3>Elements</h3>
+<table class="table table-striped table-sm">
+   <thead>
+      <tr>
+         <th scope="col">Name</th>    
+         <th scope="col">Description</th>             
+         <th scope="col">Tags</th>             
+         <th scope="col">Protocol</th>             
+         <th scope="col">Endpoint</th>             
+      </tr>
+   </thead>
+   <tbody>
+      {{ range . }} 
+        <tr> {{ template "elementsummarylist.html" . }} </tr>
+      {{end}}
+   </tbody>
+</table>
+{{end}}
+

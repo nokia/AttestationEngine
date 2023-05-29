@@ -1,0 +1,24 @@
+{{define "content"}}
+<h3>Policy {{ .Name }} </h3>
+
+<h5>Element Information</h5>
+<table class="table table-sm table-striped">
+   <thead>
+      <tr>
+         <th scope="col">Field</th>    
+         <th scope="col">Value</th>                   
+      </tr>
+   </thead>
+   <tbody>
+      <tr><td scope="col">Name</th> <td scope="col">{{ .Name }}</th> </tr>     
+      <tr><td scope="col">Description</th> <td scope="col">{{ .Description }}</th> </tr>     
+      <tr><td scope="col">ItemID</th> <td scope="col">{{ .ItemID }}</th> </tr>     
+
+      <tr><td scope="col">Intent</th> <td scope="col">{{ .Intent }}</th> </tr>     
+      <tr><td scope="col">Parameters</th> <td scope="col">{{ template "genericList.html" .Parameters }}</th> </tr>     
+      
+   </tbody>
+</table>
+
+
+{{end}}

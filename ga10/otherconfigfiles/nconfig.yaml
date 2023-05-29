@@ -1,0 +1,32 @@
+#Some general naming
+system:
+  name: ASVR_GO_1
+
+#MongoDB Configuration
+database:
+  connection: mongodb://10.144.176.154:27017
+  name: attestation2
+
+#MQTT Configuration
+messaging:
+  broker: 10.144.176.154
+  port: 1883
+  clientid: ASVR_GO_1
+
+#REST Interface Configuration
+rest:
+  port: 8520
+  crt: temporary.crt
+  key: temporary.key
+  usehttp: true
+
+#Web Interface Configuration
+web:
+  port: 8540
+  crt: temporary.crt
+  key: temporary.key
+  usehttp: true  
+
+#Log file
+logfile:
+  location: /tmp/ga10.log

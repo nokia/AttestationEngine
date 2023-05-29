@@ -1,0 +1,24 @@
+{{define "resultvalue.html"}}
+          {{ if eq . 0}}
+          <span class="badge bg-success">Pass</span> 
+          {{else if eq . 9001}}
+          <span class="badge bg-danger">Fail</span>  
+          
+          {{else if eq . 9010}}
+          <span class="badge bg-warning">Verify Call Failure</span>  
+          {{else if eq . 9098}}
+          <span class="badge bg-warning">Verify Claim Error</span>        
+          {{else if eq . 9099}}
+          <span class="badge bg-warning">No Result</span> 
+
+          {{else if eq . 9997}}
+          <span class="badge bg-warning">Missing Expected Value</span> 
+          {{else if eq . 9998}}
+          <span class="badge bg-warning">Rule Call Failure</span> 
+          {{else if eq . 9999}}
+          <span class="badge bg-warning">Unset Result Value</span> 
+
+          {{else}}
+          <span class="badge bg-dark">Unknown Error </span> 
+    {{end}} 
+{{end}}

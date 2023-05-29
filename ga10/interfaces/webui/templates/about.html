@@ -1,0 +1,47 @@
+{{define "content"}}
+
+<div class="mt-4 p-5 bg-primary text-white rounded">
+  <h2 class="display-1">GA10 - Nokia Attestation Engine</h2>
+  
+  <p>(C)2021 Nokia Bell Labs</p>
+</div>
+
+<br />
+
+<h5>Disclaimer</h5>
+<p>
+Use this at your own risk. There is a good chance of database inconsistencies, crashes and Deity-knows-what-else.
+</p>
+<p>
+Also, there is no security per se implemented...no authentication, no login, no authorisation, no encryption, HTTP-everywhere etc...well we have HTTPS but you are own your own with the key management. We can integrate with YubiHSM but this is on going (and theoretically any PKCS#11 interface)...theoretically...someone needs to impement (and test!) this.  Anyway, you get the idea.
+</p>
+<hr/>
+<h5>A Bit of History</h5>
+Or, why <em>GA10</em>?  There have been various iterations, these are listed below:
+<hr/>
+<p>
+<table class="table ">
+    <tbody id="historytable">
+    <tr>
+    <td>A1,A2,A3</td> <td>Early experiments. Written in Javascript with lots of pain regarding reactive, functional programming</td>
+    
+    </tr><tr>
+    
+    <td>A4</td><td>First version that actually worked, also written in Javascript. Not very functional but there existed a trust agent for quoting</td></tr><tr>
+    <td>A5,A6</td><td>First versions in python 2 and some of the code here ended up in A7. Some parts of A5 and A6 integrated with OpenStack's workflow and workload manager APIs - which worked as long as you didn't update OpenStack as APIs changed randomly betweent versions.</td>
+    </tr><tr>
+    <td>A7</td><td>First properly working attestation server in a very traditional manner (cf: OpenAttestation etc). Written in a mix of python2 and python3. Backend utilised mongodb and assumed the TA talked directly to the tpm2_tools on the client. UI written using python flask. Integrated with OpenStack via a client which was a MITM/hack/kludge to access OpenStack's message bus. This version was demonstrated at ETSI SecurityWeek in 2018 and 2019. Contained a lot of technical debt which made integration hard in some cases.</td>
+    </tr><tr>
+    <td>A8.1</td><td>Was an attempt to write everything in Erlang.</td>    </tr><tr>
+        <td>A8.2</td><td>Was an attempt to do the same in Python with threads, proceses, MQTT etc.</td>
+    </tr><tr>
+      <td>A9</td><td>Was a experiment to use the ELKS analytics stack and the ELKS UI. Was demonstrated in January 2020 for the first time and actively developed for about 6 months until we needed to support new features. Much of this work reappears as plugins and data integration (as attesation apps in A10) into ELKS and ELKS-based tools such as Nokia's NetGuard.</td>
+    </tr><tr>
+      <td>A10</td><td><i>2019-2023!</i> Much more compliant with IEFT RATS in its data structures. Has a proper protocol backend which takes care of layer 7 and layer 6 of the attestation protocols so we can theoretically support any RoT/auditing system, eg: HSM, UEFI, TPM2.0, TPM1.2 etc, we can even integrate with other attestation engines' trust agents such as KeyLime, OpenAttestation, Go-Attestation etc. Libraries are much better written with a much more consistent API. UI and interfaces are separate components built on top of libraries. The whole thing is designed to integrate with MQTT, logstash, ELKS, whatever AI/ML analytics and the forensics system that is currently under development. Lots of cool features. Supports the notion of <em>attestation applications</em> for extensibility making integration with other systems such as Edge/NFV MANO very quick and easy.</td>  </tr>
+   <tr>
+      <td>GA10</td><td><i>Today!</i> Even more compliant with IEFT RATS in its data structures and an improved protocol backend which takes care of layer 7 and layer 6 of the attestation protocols. All the cool stuff of A10 but now written in <b>GO</b>. Seriously strong typing is so important....Reworked UI, reworked REST API and reworked data structures. Oh so much better. AND, Go has a really nice cross compiler: arm, arm64, i386, amd64, ppc, and then Linux, Windows, Solaris, AIX and Plan 9 from Bell Labs. Also Go makes self-contained binaries so the trust agent is a single binary which makes distribution trivial and the whole server engine itself just needs the binary and the config file :-)</tr>      
+   </tbody>
+</table>
+</p>
+
+{{end}}

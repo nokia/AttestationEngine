@@ -1,0 +1,51 @@
+{{define "content"}}
+<h3>Log</h3>
+<p>Showing {{ .Amount }} entries of {{ .Count }}</p>
+<hr/>
+<table class="table table-striped table-sm">
+   <thead>
+      <tr>
+         <th scope="col">Timestamp</th>    
+         <th  style="text-align:center" scope="col">Channel</th>             
+         <th  style="text-align:center" scope="col">Operation</th>             
+         <th scope="col">Reference</th>             
+         <th scope="col">Message</th>             
+      </tr>
+   </thead>
+   <tbody>
+      {{ range .LogEntries }} 
+
+          {{ if eq .Channel "SYS"}}
+          <tr class="table-primary"> 
+          {{else}}
+          <tr> 
+          {{end}} 
+       <td>{{ epochToUTC .Timestamp }}</td>
+<td style="text-align:center">{{ .Channel }}</td>
+<td style="text-align:center">{{ .Operation }}</td>
+<td>
+  {{ if eq .RefType "element" }}
+     <a href="/element/{{ .RefID }}">element</a>
+  {{ else if eq .RefType "policy" }}
+     <a href="/policy/{{ .RefID }}">policy</a>
+  {{ else if eq .RefType "expectedvalue" }}
+     <a href="/expectedvalue/{{ .RefID }}">expectedvalue</a>
+  {{ else if eq .RefType "claim" }}
+     <a href="/claim/{{ .RefID }}">claim</a>
+  {{ else if eq .RefType "result" }}
+     <a href="/result/{{ .RefID }}">result</a>
+  {{ else if eq .RefType "session" }}
+     <a href="/session/{{ .RefID }}">session</a>     
+  {{ else }}
+    {{ .RefType }}
+  {{ end }}     
+          </td>
+<td>{{ .Message }}</td> </tr>
+             
+      {{end}}
+   </tbody>
+</table>
+{{end}}
+
+
+

@@ -1,0 +1,175 @@
+{{define "content"}}
+<h3>Session</h3>
+
+<table class="table table-sm table-striped">
+   <thead>
+      <tr>
+         <th scope="col">Field</th>    
+         <th scope="col">Value</th>                   
+      </tr>
+   </thead>
+   <tbody>
+      <tr><td scope="col">ItemID</td> <td scope="col">{{ .S.ItemID }}</td> </tr>     
+      <tr><td scope="col">Opened</td> <td scope="col">{{ epochToUTC .S.Timing.Opened }}</td> </tr>    
+      <tr><td scope="col">Closed</td>
+      {{ if eq .S.Timing.Closed "0" }}
+         <td><span class="badge bg-warning">Session still open</span> </td>   
+      {{ else }} 
+         <td scope="col">{{ epochToUTC .S.Timing.Closed }}</td>     
+      {{ end }}   
+      </tr> 
+      <tr><td scope="col">#Claims</td> <td scope="col">{{ len .S.ClaimList }}</td> </tr>     
+      <tr><td scope="col">#Results</td> <td scope="col">{{ len .S.ResultList }}</td> </tr>     
+      <tr><td scope="col">Message</td> <td scope="col">{{ .S.Message }}</td> </tr>     
+
+   </tbody>
+</table>
+
+<hr/>
+
+<div class="container-md">
+   <div class="row">
+      <div class="col-md-4">
+
+<canvas id="caChart" ></canvas>
+
+      </div>
+
+      <div class="col-md-8">
+
+         <table class="table table-sm table-striped">
+            <tbody>
+               {{ range .CS }}
+               <tr><td><a href="/claim/{{.ItemID}}">{{ .BodyType }}</a></td></tr>
+               {{ end }}
+            </tbody>
+         </table>
+
+      </div>
+   </div>
+</div>
+
+<hr/>
+
+<div class="container-md">
+   <div class="row">
+      <div class="col-md-4">
+
+<canvas id="raChart" ></canvas>
+
+      </div>
+
+      <div class="col-md-8">
+
+         <table class="table table-sm table-striped">
+            <tbody>
+               {{ range .RS }}
+               <tr>
+                  <td><a href="/result/{{.ItemID}}">{{ .RuleName }}</a></td>
+                  <td>
+         {{ template "resultvalue.html" .Result }}
+
+
+                  </td>
+                  <td>{{ epochToUTC .VerifiedAt }}</td>
+               </tr>
+               {{ end }}
+            </tbody>
+         </table>
+
+      </div>
+   </div>
+</div>
+
+<hr/>
+
+
+
+
+<h5>Footer</h5>
+
+
+<div class="container-md">
+   <div class="row">
+      <div class="col-md-12">
+
+<table class="table table-sm table-striped">
+   <thead>
+      <tr>
+         <th scope="col">Field</th>    
+         <th scope="col">Value</th>                   
+      </tr>
+   </thead>
+   <tbody>
+      <tr><td scope="col">Hash</th> <td scope="col" style="word-break: break-all;">{{ encodeAsHexString .S.Footer.Hash }}</td> </tr>     
+      <tr><td scope="col">Signature</th> <td scope="col" style="word-break: break-all;">{{ encodeAsHexString .S.Footer.Signature }}</td> </tr>      
+   </tbody>
+</table>
+
+         </div>
+      </div>
+</div>
+
+
+<script>
+var xValues = ["Valid","Error"];
+var yValues = [ {{ .CA.Valid }} , {{ .CA.Errs }}];
+var barColors = [
+  "#32cd32",   
+  "#ff0000"
+];
+
+new Chart("caChart", {
+  type: "doughnut",
+  data: {
+    labels: xValues,
+    datasets: [{
+      backgroundColor: barColors,
+      data: yValues
+    }]
+  },
+  options: {
+    title: {
+      display: true,
+      text: "Valid Claims/Errors"
+    }
+  }
+});
+</script>
+
+
+<script>
+var xValues = ["Pass","Fail","VF","VCA","NR","MEV","RCF","U"];
+var yValues = [ {{ .RA.Pass }} ,  {{ .RA.Fail }} ,  {{ .RA.Verifyfail }} ,{{ .RA.Verifycallattempt }},  {{ .RA.Noresult }} , {{ .RA.Missineexpectedvalue }} , {{ .RA.Rulecallfailure }} , {{ .RA.Unsetresultvalue }} ];
+var barColors = [
+  "#32cd32",
+  "#ff0000",
+  "#a9a9a9",
+  "#778899",
+  "#696969",
+  "#708090",
+  "#c4c3d0",
+  "#000000"
+];
+
+
+new Chart("raChart", {
+  type: "doughnut",
+  data: {
+    labels: xValues,
+    datasets: [{
+      backgroundColor: barColors,
+      data: yValues
+    }]
+  },
+  options: {
+    title: {
+      display: true,
+      text: "Result Types"
+    }
+  }
+});
+</script>
+
+{{end}}
+

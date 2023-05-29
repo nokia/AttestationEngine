@@ -1,0 +1,157 @@
+{{define "content"}}
+<p class="fs-3 text-center"><b>{{ .Cfg.System.Name }}</b></p><hr/>
+
+<div class="container-md">
+   <div class="row">
+      <div class="col-md-3">
+         <div class="card">
+            <div class="card-header"><a href="/elements">Elements</a></div>
+            <div class="card-body"><p class="text-end fs-4 fw-bold">{{ .Nes }}</p></div>
+         </div>
+      </div>
+      <div class="col-md-3">
+         <div class="card">
+            <div class="card-header"><a href="/policies">Policies</a></div>
+            <div class="card-body"><p class="text-end fs-4 fw-bold">{{ .Nps }}</p></div>
+         </div>      </div>
+      <div class="col-md-3">
+         <div class="card">
+            <div class="card-header"><a href="/expectedvalues">Expected Values</a></div>
+            <div class="card-body"><p class="text-end fs-4 fw-bold">{{ .Nevs }}</p></div>
+         </div>      </div>
+      <div class="col-md-3">
+         <div class="card">
+            <div class="card-header"><a href="/sessions">Sessions</a></div>
+            <div class="card-body"><p class="text-end fs-4 fw-bold">{{ .Nses }}</p></div>
+         </div>      </div>
+   </div>
+<br/>
+   <div class="row">
+      <div class="col-md-3">
+         <div class="card">
+            <div class="card-header"><a href="/claims">Claims</a></div>
+            <div class="card-body"><p class="text-end fs-4 fw-bold">{{ .Ncs }}</p></div>
+         </div>      </div>
+      <div class="col-md-3">
+         <div class="card">
+            <div class="card-header"><a href="/results">Results</a></div>
+            <div class="card-body"><p class="text-end fs-4 fw-bold">{{ .Nrs }}</p></div>
+         </div>      </div>
+      <div class="col-md-3">
+         <div class="card">
+            <div class="card-header"><a href="/opaqueobjects">Objects</a></div>
+            <div class="card-body"><p class="text-end fs-4 fw-bold">{{ .Nhs }}</p></div>
+        </div>      </div>
+      <div class="col-md-3">
+         <div class="card">
+            <div class="card-header"><a href="/protocols">Protocols</a> / <a href="/rules">Rules</a></div>
+            <div class="card-body"><p class="text-end fs-4 fw-bold">{{ .Nprs }} / {{ .Nrus }}</p></div>
+         </div>      </div>
+   </div>   
+</div>
+
+<hr/>
+
+<div class="container-md">
+   <div class="row">
+      <div class="col-md-6">
+         <div class="card">
+            <div class="card-header">Database</div>
+            <div class="card-body">
+
+               <table class="table table-sm table-striped">
+                  <tbody>
+                    <tr><td scope="col">Name</td> <td scope="col"><b> {{ .Cfg.Database.Name }} </b></td> </tr>    
+                    <tr><td scope="col">Connection</td> <td scope="col"><b> {{ .Cfg.Database.Connection }}</b></td> </tr>     
+                   </tbody>
+               </table>
+
+            </div>
+         </div>      
+      </div>
+
+      <div class="col-md-6">
+         <div class="card">
+            <div class="card-header">Messaging</div>
+            <div class="card-body">
+
+               <table class="table table-sm table-striped">
+                  <tbody>
+                    <tr><td scope="col">Broker</td> <td scope="col"><b> {{ .Cfg.Messaging.Broker }} </b></td> </tr>    
+                    <tr><td scope="col">Port</td> <td scope="col"><b> {{ .Cfg.Messaging.Port }}</b></td> </tr>     
+                    <tr><td scope="col">Client ID</td> <td scope="col"><b>{{ .Cfg.Messaging.ClientID }}</b></td> </tr>     
+                   </tbody>
+               </table>
+
+            </div>
+         </div>       
+      </div>
+   </div>
+
+   <br/>
+
+      <div class="row">
+
+
+      <div class="col-md-6">
+         <div class="card">
+            <div class="card-header">Services</div>
+            <div class="card-body">
+
+               <table class="table table-sm table-striped">
+                  <tbody>
+                    <tr><td scope="col">REST</td> <td scope="col"> {{ if eq .Cfg.Rest.UseHTTP true }}
+                                                                           <span class="badge bg-danger">http</span>
+                                                                           {{ else }}
+                                                                           <span class="badge bg-success">https</span>
+                                                                     {{ end }} <b>
+                                                                     :{{ .Cfg.Rest.Port }} </b></td> </tr>    
+                    <tr><td scope="col">Web</td> <td scope="col">{{ if eq .Cfg.Web.UseHTTP true }}
+                                                                           <span class="badge bg-danger">http</span>
+                                                                           {{ else }}
+                                                                           <span class="badge bg-success">https</span>
+                                                                     {{ end }} <b>
+                                                                     :{{ .Cfg.Web.Port }}</b></td> </tr>     
+                   </tbody>
+               </table>
+
+
+             
+            </div>
+         </div>      
+       </div>
+
+
+
+     <div class="col-md-6">
+         <div class="card">
+            <div class="card-header"><a href="/log">Logging</a></div>
+            <div class="card-body">
+
+               <table class="table table-sm table-striped">
+                  <tbody>
+                    <tr><td scope="col">Location</td> <td scope="col"><b>{{ .Cfg.Logging.LogFileLocation }}</b></td> </tr>      
+                    <tr><td scope="col">Entries</td> <td scope="col"><b>{{ .Nlog }}</b></td> </tr>     
+                    <tr><td scope="col">Size on disk</td> <td scope="col"><b>{{ .Szlog }}</b> bytes</td> </tr>             
+                    <tr><td scope="col">Session update logging</td> <td scope="col">{{ if eq .Cfg.Logging.SessionUpdateLogging true }}
+                                                                           <span class="badge bg-success">enabled</span>
+                                                                           {{ else }}
+                                                                           <span class="badge bg-warning">disabled</span>
+                                                                     {{ end }} </td> </tr>                                                         
+                   </tbody>
+               </table>
+            </div>
+         </div>      
+       </div>
+
+
+   </div>   
+   </div>
+
+
+<hr/>
+
+   
+</div>
+
+{{end}}

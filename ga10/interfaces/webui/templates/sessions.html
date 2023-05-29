@@ -1,0 +1,31 @@
+{{define "content"}}
+<h3>Sessions</h3>
+<table class="table table-striped table-sm">
+   <thead>
+      <tr>
+         <th scope="col">Opened</th>             
+         <th scope="col">Closed</th>      
+         <th scope="col">Message</th>             
+         <th scope="col"># Claims/Results</th>             
+      </tr>
+   </thead>
+   <tbody>
+      {{ range . }} 
+        <tr> 
+         <td><a href="/session/{{ .ItemID }}">{{ epochToUTC .Timing.Opened }}</a></td>
+         <td>
+            {{ if eq .Timing.Closed "0" }}
+             <span class="badge bg-warning">Session still open</span> 
+            {{ else }}
+             {{ epochToUTC .Timing.Closed }}
+            {{ end }}
+         </td>
+         <td>{{ .Message }}</td>
+         <td>{{ len .ClaimList }} / {{ len .ResultList }}</td>
+
+        </tr>
+      {{end}}
+   </tbody>
+</table>
+{{end}}
+

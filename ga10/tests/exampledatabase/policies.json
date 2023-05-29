@@ -1,0 +1,6 @@
+{"_id":{"$oid":"64501ba6090571d49e0ab35d"},"itemid":"6770b5b9-d0ea-4f8b-817f-cab1bf8169c0","name":"testPolicy","description":"This is a test policy for tpm2/quote","intent":"tpm2/quote","parameters":{"pcrSelection":"0,2,7","bank":"sha256"}}
+{"_id":{"$oid":"64501bb9090571d49e0ab35e"},"itemid":"ba64f197-0eb3-4f3f-a74d-a9a8e0a3f17d","name":"testPolicy","description":"This is a test policy for tpm2/pcrs","intent":"tpm2/pcrs","parameters":{}}
+{"_id":{"$oid":"64501bc9090571d49e0ab35f"},"itemid":"e7c5d901-3caa-4542-8660-7054560198e1","name":"testPolicy","description":"This is a test policy for uefi/eventlog","intent":"uefi/eventlog","parameters":{}}
+{"_id":{"$oid":"64501bd8090571d49e0ab360"},"itemid":" 8aa82519-16f0-4418-83e2-6e9e6edbcdc6","name":"testPolicy","description":"This is a test policy for null/null","intent":"null/null","parameters":{}}
+{"_id":{"$oid":"645a63ec9b0597b56a39e986"},"itemid":"9a74825f-f780-4eec-9b20-646ba924857a","name":"SystemInfo","description":"This retrieves the system info for a given device","intent":"sys/info","parameters":{}}
+{"_id":{"$oid":"645a64729b0597b56a39e988"},"itemid":"f147fbd9-af7e-46f6-a8f8-3b0734918743","name":"IMAlog","description":"This returns the Linux IMA ASCII Log","intent":"ima/asciilog","parameters":{}}

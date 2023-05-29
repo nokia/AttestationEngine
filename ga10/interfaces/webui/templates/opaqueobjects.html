@@ -1,0 +1,22 @@
+{{define "content"}}
+<h3>Opaque Objects</h3>
+<table class="table table-striped table-sm">
+   <thead>
+      <tr>
+         <th scope="col">Value</th>    
+         <th scope="col">Type</th>             
+         <th scope="col">Short Description</th>             
+           
+      </tr>
+   </thead>
+   <tbody>
+      {{ range . }} 
+        <tr> <td><a href="/opaqueobject/{{ .Value}}">{{ .Value }}</a></td>
+               <td> <span class="badge bg-primary"> {{ .Type }} </span></td>
+               <td>{{ .ShortDescription }}</a></td>
+        </tr>
+      {{end}}
+   </tbody>
+</table>
+{{end}}
+

@@ -1,0 +1,88 @@
+{{define "content"}}
+<h3>Attest</h3>
+
+<br/>
+
+<form  action="/attest" method="post">
+<div class="container-md">
+
+   <div class="row">
+      <div class="col-md-12">
+         <label for="msg" class="form-label"><b>Message</b></label>
+         <input type="text" class="form-control" value="{{defaultMessage}}" name="msg" id="msg">
+      </div>   
+   </div>
+
+   <br/>
+
+   <div class="row">
+      <div class="col-md-4">
+         <label for="elementid"><b>Elements</b> <i>select one</i></label>
+         <select class="form-select" size="10"  id="elementid" name="eid">
+            {{ range .ES }}
+               <option value="{{ .ItemID }}">{{ .Name }} @ {{ .Endpoint }}</option>
+            {{ end }}
+         </select>
+      </div>
+
+      <div class="col-md-4">
+         <label for="policyid"><b>Policies</b> <i>select one</i></label>
+
+           <select class="form-select" size="10" id="policyid" name="pid">
+            {{ range .PS }}
+               <option value="{{ .ItemID }}">{{ .Name }} <span class="badge bg-secondary">{{ .Intent }}</span></option>
+            {{ end }}
+         </select>
+      </div>
+
+      <div class="col-md-4">
+         <label for="rulename"><b>Rules</b> <i>ignored if attest only, multiple selection allowed</i></label>
+
+         <select class="form-select" multiple size="10" id="rulename" name="rn">
+            {{ range .RS }}
+               <option value="{{ .Name }}">{{ .Name }}</option>
+            {{ end }}
+         </select>
+      </div>
+   </div>
+   
+<br/>
+
+
+   <div class="row">
+      <div class="col-md-4">
+
+         <b>Operation</b>:
+
+<ul>
+<li><label class="avcontainer">Attest and Verify
+  <input type="radio" checked="checked" name="av" value="AV">
+  <span class="checkmark"></span>
+</label></li>
+<li><label class="avcontainer">Attest Only
+  <input type="radio" name="av" value="AO">
+  <span class="checkmark"></span>
+</label></li>
+</ul>
+
+<i>If "attest only" is selected, then the rule selection and rule parameters are ignored</i>
+      </div>
+
+      <div class="col-md-4">
+         <label for="policyparameters"><b>Policy Parameters (JSON)</b></label>
+         <textarea class="form-control" rows="5" id="policyparameters" name="pps"></textarea>
+      </div>
+
+      <div class="col-md-4">
+         <label for="ruleparameters"><b>Rule Parameters (JSON)</b></label>
+         <textarea class="form-control" rows="5" id="ruleparameters" name="rps"></textarea>      
+      </div>
+   </div>
+</div>
+<button type="submit" class="btn btn-primary">Submit</button>
+</form>
+
+<hr />
+
+
+{{end}}

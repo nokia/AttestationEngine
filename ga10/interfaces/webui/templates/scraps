@@ -1,0 +1,45 @@
+
+<!-- <h3>Claims</h3>
+<table class="table table-striped table-sm">
+   <thead>
+      <tr>
+         <th scope="col">BodyType</th>    
+         <th scope="col">Requested</th>             
+         <th scope="col">Received</th>             
+         <th scope="col">Element</th>   
+         <th scope="col">Policy</th>             
+         <th scope="col">Session</th>             
+      </tr>
+   </thead>
+   <tbody>
+      {{ range .CS }} 
+        {{ if eq .BodyType "*ERROR"}}
+          <tr class="table-danger"> 
+          {{else}}
+          <tr> 
+          {{end}} 
+        {{ template "claimsummary.html" . }} </tr>
+      {{end}}
+   </tbody>
+</table>
+
+
+
+<h3>Results</h3>
+<table class="table table-striped table-sm">
+   <thead>
+      <tr>
+         <th scope="col">Verified At</th>    
+         <th scope="col">Result</th>             
+         <th scope="col">Rule Name</th>             
+         <th scope="col">Message</th>   
+         <th scope="col">Claim</th>             
+         <th scope="col">Session</th>             
+      </tr>
+   </thead>
+   <tbody>
+      {{ range .RS }} 
+          <tr>  {{ template "resultsummary.html" . }} </tr>
+      {{end}}
+   </tbody>
+</table> -->

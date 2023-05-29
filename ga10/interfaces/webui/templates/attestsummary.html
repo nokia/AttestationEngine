@@ -1,0 +1,48 @@
+{{define "content"}}
+<h3>Session</h3>
+
+<table class="table table-sm table-striped">
+   <thead>
+      <tr>
+         <th scope="col">Field</th>    
+         <th scope="col">Value</th>                   
+      </tr>
+   </thead>
+   <tbody>
+      <tr><td scope="col">ItemID</th> <td scope="col">{{ .ItemID }}</td> </tr>     
+      <tr><td scope="col">Opened</th> <td scope="col">{{ epochToUTC .Timing.Opened }}</td> </tr>    
+      <tr><td scope="col">Closed</th>
+      {{ if eq .Timing.Closed "0" }}
+         <td><span class="badge bg-warning">Session still open</span> </td>   
+      {{ else }} 
+         <td scope="col">{{ epochToUTC .Timing.Closed }}</td>     
+      {{ end }}   
+</tr> 
+      <tr><td scope="col">#Claims</th> <td scope="col">{{ len .ClaimList }}</td> </tr>     
+      <tr><td scope="col">#Results</th> <td scope="col">{{ len .ResultList }}</td> </tr>     
+      <tr><td scope="col">Message</th> <td scope="col">{{ .Message }}</td> </tr>     
+
+   </tbody>
+</table>
+
+
+<h4>Claims</h4>
+
+<ul>
+{{ range .ClaimList }}
+ <li><a href="/claim/{{ . }}">{{ . }}</a></li>
+{{ end}}
+</ul>
+
+
+<h4>Results</h4>
+
+<ul>
+{{ range .ResultList }}
+ <li><a href="/result/{{ . }}">{{ . }}</a></li>
+{{ end}}
+</ul>
+
+
+{{end}}
+

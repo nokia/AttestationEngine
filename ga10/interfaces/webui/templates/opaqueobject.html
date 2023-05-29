@@ -1,0 +1,21 @@
+{{define "content"}}
+<h3>Opaque Object</h3>
+
+<table class="table table-striped table-sm">
+   <thead>
+      <tr>
+         <th scope="col">Field</th>    
+         <th scope="col">Value</th>                        
+      </tr>
+   </thead>
+   <tbody>
+      <tr><td>Short Description</td><td>{{ .ShortDescription }}</td></tr>
+      <tr><td>Value</td><td><b>{{ .Value }}</b></td></tr>
+      <tr><td>Type</td><td><span class="badge bg-primary"> {{ .Type }} </span></td></tr>
+      <tr><td>Long Description</td><td><i>{{ .LongDescription }}</i></td></tr>
+   </tbody>
+</table>
+
+
+
+{{end}}

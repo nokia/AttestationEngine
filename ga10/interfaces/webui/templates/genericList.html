@@ -1,0 +1,11 @@
+{{define "genericList.html"}}
+<table class="table table-sm table-striped">
+   <tbody>
+      {{ range $key, $value := . }}
+            <tr><td scope="col">{{ $key }}</th> <td scope="col">{{ $value }}</th> </tr>     
+      {{ end }}
+   </tbody>
+</table>
+{{end}}
+
+

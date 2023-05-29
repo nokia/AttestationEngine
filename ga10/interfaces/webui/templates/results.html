@@ -1,0 +1,37 @@
+{{define "content"}}
+<h3>Results</h3>
+<table class="table table-striped table-sm">
+   <thead>
+      <tr>
+         <th scope="col">RuleName</th>    
+         <th scope="col">VerifiedAt</th>             
+         <th scope="col">Result</th>             
+         <th scope="col">EV</th>   
+         <th scope="col">Links</th>             
+         <th scope="col">Message</th>       
+      </tr>
+   </thead>
+   <tbody>
+      {{ range . }} 
+
+          <tr> 
+
+<td><a href="/result/{{ .ItemID }}">{{ .RuleName }}</a></td>
+<td>{{ epochToUTC .VerifiedAt }}</td>
+<td>
+{{ template "resultvalue.html" .Result }}
+
+</td>
+{{ if not .EV_Name}}
+   <td>-</td>
+{{ else }}
+   <td><a href="/expectedvalue/{{ .EV_ItemID}}">{{ .EV_Name }}</a> ( <a href="/element/{{ .EVEID}}">{{ .EVEName }}</a> | <a href="/policy/{{ .EVPID}}">{{ .EVPName }}</a> )</td>
+{{ end }}
+<td><a href="/claim/{{ .ClaimID}}">C</a> | <a href="/session/{{ .SessionID}}">S</a>  </td>
+<td>{{ .Message }}</td>
+
+          </tr>
+      {{end}}
+   </tbody>
+</table>
+{{end}}

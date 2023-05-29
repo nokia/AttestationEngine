@@ -1,0 +1,28 @@
+{{define "content"}}
+<h3>Rules</h3>
+<table class="table table-striped table-sm">
+   <thead>
+      <tr>
+         <th scope="col">Name</th>   
+         <th scope="col"> </th>                      
+ 
+         <th scope="col">Description</th>             
+      </tr>
+   </thead>
+   <tbody>
+            {{ range . }} 
+
+      <tr> <td> {{ .Name }} </td>
+             <td>  
+        {{ if eq .NeedsEV true}}
+          <span class="badge bg-success">EV Required</span> 
+          {{else}}
+                   -
+          {{end}} 
+
+             </td>             <td> {{ .Description }} </td>
+</tr>  {{end}}
+   </tbody>
+</table>
+{{end}}
+

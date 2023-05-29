@@ -1,0 +1,27 @@
+{{template "base" .}} 
+{{define "content"}}
+<h3>Expected Values</h3>
+
+<table class="table table-striped table-sm">
+   <thead>
+      <tr>
+         <th scope="col">Name</th>
+         <th scope="col">Description</th>
+         <th scope="col">Element</th>
+         <th scope="col">Endpoint</th>
+         <th scope="col">Policy</th> 
+         <th scope="col">Intent</th>         
+      </tr>
+   </thead>
+   <tbody>
+      {{ range . }} 
+        <tr> 
+
+        <tr> {{ template "evsummarylist.html" . }} </tr>
+
+
+        </tr>
+      {{end}}
+   </tbody>
+</table>
+{{end}}

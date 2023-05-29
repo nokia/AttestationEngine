@@ -1,0 +1,27 @@
+{{define "content"}}
+<h3>Expected Value {{ .EV.Name }} </h3>
+
+<h5>Information</h5>
+<table class="table table-sm table-striped">
+   <thead>
+      <tr>
+         <th scope="col">Field</th>    
+         <th scope="col">Value</th>                   
+      </tr>
+   </thead>
+   <tbody>
+      <tr><td scope="col">Name</th> <td scope="col">{{ .EV.Name }}</th> </tr>     
+      <tr><td scope="col">Description</th> <td scope="col">{{ .EV.Description }}</th> </tr>     
+      <tr><td scope="col">ItemID</th> <td scope="col">{{ .EV.ItemID }}</th> </tr>     
+
+      <tr><td scope="col">Element</th> <td scope="col"><a href="/element/{{ .E.ItemID }}">{{ .E.Name }} </a>@ {{ .E.Endpoint }} <span class="badge bg-secondary"> {{ .E.Protocol }}</span></th> </tr>     
+      <tr><td scope="col">Policy</th> <td scope="col"><a href="/policy/{{ .P.ItemID }}">{{ .P.Name }}  </a> <span class="badge bg-secondary">{{ .P.Intent }}</span></th> </tr>     
+      
+      <tr><td scope="col">EVS Paramteres</th> <td scope="col">{{ template "genericList.html" .EV.EVS }}</th> </tr>     
+
+
+   </tbody>
+</table>
+
+
+{{end}}

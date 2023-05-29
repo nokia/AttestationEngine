@@ -1,0 +1,9 @@
+{{define "evsummarylist.html"}}
+<td><a href="/expectedvalue/{{ .EV.ItemID }}">{{ .EV.Name }}</a> </td>
+<td>{{ .EV.Description }}</td>
+<td><a href="/element/{{ .E.ItemID }}">{{ .E.Name }}</a> </td>
+<td>{{ .E.Endpoint }} </td>
+<td><a href="/policy/{{ .P.ItemID }}">{{ .P.Name }}</a></td>
+<td> <span class="badge bg-primary">{{ .P.Intent }}</span> </td>
+
+{{end}}

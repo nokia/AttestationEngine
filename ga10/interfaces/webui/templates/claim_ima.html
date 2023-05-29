@@ -1,0 +1,19 @@
+{{define "claim_ima.html"}}
+
+
+<table class="table table-sm table-striped">
+   <thead>
+      <tr>
+         <th scope="col">Field</th>    
+         <th scope="col">Value</th>                   
+      </tr>
+   </thead>
+   <tbody>
+      <tr><td scope="col">Encoding details</th> <td scope="col">{{ .encoded }} {{ .encodedlength }} bytes encoded, {{ .unencodedlength }} bytes original</th> </tr>     
+      <tr><td scope="col">IMA ASCII Log</th> <td scope="col">{{ base64decode .asciilog }}</th> </tr>      
+   </tbody>
+</table>
+
+{{end}}
+
+
