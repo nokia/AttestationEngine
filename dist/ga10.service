@@ -1,5 +1,5 @@
 [Unit]
-Description=A10 Attestation Service
+Description=GA10 Attestation Engine
 After=network.target
 StartLimitIntervalSec=0
 
@@ -8,7 +8,7 @@ Type=simple
 Restart=always
 RestartSec=1
 User=ian
-ExecStart=/usr/local/bin/a10 -config=/etc/a10config.yaml
+ExecStart=/usr/local/bin/ga10 -config=/etc/ga10config.yaml
 
 [Install]
 WantedBy=multi-user.target
