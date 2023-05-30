@@ -26,7 +26,7 @@ GOOS=windows  GOARCH=amd64 go build -ldflags="${LD_RELEASE_FLAGS}" -o $DISTDIR/$
 GOOS=openbsd  GOARCH=amd64 go build -ldflags="${LD_RELEASE_FLAGS}" -o $DISTDIR/${GA10_BINARY_NAME}_openBSDamd64 ga10.go
 GOOS=freebsd  GOARCH=amd64 go build -ldflags="${LD_RELEASE_FLAGS}" -o $DISTDIR/${GA10_BINARY_NAME}_freeBSDamd64 ga10.go
 
-echo "Making ta10"
+echo "Making ta10. NB: in this version, the windows port will fail"
 
 cd ../ta10
 go get -u
