@@ -190,5 +190,7 @@ cython_debug/
 
 
 #Binaries in dist
-dist/ga10*
-dist/ta10*
+/dist/ga10_*
+/dist/ta10_*
+dist/ga10_*
+dist/ta10_*
