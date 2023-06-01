@@ -46,7 +46,7 @@ var bankValues = map[string]tpm2.Algorithm {
 
 var pcrbanks = []tpm2.Algorithm{tpm2.AlgSHA1, tpm2.AlgSHA256, tpm2.AlgSHA384, tpm2.AlgSHA512}
 
-// Quote needs to be supplied the following parameters in the POST body
+// PCRs needs to be supplied the following parameters in the POST body
 //
 // tpm				 string ... which TPM to use
 func PCRs(c echo.Context) error {
