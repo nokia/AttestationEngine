@@ -3,6 +3,7 @@ package webui
 import(
 	"fmt"
 	"net/http"
+	"encoding/json"
 
 	"github.com/labstack/echo/v4"
 
@@ -35,4 +36,24 @@ func showElement(c echo.Context) error {
 
 func newElement(c echo.Context) error {
 	return c.Render(http.StatusOK, "editelement.html",nil)
+}
+
+
+func processNewElement(c echo.Context) error {
+    elemdata := c.FormValue("elementdata")
+
+    var newelem structures.Element
+
+    err := json.Unmarshal([]byte(elemdata), &newelem)
+
+	if err != nil {
+		 fmt.Printf("error is %v\n",err.Error())
+    	 return c.Redirect(http.StatusSeeOther, "/new/element")
+	}
+
+	fmt.Printf("  fv%v\n",newelem)
+	eid,err := operations.AddElement(newelem)
+	fmt.Printf("  eid=%v,err=%v\n",eid,err)
+
+ 	return c.Redirect(http.StatusSeeOther, "/elements")
 }
