@@ -1,7 +1,0 @@
-a10.asvr.rules.baserule module
-==============================
-
-.. automodule:: a10.asvr.rules.baserule
-    :members:
-    :undoc-members:
-    :show-inheritance:

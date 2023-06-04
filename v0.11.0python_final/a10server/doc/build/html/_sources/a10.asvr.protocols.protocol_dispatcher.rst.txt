@@ -1,7 +1,0 @@
-a10.asvr.protocols.protocol\_dispatcher module
-==============================================
-
-.. automodule:: a10.asvr.protocols.protocol_dispatcher
-    :members:
-    :undoc-members:
-    :show-inheritance:

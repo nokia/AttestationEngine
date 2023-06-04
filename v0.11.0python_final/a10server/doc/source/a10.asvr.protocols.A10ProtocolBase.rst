@@ -1,7 +1,0 @@
-a10.asvr.protocols.A10ProtocolBase module
-=========================================
-
-.. automodule:: a10.asvr.protocols.A10ProtocolBase
-    :members:
-    :undoc-members:
-    :show-inheritance:

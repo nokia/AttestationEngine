@@ -1,9 +1,0 @@
-pkgconfig
-flask
-requests
-pymongo
-paho-mqtt
-pycparser
-pyserial
-pyyaml
-dictdiffer

@@ -1,7 +1,0 @@
-a10.asvr.db.announce module
-===========================
-
-.. automodule:: a10.asvr.db.announce
-    :members:
-    :undoc-members:
-    :show-inheritance:

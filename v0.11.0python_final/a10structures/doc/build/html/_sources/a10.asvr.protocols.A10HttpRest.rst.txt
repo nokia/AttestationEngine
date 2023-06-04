@@ -1,7 +1,0 @@
-a10.asvr.protocols.A10HttpRest module
-=====================================
-
-.. automodule:: a10.asvr.protocols.A10HttpRest
-    :members:
-    :undoc-members:
-    :show-inheritance:

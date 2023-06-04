@@ -1,7 +1,0 @@
-a10.asvr.expectedvalues module
-==============================
-
-.. automodule:: a10.asvr.expectedvalues
-    :members:
-    :undoc-members:
-    :show-inheritance:

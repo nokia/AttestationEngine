@@ -1,7 +1,0 @@
-a10.structures.identity module
-==============================
-
-.. automodule:: a10.structures.identity
-    :members:
-    :undoc-members:
-    :show-inheritance:

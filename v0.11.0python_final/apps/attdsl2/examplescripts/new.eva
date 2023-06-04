@@ -1,4 +1,0 @@
-evaluate name=ebola using checkpis 
-evaluate name=zika using checkpis 
-
-evaluate name=covid19 using testx86 

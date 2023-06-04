@@ -1,4 +1,0 @@
-curl --noproxy "*"  --header "Content-Type: application/json" -X POST --data '{ "evs":{"firmwareVersion": "00360c003e000500","pcrDigest": "bb03e867095829f6458b706955480b15931ef32048cc5cf2f0815f9441f01daa"}, "name":"Attested value for NUC","type":"tpm2_attestedValuePCRdigest","policyID":"38e216f6-2023-4eb5-a890-49ac098810d7","elementID":"c0cebff7-328d-4149-8831-391e54958bfd" }' http://127.0.0.1:8520/expectedvalue
-
-
-curl --noproxy "*"  --header "Content-Type: application/json" -X POST --data '{ "evs":{"firmwareVersion": "00360c003e000500","pcrDigest": "eaa47969aff9ba4371e08f5dea0fa2ed00352e36fcb0c2febab30bf42510887b"}, "name":"Attested value for NUC","type":"tpm2_attestedValuePCRdigest","policyID":"211a4abe-4dc6-43b0-94ea-f8419fe7bf75","elementID":"c0cebff7-328d-4149-8831-391e54958bfd" }' http://127.0.0.1:8520/expectedvalue

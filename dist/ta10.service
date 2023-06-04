@@ -1,0 +1,14 @@
+[Unit]
+Description=TA10 Trust Agent
+After=network.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User=pi
+ExecStart=/usr/local/bin/ta10
+
+[Install]
+WantedBy=multi-user.target

@@ -1,7 +1,0 @@
-env
-venv
-__pycache__
-.vscode/*
-node_modules
-secure_sensor_management_system/build
-secure_sensor_management_system/*.egg-info
