@@ -2,7 +2,7 @@
 
 echo "Making distribution binaries"
 
-DISTDIR=`pwd`
+DISTDIR=/tmp
 GA10_BINARY_NAME=ga10
 TA10_BINARY_NAME=ta10
 
