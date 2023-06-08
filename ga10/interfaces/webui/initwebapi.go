@@ -71,6 +71,7 @@ func StartWebUI() {
 	templates["claim.html"] = template.Must(template.New("claim.html").Funcs( functions ).ParseFS(WPFS,T+"claim.html",T+"base.html", 
 										T+"claim_ERROR.html",
 										T+"claim_ima.html",
+										T+"claim_tpm2pcrs.html",
 										T+"genericList.html"))	
 
 

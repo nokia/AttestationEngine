@@ -1,0 +1,24 @@
+{{define "claim_tpm2pcrs.html"}}
+<table class="table table-sm table-striped">
+   <tbody>
+      {{ range $key, $value := . }}
+            <tr><td scope="col"><b>{{ $key }}</b></td> 
+                <td scope="col">
+
+                        <table class="table table-sm table-striped">
+                           <tbody>
+                              {{ range $pkey, $pvalue :=  $value  }}
+                                    <tr><td scope="col"><b>{{ $pkey }}</b></td> 
+                                        <td scope="col">{{ $pvalue }}</td> 
+                                    </tr>     
+                              {{ end }}
+                           </tbody>
+                        </table> 
+
+                </td> </tr>     
+      {{ end }}
+   </tbody>
+</table>
+{{end}}
+
+   

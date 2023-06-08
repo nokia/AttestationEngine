@@ -42,7 +42,24 @@ GOOS=freebsd  GOARCH=amd64 go build -ldflags="${LD_RELEASE_FLAGS}" -o $DISTDIR/$
 echo "Listing binaries"
 
 cd $DISTDIR
-
 ls -l ga10_* ta10_*
+
+echo "SHA256 Values"
+
+sha256sum $DISTDIR/${GA10_BINARY_NAME}_linuxamd64   
+sha256sum $DISTDIR/${GA10_BINARY_NAME}_linuxarm64   
+sha256sum $DISTDIR/${GA10_BINARY_NAME}_linuxarm32   
+sha256sum $DISTDIR/${GA10_BINARY_NAME}_illumosamd64 
+sha256sum $DISTDIR/${GA10_BINARY_NAME}_windowsamd64 
+sha256sum $DISTDIR/${GA10_BINARY_NAME}_openBSDamd64 
+sha256sum $DISTDIR/${GA10_BINARY_NAME}_freeBSDamd64 
+sha256sum $DISTDIR/${TA10_BINARY_NAME}_linuxamd64   
+sha256sum $DISTDIR/${TA10_BINARY_NAME}_linuxarm64   
+sha256sum $DISTDIR/${TA10_BINARY_NAME}_linuxarm32   
+sha256sum $DISTDIR/${TA10_BINARY_NAME}_illumosamd64 
+sha256sum $DISTDIR/${TA10_BINARY_NAME}_windowsamd64 
+sha256sum $DISTDIR/${TA10_BINARY_NAME}_openBSDamd64 
+sha256sum $DISTDIR/${TA10_BINARY_NAME}_freeBSDamd64 
+
 
 echo "Done."
