@@ -1,0 +1,11 @@
+{{define "claim_ERROR.html"}}
+<table class="table table-sm table-striped">
+   <tbody>
+      {{ range $key, $value := .ERROR  }}
+            <tr><td scope="col"><b>{{ $key }}</b></th> <td scope="col">{{ $value }}</th> </tr>     
+      {{ end }}
+   </tbody>
+</table>
+{{end}}
+
+

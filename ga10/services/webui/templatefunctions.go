@@ -36,4 +36,13 @@ func EncodeAsHexString(b []byte) string {
 	return hex.EncodeToString(b)
 }
 
+func TCGHash(h float64) string {    //Don't you just love JSON...the value is an int, but JSON interprets it as a float64 ... seriously!
+	if h==11 {
+		return "sha256"
+	} else if h==3 {
+		return "sha1"		
+	} else {
+		return "Unknown hash function"
+	}
+}
 

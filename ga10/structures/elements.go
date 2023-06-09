@@ -35,6 +35,7 @@ type TXT struct {
 
 type TPM2 struct {
         Device string            `json:"device",bson:"device"`    
+        EKCertHandle string      `json:"ekcerthandle",bson:"ekcerthandle"`
         EK TPMKey                `json:"ek",bson:"ek"`    
         AK TPMKey                `json:"ak",bson:"ak"`    
 }

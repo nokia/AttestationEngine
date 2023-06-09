@@ -11,8 +11,8 @@ import (
 
 	"a10/configuration"
 	"a10/datalayer"
-	"a10/interfaces/restapi"
-	"a10/interfaces/webui"
+	"a10/services/restapi"
+	"a10/services/webui"
 	"a10/logging"
 	"a10/protocols"
 	"a10/rules"

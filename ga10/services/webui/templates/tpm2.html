@@ -2,7 +2,8 @@
 <table class="table table-sm table-striped">
 
    <tbody>
-    <tr><td scope="col">TPM Device</th> <td scope="col">{{ .Device }}</th>  </tr>           
+    <tr><td scope="col">TPM Device</th> <td scope="col">{{ .Device }}</th>  </tr>          
+     <td scope="col">EK Certificate NVRAM Handle</th> <td scope="col">{{ .EKCertHandle }}</th>  </tr>  
       <tr><td scope="col">Endorsement Key</th> <td scope="col">{{ template "tpm2key.html" .EK }}</th> 
       </tr>     
       <tr><td scope="col">Atteststion Key</th></th> <td scope="col">{{ template "tpm2key.html" .AK }}</th> 

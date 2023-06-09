@@ -1,0 +1,32 @@
+{{define "claim_quote.html"}}
+<table class="table table-sm table-striped">
+   <tbody>
+     <tr><td><b>PCR Digest</b></td><td>{{ .AttestedQuoteInfo.PCRDigest }}</td></tr>
+     <tr><td><b>PCR Selection</b></td><td><span class="badge bg-primary">{{ tcgHash .AttestedQuoteInfo.PCRSelection.Hash }}</span> : 
+        {{ range .AttestedQuoteInfo.PCRSelection.PCRs }}
+           <span class="badge bg-secondary">{{ . }}</span>
+        {{ end }}
+     </td></tr>
+     <tr><td><b>Firmware</b></td><td>{{ .FirmwareVersion }}</td></tr>
+
+     <tr><td><b>Magic & Type</b></td><td>{{ .Magic }}, {{ .Type }}</td></tr>
+     <tr><td><b>Extra Data</b></td><td>{{ .ExtraData }}</td></tr>
+   
+     <tr><td><b>Clock</b></td><td>{{ .ClockInfo.Clock }}</td></tr>
+     <tr><td><b>Reset Count</b></td><td>{{ .ClockInfo.ResetCount }}</td></tr>
+     <tr><td><b>Restart Count</b></td><td>{{ .ClockInfo.RestartCount }}</td></tr>
+     <tr><td><b>Safe</b></td><td>
+        {{ if eq .ClockInfo.Safe 1.0 }}
+            <span class="badge bg-success">Safe ({{ .ClockInfo.Safe }})</span>
+        {{ else }}
+            <span class="badge bg-danger">Unsafe ({{ .ClockInfo.Safe }})</span>        
+        {{ end }}
+    </td></tr>
+    
+     <tr><td><b>Qualified Signer</b></td><td><span class="badge bg-primary">{{ tcgHash .QualifiedSigner.Digest.Alg }}</span> {{ .QualifiedSigner.Digest.Value }}</td></tr>
+
+   </tbody>
+</table>
+{{end}}
+
+   
