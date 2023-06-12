@@ -186,11 +186,3 @@ cython_debug/
 #.idea/
 
 
-############################################################# Local stuff
-
-
-#Binaries in dist
-/dist/ga10_*
-/dist/ta10_*
-dist/ga10_*
-dist/ta10_*
