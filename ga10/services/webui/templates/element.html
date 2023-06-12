@@ -1,6 +1,11 @@
 {{define "content"}}
 <h3>Element {{ .E.Name }} </h3>
 
+<div class="container-md">
+   <div class="row">
+      <div class="col-md-6">
+
+
 <table class="table table-sm table-striped">
    <thead>
       <tr>
@@ -9,13 +14,13 @@
       </tr>
    </thead>
    <tbody>
-      <tr><td scope="col">Name</th> <td scope="col">{{ .E.Name }}</th> </tr>     
-      <tr><td scope="col">Description</th> <td scope="col">{{ .E.Description }}</th> </tr>     
-      <tr><td scope="col">ItemID</th> <td scope="col">{{ .E.ItemID }}</th> </tr>     
+      <tr><td scope="col">Name</td> <td scope="col">{{ .E.Name }}</td> </tr>     
+      <tr><td scope="col">Description</td> <td scope="col">{{ .E.Description }}</td> </tr>     
+      <tr><td scope="col">ItemID</td> <td scope="col">{{ .E.ItemID }}</td> </tr>     
 
-      <tr><td scope="col">Endpoint</th> <td scope="col">{{ .E.Endpoint }}</th> </tr>     
-      <tr><td scope="col">Protocol</th> <td scope="col">{{ .E.Protocol }}</th> </tr>     
-      <tr><td scope="col">Tags</th> <td scope="col">{{ range .E.Tags }} 
+      <tr><td scope="col">Endpoint</td> <td scope="col">{{ .E.Endpoint }}</td> </tr>     
+      <tr><td scope="col">Protocol</td> <td scope="col">{{ .E.Protocol }}</td> </tr>     
+      <tr><td scope="col">Tags</td> <td scope="col">{{ range .E.Tags }} 
                                                        <span class="badge bg-secondary"> {{ . }} </span>
                                                     {{end}}</td> </tr>     
    </tbody>
@@ -56,7 +61,72 @@
     {{ template "txt.html" .E.TXT }}
 {{ end }}
 
+</div>
 
+<div class="col-md-6">
+
+<h5>Results</h5>
+
+<table class="table table-striped table-sm">
+   <thead>
+      <tr>
+         <th scope="col">RuleName</th>    
+         <th scope="col">VerifiedAt</th>             
+         <th scope="col">Result</th>             
+    
+      </tr>
+   </thead>
+   <tbody>
+      {{ range .RS }} 
+
+          <tr> 
+
+<td><a href="/result/{{ .ItemID }}">{{ .RuleName }}</a></td>
+<td>{{ epochToUTC .VerifiedAt }}</td>
+<td>
+{{ template "resultvalue.html" .Result }}
+
+</td>
+
+          </tr>
+      {{end}}
+   </tbody>
+</table>
+<hr/>
+
+<h5>Claims</h5>
+
+
+<table class="table table-striped table-sm">
+   <thead>
+      <tr>
+         <th scope="col">BodyType</th>    
+         <th scope="col">Requested</th>             
+         <th scope="col">Policy</th>             
+         <th scope="col"></th>             
+      </tr>
+   </thead>
+   <tbody>
+      {{ range .CS }} 
+        {{ if eq .BodyType "*ERROR"}}
+          <tr class="table-danger"> 
+          {{else}}
+          <tr> 
+          {{end}} 
+        <td><a href="/claim/{{ .ItemID }}">{{ .BodyType }}</a></td>
+      <td>{{ epochToUTC .Header.Timing.Requested }}</td>
+      <td>{{ .Header.Policy.Name }}</td>
+      <td><a href=/session/{{ .Header.Session.ItemID }}>S</a></td> </tr>
+      {{end}}
+   </tbody>
+</table>
+
+
+
+</div>
+</div>
+
+</div>
 
 
 {{end}}

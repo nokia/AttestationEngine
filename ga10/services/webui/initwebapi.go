@@ -53,12 +53,13 @@ func StartWebUI() {
 	templates["policies.html"] = template.Must(template.ParseFS(WPFS,T+"policies.html",T+"policysummarylist.html",T+"base.html"))
 	templates["evs.html"] = template.Must(template.ParseFS(WPFS,T+"evs.html",T+"evsummarylist.html",T+"base.html"))
 	
-	templates["element.html"] = template.Must(template.ParseFS(WPFS,T+"element.html",T+"base.html",
+	templates["element.html"] = template.Must(template.New("element.html").Funcs( functions ).ParseFS(WPFS,T+"element.html",T+"base.html",
 										 T+"uefi.html",
 										 T+"txt.html",
 										 T+"ima.html",
 										 T+"tpm2.html",
-										 T+"tpm2key.html"))
+										 T+"tpm2key.html",
+										 T+"resultvalue.html"))
 										 	
 	templates["policy.html"] = template.Must(template.ParseFS(WPFS,T+"policy.html",T+"base.html", 
 										T+"genericList.html"))
