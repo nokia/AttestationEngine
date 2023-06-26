@@ -11,7 +11,7 @@ import (
 	"ta10/common"
 
 	"github.com/labstack/echo/v4"
-//	"github.com/labstack/echo/v4/middleware"
+	"github.com/labstack/echo/v4/middleware"
 
 	"ta10/sys"
 	"ta10/uefi"
@@ -70,11 +70,14 @@ func init() {
 func startRESTInterface(sys,tpm,uef,ima,txt bool, p *string ) {
     router := echo.New()
     router.HideBanner = true
-    //router.Use(middleware.BodyDump(func(c echo.Context,reqBody,resBody []byte) {} ))
    
     //not necessary, but I will keep this here because this is now my example of how to use middlewares
     //in echo, plus the import declaration above
-    //router.Use(middleware.GzipWithConfig(middleware.GzipConfig{ Level: 5,}))
+    //
+    // Of the two below, the gzip is the only useful one. The BodyDump was used for debugging
+    //
+    //router.Use(middleware.BodyDump(func(c echo.Context,reqBody,resBody []byte) {} ))    
+    router.Use(middleware.GzipWithConfig(middleware.GzipConfig{ Level: 5,}))
 
     if sys == true {
     	setupSYSendpoints(router)    
@@ -128,7 +131,6 @@ func setupIMAendpoints(router *echo.Echo) {
 func setupTPM2endpoints(router *echo.Echo) {
 	router.POST(PREFIX+"/tpm2/pcrs", tpm2.PCRs)
 	router.POST(PREFIX+"/tpm2/quote", tpm2.Quote)
-
 }
 
 
