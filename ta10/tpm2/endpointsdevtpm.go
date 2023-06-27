@@ -11,6 +11,8 @@ import(
 
 	"github.com/labstack/echo/v4"
 
+
+	// this needs to be updated
 	"github.com/google/go-tpm/legacy/tpm2"
 	"github.com/google/go-tpm/tpmutil"
 
