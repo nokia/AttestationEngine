@@ -11,7 +11,7 @@ import(
 )
 
 type returnExpectedValues struct {
-	expectedValues  []string  `json:"expectedValues"`
+	ExpectedValues  []string  `json:"expectedValues"`
 	Length    int       `json:"length"`
 }
 
