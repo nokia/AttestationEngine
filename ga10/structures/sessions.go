@@ -5,8 +5,8 @@ type Session struct {
         ItemID string                           `json:"itemid",bson:"itemid"`        
         Timing SessionTiming                    `json:"timing",bson:"timing"`
 
-        ClaimList []string                      `json:"claimList",bson:"claimList"` 
-        ResultList []string                     `json:"resultList",bson:"resultList"` 
+        ClaimList []string                      `json:"claimlist",bson:"claimlist"` 
+        ResultList []string                     `json:"resultlist",bson:"resultlist"` 
 
         Message string                           `json:"message",bson:"message"`
 

@@ -5,8 +5,8 @@ type ExpectedValue struct {
         Name string                             `json:"name",bson:"name"`
         Description string                      `json:"description",bson:"description"`
 
-        ElementID string                        `json:"elementID",bson:"elementID"`
-        PolicyID string                         `json:"policyID",bson:"policyID"`
+        ElementID string                        `json:"elementid",bson:"elementid"`
+        PolicyID string                         `json:"policyid",bson:"policyid"`
 
         EVS map[string]interface{}              `json:"evs",bson:"evs"`
 }

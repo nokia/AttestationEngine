@@ -4,7 +4,7 @@ package structures
 
 type LogEntry struct {
         ItemID string                          `json:"itemid",bson:"itemid"`   
-        Timestamp Timestamp                        `json:"timestamp",bson:"timestamp"`   
+        Timestamp Timestamp                    `json:"timestamp",bson:"timestamp"`   
         Channel string                         `json:"channel",bson:"channel"`   
         Operation string                       `json:"operation",bson:"operation"`   
         RefID string                           `json:"refid",bson:"refid"`   

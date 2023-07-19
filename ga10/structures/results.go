@@ -17,14 +17,14 @@ const (
 
 type Result struct {
         ItemID string                           `json:"itemid",bson:"itemid"`
-        ClaimID string                          `json:"claimID",bson:"name"`
-        ClaimFooter ClaimFooter                 `json:"claimFooter",bson:"claimFooter"`        
-        Session Session                         `json:"session",bson:"description"`
-        ExpectedValue ExpectedValue             `json:"expectedValue",bson:"intent"`
+        ClaimID string                          `json:"claimid",bson:"claimid"`
+        ClaimFooter ClaimFooter                 `json:"claimfooter",bson:"claimfooter"`        
+        Session Session                         `json:"session",bson:"session"`
+        ExpectedValue ExpectedValue             `json:"expectedvalue",bson:"expectedvalue"`
         Parameters map[string]interface{}       `json:"parameters",bson:"parameters"`
-        Message string                          `json:"message",bson:"description"`
-        RuleName string                         `json:"ruleName",bson:"description"`
-        VerifiedAt Timestamp                    `json:"verifiedAt",bson:"description"`
+        Message string                          `json:"message",bson:"message"`
+        RuleName string                         `json:"rulename",bson:"rulename"`
+        VerifiedAt Timestamp                    `json:"verifiedat",bson:"verifiedat"`
         Result ResultValue                      `json:"result",bson:"result"`
         Footer ResultFooter                     `json:"footer",bson:"footer"`
 }
