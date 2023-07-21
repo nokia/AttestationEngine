@@ -26,8 +26,13 @@ func showElements(c echo.Context) error {
 
 func showElement(c echo.Context) error {
 	e,_ := operations.GetElementByItemID(c.Param("itemid"))
+
+	fmt.Printf(" cparam is %v and e.ItemId is %v\n",c.Param("itemid"),e.ItemID)
+
 	cs,_ := operations.GetClaimsByElementID(e.ItemID,15)
 	rs,_ := operations.GetResultsByElementID(e.ItemID,15)
+
+	fmt.Printf("showElement %v\n",c.Param("itemid"))
 
 	es := elementsStructure{ e,cs,rs }
 

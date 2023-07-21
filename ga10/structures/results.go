@@ -20,6 +20,7 @@ type Result struct {
         ClaimID string                          `json:"claimid",bson:"claimid"`
         ClaimFooter ClaimFooter                 `json:"claimfooter",bson:"claimfooter"`        
         Session Session                         `json:"session",bson:"session"`
+        ElementID string                        `json:"elementid",bson:"elementid"`        
         ExpectedValue ExpectedValue             `json:"expectedvalue",bson:"expectedvalue"`
         Parameters map[string]interface{}       `json:"parameters",bson:"parameters"`
         Message string                          `json:"message",bson:"message"`

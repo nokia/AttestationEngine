@@ -64,9 +64,11 @@ func GetResultsAll() ([]structures.Result, error) {
 func GetResultsByElementID(eid string, maximumAmount int64) ([]structures.Result, error) {
         var Results []structures.Result
 
-        filter := bson.D{ {} }   // Get all   // TODO search for itemIDs only
+        fmt.Printf("getting results for %v\n",eid)
+
+        filter := bson.D{ { "elementid",eid } }   // Get all   // TODO search for itemIDs only
         options := options.Find().SetSort(bson.D{{"verifiedAt",-1}}).SetLimit(maximumAmount)
-        dbcursor,_ := datalayer.DB.Collection("results").Find(context.TODO(), filter,options)
+        dbcursor,_ := datalayer.DB.Collection("results").Find(context.TODO(), filter, options)
         dbcursorerror := dbcursor.All(context.TODO(),&Results)
 
         return Results, dbcursorerror

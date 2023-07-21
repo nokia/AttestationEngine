@@ -71,9 +71,10 @@ func GetClaimsByElementID(eid string, maximumAmount int64) ([]structures.Claim, 
                 return claims, fmt.Errorf("Maximum amount must be a positive number")
         }
 
-        filter := bson.D{ {} }   // Get all   // TODO search for itemIDs only
+        fmt.Println("Getting for claim by element eid = %v\n",eid)
+        filter := bson.D{ {"header.element.itemid",eid } }     // TODO search for itemIDs only
         options := options.Find().SetSort(bson.D{{"header.timing.requested",-1}}).SetLimit(maximumAmount)
-        dbcursor,_ := datalayer.DB.Collection("claims").Find(context.TODO(), filter,options)
+        dbcursor,_ := datalayer.DB.Collection("claims").Find(context.TODO(), filter, options)
         dbcursorerror := dbcursor.All(context.TODO(),&claims)
 
         return claims, dbcursorerror

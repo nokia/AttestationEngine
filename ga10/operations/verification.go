@@ -12,7 +12,8 @@ import(
 type hashablePartResult struct {
         ClaimID string                         
         ClaimFooter structures.ClaimFooter                       
-        SessionID structures.Session                       
+        SessionID structures.Session    
+        ElementID string                   
         ExpectedValue structures.ExpectedValue             
         Parameters map[string]interface{}      
         Message string                         
@@ -64,11 +65,15 @@ func Verify(claim structures.Claim, rule structures.Rule, session structures.Ses
 
 	// required variables
 	var ev structures.ExpectedValue 
+	var eid string
 
 
 	// Start ******************************************************
 	// 0
 	returnedRV,returnedMSG = checkClaimError(claim)
+
+	eid = claim.Header.Element.ItemID
+	fmt.Printf("Verify eid %v\n",eid)
 
 	// if we are still unset then we proceed with the verification
 	if returnedRV == structures.UnsetResultValue {
@@ -106,8 +111,8 @@ func Verify(claim structures.Claim, rule structures.Rule, session structures.Ses
 
 	// Step 5 ******************************************************
 
-	footer,_ := hashAndSignResult(hashablePartResult{ claim.ItemID, claim.Footer, session, ev, rps, returnedMSG, rule.Name, verifiedAt, returnedRV })
-	r := structures.Result{ "", claim.ItemID, claim.Footer, session, ev, rps, returnedMSG, rule.Name, verifiedAt, returnedRV, footer }
+	footer,_ := hashAndSignResult(hashablePartResult{ claim.ItemID, claim.Footer, session, eid, ev, rps, returnedMSG, rule.Name, verifiedAt, returnedRV })
+	r := structures.Result{ "", claim.ItemID, claim.Footer, session, eid, ev, rps, returnedMSG, rule.Name, verifiedAt, returnedRV, footer }
 
 	// Step 6 ******************************************************
 	// This actually returns and error back which should be handled by the caller
