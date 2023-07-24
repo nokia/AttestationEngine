@@ -9,7 +9,7 @@ import(
 
 
 func Registration() (structures.Protocol) {
-	intents := []string{"null/good","null/error"}
+	intents := []string{"null/good","null/test"}
 
 	return structures.Protocol{"A10NETCONF","POC protocol module for NetConf",Call, intents}
 }

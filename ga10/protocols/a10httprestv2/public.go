@@ -14,7 +14,7 @@ import(
 const nonceSize int = 24
 
 func Registration() (structures.Protocol) {
-	intents := []string{"tpm2/pcrs","tpm2/quote","uefi/eventlog","ima/log","txt/log"}
+	intents := []string{"tpm2/pcrs","tpm2/quote","uefi/eventlog","ima/asciilog","txt/log","sys/info"}
 
 	return structures.Protocol{"A10HTTPRESTv2","HTTP protcol for Go based trust agents",Call,intents}
 }

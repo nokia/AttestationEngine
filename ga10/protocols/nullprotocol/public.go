@@ -9,7 +9,7 @@ import(
 
 
 func Registration() (structures.Protocol) {
-	intents := []string{"null/good","null/error"}
+	intents := []string{"*/*"}
 
 	return structures.Protocol{"A10NULLPROTOCOL","Testing protocol, always returns a test claim",Call, intents}
 }

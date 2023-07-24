@@ -29,8 +29,8 @@ func showElement(c echo.Context) error {
 
 	fmt.Printf(" cparam is %v and e.ItemId is %v\n",c.Param("itemid"),e.ItemID)
 
-	cs,_ := operations.GetClaimsByElementID(e.ItemID,15)
-	rs,_ := operations.GetResultsByElementID(e.ItemID,15)
+	cs,_ := operations.GetClaimsByElementID(e.ItemID,10)
+	rs,_ := operations.GetResultsByElementID(e.ItemID,10)
 
 	fmt.Printf("showElement %v\n",c.Param("itemid"))
 
