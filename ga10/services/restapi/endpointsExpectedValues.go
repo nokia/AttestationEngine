@@ -2,6 +2,7 @@ package restapi
 
 import(
 	"log"
+	"fmt"
 	"net/http"
 
 	"a10/operations"
@@ -121,7 +122,11 @@ func getExpectedValueByElementAndPolicy (c echo.Context) error {
 	eid := c.Param("eid")
 	pid := c.Param("pid")
 
+	fmt.Println("eid",eid,"pid",pid)
+
 	elem,err := operations.GetExpectedValueByElementAndPolicy(eid,pid)
+
+	fmt.Println("\nreturn ",elem," error",err)
 
 	if err != nil {
 		log.Println("err=",err)
