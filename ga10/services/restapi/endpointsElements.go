@@ -20,7 +20,7 @@ func getElements(c echo.Context) error {
 
 	if err != nil {
 		log.Println("err=",err)
-		return c.String(http.StatusInternalServerError,"error")
+		return c.JSON(http.StatusInternalServerError,MakeRESTErrorMessage(err))
 	} else {
 		//Convert elems from []structures.ID into a []string
 		var elems_str []string
@@ -42,7 +42,7 @@ func getElement (c echo.Context) error {
 
 	if err != nil {
 		log.Println("err=",err)
-		return c.String(http.StatusInternalServerError,"error")
+		return c.JSON(http.StatusInternalServerError,MakeRESTErrorMessage(err))
 	} else {
 		return c.JSON(http.StatusOK, elem)
 	}
@@ -55,7 +55,7 @@ func getElementsByName (c echo.Context) error {
 
 	if err != nil {
 		log.Println("err=",err)
-		return c.String(http.StatusInternalServerError,"error")
+		return c.JSON(http.StatusInternalServerError,MakeRESTErrorMessage(err))
 	} else {
 		//Convert elems from []structures.ID into a []string
 		var elems_str []string

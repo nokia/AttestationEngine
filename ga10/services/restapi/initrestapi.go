@@ -133,9 +133,15 @@ func setUpLoggingEndpoints(router *echo.Echo) {
 	router.GET(PREFIX+"/log", getLogEntries)
 }
 
+type homepageData struct {
+	Name string 		   `json:"name"`
+	WelcomeMessage string  `json:"welcomeMessage"`
+	Prefix string          `json:"prefix"`
+}
 
 func homepage(c echo.Context) error {
-	return c.String(http.StatusOK, "Hello there")
+	h := homepageData{ "Nokia Attestation Engine", "Croeso, Tervetuola, Welcome", PREFIX }
+	return c.JSON(http.StatusOK, h)
 }
 
 func config(c echo.Context) error {

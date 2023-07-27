@@ -21,7 +21,7 @@ func getSessions(c echo.Context) error {
 	elems,err := operations.GetSessions()
 
 	if err != nil {
-		return c.String(http.StatusInternalServerError,"error")
+		return c.JSON(http.StatusInternalServerError,MakeRESTErrorMessage(err))
 	} else {
 		//Convert elems from []structures.ID into a []string
 		var elems_str []structures.SessionSummary
@@ -44,7 +44,7 @@ func getSession(c echo.Context) error {
 	elem,err := operations.GetSessionByItemID(itemid)
 
 	if err != nil {
-		return c.String(http.StatusInternalServerError,"error")
+		return c.JSON(http.StatusInternalServerError,MakeRESTErrorMessage(err))
 	} else {
 		return c.JSON(http.StatusOK, elem)
 	}

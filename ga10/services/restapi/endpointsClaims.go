@@ -23,7 +23,7 @@ func getClaims(c echo.Context) error {
 
 	if err != nil {
 		log.Println("err=",err)
-		return c.String(http.StatusInternalServerError,err.Error())
+		return c.JSON(http.StatusInternalServerError,MakeRESTErrorMessage(err))
 	} else {
 		//Convert elems from []structures.ID into a []string
 		var claims_str []string
@@ -43,7 +43,7 @@ func getClaim (c echo.Context) error {
 	claim,err := operations.GetClaimByItemID(itemid)
 
 	if err != nil {
-		return c.String(http.StatusInternalServerError,err.Error())
+		return c.JSON(http.StatusInternalServerError,MakeRESTErrorMessage(err))
 	} else {
 		return c.JSON(http.StatusOK, claim)
 	}
@@ -62,7 +62,7 @@ func getClaimsByElementID (c echo.Context) error {
 
 	if err != nil {
 		log.Println("err=",err)
-		return c.String(http.StatusInternalServerError,err.Error())
+		return c.JSON(http.StatusInternalServerError,MakeRESTErrorMessage(err))
 	} else {
 		//Convert elems from []structures.ID into a []string
 		var claims_str []string

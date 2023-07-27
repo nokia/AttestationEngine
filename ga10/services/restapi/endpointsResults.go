@@ -23,7 +23,7 @@ func getResults(c echo.Context) error {
 
 	if err != nil {
 		log.Println("err=",err)
-		return c.String(http.StatusInternalServerError,err.Error())
+		return c.JSON(http.StatusInternalServerError,MakeRESTErrorMessage(err))
 	} else {
 		//Convert elems from []structures.ID into a []string
 		var Results_str []string
@@ -43,7 +43,7 @@ func getResult (c echo.Context) error {
 	Result,err := operations.GetResultByItemID(itemid)
 
 	if err != nil {
-		return c.String(http.StatusInternalServerError,err.Error())
+		return c.JSON(http.StatusInternalServerError,MakeRESTErrorMessage(err))
 	} else {
 		return c.JSON(http.StatusOK, Result)
 	}
@@ -62,7 +62,7 @@ func getResultsByElementID (c echo.Context) error {
 
 	if err != nil {
 		log.Println("err=",err)
-		return c.String(http.StatusInternalServerError,err.Error())
+		return c.JSON(http.StatusInternalServerError,MakeRESTErrorMessage(err))
 	} else {
 		//Convert elems from []structures.ID into a []string
 		var Results_str []string

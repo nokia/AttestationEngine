@@ -33,7 +33,7 @@ func getLogEntries(c echo.Context) error {
 	logentries,err := operations.GetLogEntries(max)
 
 	if err != nil {
-		return c.String(http.StatusInternalServerError,"error")
+		return c.JSON(http.StatusInternalServerError,MakeRESTErrorMessage(err))
 	} else {
 		rtn := returnLogEntries{ logentries, len(logentries), max }
 		return c.JSON(http.StatusOK, rtn)
