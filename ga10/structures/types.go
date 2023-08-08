@@ -1,3 +1,3 @@
 package structures
 
-type Timestamp string
+type Timestamp int64

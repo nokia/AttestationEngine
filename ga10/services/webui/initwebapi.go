@@ -190,6 +190,7 @@ func setUpDisplayEndpoints(router *echo.Echo) {
 
  	//log
     router.GET(PREFIX+"/log", showLog)
+    router.GET(PREFIX+"/log/since", showLogSince)
 
 }
 

@@ -131,6 +131,7 @@ func setupStatusEndpoints(router *echo.Echo) {
 func setUpLoggingEndpoints(router *echo.Echo) {
 	//other endpoint will be put here
 	router.GET(PREFIX+"/log", getLogEntries)
+	router.GET(PREFIX+"/log/since", getLogEntriesSince)	
 }
 
 type homepageData struct {

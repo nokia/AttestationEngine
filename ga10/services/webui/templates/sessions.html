@@ -14,8 +14,8 @@
         <tr> 
          <td><a href="/session/{{ .ItemID }}">{{ epochToUTC .Timing.Opened }}</a></td>
          <td>
-            {{ if eq .Timing.Closed "0" }}
-             <span class="badge bg-warning">Session still open</span> 
+            {{ if eq .Timing.Closed 0 }}
+             <span class="badge bg-warning">session open</span> 
             {{ else }}
              {{ epochToUTC .Timing.Closed }}
             {{ end }}

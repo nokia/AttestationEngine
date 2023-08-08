@@ -12,7 +12,7 @@
       <tr><td scope="col">ItemID</td> <td scope="col">{{ .S.ItemID }}</td> </tr>     
       <tr><td scope="col">Opened</td> <td scope="col">{{ epochToUTC .S.Timing.Opened }}</td> </tr>    
       <tr><td scope="col">Closed</td>
-      {{ if eq .S.Timing.Closed "0" }}
+      {{ if eq .S.Timing.Closed 0 }}
          <td><span class="badge bg-warning">Session still open</span> </td>   
       {{ else }} 
          <td scope="col">{{ epochToUTC .S.Timing.Closed }}</td>     

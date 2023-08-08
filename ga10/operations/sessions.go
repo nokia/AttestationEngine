@@ -31,7 +31,7 @@ func CountSessions() int64 {
 // An error is returned if an item id is given as part of the input structure.
 func OpenSession(msg string) (string, error) {
         // construct the session object
-        t := structures.SessionTiming{ utilities.MakeTimestamp(), "0" }
+        t := structures.SessionTiming{ utilities.MakeTimestamp(), 0 }
         s := structures.Session{ utilities.MakeID(), t, []string{}, []string{}, msg, structures.SessionFooter{}}
         // write to database
         _,dberr := datalayer.DB.Collection("sessions").InsertOne(context.TODO(), s)
@@ -59,7 +59,7 @@ func CloseSession(itemid string) error {
                 }
 
                 //Check if the session isn't already closed
-                if session.Timing.Closed != "0" {
+                if session.Timing.Closed != 0 {
                         return fmt.Errorf("Session already closed %v : %v",itemid,err)
                 }
 

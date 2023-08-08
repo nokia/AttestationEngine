@@ -30,12 +30,34 @@ func getLogEntries(c echo.Context) error {
 	}
 	log.Println("maxtype is ",reflect.TypeOf(max))
 
+
 	logentries,err := operations.GetLogEntries(max)
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError,MakeRESTErrorMessage(err))
 	} else {
 		rtn := returnLogEntries{ logentries, len(logentries), max }
+		return c.JSON(http.StatusOK, rtn)
+	}
+}
+
+
+type returnLogEntriesSince struct {
+	LogEntries  []structures.LogEntry  `json:"logentries"`
+	Length    int                      `json:"length"`
+	Duration  string                    `json:"duration"`
+}
+
+
+func getLogEntriesSince(c echo.Context) error {
+	duration_query := c.QueryParam("duration")
+
+	logentries,err := operations.GetLogEntriesSince(duration_query)
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError,MakeRESTErrorMessage(err))
+	} else {
+		rtn := returnLogEntriesSince{ logentries, len(logentries), duration_query }
 		return c.JSON(http.StatusOK, rtn)
 	}
 }
