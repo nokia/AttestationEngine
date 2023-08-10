@@ -8,7 +8,7 @@ import(
 	"fmt"
 
     "a10/configuration"
-    _ "a10/logging"
+    "a10/logging"
 
 	"github.com/racingmars/go3270"
 
@@ -33,13 +33,17 @@ func StartX3270() {
 	//start the server
 	ln, err := net.Listen("tcp", ":"+port)
 	if err != nil {
+		logging.MakeLogEntry("SYS","startup",configuration.ConfigData.System.Name,"GA10","X3270 service failed to start.")
 		fmt.Printf("X3270 failed to start service")
 		panic(err)
 	}
+
+	logging.MakeLogEntry("SYS","startup",configuration.ConfigData.System.Name,"GA10","X3270 service started.")
 	fmt.Printf("X3270 service listening on port %v\n",port)
 	for {
 		conn, err := ln.Accept()
 		if err != nil {
+			logging.MakeLogEntry("SYS","x3270",configuration.ConfigData.System.Name,"GA10","X3270 failed to accept connnection")
 			fmt.Printf("X3270 failed to accept connnection")
 			panic(err)
 		}

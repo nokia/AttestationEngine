@@ -19,6 +19,7 @@ import (
 	"a10/services/restapi"
 	"a10/services/webui"
 	"a10/services/x3270"
+	//"a10/services/d10"
 
 )
 
@@ -35,6 +36,7 @@ var RUNSESSION string = utilities.MakeID()
 var flagREST = flag.Bool("startREST", true, "Start the REST API, defaults to true")
 var flagWEB = flag.Bool("startWebUI", true, "Start the HTML Web UI, defaults to true")
 var flagX3270 = flag.Bool("startx3270", true, "Start the X3270 UI, defaults to true")
+//var flagD10 = flag.Bool("startd10", true, "Start the D10 Decision Policy Engine, defaults to true")
 
 var configFile = flag.String("config", "./config.yaml", "Location and name of the configuration file")
 
@@ -68,7 +70,7 @@ func main() {
 
 	// Ok, we're up...let's log this.
 	msg := fmt.Sprintf("Starting: %v, build %v, OS %v, ARCH %v", VERSION, BUILD, runtime.GOOS, runtime.GOARCH)
-	logging.MakeLogEntry("SYS", "startup", RUNSESSION, configuration.ConfigData.System.Name, msg)
+	logging.MakeLogEntry("SYS", "startup/INIT", RUNSESSION, configuration.ConfigData.System.Name, msg)
 
 	welcomeMessage()
 
@@ -81,7 +83,7 @@ func main() {
 
 	// and if this has gone well...
 
-	msg = fmt.Sprintf("DB,MQTT,Rules initialised. Starting services: web %v, rest %v", *flagWEB, *flagREST)
+	msg = fmt.Sprintf("DB,MQTT,Rules initialised. Starting services: web %v, rest %v, x3720 %v", *flagWEB, *flagREST, *flagX3270)
 	logging.MakeLogEntry("SYS", "startup", RUNSESSION, configuration.ConfigData.System.Name, msg)
 
 	// Start (or not) the various internal services
@@ -104,7 +106,10 @@ func main() {
 		wg.Add(1)
 		go webui.StartWebUI()
 	}
-
+	// if *flagD10 == true {
+	// 	wg.Add(1)
+	// 	go d10.StartD10()
+	// }
 
 
 	wg.Wait()

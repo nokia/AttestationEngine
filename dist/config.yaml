@@ -31,6 +31,11 @@ web:
 x3270:
   port: 3270
 
+#D10 Service Configuration
+d10:
+  port: 8521
+  files: /var/ga10/d10
+
 #Log file
 logging:
   logfilelocation: /tmp/ga10.log

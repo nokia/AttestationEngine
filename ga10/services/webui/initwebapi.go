@@ -129,13 +129,11 @@ func StartWebUI() {
 
 	//start the server
 	if usehttp == true{ 
+		logging.MakeLogEntry("SYS","startup",configuration.ConfigData.System.Name,"WEBUI","WEB UI HTTP mode starting.")		
 		router.Logger.Fatal(router.Start(port)) 
-		logging.MakeLogEntry("SYS","startup_svcs",configuration.ConfigData.System.Name,"GA10","WEB UI HTTP mode started.")
-
 	} else {
+		logging.MakeLogEntry("SYS","startup",configuration.ConfigData.System.Name,"WEBUI","WEB UI HTTPS mode starting.")		
 		router.Logger.Fatal(router.StartTLS(port,crt,key))
-		logging.MakeLogEntry("SYS","startup_svcs",configuration.ConfigData.System.Name,"GA10","WEB UI HTTPS mode started.")
-	
 	}
 }
 

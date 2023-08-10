@@ -100,18 +100,22 @@
 
                <table class="table table-sm table-striped">
                   <tbody>
-                    <tr><td scope="col">REST</td> <td scope="col"> {{ if eq .Cfg.Rest.UseHTTP true }}
+                    <tr><td scope="col">REST</td> <td scope="col">  <b>:{{ .Cfg.Rest.Port }} </b> 
+                                                                     {{ if eq .Cfg.Rest.UseHTTP true }}
                                                                            <span class="badge bg-danger">http</span>
                                                                            {{ else }}
                                                                            <span class="badge bg-success">https</span>
-                                                                     {{ end }} <b>
-                                                                     :{{ .Cfg.Rest.Port }} </b></td> </tr>    
-                    <tr><td scope="col">Web</td> <td scope="col">{{ if eq .Cfg.Web.UseHTTP true }}
+                                                                     {{ end }}</td> </tr>    
+                    <tr><td scope="col">Web</td> <td scope="col">   <b> :{{ .Cfg.Web.Port }}</b>
+                                                                     {{ if eq .Cfg.Web.UseHTTP true }} 
                                                                            <span class="badge bg-danger">http</span>
                                                                            {{ else }}
                                                                            <span class="badge bg-success">https</span>
-                                                                     {{ end }} <b>
-                                                                     :{{ .Cfg.Web.Port }}</b></td> </tr>     
+                                                                     {{ end }} </td> </tr>   
+                    <tr><td scope="col">X3270</td> <td scope="col"><b>:{{ .Cfg.X3270.Port }}</b></td> </tr>  
+
+
+
                    </tbody>
                </table>
 

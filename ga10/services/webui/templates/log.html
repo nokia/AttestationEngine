@@ -15,10 +15,13 @@
    <tbody>
       {{ range .LogEntries }} 
 
-          {{ if eq .Channel "SYS"}}
-          <tr class="table-primary"> 
+
+          {{ if eq .Operation "startup/INIT"}}
+             <tr class="table-success">
+          {{ else if eq .Channel "SYS"}}
+             <tr class="table-primary"> 
           {{else}}
-          <tr> 
+             <tr> 
           {{end}} 
        <td>{{ epochToUTC .Timestamp }}</td>
 <td style="text-align:center">{{ .Channel }}</td>

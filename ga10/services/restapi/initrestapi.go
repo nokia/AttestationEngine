@@ -38,12 +38,12 @@ func StartRESTInterface() {
 
 	//start the server
 	if usehttp == true{ 
+		logging.MakeLogEntry("SYS","startup",configuration.ConfigData.System.Name,"RESTAPI","REST API HTTP mode starting.")		
 		router.Logger.Fatal(router.Start(port)) 
-		logging.MakeLogEntry("SYS","startup_svcs",configuration.ConfigData.System.Name,"GA10","REST API HTTP mode started.")
 
 	} else {
+		logging.MakeLogEntry("SYS","startup",configuration.ConfigData.System.Name,"RESTAPI","REST API HTTPS mode starting.")		
 		router.Logger.Fatal(router.StartTLS(port,crt,key))
-		logging.MakeLogEntry("SYS","startup_svcs",configuration.ConfigData.System.Name,"GA10","REST API HTTPS mode started.")
 	
 	}
 }
