@@ -11,12 +11,15 @@ import (
 
 	"a10/configuration"
 	"a10/datalayer"
-	"a10/services/restapi"
-	"a10/services/webui"
 	"a10/logging"
 	"a10/protocols"
 	"a10/rules"
 	"a10/utilities"
+
+	"a10/services/restapi"
+	"a10/services/webui"
+	"a10/services/x3270"
+
 )
 
 // Version number
@@ -31,6 +34,8 @@ var RUNSESSION string = utilities.MakeID()
 // Command line flags
 var flagREST = flag.Bool("startREST", true, "Start the REST API, defaults to true")
 var flagWEB = flag.Bool("startWebUI", true, "Start the HTML Web UI, defaults to true")
+var flagX3270 = flag.Bool("startx3270", true, "Start the X3270 UI, defaults to true")
+
 var configFile = flag.String("config", "./config.yaml", "Location and name of the configuration file")
 
 
@@ -87,6 +92,10 @@ func main() {
 
 	var wg sync.WaitGroup
 
+	if *flagX3270 == true {
+		wg.Add(1)
+		go x3270.StartX3270()
+	}
 	if *flagREST == true {
 		wg.Add(1)
 		go restapi.StartRESTInterface()
@@ -95,6 +104,8 @@ func main() {
 		wg.Add(1)
 		go webui.StartWebUI()
 	}
+
+
 
 	wg.Wait()
 	// ...and exit here (if graceful!) which does not happen in the current version

@@ -56,6 +56,9 @@ type ConfigurationStruct struct {
 		Key         string
 		UseHTTP		bool
 	}	
+	X3270 struct {
+		Port        string
+	}
 	Logging struct {
 		LogFileLocation			 string
 		SessionUpdateLogging	 bool

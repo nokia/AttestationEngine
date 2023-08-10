@@ -27,6 +27,10 @@ web:
   key: temporary.key
   usehttp: true  
 
+#x3270 Configuraiton
+x3270:
+  port: 3270
+
 #Log file
 logging:
   logfilelocation: /tmp/ga10.log
