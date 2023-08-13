@@ -1,0 +1,70 @@
+name: Atteststion Script v1
+description: >
+   This is a description 
+   This is the second line
+collections:
+    -   name: x86 Machines
+        apply: Atteststion template 1
+        include:
+            names:
+                - a
+                - b
+            tags:
+                - c
+                - d
+            itemids:
+                - e
+                - f
+        exclude:
+            names:
+                - g
+                - h
+            tags:
+                - i
+                - j
+            itemids:
+                - k
+                - l
+templates:
+    -   name: Atteststion template 1
+        decision:  v1 || v2 => v3           
+        attestations:
+            -   policy: fred
+                parameters: '{ "j":"k" }'
+                verifications:
+                    -   rule: tpm2/blob
+                        parameters: '{ "z":"b", "cob":"luso" }'
+                        out:  v1
+                    -   rule: tpm2/foobar
+                        parameters: '{ "z":"b", "cob":"luso" }'
+                        out:  v1
+            -   policy: fred
+                parameters: '{ "j":"k" }'
+                verifications:
+                    -   rule: tpm2/blob
+                        parameters: '{ "z":"b", "cob":"luso" }'
+                        out:  v1
+                    -   rule: tpm2/foobar
+                        parameters: '{ "z":"b", "cob":"luso" }'
+                        out:  v1
+    -   name: Atteststion template 2
+        decision:  v1 || v2 => v3           
+        attestations:
+            -   policy: fred
+                parameters: '{ "j":"k" }'
+                verifications:
+                    -   rule: tpm2/blob
+                        parameters: '{ "z":"b", "cob":"luso" }'
+                        out:  v1
+                    -   rule: tpm2/foobar
+                        parameters: '{ "z":"b", "cob":"luso" }'
+                        out:  v1
+            -   policy: fred
+                parameters: '{ "j":"k" }'
+                verifications:
+                    -   rule: tpm2/blob
+                        parameters: '{ "z":"b", "cob":"luso" }'
+                        out:  v1
+                    -   rule: tpm2/foobar
+                        parameters: '{ "z":"b", "cob":"luso" }'
+                        out:  v1                        
