@@ -1,5 +1,9 @@
 package bps
 
+import(
+	_ "fmt"
+)
+
 // Attests a single element
 func AttestSingleElement(eid string, templname string) (Decision, error) {
    
@@ -8,9 +12,11 @@ func AttestSingleElement(eid string, templname string) (Decision, error) {
 
 // Returns the list of element IDs
 func EvaluateCollection(colname string) ( []string, error ) {
-   
-   ls := make( []string, 0 )
-   return ls, nil
+   _,err := GetCollection(colname)
+
+   emptystring := make([]string ,0)
+
+   return emptystring,err
 }
 
 
