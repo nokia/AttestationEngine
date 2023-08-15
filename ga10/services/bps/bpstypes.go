@@ -1,22 +1,11 @@
-package main
+package bps
 
 //
-// Attestation Script Structure
-//
-
-type AttestationScript struct {
-	Name			string           	`yaml:"name"`
-	Description  	string           	`yaml:"description"`
-	Collections		[]Collection		`yaml:"collections"`
-	Templates		[]Template			`yaml:"templates"`
-}
-
-//
-// Collection Structure
+// Collections
 //
 
 type Collection struct {
-	Name			string           	`yaml:"name"`
+	Name        	string           	`yaml:"name"`
 	Apply			string 				`yaml:"apply"`
 	Include			ElementSelector   	`yaml:"include"`
 	Exclude			ElementSelector   	`yaml:"exclude"`
@@ -28,8 +17,10 @@ type ElementSelector struct {
    ItemIDs      	[]string            `yaml:"itemids"`
 }
 
+
+
 //
-// Template Structure
+// Templates
 //
 
 type Template struct {

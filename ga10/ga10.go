@@ -19,7 +19,7 @@ import (
 	"a10/services/restapi"
 	"a10/services/webui"
 	"a10/services/x3270"
-	//"a10/services/d10"
+	"a10/services/bps"
 
 )
 
@@ -36,7 +36,7 @@ var RUNSESSION string = utilities.MakeID()
 var flagREST = flag.Bool("startREST", true, "Start the REST API, defaults to true")
 var flagWEB = flag.Bool("startWebUI", true, "Start the HTML Web UI, defaults to true")
 var flagX3270 = flag.Bool("startx3270", true, "Start the X3270 UI, defaults to true")
-//var flagD10 = flag.Bool("startd10", true, "Start the D10 Decision Policy Engine, defaults to true")
+var flagBPS = flag.Bool("startBPS", true, "Start the Base Policy Services Engine, defaults to true")
 
 var configFile = flag.String("config", "./config.yaml", "Location and name of the configuration file")
 
@@ -106,10 +106,10 @@ func main() {
 		wg.Add(1)
 		go webui.StartWebUI()
 	}
-	// if *flagD10 == true {
-	// 	wg.Add(1)
-	// 	go d10.StartD10()
-	// }
+	 if *flagBPS == true {
+	 	wg.Add(1)
+	 	go bps.StartBPS()
+	 }
 
 
 	wg.Wait()

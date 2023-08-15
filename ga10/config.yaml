@@ -27,6 +27,13 @@ web:
   key: temporary.key
   usehttp: true  
 
+#Base Policy Service Configuration
+web:
+  port: 8521
+  crt: temporary.crt
+  key: temporary.key
+  usehttp: true  
+
 #Log file
 logging:
   logfilelocation: /tmp/ga10.log
