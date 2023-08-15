@@ -5,8 +5,8 @@ package bps
 //
 
 type Collection struct {
-	Name        	string           	`yaml:"name"`
-	Apply			string 				`yaml:"apply"`
+	Name        	string           	   `yaml:"name"`
+	Apply			string 				      `yaml:"apply"`
 	Include			ElementSelector   	`yaml:"include"`
 	Exclude			ElementSelector   	`yaml:"exclude"`
 }
@@ -32,11 +32,21 @@ type Template struct {
 type Attestation struct {
    Policy            string            	`yaml:"policy"`
    Parameters        string            	`yaml:"parameters"`
-   Verifications     []VerificationStr  `yaml:"verifications"`
+   Verifications     []VerificationStr    `yaml:"verifications"`
 }
 
 type VerificationStr struct {
    Rule              string            `yaml:"rule"`
    Parameters        string            `yaml:"parameters"`
-   Out    			 string            `yaml:"out"`
+   Out    			   string            `yaml:"out"`
+}
+
+
+
+//
+// Decision Structures
+//
+
+type Decision struct {
+   tempfield   string   // this is just a temporary placeholder
 }
