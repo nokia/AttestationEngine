@@ -27,12 +27,20 @@ web:
   key: temporary.key
   usehttp: true  
 
+
+#Web Interface Configuration
+x3270:
+  port: 3270
+    
+
 #Base Policy Service Configuration
-web:
+bps:
   port: 8521
   crt: temporary.crt
   key: temporary.key
   usehttp: true  
+  path: /home/ioliver/bpstemplates 
+
 
 #Log file
 logging:

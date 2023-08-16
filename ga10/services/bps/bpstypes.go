@@ -6,6 +6,7 @@ package bps
 
 type Collection struct {
 	Name        	string           	   `yaml:"name"`
+   Description    string               `yaml:"description"`
 	Apply			string 				      `yaml:"apply"`
 	Include			ElementSelector   	`yaml:"include"`
 	Exclude			ElementSelector   	`yaml:"exclude"`

@@ -120,3 +120,19 @@ func GetElementsByName(name string) ([]structures.Element, error) {
 
         return elems, dbcursorerror
 }
+
+// GetElementByName returns all elements with the given name or an empty list.
+func GetElementsByTag(tag string) ([]structures.Element, error) {
+        var elems []structures.Element
+
+        // discard the error, the dbcursor.All will deal with that case
+        // not sure how this works, but if tags is an array then this
+        // should perform the equivalent of   tag in tags
+        // ie: set inclusion.....let's see
+        
+        filter := bson.D{ {"tags", tag} }
+        dbcursor,_ := datalayer.DB.Collection("elements").Find(context.TODO(), filter)
+        dbcursorerror := dbcursor.All(context.TODO(),&elems)
+
+        return elems, dbcursorerror
+}

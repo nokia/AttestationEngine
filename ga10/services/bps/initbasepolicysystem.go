@@ -27,14 +27,9 @@ func StartBPS() {
     //setup endpoints
   
 	setupStatusEndpoints(router)
-
-	/*
-	setUpOperationEndpoints(router)
-	setupAuxillaryOperationEndpoints(router)
-	setupAttestationEndpoints(router)	
-	setUpLoggingEndpoints(router)
-	*/
-
+	setupDBEndpoints(router)
+    setupBPSoperationEndpoints(router)
+	
 	//get configuration data
 	port := ":"+configuration.ConfigData.BPS.Port 
 	crt := configuration.ConfigData.BPS.Crt 
@@ -70,8 +65,67 @@ func setupStatusEndpoints(router *echo.Echo) {
 	router.GET(PREFIX+"/config", config)
 }
 
+func setupDBEndpoints(router *echo.Echo) {
+	router.GET(PREFIX+"/db", restDB)
+	router.GET(PREFIX+"/collection/:colname", getCollection)
+	router.GET(PREFIX+"/template/:templatename", getTemplate)	
+}
+
+func setupBPSoperationEndpoints(router *echo.Echo) {
+	//router.POST(PREFIX+"/apply/:eid/:templatename", applySingleElement)
+	router.GET(PREFIX+"/eval/:colname", evalCollection)	
+	//router.POST(PREFIX+"/execute/:colname", applyCollection)
+}
+
+type dbContents struct {
+	Collections []string    `json:"collections"`
+	Templates   []string     `json:"templates"`
+	Numcollections int      `json:"numcollections"`
+	Numtemplates   int      `json:"numtemplates"`
+}
+
+func evalCollection(c echo.Context) error {
+	n := c.Param("colname")
+
+	es,_ := EvaluateCollection(n)
+	return c.JSON(http.StatusOK, es)
+}
 
 
+func restDB(c echo.Context) error {
+	cs := make([]string, 0)
+	ts := make([]string, 0)
+
+	for k, _ := range CollectionsDB {
+		cs = append(cs, k)
+	}
+	for k, _ := range TemplatesDB {
+		ts = append(ts, k)
+	}
+
+	r := dbContents{cs,ts,len(cs),len(ts)}
+	fmt.Printf("dbcontents %v\n",r)
+	return c.JSON(http.StatusOK, r)
+}
+
+func getCollection(c echo.Context) error {
+	n := c.Param("colname")
+	col,err := GetCollection(n)
+	fmt.Printf("col,err %v\n%w\n",col,err)
+	if err!=nil {
+		return c.JSON(http.StatusNotFound, err)
+	}
+	return c.JSON(http.StatusOK,col)
+}
+
+func getTemplate(c echo.Context) error {
+	n := c.Param("templatename")
+	tem,err := GetTemplate(n)
+	if err!=nil {
+		return c.JSON(http.StatusNotFound, err)
+	}
+	return c.JSON(http.StatusOK,tem)
+}
 
 type bpsHealthData struct {
 	Name string 		   `json:"name"`

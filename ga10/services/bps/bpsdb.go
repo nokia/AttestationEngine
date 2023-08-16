@@ -12,15 +12,6 @@ var CollectionsDB map[string]Collection = make(map[string]Collection)
 var TemplatesDB map[string]Template = make(map[string]Template)
 
 
-func GetCollection(n string) (Collection, error){
-
-	c,err := CollectionsDB[n]
-	if err {
-    	return c,fmt.Errorf("No such collection %v",n)
-   	}
-
-   	return c, nil
-}
 
 
 func LoadFiles(path string) error {
