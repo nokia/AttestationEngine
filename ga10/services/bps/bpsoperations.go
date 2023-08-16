@@ -2,6 +2,7 @@ package bps
 
 import(
    "fmt"
+   "golang.org/x/exp/slices"
 
    "a10/operations"
 )
@@ -29,11 +30,70 @@ func GetTemplate(n string) (Template, error){
 
 // Attests a single element
 func AttestSingleElement(eid string, templatename string) (Decision, error) {
+   e,err  := operations.GetElementByItemID(eid)
+   t,err  := GetTemplate(templatename)
    
    return Decision{"something"}, nil
 }
 
 // Returns the list of element IDs
+func removeDuplicates(strSlice []string) []string {
+    allKeys := make(map[string]bool)
+    list := []string{}
+    for _, item := range strSlice {
+        if _, value := allKeys[item]; !value {
+            allKeys[item] = true
+            list = append(list, item)
+        }
+    }
+    fmt.Printf("unique slice is %v\n",list)
+    return list
+}
+
+func subtractSet(set1 []string, set2 []string) []string{
+   var outset []string 
+
+   for _,i := range set1 {
+      if !slices.Contains(set2,i) {
+         outset = append(outset,i)
+      }
+   }
+
+   fmt.Printf("substracted unique slice is %v\n",outset)
+   return outset
+}
+
+func obtainElementSelectionSet(s ElementSelector) ([]string, error) {
+   var itemids []string
+
+   for _,i := range s.ItemIDs {
+      fmt.Printf("   itemid %v\n",i)
+      e,_ := operations.GetElementByItemID(i)
+      itemids = append(itemids, e.ItemID)
+      fmt.Printf("      eid %v\n",e)
+   }
+   for _,t := range s.Tags {
+      fmt.Printf("   tag %v\n",t)
+      es,_:= operations.GetElementsByTag(t)
+      for _,el := range es {
+         itemids = append(itemids, el.ItemID)      
+      }
+      fmt.Printf("      es %v\n",len(es))
+   }
+   for _,n := range s.Names {
+      fmt.Printf("   name %v\n",n)
+      es,_:= operations.GetElementsByName(n)
+      for _,el := range es {
+         itemids = append(itemids, el.ItemID)      
+      }      
+      fmt.Printf("      es %v\n",len(es))
+   }
+
+   return removeDuplicates(itemids), nil
+
+}
+
+
 func EvaluateCollection(colname string) ( []string, error ) {
    emptystring := make([]string ,0)
 
@@ -42,24 +102,21 @@ func EvaluateCollection(colname string) ( []string, error ) {
       return emptystring,err
    }
 
-   for _,i := range c.Include.ItemIDs {
-      fmt.Printf("   itemid %v",i)
-      e,_ := operations.GetElementByItemID(i)
-      fmt.Printf("      eid %v",e)
-
+   includeset, err := obtainElementSelectionSet(c.Include)
+   if err!=nil {
+      return emptystring, err
    }
-   for _,t := range c.Include.Tags {
-      fmt.Printf("   tag %v",t)
-      es,_:= operations.GetElementsByTag(t)
-      fmt.Printf("      es %v",len(es))
-   }
-   for _,n := range c.Include.Names {
-      fmt.Printf("   name %v",n)
-      es,_:= operations.GetElementsByName(n)
-      fmt.Printf("      es %v",len(es))
+   excludeset, err := obtainElementSelectionSet(c.Exclude)
+   if err!=nil {
+      return emptystring, err
    }
 
-   return emptystring,err
+   fmt.Printf("include set=%v\nexclude set=%v\n",includeset,excludeset)
+
+   selectedset := subtractSet(includeset,excludeset)
+
+   fmt.Printf("selected set=%v\n",selectedset)
+   return selectedset,err
 }
 
 

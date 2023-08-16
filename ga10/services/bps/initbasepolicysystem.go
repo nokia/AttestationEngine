@@ -84,11 +84,18 @@ type dbContents struct {
 	Numtemplates   int      `json:"numtemplates"`
 }
 
+type evalResults struct {
+	ItemIDS []string  `json:"elements"`
+    Num     int       `json:"num"`
+}
+
 func evalCollection(c echo.Context) error {
 	n := c.Param("colname")
 
 	es,_ := EvaluateCollection(n)
-	return c.JSON(http.StatusOK, es)
+
+	r := evalResults{es,len(es)}
+	return c.JSON(http.StatusOK, r)
 }
 
 
