@@ -91,17 +91,17 @@ func postVerify(c echo.Context) error {
 
 	claim,err := operations.GetClaimByItemID(cid)
     	if err != nil {
-		fmt.Errorf("Claim not found: %v",err)
+			return fmt.Errorf("claim not found: %v",err)
 	} 
 
 	rule,err := operations.GetRule(r)
     	if err != nil {
-		fmt.Errorf("Rule not found: %v",rule)
+			return fmt.Errorf("rule not found: %v",rule)
 	} 
 
 	session,err := operations.GetSessionByItemID(sid)
     	if err != nil {
-		fmt.Errorf("Session not found: %v",err)
+			return fmt.Errorf("session not found: %v",err)
 	} 
 
 	res,rv,err := operations.Verify(claim,rule,session,ps)

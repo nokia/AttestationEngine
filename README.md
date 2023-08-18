@@ -2,7 +2,7 @@
 
 This is the source for the Nokia Attestation Engine A10.
 
-This software is used as the remote attestation engine as part of a trusted computing environment. THis is the system that holds the known good values about devices and other elements, and provides the attestation and validation mechanisms.
+This software is used as the remote attestation engine as part of a trusted computing environment. This is the system that holds the known good values about devices and other elements, and provides the attestation and validation mechanisms.
 
 The software here is provided as-is - there is no security (http for the win!) and the error checking in places is completely missing. The point of this was to explore more interesting mechanisms for remote attestation and to implement ideas from the IEFT RATS specification.
 
@@ -12,6 +12,7 @@ Each directory contains a local README.md file with more information
 
    * ga10 - The main server-side engine.
    * ta10 - A reference trust agent for /dev/tpm* devices
+   * dist - contains useful files, eg: systemd examples etc.
    * v0.11.0 - the older python3 based NAE.
   
 ## Getting it running QUICKLY
@@ -41,10 +42,13 @@ THIS IS NOT SECURE!!!
 
 PUTTING PRIVATE KEYS ON GITHUB FOR ANYTHING ELSE THAN A DEMONSTRATION IS CRAZY. DO NOT DO THIS.
 
-TO SAVE YOURSELF, SET THE usehttp FIELDS TO true.  
+TO SAVE YOURSELF, SET THE use http FIELDS TO true.  
 
 GENERATE YOUR OWN KEYS AND KEEP THEM SECURE.
 
+## More security and evidence
+
+A10 signs claims, results, sessions etc...the keys are randomly generated each him the system is started and aren't recorded anywhere. There is some code to talk PKCS#11 and has been tested with a YubiHSM but it isn't used. Don't rely upon it, I haven't tested it and it is just placeholder at this time. Yes, I'll get arund to writing the proper functionality real soon now...volunteers?
 
 ## Example Config File 
 

@@ -33,6 +33,7 @@ func AttestSingleElement(eid string, templatename string) (Decision, error) {
    e,err  := operations.GetElementByItemID(eid)
    t,err  := GetTemplate(templatename)
    
+   fmt.Printf("e,t,err %v,%v,%v\n",e,t,err)
    return Decision{"something"}, nil
 }
 

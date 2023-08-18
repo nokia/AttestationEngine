@@ -3,7 +3,6 @@ package utilities
 import(
 	"encoding/gob"
 	"fmt"
-	"log"
 	"bytes"
 	"crypto/sha256"
 )
@@ -21,8 +20,7 @@ func MakeSHA256(i any) ([]uint8,error) {
 
 	e := gob.NewEncoder(&b)
 	if err := e.Encode(i); err != nil {
-		log.Printf("WARNING: Encoding hash failed with %v. Entry not made.",err)
-		return []uint8{},fmt.Errorf("Encoding Failed")
+		return []uint8{},fmt.Errorf("hash encoding Failed with error %w", err)
 	}
 
 	h := sha256.New()
