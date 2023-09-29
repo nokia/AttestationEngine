@@ -61,6 +61,8 @@ func GetClaimsAll() ([]structures.Claim, error) {
         dbcursor,_ := datalayer.DB.Collection("claims").Find(context.TODO(), filter, options)
         dbcursorerror := dbcursor.All(context.TODO(),&claims)
 
+        fmt.Printf("\n********\nClaims\n error %w \n claims %v \n***  \n",claims,dbcursorerror)
+
         return claims, dbcursorerror
 }
 

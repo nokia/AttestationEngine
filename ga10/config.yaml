@@ -33,15 +33,6 @@ x3270:
   port: 3270
     
 
-#Base Policy Service Configuration
-bps:
-  port: 8521
-  crt: temporary.crt
-  key: temporary.key
-  usehttp: true  
-  path: /home/ioliver/bpstemplates 
-
-
 #Log file
 logging:
   logfilelocation: /tmp/ga10.log

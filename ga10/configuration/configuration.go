@@ -56,13 +56,6 @@ type ConfigurationStruct struct {
 		Key         string
 		UseHTTP		bool
 	}	
-	BPS struct {
-		Port        string
-		Crt  		string
-		Key         string
-		UseHTTP		bool
-		Path        string
-	}		
 	X3270 struct {
 		Port        string
 	}
