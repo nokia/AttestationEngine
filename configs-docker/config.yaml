@@ -1,0 +1,39 @@
+#Some general naming
+system:
+  name: ASVR_GO_1
+
+#MongoDB Configuration
+database:
+  connection: mongodb://mongodb:27017
+  name: testasvrlocal
+
+#MQTT Configuration
+messaging:
+  broker: messagebus
+  port: 1883
+  clientid: asvrgo1
+
+#REST Interface Configuration
+rest:
+  port: 8520
+  crt: temporary.crt
+  key: temporary.key
+  usehttp: false
+
+#Web Interface Configuration
+web:
+  port: 8540
+  crt: temporary.crt
+  key: temporary.key
+  usehttp: true  
+
+
+#Web Interface Configuration
+x3270:
+  port: 3270
+    
+
+#Log file
+logging:
+  logfilelocation: /tmp/ga10.log
+  sessionupdatelogging: false
