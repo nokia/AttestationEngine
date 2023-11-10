@@ -2,7 +2,6 @@ package tpm2rules
 
 import(
 	"fmt"
-	"reflect"
 
 	"a10/structures"
 )
@@ -19,16 +18,35 @@ func Registration() []structures.Rule {
 }
 
 
+//
+// Convenience Functions for navigating over the claim body
+//
+
+func getQuote(claim structures.Claim) map[string]interface{} {
+	q := (claim.Body)["quote"]
+	return q.(map[string]interface{}) 
+}
+
+func getSignature(claim structures.Claim) map[string]interface{} {
+	q := (claim.Body)["signature"]
+	return q.(map[string]interface{}) 
+}
+
+//
+// Here are the actual verification functiona
+//
 
 func IsSafe(claim structures.Claim, rule string, ev structures.ExpectedValue, session structures.Session, parameter map[string]interface{})  (structures.ResultValue, string, error)  {
 	// Type conversation here are a bit ugly, but at least strongly typed!!!
 	// Note that the type of claimedSafe is float64  ... this is the way Golang unmarshalls JSON so there.
 
-	if _, ok := (claim.Body)["ClockInfo"]; !ok {
+	q:=getQuote(claim)
+
+	if _, ok := q["ClockInfo"]; !ok {
 	 	return structures.VerifyCallFailure,"Missing ClockInfo in claim body",nil
 	}
 
-	cli := (claim.Body)["ClockInfo"]
+	cli := q["ClockInfo"]
 	claimedSafe := cli.(map[string]interface{})["Safe"]
 
 	if claimedSafe==1.0 {
@@ -41,13 +59,14 @@ func IsSafe(claim structures.Claim, rule string, ev structures.ExpectedValue, se
 
 
 func AttestedPCRDigest(claim structures.Claim, rule string, ev structures.ExpectedValue, session structures.Session, parameter map[string]interface{})  (structures.ResultValue, string, error)  {
-	// Type conversation here are a bit ugly, but at least strongly typed!!!
 
-	if _, ok := (claim.Body)["AttestedQuoteInfo"]; !ok {
+	q:=getQuote(claim)
+
+	if _, ok :=q["AttestedQuoteInfo"]; !ok {
 	 	return structures.VerifyCallFailure,"Missing AttestedQuoteInfo in claim body",nil
 	}
 
-	aqi := (claim.Body)["AttestedQuoteInfo"]
+	aqi := q["AttestedQuoteInfo"]
 	claimedAV := aqi.(map[string]interface{})["PCRDigest"]
 
 	expectedAV := (ev.EVS)["attestedValue"]
@@ -63,17 +82,21 @@ func AttestedPCRDigest(claim structures.Claim, rule string, ev structures.Expect
 
 
 
+
+
 func FirmwareRule(claim structures.Claim, rule string, ev structures.ExpectedValue, session structures.Session, parameter map[string]interface{})  (structures.ResultValue, string, error)  {
 
 	// The firmware version is serialised from the JSON as a float64, so we need to convert it to string
 	// annoyingly this is in decical not hex
 	
+	q:=getQuote(claim)
 
-	if _, ok := (claim.Body)["FirmwareVersion"]; !ok {
+
+	if _, ok := q["FirmwareVersion"]; !ok {
 	 	return structures.VerifyCallFailure,"Missing FirmwareVersion in claim body",nil
 	}
 
-	claimedFirmware := fmt.Sprintf("%.0f",(claim.Body)["FirmwareVersion"])
+	claimedFirmware := fmt.Sprintf("%.0f",q["FirmwareVersion"])
 	expectedFirmware := (ev.EVS)["firmwareVersion"]
 
 	if expectedFirmware==claimedFirmware {
@@ -88,16 +111,16 @@ func FirmwareRule(claim structures.Claim, rule string, ev structures.ExpectedVal
 func MagicNumberRule(claim structures.Claim, rule string, ev structures.ExpectedValue, session structures.Session, parameter map[string]interface{})  (structures.ResultValue, string, error)  {
 
 	// The firmware version is serialised from the JSON as a float64, so we need to convert it to string
-	quote := (claim.Body)["quote"]
-	fmt.Printf("\n********\n %v = %v \n\n", reflect.TypeOf(quote), quote[""] )
 
-	if _, ok := (claim.Body)["Magic"]; !ok {
+	q:=getQuote(claim)
+
+	if _, ok := q["Magic"]; !ok {
 	 	return structures.VerifyCallFailure,"Missing Magic in claim body",nil
 	}
 
-	magic := fmt.Sprintf("%.0f",(claim.Body)["Magic"])
+	magic := fmt.Sprintf("%.0f",q["Magic"])
 	fmt.Printf("Magic is %v\n",magic)
-	fmt.Printf("But claim body is %v\n",(claim.Body)["Magic"])
+	fmt.Printf("But claim body is %v\n",q["Magic"])
 
 	// annoyingly this is in decical not hex, but 4283712327_10 == FF544 357_16
 
@@ -106,6 +129,7 @@ func MagicNumberRule(claim structures.Claim, rule string, ev structures.Expected
 	 } else {
 	 	return structures.Fail,"TPM magic number and/or TPMS_ATTEST type wrong",nil
 	 }
-	
-	
+
 }
+
+

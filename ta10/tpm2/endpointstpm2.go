@@ -25,11 +25,9 @@ type tpm2taErrorReturn struct {
 
 type pcrValue map[int]string
 
-// PCRS needs to be supplied the following parameters in the POST body
-//
-// tpm/device				 string ... which TPM to use
-type pcrReturn struct {
-	bank     map[string]pcrValue
+type quoteReturn struct {
+	Quote        tpm2.AttestationData    `json:"quote"`
+	Signature    tpm2.Signature          `json:"signature"`
 }
 
 var bankNames = map[tpm2.Algorithm]string {
@@ -68,7 +66,7 @@ func PCRs(c echo.Context) error {
 	// We have a default of /dev/tpm0
 	tpm2device := params["tpm2/device"].(string)
 
-	rwc,err :=tpm2.OpenTPM(tpm2device)
+	rwc,err :=OpenTPM(tpm2device)
 	if err!=nil {
 		rtn := tpm2taErrorReturn{ fmt.Sprintf("no TPM %w",err.Error()) }
 		return c.JSON(http.StatusInternalServerError, rtn)
@@ -111,6 +109,10 @@ func Quote(c echo.Context) error {
 		return c.JSON(http.StatusUnprocessableEntity, rtn)
 	}
 
+	fmt.Println("got the parameters...")
+
+
+
 	params := *ps
 
 	// Here we parse the pcrSelection to obtain the []int structure for the pcrselections
@@ -127,7 +129,6 @@ func Quote(c echo.Context) error {
 	 }
 
 	// Here we parse the bank
-	// We have a default of sha256
 	b := params["bank"].(string)
 	pcrbank := bankValues[b]
 
@@ -141,7 +142,7 @@ func Quote(c echo.Context) error {
 	akh := strings.Replace(params["tpm2/akhandle"].(string),"0x","",-1)
 	h,err := strconv.ParseUint(akh,16,32)
 	if err!=nil {
-		rtn := tpm2taErrorReturn{ fmt.Sprintf("Unable to parse AK handle %v",err.Error()) }
+		rtn := tpm2taErrorReturn{ fmt.Sprintf("Unable to parse AK handle %w",err.Error()) }
 		return c.JSON(http.StatusUnprocessableEntity, rtn)
 	}	
 	h32 := uint32(h)   // this is safe because we only create a 32bit unsigned value above.
@@ -153,12 +154,18 @@ func Quote(c echo.Context) error {
 
 	// Here we commuicate with the TPM
 	// Default if /dev/tpm0
-	rwc,err :=tpm2.OpenTPM(tpm2device)
+
+	fmt.Println("Opening device")
+
+	rwc,err :=OpenTPM(tpm2device)
 	if err!=nil {
-		rtn := tpm2taErrorReturn{ fmt.Sprintf("no TPM %v",err.Error()) }
+		rtn := tpm2taErrorReturn{ fmt.Sprintf("no TPM %w",err.Error()) }
 		return c.JSON(http.StatusInternalServerError, rtn)
 	}
 	defer rwc.Close()
+
+	fmt.Println("Quoting")
+
 
 	// Here we obtain the Quote
 	att,sig,err := tpm2.Quote(
@@ -169,6 +176,9 @@ func Quote(c echo.Context) error {
 		nil,
 		tpm2.PCRSelection{ pcrbank , pcrsel },
 		tpm2.AlgNull )
+
+	fmt.Println("Got the quote...processing errors %v",err)
+
 
 	if err!=nil {
 		rtn := tpm2taErrorReturn{ fmt.Sprintf("Error obtaining quote %v",err.Error()) }
@@ -183,6 +193,9 @@ func Quote(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, rtn)
 	}	
 
+	fmt.Sprintf("Decoding attestation data")
+
+
 	attestationdata,err := tpm2.DecodeAttestationData(att)
 
 	if attestationdata==nil {
@@ -190,5 +203,15 @@ func Quote(c echo.Context) error {
 		return c.JSON(http.StatusInternalServerError, rtn)
 	}	
 
-	return c.JSON(http.StatusOK, attestationdata)
+
+
+
+	fmt.Println("Att and Sig are %v and %v",att,sig)
+
+
+	qr := quoteReturn{ *attestationdata, *sig }
+
+	fmt.Printf("qr is %v",qr)
+
+	return c.JSON(http.StatusOK, qr)
 }
