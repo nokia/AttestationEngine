@@ -1,32 +1,44 @@
 {{define "claim_quote.html"}}
 <table class="table table-sm table-striped">
    <tbody>
-     <tr><td><b>PCR Digest</b></td><td>{{ .AttestedQuoteInfo.PCRDigest }}</td></tr>
-     <tr><td><b>PCR Selection</b></td><td><span class="badge bg-primary">{{ tcgHash .AttestedQuoteInfo.PCRSelection.Hash }}</span> : 
-        {{ range .AttestedQuoteInfo.PCRSelection.PCRs }}
+
+  <tr><td><b>PCR Digest</b></td><td>{{ .quote.AttestedQuoteInfo.PCRDigest }}</td></tr>
+     <tr><td><b>PCR Selection</b></td><td><span class="badge bg-primary">{{ tcgHash .quote.AttestedQuoteInfo.PCRSelection.Hash }}</span> : 
+        {{ range .quote.AttestedQuoteInfo.PCRSelection.PCRs }}
            <span class="badge bg-secondary">{{ . }}</span>
         {{ end }}
      </td></tr>
-     <tr><td><b>Firmware</b></td><td>{{ .FirmwareVersion }}</td></tr>
+     <tr><td><b>Firmware</b></td><td>{{ .quote.FirmwareVersion }}</td></tr>
 
-     <tr><td><b>Magic & Type</b></td><td>{{ .Magic }}, {{ .Type }}</td></tr>
-     <tr><td><b>Extra Data</b></td><td>{{ .ExtraData }}</td></tr>
+     <tr><td><b>Magic & Type</b></td><td>{{ .quote.Magic }}, {{ .Quote.Type }}</td></tr>
+     <tr><td><b>Extra Data</b></td><td>{{ .quote.ExtraData }}</td></tr>
    
-     <tr><td><b>Clock</b></td><td>{{ .ClockInfo.Clock }}</td></tr>
-     <tr><td><b>Reset Count</b></td><td>{{ .ClockInfo.ResetCount }}</td></tr>
-     <tr><td><b>Restart Count</b></td><td>{{ .ClockInfo.RestartCount }}</td></tr>
+     <tr><td><b>Clock</b></td><td>{{ .quote.ClockInfo.Clock }}</td></tr>
+     <tr><td><b>Reset Count</b></td><td>{{ .quote.ClockInfo.ResetCount }}</td></tr>
+     <tr><td><b>Restart Count</b></td><td>{{ .quote.ClockInfo.RestartCount }}</td></tr>
      <tr><td><b>Safe</b></td><td>
-        {{ if eq .ClockInfo.Safe 1.0 }}
-            <span class="badge bg-success">Safe ({{ .ClockInfo.Safe }})</span>
+        {{ if eq .quote.ClockInfo.Safe 1.0 }}
+            <span class="badge bg-success">Safe ({{ .quote.ClockInfo.Safe }})</span>
         {{ else }}
-            <span class="badge bg-danger">Unsafe ({{ .ClockInfo.Safe }})</span>        
+            <span class="badge bg-danger">Unsafe ({{ .quote.ClockInfo.Safe }})</span>        
         {{ end }}
     </td></tr>
     
-     <tr><td><b>Qualified Signer</b></td><td><span class="badge bg-primary">{{ tcgHash .QualifiedSigner.Digest.Alg }}</span> {{ .QualifiedSigner.Digest.Value }}</td></tr>
+     <tr><td><b>Qualified Signer</b></td><td><span class="badge bg-primary">{{ tcgHash .quote.QualifiedSigner.Digest.Alg }}</span> {{ .quote.QualifiedSigner.Digest.Value }}</td></tr>
+ 
+
+     <tr><td><b>Signing Algorithm</b></td><td>{{ tcgAlg .signature.Alg }}</td></tr>
+      {{ if eq .signature.Alg 20.0 }}
+         <tr><td><b>RSA</b></td><td><span class="badge bg-primary">{{ tcgHash .signature.RSA.HashAlg }}</span> {{ .signature.RSA.Signature }}</td></tr>
+      {{ else }}
+         <tr><td><b>ECC</b></td><td><span class="badge bg-primary">{{ tcgHash .signature.ECC.HashAlg }}</span> {{ .signature.ECC.Sígnature }}</td></tr>
+      {{ end }}
+  
+
 
    </tbody>
 </table>
+
 {{end}}
 
    

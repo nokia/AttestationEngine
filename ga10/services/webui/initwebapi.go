@@ -42,7 +42,7 @@ func StartWebUI() {
 	// It is done this way so we can have different templates for each operation...a bit ugly, but html/template is not jinja
 	//dev.to/ykyuen/setup-nested-html-template-in-go-echo-web-framework-d9b
 
-	functions := template.FuncMap{"defaultMessage": DefaultMessage, "epochToUTC": EpochToUTC, "base64decode": Base64decode, "encodeAsHexString": EncodeAsHexString, "tcgHash": TCGHash}
+	functions := template.FuncMap{"defaultMessage": DefaultMessage, "epochToUTC": EpochToUTC, "base64decode": Base64decode, "encodeAsHexString": EncodeAsHexString, "tcgHash": TCGHash, "tcgAlg": TCGAlg}
 
 	templates["home.html"] = template.Must(template.ParseFS(WPFS, T+"home.html", T+"base.html"))
 	templates["help.html"] = template.Must(template.ParseFS(WPFS, T+"help.html", T+"base.html"))

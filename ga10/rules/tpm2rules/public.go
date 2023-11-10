@@ -2,6 +2,7 @@ package tpm2rules
 
 import(
 	"fmt"
+	"reflect"
 
 	"a10/structures"
 )
@@ -61,11 +62,13 @@ func AttestedPCRDigest(claim structures.Claim, rule string, ev structures.Expect
 }
 
 
+
 func FirmwareRule(claim structures.Claim, rule string, ev structures.ExpectedValue, session structures.Session, parameter map[string]interface{})  (structures.ResultValue, string, error)  {
 
 	// The firmware version is serialised from the JSON as a float64, so we need to convert it to string
 	// annoyingly this is in decical not hex
 	
+
 	if _, ok := (claim.Body)["FirmwareVersion"]; !ok {
 	 	return structures.VerifyCallFailure,"Missing FirmwareVersion in claim body",nil
 	}
@@ -85,7 +88,9 @@ func FirmwareRule(claim structures.Claim, rule string, ev structures.ExpectedVal
 func MagicNumberRule(claim structures.Claim, rule string, ev structures.ExpectedValue, session structures.Session, parameter map[string]interface{})  (structures.ResultValue, string, error)  {
 
 	// The firmware version is serialised from the JSON as a float64, so we need to convert it to string
-	
+	quote := (claim.Body)["quote"]
+	fmt.Printf("\n********\n %v = %v \n\n", reflect.TypeOf(quote), quote[""] )
+
 	if _, ok := (claim.Body)["Magic"]; !ok {
 	 	return structures.VerifyCallFailure,"Missing Magic in claim body",nil
 	}

@@ -102,7 +102,7 @@ func requestFromTA(e structures.Element, p structures.Policy, s structures.Sessi
 
 	postbody,err := json.Marshal(cps)
 	if err != nil {
-		return empty,fmt.Errorf("JSON Unmarshalling failed: %w",err)   
+		return empty,fmt.Errorf("JSON Marshalling failed: %w",err)   
 	}
 
 	url := e.Endpoint+"/"+p.Intent
@@ -117,7 +117,12 @@ func requestFromTA(e structures.Element, p structures.Policy, s structures.Sessi
 	defer resp.Body.Close()
 
 	taResponse, _ := ioutil.ReadAll(resp.Body)
+	fmt.Println("*****************")
+	fmt.Printf("taReponse is %v",taResponse)
 	err = json.Unmarshal(taResponse,&bodymap)
+	fmt.Println("bodymap")
+	fmt.Printf("%v",bodymap)
+	fmt.Println("*****************")
 
 	if err != nil {
 		return empty,fmt.Errorf("JSON Unmarshalling reponse from TA: %w",err)   

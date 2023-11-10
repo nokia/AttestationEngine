@@ -36,6 +36,10 @@ func EncodeAsHexString(b []byte) string {
 	return hex.EncodeToString(b)
 }
 
+
+//These two functions could be combined
+//See: TCG Algorithm Registry Revision 1.34
+
 func TCGHash(h float64) string {    //Don't you just love JSON...the value is an int, but JSON interprets it as a float64 ... seriously!
 	if h==11 {
 		return "sha256"
@@ -46,3 +50,12 @@ func TCGHash(h float64) string {    //Don't you just love JSON...the value is an
 	}
 }
 
+
+
+func TCGAlg(h float64) string {    //Don't you just love JSON...the value is an int, but JSON interprets it as a float64 ... seriously!
+	if h==20 {
+		return "RSASSA"
+	} else {
+		return "Unknown or undefined. Might be ECC?"
+	}
+}
