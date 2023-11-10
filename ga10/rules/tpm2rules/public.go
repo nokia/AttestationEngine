@@ -13,8 +13,10 @@ func Registration() []structures.Rule {
 	ruleFirmware := structures.Rule{ "tpm2_firmware","Checks the TPM firmware version against the expected value", FirmwareRule, true}
 	ruleMagic    := structures.Rule{ "tpm2_magicNumber","Checks the quote magic number is 0xFF544347", MagicNumberRule, false}
 	ruleIsSafe    := structures.Rule{ "tpm2_safe","Checks that the value of safe is 1", IsSafe, false}
+	ruleValidSignature  := structures.Rule{ "tpm2_validSignature","Checks that the signature of rule is valid against the signing attestation key", ValidSignature, false}
 
-	return []structures.Rule{ ruleFirmware, ruleMagic, attestedPCRDigest, ruleIsSafe }
+
+	return []structures.Rule{ ruleFirmware, ruleMagic, attestedPCRDigest, ruleIsSafe, ruleValidSignature }
 }
 
 
@@ -133,3 +135,11 @@ func MagicNumberRule(claim structures.Claim, rule string, ev structures.Expected
 }
 
 
+func ValidSignature(claim structures.Claim, rule string, ev structures.ExpectedValue, session structures.Session, parameter map[string]interface{})  (structures.ResultValue, string, error)  {
+
+	s:=getSignature(claim)
+
+	fmt.Println("signature is %v",s)
+
+	return structures.Success,"This rule currently always returns success",nil
+}
