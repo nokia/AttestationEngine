@@ -2,46 +2,45 @@
 
 package tpm2
 
-import(
-	"net/http"
-	"fmt"
+import (
 	"encoding/hex"
-	"strings"
+	"fmt"
+	"net/http"
 	"strconv"
+	"strings"
 
 	"github.com/labstack/echo/v4"
-
 
 	// this needs to be updated
 	"github.com/google/go-tpm/legacy/tpm2"
 	"github.com/google/go-tpm/tpmutil"
-
 )
 
-
 type tpm2taErrorReturn struct {
-	TPM2taError string             `json:"tpm2taerror"`
+	TPM2taError string `json:"tpm2taerror"`
 }
 
 type pcrValue map[int]string
 
 type quoteReturn struct {
-	Quote        tpm2.AttestationData    `json:"quote"`
-	Signature    tpm2.Signature          `json:"signature"`
+	Quote          tpm2.AttestationData `json:"quote"`
+	Signature      tpm2.Signature       `json:"signature"`
+	QuoteBytes     []byte               `json:"quote_bytes"`
+	SignatureBytes []byte               `json:"signature_bytes"`
 }
 
-var bankNames = map[tpm2.Algorithm]string {
-	tpm2.AlgSHA1: "sha1",
+var bankNames = map[tpm2.Algorithm]string{
+	tpm2.AlgSHA1:   "sha1",
 	tpm2.AlgSHA256: "sha256",
 	tpm2.AlgSHA384: "sha384",
 	tpm2.AlgSHA512: "sha512",
 }
 
-var bankValues = map[string]tpm2.Algorithm {
-	"sha1" : tpm2.AlgSHA1,
-	"sha256" : tpm2.AlgSHA256,
-	"sha384" : tpm2.AlgSHA384,
-	"sha512" : tpm2.AlgSHA512,
+var bankValues = map[string]tpm2.Algorithm{
+	"sha1":   tpm2.AlgSHA1,
+	"sha256": tpm2.AlgSHA256,
+	"sha384": tpm2.AlgSHA384,
+	"sha512": tpm2.AlgSHA512,
 }
 
 var pcrbanks = []tpm2.Algorithm{tpm2.AlgSHA1, tpm2.AlgSHA256, tpm2.AlgSHA384, tpm2.AlgSHA512}
@@ -56,7 +55,7 @@ func PCRs(c echo.Context) error {
 	ps := new(map[string]interface{})
 
 	if err := c.Bind(&ps); err != nil {
-		rtn := tpm2taErrorReturn{ fmt.Sprintf("Could not decode parameters %w",err.Error()) }
+		rtn := tpm2taErrorReturn{fmt.Sprintf("Could not decode parameters %w", err.Error())}
 		return c.JSON(http.StatusUnprocessableEntity, rtn)
 	}
 
@@ -66,31 +65,28 @@ func PCRs(c echo.Context) error {
 	// We have a default of /dev/tpm0
 	tpm2device := params["tpm2/device"].(string)
 
-	rwc,err :=OpenTPM(tpm2device)
-	if err!=nil {
-		rtn := tpm2taErrorReturn{ fmt.Sprintf("no TPM %w",err.Error()) }
+	rwc, err := OpenTPM(tpm2device)
+	if err != nil {
+		rtn := tpm2taErrorReturn{fmt.Sprintf("no TPM %w", err.Error())}
 		return c.JSON(http.StatusInternalServerError, rtn)
 	}
 	defer rwc.Close()
 
 	banks := make(map[string]pcrValue)
 
-	for _,b := range pcrbanks {
-    	pcrvs := make( map[int]string )
+	for _, b := range pcrbanks {
+		pcrvs := make(map[int]string)
 
-		for i:=0; i<=23; i++ {
-			pcrv,pcre := tpm2.ReadPCR(rwc,i,b)
+		for i := 0; i <= 23; i++ {
+			pcrv, pcre := tpm2.ReadPCR(rwc, i, b)
 			if pcre == nil {
-				pcrvs[i]=hex.EncodeToString(pcrv)
+				pcrvs[i] = hex.EncodeToString(pcrv)
 			}
 		}
-		banks[bankNames[b]]=pcrvs
+		banks[bankNames[b]] = pcrvs
 	}
 	return c.JSON(http.StatusOK, banks)
 }
-
-
-
 
 // Quote needs to be supplied the following parameters in the POST body
 //
@@ -105,28 +101,26 @@ func Quote(c echo.Context) error {
 	ps := new(map[string]interface{})
 
 	if err := c.Bind(&ps); err != nil {
-		rtn := tpm2taErrorReturn{ fmt.Sprintf("Could not decode parameters %v",err.Error()) }
+		rtn := tpm2taErrorReturn{fmt.Sprintf("Could not decode parameters %v", err.Error())}
 		return c.JSON(http.StatusUnprocessableEntity, rtn)
 	}
 
 	fmt.Println("got the parameters...")
 
-
-
 	params := *ps
 
 	// Here we parse the pcrSelection to obtain the []int structure for the pcrselections
-	s := strings.Split(params["pcrSelection"].(string),",")
-	pcrsel := make([]int,len(s),len(s))
-	for i,r := range s {
-	    v64,err := strconv.ParseUint(r,10,8)
+	s := strings.Split(params["pcrSelection"].(string), ",")
+	pcrsel := make([]int, len(s), len(s))
+	for i, r := range s {
+		v64, err := strconv.ParseUint(r, 10, 8)
 
-	 	if err !=nil {
-			pcrsel[i]=0
-	 	} else {
-			pcrsel[i]=int(v64)
+		if err != nil {
+			pcrsel[i] = 0
+		} else {
+			pcrsel[i] = int(v64)
 		}
-	 }
+	}
 
 	// Here we parse the bank
 	b := params["bank"].(string)
@@ -139,13 +133,13 @@ func Quote(c echo.Context) error {
 	// Here we parse the akhandle
 	// This is a bit ugly but...that's the way go does things
 	// Strip the 0x, parse it as a Uint in base 16 with size 32 - returns a unit64, convert to a uint32 and then create the TPM handle
-	akh := strings.Replace(params["tpm2/akhandle"].(string),"0x","",-1)
-	h,err := strconv.ParseUint(akh,16,32)
-	if err!=nil {
-		rtn := tpm2taErrorReturn{ fmt.Sprintf("Unable to parse AK handle %w",err.Error()) }
+	akh := strings.Replace(params["tpm2/akhandle"].(string), "0x", "", -1)
+	h, err := strconv.ParseUint(akh, 16, 32)
+	if err != nil {
+		rtn := tpm2taErrorReturn{fmt.Sprintf("Unable to parse AK handle %w", err.Error())}
 		return c.JSON(http.StatusUnprocessableEntity, rtn)
-	}	
-	h32 := uint32(h)   // this is safe because we only create a 32bit unsigned value above.
+	}
+	h32 := uint32(h) // this is safe because we only create a 32bit unsigned value above.
 	handle := tpmutil.Handle(h32)
 
 	// Here we parse the tpm2 device
@@ -157,61 +151,55 @@ func Quote(c echo.Context) error {
 
 	fmt.Println("Opening device")
 
-	rwc,err :=OpenTPM(tpm2device)
-	if err!=nil {
-		rtn := tpm2taErrorReturn{ fmt.Sprintf("no TPM %w",err.Error()) }
+	rwc, err := OpenTPM(tpm2device)
+	if err != nil {
+		rtn := tpm2taErrorReturn{fmt.Sprintf("no TPM %w", err.Error())}
 		return c.JSON(http.StatusInternalServerError, rtn)
 	}
 	defer rwc.Close()
 
 	fmt.Println("Quoting")
 
-
 	// Here we obtain the Quote
-	att,sig,err := tpm2.Quote(
+	att, sig, err := tpm2.Quote(
 		rwc,
 		handle,
 		"",
 		nonce,
 		nil,
-		tpm2.PCRSelection{ pcrbank , pcrsel },
-		tpm2.AlgNull )
+		tpm2.PCRSelection{pcrbank, pcrsel},
+		tpm2.AlgNull)
 
-	fmt.Println("Got the quote...processing errors %v",err)
+	fmt.Println("Got the quote...processing errors %v", err)
 
-
-	if err!=nil {
-		rtn := tpm2taErrorReturn{ fmt.Sprintf("Error obtaining quote %v",err.Error()) }
+	if err != nil {
+		rtn := tpm2taErrorReturn{fmt.Sprintf("Error obtaining quote %v", err.Error())}
 		return c.JSON(http.StatusInternalServerError, rtn)
-	}	
-	if sig==nil {
-		rtn := tpm2taErrorReturn{  fmt.Sprintf("No signature in quote %v",err.Error())}
+	}
+	if sig == nil {
+		rtn := tpm2taErrorReturn{fmt.Sprintf("No signature in quote %v", err.Error())}
 		return c.JSON(http.StatusInternalServerError, rtn)
-	}	
-	if att==nil {
-		rtn := tpm2taErrorReturn{  fmt.Sprintf("No quote received %v",err.Error())}
+	}
+	if att == nil {
+		rtn := tpm2taErrorReturn{fmt.Sprintf("No quote received %v", err.Error())}
 		return c.JSON(http.StatusInternalServerError, rtn)
-	}	
+	}
 
 	fmt.Sprintf("Decoding attestation data")
 
+	attestationdata, err := tpm2.DecodeAttestationData(att)
 
-	attestationdata,err := tpm2.DecodeAttestationData(att)
-
-	if attestationdata==nil {
-		rtn := tpm2taErrorReturn{  fmt.Sprintf("Error decoding attestation data %v",err.Error())}
+	if attestationdata == nil {
+		rtn := tpm2taErrorReturn{fmt.Sprintf("Error decoding attestation data %v", err.Error())}
 		return c.JSON(http.StatusInternalServerError, rtn)
-	}	
+	}
 
+	fmt.Println("Att and Sig are %v and %v", att, sig)
 
+	sigBytes, _ := sig.Encode()
+	qr := quoteReturn{*attestationdata, *sig, att, sigBytes}
 
-
-	fmt.Println("Att and Sig are %v and %v",att,sig)
-
-
-	qr := quoteReturn{ *attestationdata, *sig }
-
-	fmt.Printf("qr is %v",qr)
+	fmt.Printf("qr is %v", qr)
 
 	return c.JSON(http.StatusOK, qr)
 }
