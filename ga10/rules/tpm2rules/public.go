@@ -1,145 +1,146 @@
 package tpm2rules
 
-import(
+import (
+	"encoding/base64"
+	"encoding/hex"
 	"fmt"
 
 	"a10/structures"
-)
 
+	"a10/utilities"
+)
 
 func Registration() []structures.Rule {
 
-	attestedPCRDigest := structures.Rule{ "tpm2_attestedValue","Checks the TPM's reported attested value against the expected value", AttestedPCRDigest, true}
-	ruleFirmware := structures.Rule{ "tpm2_firmware","Checks the TPM firmware version against the expected value", FirmwareRule, true}
-	ruleMagic    := structures.Rule{ "tpm2_magicNumber","Checks the quote magic number is 0xFF544347", MagicNumberRule, false}
-	ruleIsSafe    := structures.Rule{ "tpm2_safe","Checks that the value of safe is 1", IsSafe, false}
-	ruleValidSignature  := structures.Rule{ "tpm2_validSignature","Checks that the signature of rule is valid against the signing attestation key", ValidSignature, false}
+	attestedPCRDigest := structures.Rule{"tpm2_attestedValue", "Checks the TPM's reported attested value against the expected value", AttestedPCRDigest, true}
+	ruleFirmware := structures.Rule{"tpm2_firmware", "Checks the TPM firmware version against the expected value", FirmwareRule, true}
+	ruleMagic := structures.Rule{"tpm2_magicNumber", "Checks the quote magic number is 0xFF544347", MagicNumberRule, false}
+	ruleIsSafe := structures.Rule{"tpm2_safe", "Checks that the value of safe is 1", IsSafe, false}
+	ruleValidSignature := structures.Rule{"tpm2_validSignature", "Checks that the signature of rule is valid against the signing attestation key", ValidSignature, false}
 
-
-	return []structures.Rule{ ruleFirmware, ruleMagic, attestedPCRDigest, ruleIsSafe, ruleValidSignature }
+	return []structures.Rule{ruleFirmware, ruleMagic, attestedPCRDigest, ruleIsSafe, ruleValidSignature}
 }
 
-
-//
-// Convenience Functions for navigating over the claim body
-//
-
-func getQuote(claim structures.Claim) map[string]interface{} {
-	q := (claim.Body)["quote"]
-	return q.(map[string]interface{}) 
-}
-
-func getSignature(claim structures.Claim) map[string]interface{} {
-	q := (claim.Body)["signature"]
-	return q.(map[string]interface{}) 
-}
-
-//
-// Here are the actual verification functiona
-//
-
-func IsSafe(claim structures.Claim, rule string, ev structures.ExpectedValue, session structures.Session, parameter map[string]interface{})  (structures.ResultValue, string, error)  {
-	// Type conversation here are a bit ugly, but at least strongly typed!!!
-	// Note that the type of claimedSafe is float64  ... this is the way Golang unmarshalls JSON so there.
-
-	q:=getQuote(claim)
-
-	if _, ok := q["ClockInfo"]; !ok {
-	 	return structures.VerifyCallFailure,"Missing ClockInfo in claim body",nil
+func IsSafe(claim structures.Claim, rule string, ev structures.ExpectedValue, session structures.Session, parameter map[string]interface{}) (structures.ResultValue, string, error) {
+	q, err := getQuote(claim)
+	if err != nil {
+		return structures.Fail, "Parsing TPM quote failed", err
 	}
 
-	cli := q["ClockInfo"]
-	claimedSafe := cli.(map[string]interface{})["Safe"]
-
-	if claimedSafe==1.0 {
-	 	return structures.Success,"",nil
-	 } else {
-	 	return structures.Fail,"Uncommanded device/TPM shutdown",nil
-	 }
-	
-}
-
-
-func AttestedPCRDigest(claim structures.Claim, rule string, ev structures.ExpectedValue, session structures.Session, parameter map[string]interface{})  (structures.ResultValue, string, error)  {
-
-	q:=getQuote(claim)
-
-	if _, ok :=q["AttestedQuoteInfo"]; !ok {
-	 	return structures.VerifyCallFailure,"Missing AttestedQuoteInfo in claim body",nil
+	if !q.Data.ClockInfo.Safe {
+		return structures.Fail, "Uncommanded device/TPM shutdown", nil
 	}
 
-	aqi := q["AttestedQuoteInfo"]
-	claimedAV := aqi.(map[string]interface{})["PCRDigest"]
+	return structures.Success, "", nil
+}
 
+func AttestedPCRDigest(claim structures.Claim, rule string, ev structures.ExpectedValue, session structures.Session, parameter map[string]interface{}) (structures.ResultValue, string, error) {
+	q, err := getQuote(claim)
+	if err != nil {
+		return structures.Fail, "Parsing TPM quote failed", err
+	}
+
+	quoteData, err := q.Data.Attested.Quote()
+	if err != nil {
+		return structures.Fail, "Parsing TPM quote from Attested failed", err
+	}
+	claimedAV := hex.EncodeToString(quoteData.PCRDigest.Buffer)
 	expectedAV := (ev.EVS)["attestedValue"]
 
-	if expectedAV==claimedAV {
-	 	return structures.Success,"",nil
-	 } else {
-	 	msg := fmt.Sprintf("Got %v as attested value but expected %v",claimedAV,expectedAV)
-	 	return structures.Fail,msg,nil
-	 }
-	
-}
-
-
-
-
-
-func FirmwareRule(claim structures.Claim, rule string, ev structures.ExpectedValue, session structures.Session, parameter map[string]interface{})  (structures.ResultValue, string, error)  {
-
-	// The firmware version is serialised from the JSON as a float64, so we need to convert it to string
-	// annoyingly this is in decical not hex
-	
-	q:=getQuote(claim)
-
-
-	if _, ok := q["FirmwareVersion"]; !ok {
-	 	return structures.VerifyCallFailure,"Missing FirmwareVersion in claim body",nil
+	if expectedAV == claimedAV {
+		return structures.Success, "", nil
+	} else {
+		msg := fmt.Sprintf("Got %v as attested value but expected %v", claimedAV, expectedAV)
+		return structures.Fail, msg, nil
 	}
 
-	claimedFirmware := fmt.Sprintf("%.0f",q["FirmwareVersion"])
+}
+
+func FirmwareRule(claim structures.Claim, rule string, ev structures.ExpectedValue, session structures.Session, parameter map[string]interface{}) (structures.ResultValue, string, error) {
+	q, err := getQuote(claim)
+	if err != nil {
+		return structures.Fail, "Parsing TPM quote failed", err
+	}
+
+	claimedFirmware := fmt.Sprintf("%d", q.Data.FirmwareVersion)
 	expectedFirmware := (ev.EVS)["firmwareVersion"]
 
-	if expectedFirmware==claimedFirmware {
-	 	return structures.Success,"",nil
-	 } else {
-	 	msg := fmt.Sprintf("Got %v as firmware version but expected %v",claimedFirmware,expectedFirmware)
-	 	return structures.Fail,msg,nil
-	 }
-	
-}
-
-func MagicNumberRule(claim structures.Claim, rule string, ev structures.ExpectedValue, session structures.Session, parameter map[string]interface{})  (structures.ResultValue, string, error)  {
-
-	// The firmware version is serialised from the JSON as a float64, so we need to convert it to string
-
-	q:=getQuote(claim)
-
-	if _, ok := q["Magic"]; !ok {
-	 	return structures.VerifyCallFailure,"Missing Magic in claim body",nil
+	if expectedFirmware == claimedFirmware {
+		return structures.Success, "", nil
+	} else {
+		msg := fmt.Sprintf("Got %v as firmware version but expected %v", claimedFirmware, expectedFirmware)
+		return structures.Fail, msg, nil
 	}
 
-	magic := fmt.Sprintf("%.0f",q["Magic"])
-	fmt.Printf("Magic is %v\n",magic)
-	fmt.Printf("But claim body is %v\n",q["Magic"])
-
-	// annoyingly this is in decical not hex, but 4283712327_10 == FF544 357_16
-
-	if magic=="4283712327" {
-	 	return structures.Success,"",nil
-	 } else {
-	 	return structures.Fail,"TPM magic number and/or TPMS_ATTEST type wrong",nil
-	 }
-
 }
 
+func MagicNumberRule(claim structures.Claim, rule string, ev structures.ExpectedValue, session structures.Session, parameter map[string]interface{}) (structures.ResultValue, string, error) {
+	q, err := getQuote(claim)
+	if err != nil {
+		return structures.Fail, "Parsing TPM quote failed", err
+	}
 
-func ValidSignature(claim structures.Claim, rule string, ev structures.ExpectedValue, session structures.Session, parameter map[string]interface{})  (structures.ResultValue, string, error)  {
+	if err := q.Data.Magic.Check(); err != nil {
+		return structures.Fail, "TPM magic number and/or TPMS_ATTEST type wrong", nil
+	}
 
-	s:=getSignature(claim)
+	return structures.Success, "", nil
+}
 
-	fmt.Println("signature is %v",s)
+func ValidSignature(claim structures.Claim, rule string, ev structures.ExpectedValue, session structures.Session, parameter map[string]interface{}) (structures.ResultValue, string, error) {
+	quote, err := getQuote(claim)
+	if err != nil {
+		return structures.Fail, "Parsing TPM quote failed", err
+	}
 
-	return structures.Success,"This rule currently always returns success",nil
+	akBytes, err := base64.StdEncoding.DecodeString(claim.Header.Element.TPM2.AK.Public)
+	if err != nil {
+		return structures.RuleCallFailure, "Base64 decoding the AK failed", err
+	}
+	akKey, err := utilities.ParseTPMKey(akBytes)
+	if err != nil {
+		return structures.Fail, "Parsing AK failed", err
+	}
+
+	if err := quote.VerifySignature(akKey); err != nil {
+		return structures.Fail, "Validation of the quote failed", nil
+	}
+
+	return structures.Success, "Quote was validated successfully", nil
+}
+
+// Constructs AttestableData struct with optional signature
+// TODO find way to cache this in the session object
+func getQuote(claim structures.Claim) (*utilities.AttestableData, error) {
+	quoteData, ok := (claim.Body)["quote_bytes"]
+	if !ok {
+		return nil, fmt.Errorf("claim does not contain quote")
+
+	}
+	quoteStr := quoteData.(string)
+	quoteBytes, err := base64.StdEncoding.DecodeString(quoteStr)
+	if err != nil {
+		return nil, fmt.Errorf("could not base64 decode quote")
+	}
+	var signatureBytes []byte
+	signatureData, ok := (claim.Body)["signature_bytes"]
+	if ok {
+		signatureStr := signatureData.(string)
+		signatureBytes, err = base64.StdEncoding.DecodeString(signatureStr)
+		if err != nil {
+			return nil, fmt.Errorf("could not base64 decode signature")
+		}
+	}
+
+	var quote utilities.AttestableData
+	err = quote.Decode(quoteBytes, signatureBytes)
+	if err != nil {
+		return nil, fmt.Errorf("failed to unmarshal TPM structures %w", err)
+	}
+
+	if !quote.IsQuote() {
+		return nil, fmt.Errorf("attestable data is not quote")
+	}
+
+	return &quote, nil
 }
