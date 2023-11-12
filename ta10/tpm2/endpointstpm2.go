@@ -23,10 +23,8 @@ type tpm2taErrorReturn struct {
 type pcrValue map[int]string
 
 type quoteReturn struct {
-	Quote          tpm2.AttestationData `json:"quote"`
-	Signature      tpm2.Signature       `json:"signature"`
-	QuoteBytes     []byte               `json:"quote_bytes"`
-	SignatureBytes []byte               `json:"signature_bytes"`
+	Quote     []byte `json:"quote"`
+	Signature []byte `json:"signature"`
 }
 
 var bankNames = map[tpm2.Algorithm]string{
@@ -197,7 +195,7 @@ func Quote(c echo.Context) error {
 	fmt.Println("Att and Sig are %v and %v", att, sig)
 
 	sigBytes, _ := sig.Encode()
-	qr := quoteReturn{*attestationdata, *sig, att, sigBytes}
+	qr := quoteReturn{att, sigBytes}
 
 	fmt.Printf("qr is %v", qr)
 

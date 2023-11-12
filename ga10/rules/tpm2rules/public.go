@@ -109,10 +109,10 @@ func ValidSignature(claim structures.Claim, rule string, ev structures.ExpectedV
 	return structures.Success, "Quote was validated successfully", nil
 }
 
-// Constructs AttestableData struct with optional signature
+// Constructs AttestableData struct with signature
 // TODO find way to cache this in the session object
 func getQuote(claim structures.Claim) (*utilities.AttestableData, error) {
-	quoteData, ok := (claim.Body)["quote_bytes"]
+	quoteData, ok := (claim.Body)["quote"]
 	if !ok {
 		return nil, fmt.Errorf("claim does not contain quote")
 
@@ -123,13 +123,14 @@ func getQuote(claim structures.Claim) (*utilities.AttestableData, error) {
 		return nil, fmt.Errorf("could not base64 decode quote")
 	}
 	var signatureBytes []byte
-	signatureData, ok := (claim.Body)["signature_bytes"]
-	if ok {
-		signatureStr := signatureData.(string)
-		signatureBytes, err = base64.StdEncoding.DecodeString(signatureStr)
-		if err != nil {
-			return nil, fmt.Errorf("could not base64 decode signature")
-		}
+	signatureData, ok := (claim.Body)["signature"]
+	if !ok {
+		return nil, fmt.Errorf("claim does not contain a signature")
+	}
+	signatureStr := signatureData.(string)
+	signatureBytes, err = base64.StdEncoding.DecodeString(signatureStr)
+	if err != nil {
+		return nil, fmt.Errorf("could not base64 decode signature")
 	}
 
 	var quote utilities.AttestableData
