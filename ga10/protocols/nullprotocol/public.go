@@ -3,10 +3,12 @@ package nullprotocol
 import(
 	"fmt"
 	"log"
+	"crypto/rand"
 
 	"a10/structures"
 )
 
+const nonceSize int = 32
 
 func Registration() (structures.Protocol) {
 	intents := []string{"*/*"}
@@ -14,7 +16,7 @@ func Registration() (structures.Protocol) {
 	return structures.Protocol{"A10NULLPROTOCOL","Testing protocol, always returns a test claim",Call, intents}
 }
 
-func Call(e structures.Element, p structures.Policy, s structures.Session, cps map[string]interface{}) (map[string]interface{}, string) {
+func Call(e structures.Element, p structures.Policy, s structures.Session, cps map[string]interface{}) (map[string]interface{}, map[string]interface{}, string) {
 
 	// Create a test body
 
@@ -24,6 +26,13 @@ func Call(e structures.Element, p structures.Policy, s structures.Session, cps m
 		 "aNumber": 42,
 	}
 	
+	nce := make([]byte, nonceSize)
+	_, _ = rand.Read(nce)
+
+	ips := map[string]interface{}{
+		 "nonce":nce,
+	}
+
 	// Check if the policy intent was null/null, if so then return with the bodytype being set to null/test
 	// or error if the above is false.
 	//
@@ -32,10 +41,10 @@ func Call(e structures.Element, p structures.Policy, s structures.Session, cps m
 	if p.Intent=="null/null" {
 		log.Println(" null call worked ")
 		rtn["worked"] = true
-		return rtn,"null/test"
+		return rtn,ips,"null/test"
 	} else {
 		log.Println(" null call bad error ")	
 		rtn["error"] = "Error here"
-		return rtn,structures.CLAIMERROR
+		return rtn,ips,structures.CLAIMERROR
 	}
 }
