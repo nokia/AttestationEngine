@@ -46,7 +46,7 @@ func Attest(element structures.Element, policy structures.Policy, session struct
 	// Step 3 ******************************************************
 
 	aCALL := protocolObject.CallFunction
-	returnedBody,bodytype := aCALL( element, policy, session, aps )
+	returnedBody, ips, bodytype := aCALL( element, policy, session, aps )
 
 	if bodytype == "*ERROR" {
 		body["ERROR"] = returnedBody
@@ -62,7 +62,7 @@ func Attest(element structures.Element, policy structures.Policy, session struct
         // NB: we have body and bodytype from above
 
 	timing := structures.Timing{ claimTimerStart, claimTimerFinish }
-	header := structures.ClaimHeader{element, policy, session, timing}
+	header := structures.ClaimHeader{element, policy, session, timing, aps, ips}
 	footer,_ := hashAndSignClaim(hashablePartClaim{ bodytype, header, body })
 
 	c := structures.Claim{ "", bodytype, header, body, footer }

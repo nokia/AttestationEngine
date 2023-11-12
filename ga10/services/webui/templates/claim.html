@@ -23,6 +23,8 @@
       <tr><td scope="col">Policy</th> <td scope="col"><a href="/policy/{{ .Header.Policy.ItemID }}">{{ .Header.Policy.Name }}</a></th> </tr>     
       <tr><td scope="col">-- Intent</th> <td scope="col"><span class="badge bg-primary">{{ .Header.Policy.Intent }}</span></th> </tr>              
       <tr><td scope="col">Session</th> <td scope="col"><a href="/session/{{ .Header.Session.ItemID }}">{{ .Header.Session.ItemID }}</a></th> </tr>     
+      <tr><td scope="col">Additional Parameters</th> <td scope="col">{{ .Header.AdditionalParameters }}</th> </tr>              
+      <tr><td scope="col">Call Parameters</th> <td scope="col">{{ .Header.CallParameters }}</th> </tr>                    
       <tr><td scope="col">Requested</th> <td scope="col">{{ epochToUTC .Header.Timing.Requested }}</th> </tr>     
       <tr><td scope="col">Received</th> <td scope="col">{{ epochToUTC .Header.Timing.Received }}</th> </tr>     
    </tbody>

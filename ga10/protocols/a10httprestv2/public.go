@@ -25,16 +25,14 @@ func Registration() structures.Protocol {
 // It returns a "json" structure and a string with the body type.
 // If requestFromTA returns and error, then it is encoded here and returned.
 // The body type is *ERROR in these situations and the body should have a field "error": <some value>
-func Call(e structures.Element, p structures.Policy, s structures.Session, aps map[string]interface{}) (map[string]interface{}, string) {
-	rtn, err := requestFromTA(e, p, s, aps)
+func Call(e structures.Element, p structures.Policy, s structures.Session, aps map[string]interface{}) (map[string]interface{}, map[string]interface{}, string) {
+	rtn, ips, err := requestFromTA(e, p, s, aps)
 
 	if err != nil {
-		//rtn["error"] = structures.ClaimError{ "error", err.Error() }
 		rtn["error"] = err.Error()
-
-		return rtn, structures.CLAIMERROR
+		return rtn, ips, structures.CLAIMERROR
 	} else {
-		return rtn, p.Intent
+		return rtn, ips, p.Intent
 	}
 }
 
@@ -51,7 +49,7 @@ func mergeMaps(m1 map[string]interface{}, m2 map[string]interface{}) map[string]
 
 // This function performs the actual interaction with the TA
 // This will be highly specific to the actual protocol and its implemented intents
-func requestFromTA(e structures.Element, p structures.Policy, s structures.Session, aps map[string]interface{}) (map[string]interface{}, error) {
+func requestFromTA(e structures.Element, p structures.Policy, s structures.Session, aps map[string]interface{}) (map[string]interface{}, map[string]interface{}, error) {
 
 	var empty map[string]interface{} = make(map[string]interface{}) // this is an  *instantiated* empty map used for error situations
 	var bodymap map[string]interface{}                              // this is used to store the result of the final unmarshalling  of the body received from the TA
@@ -97,13 +95,13 @@ func requestFromTA(e structures.Element, p structures.Policy, s structures.Sessi
 	// merge ips with policy parameters. The policy parameters take precidence
 
 	pps := mergeMaps(ips, p.Parameters)
-	cps := mergeMaps(pps, aps)
+	cps := mergeMaps(pps, aps)    // this is the final set of call parameters and should be returned to be part of the claim
 
 	// Construct the call
 
 	postbody, err := json.Marshal(cps)
 	if err != nil {
-		return empty, fmt.Errorf("JSON Marshalling failed: %w", err)
+		return empty, cps, fmt.Errorf("JSON Marshalling failed: %w", err)
 	}
 
 	url := e.Endpoint + "/" + p.Intent
@@ -113,7 +111,7 @@ func requestFromTA(e structures.Element, p structures.Policy, s structures.Sessi
 	resp, err := client.Do(req)
 
 	if err != nil {
-		return empty, err // err will be the error from http.client.Do
+		return empty, cps, err // err will be the error from http.client.Do
 	}
 	defer resp.Body.Close()
 
@@ -126,38 +124,38 @@ func requestFromTA(e structures.Element, p structures.Policy, s structures.Sessi
 	fmt.Println("*****************")
 
 	if err != nil {
-		return empty, fmt.Errorf("JSON Unmarshalling reponse from TA: %w", err)
+		return empty, cps, fmt.Errorf("JSON Unmarshalling reponse from TA: %w", err)
 	}
 
 	if resp.Status != "200 OK" { // is it always 200 ? This might cause issues later if the TA reponds otherwise!
-		return bodymap, fmt.Errorf("TA reports error %v with response %v", resp.Status, taResponse)
+		return bodymap, cps, fmt.Errorf("TA reports error %v with response %v", resp.Status, taResponse)
 	}
 
 	if p.Intent == "tpm2/quote" {
 		quoteValue, ok := bodymap["quote"]
 		if !ok {
-			return bodymap, fmt.Errorf("missing quote data in response")
+			return bodymap, cps, fmt.Errorf("missing quote data in response")
 		}
 		quoteStr, ok := quoteValue.(string)
 		if !ok {
-			return bodymap, fmt.Errorf("quote value is not a string")
+			return bodymap, cps, fmt.Errorf("quote value is not a string")
 		}
 		quoteBytes, err := base64.StdEncoding.DecodeString(quoteStr)
 		if err != nil {
-			return nil, fmt.Errorf("could not base64 decode quote")
+			return nil, cps, fmt.Errorf("could not base64 decode quote")
 		}
 
 		signatureValue, ok := bodymap["signature"]
 		if !ok {
-			return bodymap, fmt.Errorf("missing signature data in response")
+			return bodymap, cps, fmt.Errorf("missing signature data in response")
 		}
 		signatureStr, ok := signatureValue.(string)
 		if !ok {
-			return bodymap, fmt.Errorf("signature value is not a string")
+			return bodymap, cps, fmt.Errorf("signature value is not a string")
 		}
 		signatureBytes, err := base64.StdEncoding.DecodeString(signatureStr)
 		if err != nil {
-			return nil, fmt.Errorf("could not base64 decode signature")
+			return nil, cps, fmt.Errorf("could not base64 decode signature")
 		}
 
 		var attestableData utilities.AttestableData
@@ -166,11 +164,11 @@ func requestFromTA(e structures.Element, p structures.Policy, s structures.Sessi
 		// Try to parse the quote into a map representation for display purposes
 		parsed, err := attestableData.Parse()
 		if err != nil {
-			return bodymap, err
+			return bodymap, cps, err
 		}
 		bodymap["parsed"] = parsed
 
 	}
 
-	return bodymap, nil
+	return bodymap, cps, nil
 }
