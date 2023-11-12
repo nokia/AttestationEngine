@@ -4,6 +4,7 @@ import (
 	"crypto"
 	"crypto/ecdsa"
 	"crypto/rsa"
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"math/big"
@@ -160,4 +161,87 @@ func ParseTPMKey(bytes []byte) (crypto.PublicKey, error) {
 	default:
 		return nil, fmt.Errorf("unknown key algorithm: %x", public.Type)
 	}
+}
+
+func (data AttestableData) Parse() (*map[string]interface{}, error) {
+	if data.Data.Type != tpm2.TPMSTAttestQuote {
+		return nil, fmt.Errorf("TPMSAttest is not a quote. It is %d", data.Data.Type)
+	}
+	quoteData, err := data.Data.Attested.Quote()
+	if err != nil {
+		return nil, fmt.Errorf("could not extract quote data: %w", err)
+	}
+
+	// FIXME: We assume here that we always have at least one entry
+	PCRSelectionMap := make(map[string]interface{})
+	PCRSelectionMap["Hash"] = quoteData.PCRSelect.PCRSelections[0].Hash
+	PCRSelectionMap["PCRs"] = TPMSPCRSelectionToList(quoteData.PCRSelect.PCRSelections)
+
+	AttestedQuoteInfoMap := make(map[string]interface{})
+	AttestedQuoteInfoMap["PCRDigest"] = base64.StdEncoding.EncodeToString(quoteData.PCRDigest.Buffer)
+
+	AttestedQuoteInfoMap["PCRSelection"] = PCRSelectionMap
+
+	ClockInfoMap := make(map[string]interface{})
+	ClockInfoMap["Clock"] = data.Data.ClockInfo.Clock
+	ClockInfoMap["ResetCount"] = data.Data.ClockInfo.ResetCount
+	ClockInfoMap["RestartCount"] = data.Data.ClockInfo.RestartCount
+	ClockInfoMap["Safe"] = data.Data.ClockInfo.Safe
+
+	QualifiedSignerMap := make(map[string]interface{})
+	QualifiedSignerDigestMap := make(map[string]interface{})
+	// FIXME: implement decoding of TPM2BName
+	QualifiedSignerDigestMap["Alg"] = nil
+	QualifiedSignerDigestMap["Value"] = nil
+	QualifiedSignerMap["Digest"] = QualifiedSignerDigestMap
+
+	quoteMap := make(map[string]interface{})
+	quoteMap["AttestedQuoteInfo"] = AttestedQuoteInfoMap
+	quoteMap["ClockInfo"] = ClockInfoMap
+
+	quoteMap["FirmwareVersion"] = data.Data.FirmwareVersion
+	quoteMap["ExtraData"] = base64.StdEncoding.EncodeToString(data.Data.ExtraData.Buffer)
+	quoteMap["Magic"] = data.Data.Magic
+	quoteMap["Type"] = data.Data.Type
+
+	signatureMap := make(map[string]interface{})
+	signatureMap["Alg"] = data.Signature.SigAlg
+	if data.Signature.SigAlg == tpm2.TPMAlgRSASSA {
+		RSAMap := make(map[string]interface{})
+		RSASSASignature, err := data.Signature.Signature.RSASSA()
+		if err != nil {
+			return nil, fmt.Errorf("could not convert to RSASSA signature")
+		}
+		RSAMap["HashAlg"] = RSASSASignature.Hash
+		RSAMap["Signature"] = base64.StdEncoding.EncodeToString(RSASSASignature.Sig.Buffer)
+
+		signatureMap["RSA"] = RSAMap
+	} else {
+		ECCMap := make(map[string]interface{})
+
+		// FIXME: implement parsing for ECC signatures
+		ECCMap["HashAlg"] = nil
+		ECCMap["Signature"] = nil
+
+	}
+
+	result := make(map[string]interface{})
+	result["quote"] = quoteMap
+	result["signature"] = signatureMap
+
+	return &result, nil
+}
+
+func TPMSPCRSelectionToList(selections []tpm2.TPMSPCRSelection) []int {
+	var pcrs []int
+	for _, selected := range selections {
+
+		for i := 0; i < len(selected.PCRSelect)*8; i++ {
+			// Check if the bit at that position is set
+			if int(selected.PCRSelect[i/8])&(1<<(i%8)) != 0 {
+				pcrs = append(pcrs, i)
+			}
+		}
+	}
+	return pcrs
 }

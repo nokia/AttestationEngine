@@ -73,7 +73,7 @@
 
 {{ if eq .BodyType "tpm2/quote" }}
     <p><span class="badge bg-primary"> {{ .BodyType }}</span></p>
-    {{ template "claim_quote.html" .Body }}
+    {{ template "claim_quote.html" .Body.parsed }}
 {{ end }}
 
 <hr/>

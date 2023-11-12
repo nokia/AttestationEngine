@@ -3,35 +3,35 @@
    <tbody>
 
   <tr><td><b>PCR Digest</b></td><td>{{ .quote.AttestedQuoteInfo.PCRDigest }}</td></tr>
-     <tr><td><b>PCR Selection</b></td><td><span class="badge bg-primary">{{ tcgHash .quote.AttestedQuoteInfo.PCRSelection.Hash }}</span> : 
+     <tr><td><b>PCR Selection</b></td><td><span class="badge bg-primary">{{ tcgAlg .quote.AttestedQuoteInfo.PCRSelection.Hash }}</span> : 
         {{ range .quote.AttestedQuoteInfo.PCRSelection.PCRs }}
            <span class="badge bg-secondary">{{ . }}</span>
         {{ end }}
      </td></tr>
      <tr><td><b>Firmware</b></td><td>{{ .quote.FirmwareVersion }}</td></tr>
 
-     <tr><td><b>Magic & Type</b></td><td>{{ .quote.Magic }}, {{ .Quote.Type }}</td></tr>
+     <tr><td><b>Magic & Type</b></td><td>{{ .quote.Magic }}, {{ .quote.Type }}</td></tr>
      <tr><td><b>Extra Data</b></td><td>{{ .quote.ExtraData }}</td></tr>
    
      <tr><td><b>Clock</b></td><td>{{ .quote.ClockInfo.Clock }}</td></tr>
      <tr><td><b>Reset Count</b></td><td>{{ .quote.ClockInfo.ResetCount }}</td></tr>
      <tr><td><b>Restart Count</b></td><td>{{ .quote.ClockInfo.RestartCount }}</td></tr>
      <tr><td><b>Safe</b></td><td>
-        {{ if eq .quote.ClockInfo.Safe 1.0 }}
+        {{ if .quote.ClockInfo.Safe}}
             <span class="badge bg-success">Safe ({{ .quote.ClockInfo.Safe }})</span>
         {{ else }}
             <span class="badge bg-danger">Unsafe ({{ .quote.ClockInfo.Safe }})</span>        
         {{ end }}
     </td></tr>
     
-     <tr><td><b>Qualified Signer</b></td><td><span class="badge bg-primary">{{ tcgHash .quote.QualifiedSigner.Digest.Alg }}</span> {{ .quote.QualifiedSigner.Digest.Value }}</td></tr>
+     <tr><td><b>Qualified Signer</b></td><td><span class="badge bg-primary">{{ .quote.QualifiedSigner.Digest.Alg }}</span> {{ .quote.QualifiedSigner.Digest.Value }}</td></tr>
  
 
-     <tr><td><b>Signing Algorithm</b></td><td>{{ tcgAlg .signature.Alg }}</td></tr>
-      {{ if eq .signature.Alg 20.0 }}
-         <tr><td><b>RSA</b></td><td><span class="badge bg-primary">{{ tcgHash .signature.RSA.HashAlg }}</span> {{ .signature.RSA.Signature }}</td></tr>
+     <tr><td><b>Signing Algorithm</b></td><td>{{ tcgAlg  .signature.Alg }}</td></tr>
+      {{ if eq .signature.Alg 20 }}
+         <tr><td><b>RSA</b></td><td><span class="badge bg-primary">{{ tcgAlg .signature.RSA.HashAlg }}</span> {{ .signature.RSA.Signature }}</td></tr>
       {{ else }}
-         <tr><td><b>ECC</b></td><td><span class="badge bg-primary">{{ tcgHash .signature.ECC.HashAlg }}</span> {{ .signature.ECC.Sígnature }}</td></tr>
+         <tr><td><b>ECC</b></td><td><span class="badge bg-primary">{{ tcgAlg .signature.ECC.HashAlg }}</span> {{ .signature.ECC.Signature }}</td></tr>
       {{ end }}
   
 
