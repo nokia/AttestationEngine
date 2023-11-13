@@ -1,13 +1,17 @@
 package tpm2rules
 
 import (
+	"bytes"
 	"encoding/base64"
 	"encoding/hex"
 	"fmt"
+	"reflect"
 
 	"a10/structures"
 
 	"a10/utilities"
+
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func Registration() []structures.Rule {
@@ -17,8 +21,9 @@ func Registration() []structures.Rule {
 	ruleMagic := structures.Rule{"tpm2_magicNumber", "Checks the quote magic number is 0xFF544347", MagicNumberRule, false}
 	ruleIsSafe := structures.Rule{"tpm2_safe", "Checks that the value of safe is 1", IsSafe, false}
 	ruleValidSignature := structures.Rule{"tpm2_validSignature", "Checks that the signature of rule is valid against the signing attestation key", ValidSignature, false}
+	ruleValidNonce := structures.Rule{"tpm2_validNonce", "Checks that nonce used for the claim matches the nonce in the quote", ValidNonce, false}
 
-	return []structures.Rule{ruleFirmware, ruleMagic, attestedPCRDigest, ruleIsSafe, ruleValidSignature}
+	return []structures.Rule{ruleFirmware, ruleMagic, attestedPCRDigest, ruleIsSafe, ruleValidSignature, ruleValidNonce}
 }
 
 func IsSafe(claim structures.Claim, rule string, ev structures.ExpectedValue, session structures.Session, parameter map[string]interface{}) (structures.ResultValue, string, error) {
@@ -107,6 +112,29 @@ func ValidSignature(claim structures.Claim, rule string, ev structures.ExpectedV
 	}
 
 	return structures.Success, "Quote was validated successfully", nil
+}
+
+func ValidNonce(claim structures.Claim, rule string, ev structures.ExpectedValue, session structures.Session, parameter map[string]interface{}) (structures.ResultValue, string, error) {
+	quote, err := getQuote(claim)
+	if err != nil {
+		return structures.Fail, "Parsing TPM quote failed", err
+	}
+	quoteNonceBytes := quote.Data.ExtraData.Buffer
+
+	claimNonceValue, ok := claim.Header.CallParameters["tpm2/nonce"]
+	if !ok {
+		return structures.RuleCallFailure, "claim has no nonce", nil
+	}
+	claimNonceBytes, ok := claimNonceValue.(primitive.Binary)
+	if !ok {
+		return structures.RuleCallFailure, fmt.Sprintf("Nonce is not of type Binary. It is: %s", reflect.TypeOf(claimNonceValue)), nil
+	}
+
+	if !bytes.Equal(quoteNonceBytes, claimNonceBytes.Data) {
+		return structures.Fail, fmt.Sprintf("Nonce are not matching, got: \"%s\", expected: \"%s\"", hex.EncodeToString(quoteNonceBytes), hex.EncodeToString(claimNonceBytes.Data)), nil
+	}
+
+	return structures.Success, "nonce matches", nil
 }
 
 // Constructs AttestableData struct with signature
