@@ -3,6 +3,7 @@
 package tpm2
 
 import (
+	"encoding/base64"
 	"encoding/hex"
 	"fmt"
 	"net/http"
@@ -128,6 +129,12 @@ func Quote(c echo.Context) error {
 	// If none then one will be generated
 	nonce := params["tpm2/nonce"].(string)
 
+	nonceBytes, err := base64.StdEncoding.DecodeString(nonce)
+	if err != nil {
+		rtn := tpm2taErrorReturn{fmt.Sprintf("Could not base64 decode nonce", err.Error())}
+		return c.JSON(http.StatusInternalServerError, rtn)
+	}
+
 	// Here we parse the akhandle
 	// This is a bit ugly but...that's the way go does things
 	// Strip the 0x, parse it as a Uint in base 16 with size 32 - returns a unit64, convert to a uint32 and then create the TPM handle
@@ -163,8 +170,8 @@ func Quote(c echo.Context) error {
 		rwc,
 		handle,
 		"",
-		nonce,
-		nil,
+		"",
+		nonceBytes,
 		tpm2.PCRSelection{pcrbank, pcrsel},
 		tpm2.AlgNull)
 
