@@ -41,14 +41,23 @@ func checkRuleObjectExists(rule structures.Rule) (structures.ResultValue, string
 func getEV(claim structures.Claim, rule structures.Rule) (structures.ExpectedValue, error) {
 	fmt.Println("Step 2 - getting EV")
 
+
 	// if the rule does need an EV, then we get it and return whatever comes back
 	// if err is not nil then there was some error, usualy no EV for that E,P pair
 	// but it could be something worse, eg: datalayer failure, but this is unlikely
+
+	fmt.Println("  Rule needs EV is %v",rule.NeedsEV)
+
 	if rule.NeedsEV == true {
 		e := claim.Header.Element.ItemID
 		p := claim.Header.Policy.ItemID
 		
+		fmt.Println("    e = %v",claim.Header.Element.ItemID)
+		fmt.Println("    p = %v",claim.Header.Policy.ItemID)
+		
 		ev,err := GetExpectedValueByElementAndPolicy(e,p)
+
+		fmt.Println("  GET EV error=%v,  ev=%v",err,ev)
 
 		return ev,err 
 	}
