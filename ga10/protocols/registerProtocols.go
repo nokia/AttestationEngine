@@ -7,6 +7,8 @@ import (
 	"a10/protocols/nullprotocol"
 	"a10/protocols/netconfprotocol"
 
+	"a10/protocols/testcontainerprotocol"
+
 )
 
 
@@ -14,5 +16,6 @@ func RegisterProtocols() {
 	operations.AddProtocol(a10httprestv2.Registration())
 	operations.AddProtocol(nullprotocol.Registration())
 	operations.AddProtocol(netconfprotocol.Registration())
+	operations.AddProtocol(testcontainerprotocol.Registration())
 
 }
