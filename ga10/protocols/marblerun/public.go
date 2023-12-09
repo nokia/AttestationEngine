@@ -16,10 +16,11 @@ const (
 	quoteIntent     string = "marblerun/quote"
 	manifestIntent         = "marblerun/manifest"
 	updateLogIntent        = "marblerun/updatelogs"
+	null                   = "marblerun/null"
 )
 
 func Registration() structures.Protocol {
-	intents := []string{quoteIntent, updateLogIntent, manifestIntent}
+	intents := []string{quoteIntent, updateLogIntent, manifestIntent, null}
 
 	return structures.Protocol{"A10MARBLERUNPROTOCOL", "Protocol to generate quote from MarbleRun", Call, intents}
 }
@@ -76,6 +77,10 @@ func coordinatorTLSConfig(certs []string) (*tls.Config, error) {
 func requestFromMarbleRun(e structures.Element, p structures.Policy, s structures.Session, cps map[string]interface{}) (map[string]interface{}, map[string]interface{}, error) {
 	var empty map[string]interface{} = make(map[string]interface{}) // this is an  *instantiated* empty map used for error situations
 	var bodymap map[string]interface{}                              // this is used to store the result of the final unmarshalling  of the body received from the TA
+
+	if p.Intent == null {
+		return empty, cps, nil
+	}
 
 	suffix := ""
 	if p.Intent == quoteIntent {

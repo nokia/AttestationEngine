@@ -1,15 +1,19 @@
 package marblerun
 
 import (
+	"a10/operations"
 	"a10/structures"
 	"bytes"
+	"crypto/ecdsa"
 	"crypto/sha256"
+	"crypto/x509"
 	"encoding/base64"
 	"encoding/binary"
 	"encoding/hex"
 	"encoding/json"
 	"encoding/pem"
 	"fmt"
+	"log"
 
 	"github.com/edgelesssys/ego/attestation/tcbstatus"
 	"github.com/edgelesssys/ego/eclient"
@@ -21,8 +25,9 @@ func Registration() []structures.Rule {
 	validateInfrastructure := structures.Rule{"marblerun_infrastructure", "Validates if a infrastructure is deployed on the coordinator", ValidateInfrastructure, true}
 	validatePackage := structures.Rule{"marblerun_package", "Validate Package in manifest", ValidatePackage, true}
 	validateMarble := structures.Rule{"marblerun_marble", "Validate Marble in manifest", ValidateMarble, true}
+	validateMarbleInstance := structures.Rule{"marblerun_marbleinstance", "Validate if identity of instance is valid", ValidateMarbleInstance, false}
 
-	return []structures.Rule{validateCoordinator, validateInfrastructure, validatePackage, validateMarble}
+	return []structures.Rule{validateCoordinator, validateInfrastructure, validatePackage, validateMarble, validateMarbleInstance}
 }
 
 func ValidateCoordinator(claim structures.Claim, rule string, ev structures.ExpectedValue, session structures.Session, parameter map[string]interface{}) (structures.ResultValue, string, error) {
@@ -274,7 +279,7 @@ func ValidateMarble(claim structures.Claim, rule string, ev structures.ExpectedV
 	res := make(map[string]interface{})
 	res["message"] = "found marble in manifest"
 	// Return the package to easily attest it next
-	res["result"] = marbleRunMarbleEV.Package
+	res["package"] = marbleRunMarbleEV.Package
 
 	result, err := json.Marshal(res)
 	if err != nil {
@@ -282,4 +287,119 @@ func ValidateMarble(claim structures.Claim, rule string, ev structures.ExpectedV
 	}
 
 	return structures.Success, string(result), nil
+}
+
+type MarbleInstanceResult struct {
+	Marble         string
+	Infrastructure string
+	UUID           string
+	CertSignature  string
+}
+
+type RequestData struct {
+	Nonce       string // base64 encoded
+	Certificate string // base64 encoded ASN1 format
+}
+
+func ValidateMarbleInstance(claim structures.Claim, rule string, _ structures.ExpectedValue, session structures.Session, parameter map[string]interface{}) (structures.ResultValue, string, error) {
+	element := claim.Header.Element
+
+	coordinatorIDRaw, ok := claim.Header.Policy.Parameters["coordinatorID"]
+	if !ok {
+		return structures.RuleCallFailure, "coordinator id is missing a a parameter", nil
+	}
+	coordinatorID := coordinatorIDRaw.(string)
+
+	coordinator, err := operations.GetElementByItemID(coordinatorID)
+	if err != nil {
+		return structures.Fail, "couldn't find coordinator element", nil
+	}
+
+	var requestData RequestData
+	err = json.Unmarshal([]byte(element.MRMarbleInstance.RequestData), &requestData)
+	if err != nil {
+		return structures.Fail, "couldn't unmarshal request data", nil
+	}
+
+	// check if the request is actually signed with the certificate provided
+	log.Println("cert encoded", requestData.Certificate)
+	decodedCert, err := base64.StdEncoding.DecodeString(requestData.Certificate)
+	if err != nil {
+		return structures.Fail, "couldn't decode cert", nil
+	}
+
+	cert, err := x509.ParseCertificate(decodedCert)
+	if err != nil {
+		log.Println("Parse cert error", err)
+		return structures.Fail, "couldn't parse cert", nil
+	}
+
+	// Check signature
+	dataHash := sha256.Sum256([]byte(element.MRMarbleInstance.RequestData))
+
+	signature, err := base64.StdEncoding.DecodeString(element.MRMarbleInstance.RequestSignature)
+	if err != nil {
+		return structures.Fail, "couldn't decode signature", nil
+	}
+
+	if !ecdsa.VerifyASN1(cert.PublicKey.(*ecdsa.PublicKey), dataHash[:], signature) {
+		return structures.Fail, "signature does not match request data", nil
+	}
+
+	// Check if cert was issued from coordinator
+	if len(coordinator.MRCoordinator.Certs) != 2 {
+		return structures.Fail, "coordinator no or too many certs, expected only root and intermediate", nil
+	}
+
+	var parsedCerts []*x509.Certificate
+	for _, cert := range coordinator.MRCoordinator.Certs {
+		block, rest := pem.Decode([]byte(cert))
+		if len(rest) != 0 {
+			return structures.Fail, "expected only one certificate in each entry", nil
+		}
+		parsedCert, err := x509.ParseCertificate(block.Bytes)
+		if err != nil {
+			return structures.Fail, "failed to parse certificate", nil
+		}
+		parsedCerts = append(parsedCerts, parsedCert)
+	}
+
+	// intermediate cert
+	iPool := x509.NewCertPool()
+	iPool.AddCert(parsedCerts[0])
+	// root cert
+	rPool := x509.NewCertPool()
+	rPool.AddCert(parsedCerts[1])
+
+	opts := x509.VerifyOptions{
+		Roots:         iPool,
+		Intermediates: iPool,
+	}
+
+	if cert.Subject.CommonName != element.Name {
+		return structures.Fail, "UUID does not match name in NAE", err
+	}
+
+	if _, err := cert.Verify(opts); err != nil {
+		return structures.Fail, "validation of the certificate failed", err
+	}
+
+	// Check nonces (directly compare the base64 values)
+	if requestData.Nonce != element.MRMarbleInstance.ExpectedNonce {
+		return structures.Fail, "nonces do not match", nil
+	}
+
+	// extract information about the instance from the cert
+	result := MarbleInstanceResult{
+		Marble:         cert.Subject.Country[0],
+		UUID:           cert.Subject.CommonName,
+		Infrastructure: cert.Subject.Locality[0],
+		CertSignature:  string(cert.Signature),
+	}
+
+	resultStr, err := json.Marshal(result)
+	if err != nil {
+		return structures.Fail, "couldn't marshall result", nil
+	}
+	return structures.Success, string(resultStr), nil
 }

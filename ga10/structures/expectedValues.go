@@ -132,57 +132,37 @@ func (e *MarbleRunCoordinatorEV) Decode(ev ExpectedValue) error {
 
 func (e *MarbleRunPackageEV) Decode(ev ExpectedValue) error {
 	properties := ev.EVS["package"].(map[string]interface{})
-	nameRaw, ok := properties["Name"]
-	if !ok {
-		return fmt.Errorf("Name is missing in EV")
+	if value, ok := properties["Name"]; ok {
+		e.Name = value.(string)
 	}
 
-	name := nameRaw.(string)
-
-	SecurityVersionRaw, ok := properties["SecurityVersion"]
-	if !ok {
-		return fmt.Errorf("SecurityVersion is missing in EV")
-	}
-	SecurityVersion := uint(SecurityVersionRaw.(float64))
-
-	UniqueIDS, ok_unique := properties["UniqueID"]
-	SignerIDS, ok_signer := properties["SignerID"]
-	if !ok_signer && !ok_unique {
-		return fmt.Errorf("UniqueID or SignerID need to be specified")
+	if value, ok := properties["SecurityVersion"]; ok {
+		e.SecurityVersion = uint(value.(float64))
 	}
 
-	var UniqueID []byte
-	var err error
-	if ok_unique {
-		UniqueID, err = hex.DecodeString(UniqueIDS.(string))
+	if value, ok := properties["UniqueID"]; ok {
+		UniqueID, err := hex.DecodeString(value.(string))
 		if err != nil {
 			return fmt.Errorf("UniqueID decode failed")
 		}
+		e.UniqueID = UniqueID
 	}
 
-	var SignerID []byte
-	SignerID, err = hex.DecodeString(SignerIDS.(string))
-	if err != nil {
-		return fmt.Errorf("UniqueID decode failed")
+	if value, ok := properties["SignerID"]; ok {
+		SignerID, err := hex.DecodeString(value.(string))
+		if err != nil {
+			return fmt.Errorf("SignerID decode failed")
+		}
+		e.SignerID = SignerID
 	}
 
-	ProductIDRaw, ok := properties["ProductID"]
-	if !ok {
-		return fmt.Errorf("ProductID is missing")
-	}
-	ProductID := uint16(ProductIDRaw.(float64))
-	DebugRaw, ok := properties["Debug"]
-	Debug := false
-	if ok {
-		Debug = DebugRaw.(bool)
+	if value, ok := properties["ProductID"]; ok {
+		e.ProductID = uint16(value.(float64))
 	}
 
-	e.Name = name
-	e.SecurityVersion = SecurityVersion
-	e.UniqueID = UniqueID
-	e.ProductID = ProductID
-	e.SignerID = SignerID
-	e.Debug = Debug
+	if value, ok := properties["Debug"]; ok {
+		e.Debug = value.(bool)
+	}
 
 	return nil
 }
