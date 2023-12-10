@@ -7,6 +7,7 @@ import (
 	"a10/protocols/marblerun"
 	"a10/protocols/netconfprotocol"
 	"a10/protocols/nullprotocol"
+	"a10/protocols/testcontainerprotocol"
 )
 
 func RegisterProtocols() {
@@ -14,4 +15,5 @@ func RegisterProtocols() {
 	operations.AddProtocol(nullprotocol.Registration())
 	operations.AddProtocol(netconfprotocol.Registration())
 	operations.AddProtocol(marblerun.Registration())
+	operations.AddProtocol(testcontainerprotocol.Registration())
 }

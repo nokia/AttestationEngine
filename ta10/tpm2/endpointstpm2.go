@@ -63,10 +63,13 @@ func PCRs(c echo.Context) error {
 	// Here we parse the tpm2 device
 	// We have a default of /dev/tpm0
 	tpm2device := params["tpm2/device"].(string)
+	fmt.Printf("TPM2Device is %v \n",tpm2device)
 
 	rwc, err := OpenTPM(tpm2device)
 	if err != nil {
 		rtn := tpm2taErrorReturn{fmt.Sprintf("no TPM %w", err.Error())}
+		fmt.Printf("no TPM ERROR is %v \n",err.Error() )
+
 		return c.JSON(http.StatusInternalServerError, rtn)
 	}
 	defer rwc.Close()
