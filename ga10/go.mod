@@ -12,7 +12,10 @@ require (
 	gopkg.in/yaml.v3 v3.0.1
 )
 
+require gopkg.in/square/go-jose.v2 v2.6.0 // indirect
+
 require (
+	github.com/edgelesssys/ego v1.4.1
 	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/go-tpm v0.9.0
