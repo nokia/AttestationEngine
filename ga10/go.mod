@@ -12,6 +12,7 @@ require (
 	gopkg.in/yaml.v3 v3.0.1
 )
 
+require github.com/miekg/pkcs11 v1.1.1
 require gopkg.in/square/go-jose.v2 v2.6.0 // indirect
 
 require (
