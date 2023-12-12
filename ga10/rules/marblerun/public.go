@@ -140,8 +140,12 @@ func getManifest(claim structures.Claim) (map[string]map[string]interface{}, err
 }
 
 func ValidateInfrastructure(claim structures.Claim, rule string, ev structures.ExpectedValue, session structures.Session, parameter map[string]interface{}) (structures.ResultValue, string, error) {
+	infName, ok := parameter["infrastructure"]
+	if !ok {
+		return structures.MissingExpectedValue, "expected values could not be extracted", nil
+	}
 	var marbleRunInfrastructureEV structures.MarbleRunInfrastructureEV
-	err := marbleRunInfrastructureEV.Decode(ev)
+	err := marbleRunInfrastructureEV.Decode(ev, infName.(string))
 	if err != nil {
 		return structures.MissingExpectedValue, "expected values could not be extracted", err
 	}
@@ -156,31 +160,34 @@ func ValidateInfrastructure(claim structures.Claim, rule string, ev structures.E
 		return structures.Fail, "Could not find Infrastructures", nil
 	}
 
-	found := false
-	for name, data := range infrastructures {
-		dataMap := data.(map[string]interface{})
-		entry := structures.MarbleRunInfrastructureEV{
-			Name:   name,
-			UEID:   dataMap["UEID"].(string),
-			CPUSVN: dataMap["CPUSVN"].(string),
-			PCESVN: dataMap["PCESVN"].(string),
-			RootCA: dataMap["RootCA"].(string),
-		}
-		if entry.Equal(marbleRunInfrastructureEV) {
-			found = true
-		}
-	}
-
-	if !found {
+	infInManifest, ok := infrastructures[infName.(string)]
+	if !ok {
 		return structures.Fail, "could not find infrastructure configured on coordinator", nil
 	}
 
-	return structures.Success, fmt.Sprintf("Infrastructure %s is deployed at the coordinator", marbleRunInfrastructureEV.Name), nil
+	dataMap := infInManifest.(map[string]interface{})
+	entry := structures.MarbleRunInfrastructureEV{
+		UEID:   dataMap["UEID"].(string),
+		CPUSVN: dataMap["CPUSVN"].(string),
+		PCESVN: dataMap["PCESVN"].(string),
+		RootCA: dataMap["RootCA"].(string),
+	}
+
+	if !entry.Equal(marbleRunInfrastructureEV) {
+		return structures.Fail, "Infrastructure does not match EV", nil
+	}
+
+	return structures.Success, fmt.Sprintf("Infrastructure %s is deployed at the coordinator", infName.(string)), nil
 }
 
 func ValidatePackage(claim structures.Claim, rule string, ev structures.ExpectedValue, session structures.Session, parameter map[string]interface{}) (structures.ResultValue, string, error) {
+	pkgName, ok := parameter["package"]
+	if !ok {
+		return structures.MissingExpectedValue, "expected values could not be extracted", nil
+	}
+
 	var marbleRunPackageEV structures.MarbleRunPackageEV
-	err := marbleRunPackageEV.Decode(ev)
+	err := marbleRunPackageEV.Decode(ev, pkgName.(string))
 	if err != nil {
 		return structures.MissingExpectedValue, "expected values could not be extracted", err
 	}
@@ -195,56 +202,59 @@ func ValidatePackage(claim structures.Claim, rule string, ev structures.Expected
 		return structures.Fail, "Could not find Packages", nil
 	}
 
-	found := false
-	for name, data := range packages {
-		dataMap := data.(map[string]interface{})
+	packageInManifest, ok := packages[pkgName.(string)]
+	if !ok {
+		return structures.Fail, "Could not find package", nil
+	}
 
-		var UniqueID []byte
+	dataMap := packageInManifest.(map[string]interface{})
 
-		if val, ok := dataMap["UniqueID"]; ok {
-			UniqueID, err = hex.DecodeString(val.(string))
-			if err != nil {
-				return structures.Fail, "UniqueID decode failed", nil
-			}
-		}
+	var UniqueID []byte
 
-		var SignerID []byte
-		if val, ok := dataMap["SignerID"]; ok {
-			SignerID, err = hex.DecodeString(val.(string))
-			if err != nil {
-				return structures.Fail, "SignerID decode failed", nil
-			}
-		}
-
-		ProductID := uint16(dataMap["ProductID"].(float64))
-		SecurityVersion := uint(dataMap["SecurityVersion"].(float64))
-
-		Debug := dataMap["Debug"].(bool)
-
-		entry := structures.MarbleRunPackageEV{
-			Name:            name,
-			SecurityVersion: SecurityVersion,
-			UniqueID:        UniqueID,
-			ProductID:       ProductID,
-			SignerID:        SignerID,
-			Debug:           Debug,
-		}
-
-		if entry.Equal(marbleRunPackageEV) {
-			found = true
+	if val, ok := dataMap["UniqueID"]; ok {
+		UniqueID, err = hex.DecodeString(val.(string))
+		if err != nil {
+			return structures.Fail, "UniqueID decode failed", nil
 		}
 	}
 
-	if !found {
-		return structures.Fail, fmt.Sprintf("could not find package %s in manifest", marbleRunPackageEV.Name), nil
+	var SignerID []byte
+	if val, ok := dataMap["SignerID"]; ok {
+		SignerID, err = hex.DecodeString(val.(string))
+		if err != nil {
+			return structures.Fail, "SignerID decode failed", nil
+		}
+	}
+
+	ProductID := uint16(dataMap["ProductID"].(float64))
+	SecurityVersion := uint(dataMap["SecurityVersion"].(float64))
+
+	Debug := dataMap["Debug"].(bool)
+
+	entry := structures.MarbleRunPackageEV{
+		SecurityVersion: SecurityVersion,
+		UniqueID:        UniqueID,
+		ProductID:       ProductID,
+		SignerID:        SignerID,
+		Debug:           Debug,
+	}
+
+	if !entry.Equal(marbleRunPackageEV) {
+		return structures.Fail, fmt.Sprintf("Packages are not equal"), nil
 	}
 
 	return structures.Success, "found package in manifest", nil
 }
 
 func ValidateMarble(claim structures.Claim, rule string, ev structures.ExpectedValue, session structures.Session, parameter map[string]interface{}) (structures.ResultValue, string, error) {
+	log.Printf("parameters", parameter)
+	marbleName, ok := parameter["marble"]
+	if !ok {
+		return structures.MissingExpectedValue, "No marble specified in parameter", nil
+	}
+
 	var marbleRunMarbleEV structures.MarbleRunMarbleEV
-	err := marbleRunMarbleEV.Decode(ev)
+	err := marbleRunMarbleEV.Decode(ev, marbleName.(string))
 	if err != nil {
 		return structures.MissingExpectedValue, "expected values could not be extracted", err
 	}
@@ -263,17 +273,16 @@ func ValidateMarble(claim structures.Claim, rule string, ev structures.ExpectedV
 	for name, data := range marbles {
 		dataMap := data.(map[string]interface{})
 		entry := structures.MarbleRunMarbleEV{
-			Name:    name,
 			Package: dataMap["Package"].(string),
 		}
 
-		if entry.Equal(marbleRunMarbleEV) {
+		if name == marbleName.(string) && entry.Equal(marbleRunMarbleEV) {
 			found = true
 		}
 	}
 
 	if !found {
-		return structures.Fail, fmt.Sprintf("could not find marble %s in manifest", marbleRunMarbleEV.Name), nil
+		return structures.Fail, fmt.Sprintf("could not find marble %s in manifest", marbleName.(string)), nil
 	}
 
 	res := make(map[string]interface{})
