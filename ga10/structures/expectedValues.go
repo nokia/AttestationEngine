@@ -28,7 +28,6 @@ type MarbleRunCoordinatorEV struct {
 }
 
 type MarbleRunPackageEV struct {
-	Name            string
 	SecurityVersion uint
 	UniqueID        []byte
 	SignerID        []byte
@@ -37,13 +36,11 @@ type MarbleRunPackageEV struct {
 }
 
 type MarbleRunMarbleEV struct {
-	Name    string
 	Package string
 	// TODO this is currently missing the other fields, but for a PoC fine for now
 }
 
 type MarbleRunInfrastructureEV struct {
-	Name   string `json:"name"`
 	UEID   string `json:"ueid"`
 	CPUSVN string `json:"cpusvn"`
 	PCESVN string `json:"pcesvn"`
@@ -51,17 +48,20 @@ type MarbleRunInfrastructureEV struct {
 }
 
 func (e *MarbleRunInfrastructureEV) Equal(other MarbleRunInfrastructureEV) bool {
-	return e.Name == other.Name &&
-		e.UEID == other.UEID &&
+	return e.UEID == other.UEID &&
 		e.CPUSVN == other.CPUSVN &&
 		e.PCESVN == other.PCESVN &&
 		e.RootCA == other.RootCA
 }
 
-func (e *MarbleRunInfrastructureEV) Decode(ev ExpectedValue) error {
-	properties := ev.EVS["infrastructure"].(map[string]interface{})
+func (e *MarbleRunInfrastructureEV) Decode(ev ExpectedValue, name string) error {
+	properties := ev.EVS["Infrastructures"].(map[string]interface{})
 	// TODO replace this hack
-	s, err := json.Marshal(properties)
+	inf, ok := properties[name]
+	if !ok {
+		return fmt.Errorf("Not in EV")
+	}
+	s, err := json.Marshal(inf)
 	if err != nil {
 		return err
 	}
@@ -130,17 +130,21 @@ func (e *MarbleRunCoordinatorEV) Decode(ev ExpectedValue) error {
 	return nil
 }
 
-func (e *MarbleRunPackageEV) Decode(ev ExpectedValue) error {
-	properties := ev.EVS["package"].(map[string]interface{})
-	if value, ok := properties["Name"]; ok {
-		e.Name = value.(string)
+func (e *MarbleRunPackageEV) Decode(ev ExpectedValue, name string) error {
+	properties := ev.EVS["Packages"].(map[string]interface{})
+
+	pkg, ok := properties[name]
+	if !ok {
+		return fmt.Errorf("Not in EV")
 	}
 
-	if value, ok := properties["SecurityVersion"]; ok {
+	pkgMap := pkg.(map[string]interface{})
+
+	if value, ok := pkgMap["SecurityVersion"]; ok {
 		e.SecurityVersion = uint(value.(float64))
 	}
 
-	if value, ok := properties["UniqueID"]; ok {
+	if value, ok := pkgMap["UniqueID"]; ok {
 		UniqueID, err := hex.DecodeString(value.(string))
 		if err != nil {
 			return fmt.Errorf("UniqueID decode failed")
@@ -148,7 +152,7 @@ func (e *MarbleRunPackageEV) Decode(ev ExpectedValue) error {
 		e.UniqueID = UniqueID
 	}
 
-	if value, ok := properties["SignerID"]; ok {
+	if value, ok := pkgMap["SignerID"]; ok {
 		SignerID, err := hex.DecodeString(value.(string))
 		if err != nil {
 			return fmt.Errorf("SignerID decode failed")
@@ -156,11 +160,11 @@ func (e *MarbleRunPackageEV) Decode(ev ExpectedValue) error {
 		e.SignerID = SignerID
 	}
 
-	if value, ok := properties["ProductID"]; ok {
+	if value, ok := pkgMap["ProductID"]; ok {
 		e.ProductID = uint16(value.(float64))
 	}
 
-	if value, ok := properties["Debug"]; ok {
+	if value, ok := pkgMap["Debug"]; ok {
 		e.Debug = value.(bool)
 	}
 
@@ -168,34 +172,32 @@ func (e *MarbleRunPackageEV) Decode(ev ExpectedValue) error {
 }
 
 func (e *MarbleRunPackageEV) Equal(other MarbleRunPackageEV) bool {
-	return e.Name == other.Name &&
-		e.SecurityVersion == other.SecurityVersion &&
+	return e.SecurityVersion == other.SecurityVersion &&
 		bytes.Equal(e.UniqueID, other.UniqueID) &&
 		bytes.Equal(e.SignerID, other.SignerID) &&
 		e.Debug == other.Debug
 }
 
-func (e *MarbleRunMarbleEV) Decode(ev ExpectedValue) error {
-	properties := ev.EVS["marble"].(map[string]interface{})
-	nameRaw, ok := properties["Name"]
-	if !ok {
-		return fmt.Errorf("Name is missing in EV")
-	}
-	name := nameRaw.(string)
+func (e *MarbleRunMarbleEV) Decode(ev ExpectedValue, name string) error {
+	properties := ev.EVS["Marbles"].(map[string]interface{})
 
-	packageRaw, ok := properties["Package"]
+	marble, ok := properties[name]
+	if !ok {
+		return fmt.Errorf("Not in EV")
+	}
+	marbleMap := marble.(map[string]interface{})
+
+	packageRaw, ok := marbleMap["Package"]
 	if !ok {
 		return fmt.Errorf("Package is missing in EV")
 	}
 	packageStr := packageRaw.(string)
 
-	e.Name = name
 	e.Package = packageStr
 
 	return nil
 }
 
 func (e *MarbleRunMarbleEV) Equal(other MarbleRunMarbleEV) bool {
-	return e.Name == other.Name &&
-		e.Package == other.Package
+	return e.Package == other.Package
 }
