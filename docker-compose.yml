@@ -1,0 +1,26 @@
+version: '3.8'
+services:
+  mongodb:
+    image: mongo:6-jammy
+    volumes:
+      - db:/data/db
+  messagebus:
+    image: "eclipse-mosquitto"
+    volumes:
+      - ./configs-docker/mosquitto.conf:/mosquitto/config/mosquitto.conf 
+  ga10:
+    build:
+      context: ./ga10
+      dockerfile: Dockerfile
+    entrypoint: /ga10 --config=/config.yaml
+    ports:
+      - 8520:8520
+      - 8540:8540
+      - 3270:3270
+    volumes:
+      - ./configs-docker/config.yaml:/config.yaml
+      - ./ga10/temporary.crt:/temporary.crt
+      - ./ga10/temporary.key:/temporary.key
+      - ./configs-docker/sgx_default_qcnl.conf:/etc/sgx_default_qcnl.conf
+volumes:
+  db:

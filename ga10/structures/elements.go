@@ -8,11 +8,13 @@ type Element struct {
 	Protocol    string   `json:"protocol",bson:"protocol"`
 	Tags        []string `json:"tags",bson:"tags"`
 
-	Sshkey SSHKEY `json:"sshkey,omitempty",bson:"sshkey,omitempty"`
-	TPM2   TPM2   `json:"tpm2,omitempty",bson:"tpm2,omitempty"`
-	UEFI   UEFI   `json:"uefi,omitempty",bson:"uefi,omitempty"`
-	IMA    IMA    `json:"ima,omitempty",bson:"ima,omitempty"`
-	TXT    TXT    `json:"txt,omitempty",bson:"txt,omitempty"`
+	Sshkey           SSHKEY           `json:"sshkey,omitempty",bson:"sshkey,omitempty"`
+	TPM2             TPM2             `json:"tpm2,omitempty",bson:"tpm2,omitempty"`
+	UEFI             UEFI             `json:"uefi,omitempty",bson:"uefi,omitempty"`
+	IMA              IMA              `json:"ima,omitempty",bson:"ima,omitempty"`
+	TXT              TXT              `json:"txt,omitempty",bson:"txt,omitempty"`
+	MRCoordinator    MRCoordinator    `json:"mrcoordinator,omitempty" bson:"mrcoordinator,omitempty"`
+	MRMarbleInstance MRMarbleInstance `json:"mrmarbleinstance,omitempty" bson:"mrmarbleinstance,omitempty"`
 }
 
 type SSHKEY struct {
@@ -44,4 +46,14 @@ type TPMKey struct {
 	Handle string `json:"handle",bson:"handle"`
 	// Public portion of the key marshalled as TPM2BPublic
 	Public string `json:"public",bson:"public"`
+}
+
+type MRCoordinator struct {
+	Certs []string `json:"certs" bson:"certs"`
+}
+
+type MRMarbleInstance struct {
+	ExpectedNonce    string `json:"expectednonce" bson:"expectednonce"`
+	RequestData      string `json:"requestdata" bson:"requestdata"`
+	RequestSignature string `json:"requestsignature" bson:"requestsignature"`
 }
