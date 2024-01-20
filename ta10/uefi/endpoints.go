@@ -6,14 +6,32 @@ import(
 	"io/ioutil"
 	"encoding/base64"
 
+	"ta10/common"
+
 	"github.com/labstack/echo/v4"
 )
+
+
+const UEFIEVENTLOGLOCATION string = "/sys/kernel/ima/ascii_runtime_measurements"
+
 
 type returnEventLog struct {
 	EventLog    string       `json:"eventlog"`
 	Encoding   string        `json:"encoded"`
 	UnEncodedLength int    `json:"unencodedlength"`
 	EncodedLength int      `json:"encodedlength"`
+}
+
+func GetEventLogLocation(loc string) string {
+	fmt.Printf("UEFI Log requested from %v, unsafe mode is %v, giving: ",loc,utilities.IsUnsafe())
+
+	if utilities.IsUnsafe()==true {
+		fmt.Printf("%v\n",loc)
+		return loc
+	} else {
+		fmt.Printf("%v\n",UEFIEVENTLOGLOCATION)
+		return UEFIEVENTLOGLOCATION
+	}
 }
 
 func Eventlog(c echo.Context) error {
@@ -27,7 +45,7 @@ func Eventlog(c echo.Context) error {
 		return c.JSON(http.StatusUnprocessableEntity, rtnbody)
 	}
 
-	u := fmt.Sprintf("%v",postbody["uefi/eventlog"])
+	u := GetEventLogLocation(fmt.Sprintf("%v",postbody["uefi/eventlog"]))
 	
 	fcontent,err := ioutil.ReadFile(u)
 	if err != nil {

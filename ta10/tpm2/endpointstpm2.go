@@ -74,13 +74,17 @@ func PCRs(c echo.Context) error {
 	}
 	defer rwc.Close()
 
+	fmt.Printf("TPM readwriteio object is %v\n",rwc)
+
 	banks := make(map[string]pcrValue)
 
 	for _, b := range pcrbanks {
 		pcrvs := make(map[int]string)
 
 		for i := 0; i <= 23; i++ {
+			fmt.Printf("Reading back %v, pcr %v --> ",b,i)
 			pcrv, pcre := tpm2.ReadPCR(rwc, i, b)
+			fmt.Printf(" hex %v err %w\n",pcrv,pcre)
 			if pcre == nil {
 				pcrvs[i] = hex.EncodeToString(pcrv)
 			}
