@@ -30,8 +30,6 @@ chmod 400 temporary.key
 openssl req -new -x509 -nodes -sha256 -days 365 -key temporary.key -out temporary.crt
 
 
-To encryption in Go
-levelup.gitconnected.com/a-guide-to-rsa-encryption-in-go-1a18d827f35d
 
 
 To reduce binary size

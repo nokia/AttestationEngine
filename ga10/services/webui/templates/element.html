@@ -132,4 +132,15 @@
     {{ template "txt.html" .E.TXT }}
 {{ end }}
 
+{{ if not .E.Host.Arch }}
+{{ else }}
+   <hr/>
+
+   <h5>Host Information</h5>
+    {{ template "hostinformation.html" .E.Host }}
+{{ end }}
+
+<hr/>
+{{ .E }}
+
 {{end}}

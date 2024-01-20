@@ -13,8 +13,15 @@ type Element struct {
 	UEFI             UEFI             `json:"uefi,omitempty",bson:"uefi,omitempty"`
 	IMA              IMA              `json:"ima,omitempty",bson:"ima,omitempty"`
 	TXT              TXT              `json:"txt,omitempty",bson:"txt,omitempty"`
+	Host			 HostMachine      `json:"host,omitempty",bson:"host,omitempty"`
 	MRCoordinator    MRCoordinator    `json:"mrcoordinator,omitempty" bson:"mrcoordinator,omitempty"`
 	MRMarbleInstance MRMarbleInstance `json:"mrmarbleinstance,omitempty" bson:"mrmarbleinstance,omitempty"`
+}
+
+type HostMachine struct {
+	OS          string `json:"os",bson:"os"`
+	Arch        string `json:"arch",bson:"arch"`	
+	Hostname    string `json:"hostname",bson:"hostname"`
 }
 
 type SSHKEY struct {
