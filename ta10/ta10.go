@@ -26,26 +26,20 @@ var RUNSESSION string = utilities.MakeID()
 
 const PREFIX=""
 
-var flagSYS = *flag.Bool("sys", true, "Expose the sys attestation API")
-var flagTPM = *flag.Bool("tpm", true, "Expose the tpm attesation API")
-var flagUEFI = *flag.Bool("uefi", true, "Expose the uefi attestation API")
-var flagIMA = *flag.Bool("ima", true, "Expose the ima attestation API")
-var flagTXT = *flag.Bool("txt", true, "Expose the txt attestation API")
 
-var flagPort = flag.String("port", "8530", "Run the TA on the given port. Defaults to 8530")
 
 
 
 
 // Provides the standard welcome message to stdout.
-func welcomeMessage() {
+func welcomeMessage(unsafe bool) {
 	fmt.Printf("\n")
 	fmt.Printf("+========================================================================================\n")
 	fmt.Printf("|  TA10 version - Starting\n",)
 	fmt.Printf("|   + %v O/S on %v\n",runtime.GOOS,runtime.GOARCH)
 	fmt.Printf("|   + version %v, build %v\n",VERSION,BUILD)	
 	fmt.Printf("|   + session identifier is %v\n",RUNSESSION)
-	fmt.Printf("|  (C)2023 Nokia\n")	
+	fmt.Printf("|   + unsafe mode? %v\n",unsafe)
 	fmt.Printf("+========================================================================================\n\n")
 }
 
@@ -54,12 +48,26 @@ func exitMessage() {
 	fmt.Printf("+========================================================================================\n")
 	fmt.Printf("|  TA10 version - Exiting\n",)
 	fmt.Printf("|   + session identifier was %v\n",RUNSESSION)
-	fmt.Printf("|  (C)2023 CeffylOpi\n")	
 	fmt.Printf("+========================================================================================\n\n")
 }
 
+func checkUnsafeMode(unsafe bool) {
+	if unsafe==true {
+		utilities.SetUnsafeMode()
+
+		fmt.Printf("\n")
+		fmt.Printf("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n")
+		fmt.Printf("TA10 is running in UNSAFE file access mode.  Unsafe is set to %v\n",utilities.IsUnsafe())
+		fmt.Printf("Requests for log files, eg: UEFI, IMA, that supply a non default location will happily read that file\n")
+		fmt.Printf("This is a HUGE security issue. YOU HAVE BEEN WARNED\n")
+		fmt.Printf("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n")		
+
+	}
+}
+
+
 // This function initialises the system by calling the configuration system to read the configuration
-func init() {
+func initialise() {
 	flag.Parse()
 }
 
@@ -67,7 +75,7 @@ func init() {
 // These configure the rest API
 
 
-func startRESTInterface(sys,tpm,uef,ima,txt bool, p *string ) {
+func startRESTInterface(sys,tpm,uefi,ima,txt bool, p *string ) {
     router := echo.New()
     router.HideBanner = true
    
@@ -82,7 +90,7 @@ func startRESTInterface(sys,tpm,uef,ima,txt bool, p *string ) {
     if sys == true {
     	setupSYSendpoints(router)    
     }
-    if uef == true {
+    if uefi == true {
     	setupUEFIendpoints(router)    
     } 
  	 if ima == true {
@@ -139,7 +147,23 @@ func setupTPM2endpoints(router *echo.Echo) {
 
 // This starts everything...here we "go" :-)
 func main() {
-	welcomeMessage()
-	startRESTInterface(flagSYS, flagTPM, flagUEFI, flagIMA, flagTXT, flagPort )
+	flagSYS := flag.Bool("sys", true, "Expose the sys attestation API")
+ 	flagTPM := flag.Bool("tpm", true, "Expose the tpm attesation API")
+ 	flagUEFI := flag.Bool("uefi", true, "Expose the uefi attestation API")
+ 	flagIMA := flag.Bool("ima", true, "Expose the ima attestation API")
+ 	flagTXT := flag.Bool("txt", true, "Expose the txt attestation API")
+
+ 	flagUNSAFEFILEACCESS := flag.Bool("unsafe", false, "Allow caller to request ANY file instead of the default UEFI and IMA locations. THIS IS UNSAFE!")
+
+ 	flagPort := flag.String("port", "8530", "Run the TA on the given port. Defaults to 8530")	
+
+ 	flag.Parse()
+
+ 	fmt.Printf("\nsys %v, port %v , unsafe %v\n", flagSYS, flagPort, flagUNSAFEFILEACCESS)
+
+	welcomeMessage(*flagUNSAFEFILEACCESS)
+	checkUnsafeMode(*flagUNSAFEFILEACCESS)
+
+	startRESTInterface(*flagSYS, *flagTPM, *flagUEFI, *flagIMA, *flagTXT, flagPort  )
 	exitMessage()
 }
