@@ -1,0 +1,10 @@
+{{define "hostinformation.html"}}
+<table class="table table-sm table-striped">
+   <tbody>
+      <tr><td scope="col">Hostname</th> <td scope="col">{{ .Hostname }}</th> </tr>     
+      <tr><td scope="col">OS / Arch</th> <td scope="col"><span class="badge bg-primary">{{ .OS }}</span>  <span class="badge bg-secondary">{{ .Arch }}</span></th> </tr>     
+   </tbody>
+</table>
+{{end}}
+
+

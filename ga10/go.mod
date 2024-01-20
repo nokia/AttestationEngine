@@ -8,11 +8,12 @@ require (
 	github.com/labstack/echo/v4 v4.11.4
 	github.com/racingmars/go3270 v0.0.0-20231111230320-21f273b327b8
 	go.mongodb.org/mongo-driver v1.13.1
-	golang.org/x/exp v0.0.0-20240112132812-db7319d0e0e3
+	golang.org/x/exp v0.0.0-20240119083558-1b970713d09a
 	gopkg.in/yaml.v3 v3.0.1
 )
 
 require github.com/miekg/pkcs11 v1.1.1
+
 require gopkg.in/square/go-jose.v2 v2.6.0 // indirect
 
 require (

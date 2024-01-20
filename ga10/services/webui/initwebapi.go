@@ -58,6 +58,7 @@ func StartWebUI() {
 		T+"ima.html",
 		T+"tpm2.html",
 		T+"tpm2key.html",
+		T+"hostinformation.html",
 		T+"resultvalue.html"))
 
 	templates["policy.html"] = template.Must(template.ParseFS(WPFS, T+"policy.html", T+"base.html",
