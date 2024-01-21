@@ -7,8 +7,8 @@ StartLimitIntervalSec=0
 Type=simple
 Restart=always
 RestartSec=1
-User=pi
-ExecStart=/usr/local/bin/ta10
+User=root
+ExecStart=/opt/nae/ta10
 
 [Install]
 WantedBy=multi-user.target
