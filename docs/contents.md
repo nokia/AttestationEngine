@@ -2,10 +2,10 @@
 
 ## Basics
 
-   * Compiling
-   * Running
-   * Automated Startup
-   * Security and Running in a Producton Environment
+   * [Compiling](compiling.md)
+   * [Running](running.md)
+   * [Automatic Startup](automaticStartup.md)
+   * [Security and Running in a Producton Environment](security.md)
 
 ## Getting Started
 
@@ -21,6 +21,10 @@
    * Results
    * Sessions
 
+## Evidence
+
+   * Signing
+
 ## Protocols and Trust Agents
 
    * Protocols
@@ -30,3 +34,8 @@
 ## Verification and Rules
 
    * Rules
+
+## Appendicits
+
+   * [History](history.md)
+   * [Publications](publications.md)   
