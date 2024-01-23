@@ -18,6 +18,10 @@ type ExpectedValue struct {
 	EVS map[string]interface{} `json:"evs",bson:"evs"`
 }
 
+type KeylimeMBEV struct {
+	MBRefstate string
+}
+
 type MarbleRunCoordinatorEV struct {
 	SecurityVersion uint
 	UniqueID        []byte
@@ -45,6 +49,12 @@ type MarbleRunInfrastructureEV struct {
 	CPUSVN string `json:"cpusvn"`
 	PCESVN string `json:"pcesvn"`
 	RootCA string `json:"rootca"`
+}
+
+func (e *KeylimeMBEV) Decode(ev ExpectedValue) error {
+	e.MBRefstate = ev.EVS["mb_refstate"].(string)
+
+	return nil
 }
 
 func (e *MarbleRunInfrastructureEV) Equal(other MarbleRunInfrastructureEV) bool {

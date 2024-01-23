@@ -8,6 +8,11 @@ services:
     image: "eclipse-mosquitto"
     volumes:
       - ./configs-docker/mosquitto.conf:/mosquitto/config/mosquitto.conf 
+  keylime:
+    image: keylime_base
+    environment:
+      KEYLIME_VERIFIER_MEASURED_BOOT_POLICY_NAME: "example"
+    entrypoint: ["keylime_validation", "8080"]
   ga10:
     build:
       context: ./ga10
