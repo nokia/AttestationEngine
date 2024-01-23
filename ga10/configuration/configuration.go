@@ -1,11 +1,11 @@
 package configuration
 
-import(
+import (
 	"fmt"
 	"io/ioutil"
 
 	"gopkg.in/yaml.v3"
-)	
+)
 
 // The configuration structure also gives the format of the YAML config file
 //
@@ -17,7 +17,7 @@ import(
 //#MongoDB Configuration
 //database:
 //  connection: mongodb://192.168.1.203:27017   -- connection string for the mongodb
-//  name: test1                                 -- name of the database to use 
+//  name: test1                                 -- name of the database to use
 //
 //#MQTT Configuration
 //messaging:
@@ -33,35 +33,38 @@ import(
 
 type ConfigurationStruct struct {
 	System struct {
-		Name		string   
+		Name string
 	}
 	Database struct {
-		Connection	string 
-		Name		string 
+		Connection string
+		Name       string
 	}
 	Messaging struct {
-		Broker		string  
-		Port		uint16 
-		ClientID	string
+		Broker   string
+		Port     uint16
+		ClientID string
 	}
 	Rest struct {
-		Port        string
-		Crt  		string
-		Key         string
-		UseHTTP		bool
+		Port    string
+		Crt     string
+		Key     string
+		UseHTTP bool
 	}
 	Web struct {
-		Port        string
-		Crt  		string
-		Key         string
-		UseHTTP		bool
-	}	
+		Port    string
+		Crt     string
+		Key     string
+		UseHTTP bool
+	}
 	X3270 struct {
-		Port        string
+		Port string
 	}
 	Logging struct {
-		LogFileLocation			 string
-		SessionUpdateLogging	 bool
+		LogFileLocation      string
+		SessionUpdateLogging bool
+	}
+	Keylime struct {
+		ApiUrl string
 	}
 }
 
@@ -73,15 +76,15 @@ var ConfigData *ConfigurationStruct
 // If the file is unavailable or in unparsable then this function will panic and exit.
 // There is no need to continue if the configuration is borked.
 func SetupConfiguration(f string) {
-	fmt.Println("GA10: Configuration file location: ",f)
+	fmt.Println("GA10: Configuration file location: ", f)
 
 	configFile, err := ioutil.ReadFile(f)
 	if err != nil {
-		panic(fmt.Sprintf("Configuration file missing. Exiting with error ",err))
+		panic(fmt.Sprintf("Configuration file missing. Exiting with error ", err))
 	}
 
-	err = yaml.Unmarshal(configFile,&ConfigData)
+	err = yaml.Unmarshal(configFile, &ConfigData)
 	if err != nil {
-		panic(fmt.Sprintf("Unable to parse configuration file. Exiting with error ",err))
+		panic(fmt.Sprintf("Unable to parse configuration file. Exiting with error ", err))
 	}
 }

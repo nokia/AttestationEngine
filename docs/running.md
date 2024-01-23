@@ -133,9 +133,19 @@ logging:
   sessionupdatelogging: false
 ```
 
+## Using Keylime for Measured Boot evaluation
 
+GA10 supports calling Keylime to validate a Measured Boot log.  For this currently it requires a special version found here: https://github.com/THS-on/keylime/tree/api/standalone-validation
 
-
+The simplest way using it is to build a local Keylime Docker container:
+```
+git clone https://github.com/THS-on/keylime.git
+cd keylime
+git checkout standalone-validation 
+cd docker/release
+./build_locally.sh
+```
+After this GA10 can be used with the included docker-compose.yml file.
 
 # Advanced TA10 - Here be a good way to open your system to every hacker ever
 

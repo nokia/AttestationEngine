@@ -37,3 +37,7 @@ x3270:
 logging:
   logfilelocation: /tmp/ga10.log
   sessionupdatelogging: false
+
+#Keylime
+keylime:
+  apiurl: "http://keylime:8080"
