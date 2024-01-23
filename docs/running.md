@@ -77,7 +77,7 @@ Read the section on advanced TA10 usage.
 
 # GA10 Configuration File
 
-Note the lines with "CHANGE ME":
+Note the lines with "CHANGE ME" - review these for your system.
 
    * The name of the system can set to anything you want.
    * The MQTT client ID must be unique if you indend running more than one instance
@@ -89,6 +89,8 @@ Note the lines with "CHANGE ME":
    * usehttp -- set this to true if you want less#CHANGE ME security
    * X3270 -- don't worry about this, but if you have an X3270 terminal, the TUI might be useful (when we finish it)
    * Logging goes to a default place in /var/log or somewhere suitable on Windows
+
+The lines with "DEFAULT VALUE" most likely do not need to change, but review for your system just in case.
 
 Read the sections on security and keys
 
@@ -105,32 +107,31 @@ database:
 #MQTT Configuration
 messaging:
   broker: 192.168.1.203                             #CHANGE ME
-  port: 1883
+  port: 1883                                        #DEFAULT VALUE
   clientid: attestationMQTTclient                   #CHANGE ME
 
 #REST Interface Configuration
 rest:
-  port: 8520
+  port: 8520                                        #DEFAULT VALUE
   crt: temporary.crt                                #CHANGE ME
   key: temporary.key                                #CHANGE ME
-  usehttp: false                                    #CHANGE ME
+  usehttp: false                                    #DEFAULT VALUE
 
 #Web Interface Configuration
 web:
-  port: 8540
+  port: 8540                                        #DEFAULT VALUE
   crt: temporary.crt                                #CHANGE ME
   key: temporary.key                                #CHANGE ME
-  usehttp: false                                    #CHANGE ME
-
+  usehttp: false                                    #DEFAULT VALUE
 
 #X3270
 x3270:
-  port: 3270
+  port: 3270                                        #DEFAULT VALUE
   
 #Log file
 logging:
-  logfilelocation: /var/log/ga10.log                #CHANGE ME
-  sessionupdatelogging: false
+  logfilelocation: /var/log/ga10.log                #DEFAULT VALUE
+  sessionupdatelogging: false                       #DEFAULT VALUE
 ```
 
 ## Using Keylime for Measured Boot evaluation
@@ -146,6 +147,14 @@ cd docker/release
 ./build_locally.sh
 ```
 After this GA10 can be used with the included docker-compose.yml file.
+
+To include Keylime access add the following section to the `config.yaml` file:
+
+```yaml
+#Keylime
+keylime:
+  apiurl: https://127.0.0.1:30000/keylime                   #CHANGE ME
+```
 
 # Advanced TA10 - Here be a good way to open your system to every hacker ever
 

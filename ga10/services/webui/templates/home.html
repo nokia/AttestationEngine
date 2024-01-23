@@ -113,6 +113,13 @@
                                                                            <span class="badge bg-success">https</span>
                                                                      {{ end }} </td> </tr>   
                     <tr><td scope="col">X3270</td> <td scope="col"><b>:{{ .Cfg.X3270.Port }}</b></td> </tr>  
+                    
+                    <tr><td scope="col">Keylime</td> <td scope="col">
+                                                   {{ if eq .Cfg.Keylime.ApiUrl "" }}
+                                                   <span class="badge bg-warning">Not utilised</span>
+                                                   {{ else }}
+                                                  <b>{{ .Cfg.Keylime.ApiUrl }}</b>
+                                                   {{ end }} </td> </tr>  
 
 
 
