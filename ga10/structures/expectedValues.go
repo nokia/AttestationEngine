@@ -22,6 +22,10 @@ type KeylimeMBEV struct {
 	MBRefstate string
 }
 
+type KeylimeIMAEV struct {
+	RuntimePolicy string
+}
+
 type MarbleRunCoordinatorEV struct {
 	SecurityVersion uint
 	UniqueID        []byte
@@ -53,6 +57,12 @@ type MarbleRunInfrastructureEV struct {
 
 func (e *KeylimeMBEV) Decode(ev ExpectedValue) error {
 	e.MBRefstate = ev.EVS["mb_refstate"].(string)
+
+	return nil
+}
+
+func (e *KeylimeIMAEV) Decode(ev ExpectedValue) error {
+	e.RuntimePolicy = ev.EVS["runtime_policy"].(string)
 
 	return nil
 }
