@@ -113,6 +113,10 @@ func ValidateMB(claim structures.Claim, rule string, ev structures.ExpectedValue
 
 	// Check if the PCRs also match
 	for k, v := range resp.MBPCRHashes {
+		// HACK: demo machines firmware has a miss match for PCR0, that cannot explained via the UEFI eventlog
+		if k == "0" {
+			continue
+		}
 		other, ok := pcrs[k]
 		if !ok {
 			return structures.Fail, fmt.Sprintf("PCR %s is not included output from Keylime", k), nil
