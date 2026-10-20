@@ -1,6 +1,6 @@
 module a10
 
-go 1.20
+go 1.24
 
 require (
 	github.com/eclipse/paho.mqtt.golang v1.4.3
@@ -22,7 +22,7 @@ require (
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/go-tpm v0.9.0
 	github.com/gorilla/websocket v1.5.1 // indirect
-	github.com/klauspost/compress v1.17.4 // indirect
+	github.com/klauspost/compress v1.18.7 // indirect
 	github.com/labstack/gommon v0.4.2 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
 	github.com/mattn/go-isatty v0.0.20 // indirect
